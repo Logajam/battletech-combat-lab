@@ -35,6 +35,8 @@ pub struct HydraState {
     order: HashMap<String, HashMap<UnitId, (f64, f64)>>,
     /// WAITING: per unit, (the turn it last declined battle, how many turns in a row it has)
     waited: HashMap<UnitId, (i64, i64)>,
+    /// C3: per networked Hydra unit, the expected damage of its planned shots this battle (with the network, without)
+    c3_shots: HashMap<UnitId, (f64, f64)>,
 }
 
 impl HydraState {
@@ -58,8 +60,37 @@ pub struct Entry {
     pub unit: UnitId,
     /// damage it can still absorb
     pub life: f64,
-    /// damage a turn it puts out when it has a shot
+    /// damage a turn it puts out when it has a shot (with its C3 network's bonus while the network works)
     pub guns: f64,
+    /// its C3 network, if it is in a working one now (`Net`)
+    pub net: Option<Net>,
+}
+
+/// A unit's C3 network in the ledger (2026-11-21, Daniel: Hydra should think about "how would I program the desired
+/// outcome"). `bonus`: the part of its guns the network gives; `group`: the network (its lowest unit id); `anchor`: the
+/// unit it depends on (a Slave's Master), if any. The Forecast takes the bonus away when the anchor is destroyed or no
+/// partner is left (Core p.198), so a Master is priced for the bonuses its loss would end.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Net {
+    pub bonus: f64,
+    pub group: UnitId,
+    pub anchor: Option<UnitId>,
+    /// the anchor's life undamaged (its life now is in its own entry)
+    pub anchor_full: f64,
+}
+
+/// What a network adds to a unit's shots before any of them is measured: 4%, the gain measured on Hydra's own C3 lance
+/// (2026-11-21: Cyclops / Hatamoto-Chi / Centurion / Clint v Atlas / Awesome / Archer / Cataphract, 20 battles, 1,143
+/// planned shots priced with and without the network: +3%, +6%, +3%, +0%). It also stands for an enemy's network, whose
+/// shots Hydra does not plan.
+pub const C3_PRIOR_GAIN: f64 = 0.04;
+/// How much expected damage the prior counts for: a unit's own measurement takes over after a few turns of shots.
+pub const C3_PRIOR_WEIGHT: f64 = 50.0;
+
+/// The share a unit's network adds to its shots: its measured shots (with the network v without) blended with the prior.
+fn c3_gain(b: &Battle, u: UnitId) -> f64 {
+    let (on, off) = b.hydra.c3_shots.get(&u).copied().unwrap_or((0.0, 0.0));
+    ((on - off) + C3_PRIOR_GAIN * C3_PRIOR_WEIGHT) / (off + C3_PRIOR_WEIGHT)
 }
 
 /// A unit that cannot fire this turn (shut down, no enemy to measure against) still counts for this much of its best.
@@ -82,6 +113,16 @@ fn life_of(b: &Battle, u: UnitId) -> f64 {
         }
     }
     sum
+}
+
+/// A unit's life undamaged (`life_of` with every location at its full armor and structure): what a C3 Master's life is
+/// measured against in the Forecast (`net_loss`).
+fn full_life_of(b: &Battle, u: UnitId) -> f64 {
+    let k = if b.cfg.has("HYDRA_LIFE_STRUCTURE_WEIGHT") { b.cfg.f("HYDRA_LIFE_STRUCTURE_WEIGHT") } else { b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT") };
+    let m = &b.units[u];
+    let armor: i64 = m.max_armor.values().sum::<i64>() + m.max_rear_armor.values().sum::<i64>();
+    let structure: i64 = m.max_structure.values().sum();
+    armor as f64 + k * structure as f64
 }
 
 /// (my team's entries, the enemy's entries): every unit still fighting, on or off the board.
@@ -111,7 +152,12 @@ fn ledger_as(b: &mut Battle, me: UnitId, remember: bool) -> (Vec<Entry>, Vec<Ent
             b.hydra.best_guns.get(&u).copied().unwrap_or(0.0).max(guns)
         };
         guns = guns.max(DORMANT_GUNS * best).max(MIN_GUNS);
-        let e = Entry { unit: u, life: life_of(b, u).max(1.0), guns };
+        // C3: the network's share on top, kept apart so the Forecast can take it away when the network breaks
+        let net = crate::c3::link(b, u).map(|(group, anchor)| Net { bonus: guns * c3_gain(b, u).max(0.0), group, anchor, anchor_full: anchor.map_or(0.0, |a| full_life_of(b, a)) });
+        if let Some(n) = &net {
+            guns += n.bonus;
+        }
+        let e = Entry { unit: u, life: life_of(b, u).max(1.0), guns, net };
         if b.units[u].team == team { mine.push(e) } else { theirs.push(e) }
     }
     (mine, theirs)
@@ -189,6 +235,35 @@ pub fn forecast(a: &[(f64, f64)], b: &[(f64, f64)]) -> f64 {
 
 /// `forecast` with a given shape. With `Shape::FIRST` it does exactly the first version's arithmetic.
 pub fn forecast_with(a: &[(f64, f64)], b: &[(f64, f64)], shape: &Shape) -> f64 {
+    forecast_net(a, b, &[], &[], shape)
+}
+
+/// One unit's C3 network in the Forecast (indices into its own side): (bonus, network, the unit it depends on and that
+/// unit's life undamaged).
+type NetIx = Option<(f64, UnitId, Option<(usize, f64)>)>;
+
+/// How much of unit `i`'s network bonus is lost this step (Core p.198: a Slave drops out when its Master is destroyed; a
+/// network with no partner left gives nothing). The Forecast is an expectation, not a play-out: in its calibrated shape
+/// fire is spread by the life each unit has left, so a side's units all fall together and a hard "the Master is
+/// destroyed" step would never single the Master out. So a Slave keeps its bonus in proportion to the life its Master
+/// has left (the less of it stands, the likelier it is gone by the next turn), and loses it all when the Master or every
+/// partner is down.
+fn net_loss(s: &[(f64, f64)], nets: &[NetIx], i: usize) -> f64 {
+    let Some(Some((bonus, group, anchor))) = nets.get(i) else { return 0.0 };
+    let partners = nets.iter().enumerate().filter(|(j, n)| *j != i && s[*j].0 > 0.0 && n.is_some_and(|n| n.1 == *group)).count();
+    if partners == 0 {
+        return *bonus;
+    }
+    match anchor {
+        Some((a, full)) if *full > 0.0 => bonus * (1.0 - (s[*a].0 / full).clamp(0.0, 1.0)),
+        Some(_) => *bonus,
+        None => 0.0,
+    }
+}
+
+/// `forecast_with` with each side's C3 networks (`nets_a` / `nets_b`, one per unit, or empty for none): a unit's bonus
+/// leaves its guns when its network breaks.
+pub fn forecast_net(a: &[(f64, f64)], b: &[(f64, f64)], nets_a: &[NetIx], nets_b: &[NetIx], shape: &Shape) -> f64 {
     let (a0, b0) = (a.to_vec(), b.to_vec());
     let (mut a, mut b) = (a.to_vec(), b.to_vec());
     let worth = |s: &[(f64, f64)]| s.iter().map(|(l, g)| l.max(0.0) * g).sum::<f64>();
@@ -197,16 +272,18 @@ pub fn forecast_with(a: &[(f64, f64)], b: &[(f64, f64)], shape: &Shape) -> f64 {
         return 0.0;
     }
     // a side's guns this step (FADE: shrunk with the life each unit has left)
-    let guns = |s: &[(f64, f64)], s0: &[(f64, f64)]| -> f64 {
-        if shape.fade == 0.0 {
+    let guns = |s: &[(f64, f64)], s0: &[(f64, f64)], nets: &[NetIx]| -> f64 {
+        let lost: f64 = if nets.is_empty() { 0.0 } else { (0..s.len()).filter(|i| s[*i].0 > 0.0).map(|i| net_loss(s, nets, i)).sum() };
+        let full = if shape.fade == 0.0 {
             s.iter().filter(|u| u.0 > 0.0).map(|u| u.1).sum::<f64>()
         } else {
             s.iter().zip(s0).filter(|(u, _)| u.0 > 0.0).map(|(u, u0)| u.1 * (u.0 / u0.0).powf(shape.fade)).sum::<f64>()
-        }
+        };
+        full - lost
     };
     for _ in 0..MAX_STEPS {
-        let fire_a: f64 = guns(&a, &a0) * shape.step;
-        let fire_b: f64 = guns(&b, &b0) * shape.step;
+        let fire_a: f64 = guns(&a, &a0, nets_a) * shape.step;
+        let fire_b: f64 = guns(&b, &b0, nets_b) * shape.step;
         if fire_a <= 0.0 || fire_b <= 0.0 {
             break;
         }
@@ -243,6 +320,15 @@ pub fn prices(mine: &[Entry], theirs: &[Entry]) -> HashMap<UnitId, f64> {
 pub fn prices_with(mine: &[Entry], theirs: &[Entry], shape: &Shape) -> HashMap<UnitId, f64> {
     let a: Vec<(f64, f64)> = mine.iter().map(|e| (e.life, e.guns)).collect();
     let b: Vec<(f64, f64)> = theirs.iter().map(|e| (e.life, e.guns)).collect();
+    // C3 networks, as indices into each side (none at all: the plain Forecast, as before networks existed)
+    let ix = |side: &[Entry]| -> Vec<NetIx> {
+        if side.iter().all(|e| e.net.is_none()) {
+            return vec![];
+        }
+        side.iter().map(|e| e.net.map(|n| (n.bonus, n.group, n.anchor.and_then(|a| side.iter().position(|x| x.unit == a)).map(|i| (i, n.anchor_full))))).collect()
+    };
+    let (na, nb) = (ix(mine), ix(theirs));
+    let forecast_with = |a: &[(f64, f64)], b: &[(f64, f64)], shape: &Shape| forecast_net(a, b, &na, &nb, shape);
     let base = forecast_with(&a, &b, shape);
     let total: f64 = a.iter().chain(b.iter()).map(|(l, g)| l * g).sum();
     let mut out = HashMap::default();
@@ -461,7 +547,122 @@ fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], inde
             put(ev.evaluate(b, &label, compass, walked, mode, walked, group, true));
         }
     }
+    indirect_exchange(b, mover, enemy, prepared, &mut out, my_exp, its_exp);
     out
+}
+
+/// The modifier a spotter at `at` (height `h`, attacker movement modifier `amm`) adds to indirect fire on a target at
+/// `t` (height `th`): +1 indirect, its movement, +1 as it is assumed to fire too, the terrain along its line (Core p.70).
+/// None: it would not see the target.
+fn spot_extra(b: &Battle, at: (i64, i64), h: crate::los::Height, amm: i64, t: (i64, i64), th: crate::los::Height) -> Option<i64> {
+    let line = crate::move_eval::pair_info(b, at, t, h, th)?;
+    line.los.los.then(|| crate::spotting::INDIRECT_MODIFIER + amm + crate::spotting::SPOTTER_ATTACKING_MODIFIER + line.los.modifier)
+}
+
+/// The best spotter's modifier among `spotters` (each where it stands; one that has moved this turn at its movement
+/// modifier, one still to move at a walk's) for a target at `t`.
+fn best_spot_extra(b: &Battle, spotters: &[UnitId], t: (i64, i64), th: crate::los::Height) -> Option<i64> {
+    spotters
+        .iter()
+        .filter_map(|&f| {
+            let at = xy(b, f)?;
+            let amm = if b.units[f].moved_this_turn { crate::combat::mode_to_amm(&b.units[f].move_mode) } else { 1 };
+            spot_extra(b, at, crate::attack_resolution::los_height(&b.units[f]), amm, t, th)
+        })
+        .min()
+}
+
+/// INDIRECT FIRE IN THE EXCHANGE (2026-11-21; Daniel: think about "how would I program the desired outcome"). The engine's
+/// evaluator prices direct fire only, so a hex with no line of sight to `enemy` used to read 0 dealt and 0 received: a
+/// hidden LRM boat did nothing, and hiding was perfectly safe even from enemy LRMs with a spotter. Here (Core p.70):
+///   * DEALT from a hidden hex: the mover's indirect weapons, if a friend sees the enemy now (the best such spotter's
+///     modifiers; it is assumed to spot, as Hydra's spot plan then decides by price);
+///   * RECEIVED in a hidden hex: the enemy's indirect weapons, if one of its friends would see that hex;
+///   * SPOTTING from a hex that sees the enemy: when no friend sees it now, the indirect damage this unit's line would
+///     open for each hidden friend (one that sees no enemy at all where it stands: the LRM boat waiting for a spotter),
+///     added to what the hex deals the enemy.
+/// Friends and the enemy's friends are taken where they stand (as the rest of the Mover takes unmoved units). A unit
+/// with no indirect weapons, or a battle with none, is untouched.
+fn indirect_exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], out: &mut [(f64, f64)], my_exp: &[f64; 4], its_exp: &[f64; 4]) {
+    let Some(e_xy) = xy(b, enemy) else { return };
+    let e_h = crate::attack_resolution::los_height(&b.units[enemy]);
+    let m_h = crate::los::mech_height(false, crate::mech_state::is_superheavy(&b.units[mover]));
+    let standing = crate::forces::standing(b);
+    let team = b.units[mover].team.clone();
+    let alive = |b: &Battle, u: UnitId| b.units[u].hex.is_some() && !b.units[u].shutdown;
+    let friends: Vec<UnitId> = standing.iter().copied().filter(|&f| f != mover && b.units[f].team == team && alive(b, f)).collect();
+    let their_friends: Vec<UnitId> = standing.iter().copied().filter(|&f| f != enemy && b.units[f].team == b.units[enemy].team && alive(b, f)).collect();
+    let enemies: Vec<UnitId> = standing.iter().copied().filter(|&f| b.units[f].team != team && alive(b, f)).collect();
+    // movement modifiers as the direct-fire evaluator takes them: the enemy where it stands at its move this turn (one
+    // still to move at a walk, as the ghost pose has it); the mover's own per hex below
+    let size = |b: &Battle, u: UnitId| crate::mech_state::target_size_modifier(&b.units[u]);
+    let (e_tmm, e_amm) = if b.units[enemy].moved_this_turn || is_immobile(&b.units[enemy]) {
+        let jump = b.units[enemy].move_mode == "Jump";
+        (crate::combat::fc_to_tmm(b.units[enemy].move_fc, jump).unwrap_or(0) + size(b, enemy), crate::combat::mode_to_amm(&b.units[enemy].move_mode))
+    } else {
+        let walked = compute_walk_mp(&b.units[enemy]).max(0);
+        (crate::combat::fc_to_tmm(walked, false).unwrap_or(0) + size(b, enemy), crate::combat::mode_to_amm(if walked > 0 { "Walk" } else { "Stand Still" }))
+    };
+    // the friend's spot of this enemy now (the same for every hidden hex of the mover)
+    let our_spot = best_spot_extra(b, &friends, e_xy, e_h);
+    let mut dealt_profiles: HashMap<i64, Option<crate::move_select::IndirectProfile>> = HashMap::default();
+    // the hidden friends a spot of this enemy would serve (only when no friend sees it now)
+    let mut hidden: Vec<(UnitId, i64)> = Vec::new();
+    if our_spot.is_none() {
+        for &f in &friends {
+            let Some(f_xy) = xy(b, f) else { continue };
+            let f_h = crate::attack_resolution::los_height(&b.units[f]);
+            let sees_any = enemies.iter().any(|&e| xy(b, e).is_some_and(|p| crate::move_eval::pair_info(b, f_xy, p, f_h, crate::attack_resolution::los_height(&b.units[e])).is_some_and(|i| i.los.los)));
+            if !sees_any && !crate::spotting::indirect_capable(b, f).is_empty() {
+                hidden.push((f, hex_distance(f_xy, e_xy)));
+            }
+        }
+    }
+    let mut their_profiles: HashMap<(i64, i64), Option<crate::move_select::IndirectProfile>> = HashMap::default();
+    let mut hidden_profiles: HashMap<(UnitId, i64), Option<crate::move_select::IndirectProfile>> = HashMap::default();
+    let mut received_at: HashMap<String, Option<i64>> = HashMap::default();
+    for (i, o) in prepared.iter().enumerate() {
+        let o_xy = o.hex_xy();
+        if o_xy == e_xy {
+            continue;
+        }
+        let Some(line) = crate::move_eval::pair_info(b, o_xy, e_xy, m_h, e_h) else { continue };
+        let d = hex_distance(o_xy, e_xy);
+        if line.los.los {
+            // a hex that sees the enemy: the spot it would give the hidden friends
+            for &(f, fd) in &hidden {
+                let extra = crate::spotting::INDIRECT_MODIFIER + o.amm + crate::spotting::SPOTTER_ATTACKING_MODIFIER + line.los.modifier;
+                // the hidden friend at its move this turn (one still to move, standing still to fire)
+                let f_amm = if b.units[f].moved_this_turn { crate::combat::mode_to_amm(&b.units[f].move_mode) } else { 0 };
+                let p = hidden_profiles.entry((f, extra)).or_insert_with(|| crate::move_select::IndirectProfile::new(b, f, enemy, f_amm, e_tmm, extra));
+                if let Some(p) = p.as_mut() {
+                    out[i].0 += p.at(b, fd) * its_exp[0];
+                }
+            }
+            continue;
+        }
+        // a hidden hex: indirect fire both ways
+        if let Some(extra) = our_spot {
+            let p = dealt_profiles.entry(o.amm).or_insert_with(|| crate::move_select::IndirectProfile::new(b, mover, enemy, o.amm, e_tmm, extra));
+            if let Some(p) = p.as_mut() {
+                out[i].0 += p.at(b, d) * its_exp[0];
+            }
+        }
+        let extra = match received_at.get(&o.label) {
+            Some(x) => *x,
+            None => {
+                let x = best_spot_extra(b, &their_friends, o_xy, m_h);
+                received_at.insert(o.label.clone(), x);
+                x
+            }
+        };
+        if let Some(extra) = extra {
+            let p = their_profiles.entry((extra, o.tmm)).or_insert_with(|| crate::move_select::IndirectProfile::new(b, enemy, mover, e_amm, o.tmm, extra));
+            if let Some(p) = p.as_mut() {
+                out[i].1 += p.at(b, d) * my_exp[0];
+            }
+        }
+    }
 }
 
 // =============================================================================================================
@@ -1124,6 +1325,14 @@ fn plan_fire(b: &mut Battle, team: &str) -> HashMap<UnitId, Option<UnitId>> {
         }
         match best {
             Some((_, s, e, dmg)) => {
+                // C3: what the network added to this shot (the same declaration without it), for the ledger's bonus
+                let u = shots[s].0;
+                if crate::c3::link(b, u).is_some() {
+                    let off = crate::c3::without(|| crate::bot_targets::dry_declare_as(b, u, e, false)).map_or(0.0, |x| x.1);
+                    let tally = b.hydra.c3_shots.entry(u).or_insert((0.0, 0.0));
+                    tally.0 += dmg;
+                    tally.1 += off;
+                }
                 plan.insert(shots[s].0, Some(e));
                 *room.entry(e).or_insert(0.0) -= dmg;
                 open.retain(|x| *x != s);
@@ -1269,8 +1478,30 @@ mod tests {
     }
 
     #[test]
+    fn a_c3_master_is_priced_for_the_network_it_carries() {
+        // four equal 'Mechs, a 20% network bonus each; unit 0 is the Master the three Slaves depend on
+        let net = |anchor| Some(Net { bonus: 4.0, group: 0, anchor, anchor_full: 100.0 });
+        let mine = [
+            Entry { unit: 0, life: 100.0, guns: 24.0, net: net(None) },
+            Entry { unit: 1, life: 100.0, guns: 24.0, net: net(Some(0)) },
+            Entry { unit: 2, life: 100.0, guns: 24.0, net: net(Some(0)) },
+            Entry { unit: 3, life: 100.0, guns: 24.0, net: net(Some(0)) },
+        ];
+        // a stronger enemy, so the Forecast has a winner (with even sides both fall in the same step and every margin is 0)
+        let theirs: Vec<Entry> = (4..8).map(|u| Entry { unit: u, life: 140.0, guns: 24.0, net: None }).collect();
+        for shape in [Shape::FIRST, Shape::CALIBRATED] {
+            let p = prices_with(&mine, &theirs, &shape);
+            assert!(p[&0] > p[&1], "{:?} {:?}", shape, p);
+        }
+        // and with no network the four are priced alike
+        let plain: Vec<Entry> = mine.iter().map(|e| Entry { net: None, guns: 20.0, ..*e }).collect();
+        let p = prices_with(&plain, &theirs, &Shape::CALIBRATED);
+        assert!((p[&0] - p[&1]).abs() < 1e-9, "{:?}", p);
+    }
+
+    #[test]
     fn the_nearly_dead_big_gun_is_priced_highest() {
-        let e = |unit, life, guns| Entry { unit, life, guns };
+        let e = |unit, life, guns| Entry { unit, life, guns, net: None };
         let mine = [e(0, 100.0, 20.0), e(1, 100.0, 20.0)];
         let theirs = [e(2, 100.0, 20.0), e(3, 20.0, 30.0)];
         let p = prices(&mine, &theirs);

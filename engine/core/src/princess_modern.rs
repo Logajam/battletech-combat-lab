@@ -634,7 +634,7 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
     let bias = princess::armor_bias(&b.units[mover]);
     let melee = estimated_melee_damage(&b.units[mover]) > 0;
     let tolerance = b.cfg.get("PRINCESS_BEHAVIOR")["fall_shame"].as_f64().unwrap_or(5.0) / 20.0 + 0.50;
-    let max_range = crate::move_select::max_range(b, mover);
+    let max_range = crate::move_select::max_range_megamek(b, mover); // MegaMek's reading: jammed out, empty launchers in
     let start = b.units[mover].hex.as_deref().and_then(|h| group.distance_to_enemy(b, hex_geometry::parse_hex_label(h).unwrap()));
     let in_range = start.map_or(false, |s| max_range >= s);
     let no_pull = stance == DEFEND && start.map_or(false, |s| s <= THREAT_CONTACT_RANGE);

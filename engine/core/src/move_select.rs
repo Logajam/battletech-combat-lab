@@ -139,6 +139,36 @@ impl RangedFor {
     }
 }
 
+/// A unit's INDIRECT-FIRE damage on a target at a distance (Core p.70), for Hydra's movement (hydra.rs, 2026-11-21): the
+/// `RangedFor` estimate with only the weapons that can fire indirectly (`spotting::can_fire_indirect`), the attacker's
+/// movement modifier `amm` and the target's `tmm` as the move being weighed has them (not RangedFor's lifetime figures:
+/// its own run and the target's best TMM, which on top of the indirect modifiers leave next to nothing), and the indirect
+/// modifiers as `extra_tn` (+1 indirect, the spotter's movement, +1 if it also fires, terrain along the spotter's line).
+pub struct IndirectProfile {
+    rf: RangedFor,
+    held: HashSet<usize>,
+}
+
+impl IndirectProfile {
+    /// None: the unit has no weapon that can fire indirectly.
+    pub fn new(b: &mut Battle, attacker: UnitId, target: UnitId, amm: i64, tmm: i64, extra_tn: i64) -> Option<IndirectProfile> {
+        let weapons = get_weapons(&b.units[attacker]);
+        let held: HashSet<usize> = weapons.iter().copied().filter(|w| !crate::spotting::can_fire_indirect(b, attacker, *w)).collect();
+        if held.len() == weapons.len() {
+            return None;
+        }
+        let mut rf = RangedFor::new(b, attacker, target, extra_tn);
+        rf.amm = amm;
+        rf.tmm = tmm;
+        Some(IndirectProfile { rf, held })
+    }
+
+    pub fn at(&mut self, b: &mut Battle, distance: i64) -> f64 {
+        let held = self.held.clone();
+        self.rf.ranged(b, distance, &held)
+    }
+}
+
 /// attacker's future damage per turn against target, in movement-score units.
 pub fn future_damage(b: &mut Battle, attacker: UnitId, target: UnitId) -> f64 {
     if b.units[attacker].shutdown || is_immobile(&b.units[attacker]) {
@@ -443,9 +473,16 @@ fn nearest_to<'a>(b: &mut Battle, options: &'a [Opt], target_xy: (i64, i64), rng
 // =============================================================================================================
 // closing fallback
 // =============================================================================================================
+/// The ranges of the weapons that can fire now: an empty launcher or a jammed gun has no range (2026-11-21, Daniel: "If
+/// gladiator is pricing weapons that cant actually fire, please fix that too"; before, an Archer with its LRMs spent
+/// thought itself in range at 15 hexes and never closed to its lasers' 9).
 fn weapon_ranges(b: &mut Battle, u: UnitId) -> Vec<(usize, crate::equipment::WeaponRange)> {
+    let spent: HashSet<usize> = crate::ammo::unavailable_weapons(&b.units[u]).into_iter().chain(crate::fire_modes::jammed_ids(&b.units[u])).collect();
     let mut out = Vec::new();
     for w in get_weapons(&b.units[u]) {
+        if spent.contains(&w) {
+            continue;
+        }
         if let Some(r) = b.units[u].items[w].weapon_range.clone() {
             if !crate::weapon_rules::is_ams(b, u, w) {
                 out.push((w, r));
@@ -457,6 +494,22 @@ fn weapon_ranges(b: &mut Battle, u: UnitId) -> Vec<(usize, crate::equipment::Wea
 
 pub fn max_range(b: &mut Battle, u: UnitId) -> i64 {
     weapon_ranges(b, u).iter().map(|(_, r)| r.long).max().unwrap_or(0)
+}
+
+/// MegaMek's reading of a unit's longest range, for the Princess clone (MegaMek `ArtilleryReach.maxWeaponRange`, main
+/// 3f9f2fd): every weapon `isReady` - not destroyed, not jammed - EMPTY LAUNCHERS INCLUDED (isReady does not look at ammo).
+pub fn max_range_megamek(b: &mut Battle, u: UnitId) -> i64 {
+    let jammed: HashSet<usize> = crate::fire_modes::jammed_ids(&b.units[u]).into_iter().collect();
+    let mut longest = 0;
+    for w in get_weapons(&b.units[u]) {
+        if jammed.contains(&w) || crate::weapon_rules::is_ams(b, u, w) {
+            continue;
+        }
+        if let Some(r) = &b.units[u].items[w].weapon_range {
+            longest = longest.max(r.long);
+        }
+    }
+    longest
 }
 
 fn bracket(distance: i64, r: &crate::equipment::WeaponRange) -> i64 {
@@ -483,6 +536,7 @@ fn safest(b: &Battle, side: &Side, options: Vec<Opt>) -> Vec<Opt> {
 
 /// closing_fallback: the option the mover closes the range with, or None.
 pub fn closing_fallback(b: &mut Battle, mover: UnitId, other: UnitId, side: &Side, options: &[Opt], enemy_xy: (i64, i64), dealt_for: &dyn Fn(&Opt) -> f64, exclude_xy: Option<(i64, i64)>) -> Option<Opt> {
+    // the weapons that can fire now (weapon_ranges): a spent launcher no longer sets the closing distance
     let ranges = weapon_ranges(b, mover);
     let mut longest: Option<&crate::equipment::WeaponRange> = None;
     for (_, r) in &ranges {

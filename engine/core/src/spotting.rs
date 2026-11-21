@@ -185,6 +185,17 @@ pub fn tag_spot(b: &mut Battle, designator: UnitId, target: UnitId) {
     b.spots.push(Spot { spotter: designator, target, fires: true, tag: true });
 }
 
+/// Can weapon `w` of unit `f` reach a target `d` hexes away by indirect fire through a spotter? Its range brackets; an
+/// artillery weapon (Arrow IV / Thumper / Sniper, artillery cannons) has none in the equipment table, and reaches with a
+/// spotter up to the distant-fire line, 17 hexes (beyond it the distant shot needs no spotter; p.182). Before 2026-11-21
+/// artillery never counted here, so no unit spotted for an Arrow IV carrier.
+pub fn reaches_indirectly(b: &mut Battle, f: UnitId, w: ItemId, d: i64) -> bool {
+    if crate::weapon_profiles::is_arrow(b, f, w) || crate::weapon_profiles::is_art_cannon(b, f, w) {
+        return d >= 1 && d < crate::artillery::DISTANT_MIN;
+    }
+    crate::weapon_selection::range_bracket(b, f, w, d).is_some()
+}
+
 /// The enemies `u` could usefully spot now: ones it sees that a friend can't see but could hit indirectly (an
 /// indirect-capable weapon within its long range), with how many such friends. For the spotting stub.
 pub fn spot_candidates(b: &mut Battle, u: UnitId) -> Vec<(UnitId, usize, i64)> {
@@ -209,7 +220,7 @@ pub fn spot_candidates(b: &mut Battle, u: UnitId) -> Vec<(UnitId, usize, i64)> {
                 _ => continue,
             };
             let ws = indirect_capable(b, f);
-            if ws.iter().any(|&w| crate::weapon_selection::range_bracket(b, f, w, d).is_some()) {
+            if ws.iter().any(|&w| reaches_indirectly(b, f, w, d)) {
                 helped += 1;
             }
         }

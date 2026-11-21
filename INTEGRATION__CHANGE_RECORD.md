@@ -6,6 +6,23 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), HYDRA AND THE NEW RULES, SECOND PASS: C3 IN THE LEDGER, INDIRECT FIRE IN THE MOVER; WEAPONS THAT
+  CANNOT FIRE NO LONGER SET ANY BOT'S RANGE; ARROW IV CAN BE SPOTTED FOR. REVIEW PENDING (higher-level model).** Daniel: "you
+  didn't really think about how you would solve the 'how would i program the desired outcome'... Hydra is yours", then
+  "Go ahead", and mid-way "If gladiator is pricing weapons that cant actually fire, please fix that too." The story and
+  every number: `INTEGRATION__HYDRA.md` ("The new rules, second pass"). CODE: (1) `hydra.rs`: `Entry.net` / `Net`, `c3_gain`
+  (C3_PRIOR_GAIN 4%, C3_PRIOR_WEIGHT 50, measured per unit in `plan_fire` through `c3::without`), `full_life_of`,
+  `forecast_net` / `net_loss` (a Slave's bonus scaled by its Master's life left; `forecast_with` unchanged for a battle
+  with no network), `prices_with` passes the networks; unit test `a_c3_master_is_priced_for_the_network_it_carries`.
+  `indirect_exchange` (+ `spot_extra`, `best_spot_extra`) adds indirect fire both ways and the spotter's value to Hydra's
+  exchange table. (2) `c3.rs`: `without`, `link`. (3) `move_select.rs`: `IndirectProfile`; `weapon_ranges` (so `max_range`,
+  `closing_fallback` and Legate's reach) counts only weapons that can fire (empty launchers and jammed guns out), for every
+  bot; `max_range_megamek` for Princess (MegaMek's `isReady`: jammed out, empty launchers in - before, she counted jammed
+  guns, unlike MegaMek). (4) `spotting.rs`: `reaches_indirectly` (artillery reaches with a spotter under 18 hexes; it has no
+  range brackets, so before no unit ever spotted for an Arrow IV carrier - Hydra's plan, and the STUB_SPOT "when_useful"
+  policy). TRIED AND NOT KEPT: a Hydra-priced distant artillery aim (did worse: no value for a round of ammunition; Hydra
+  keeps MegaMek's aim, comment in `fire_modes`). NEXT (HYDRA.md): a value for a round of ammunition.
+
 - **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED AGAIN (Hydra and the new rules). No code changes.** Daniel:
   "update the public website again." From main d0b851d (after pull request 312): `tools/publish_public.py --push` (public main
   dc893a4..ee7004b) and `tools/publish_web_lab.py --push` (gh-pages, 14 files, 11.0 MB; the website checks had passed on this
