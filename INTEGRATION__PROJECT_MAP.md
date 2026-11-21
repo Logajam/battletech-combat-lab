@@ -161,6 +161,12 @@ hydra still needs"; the second pass's story and numbers: `INTEGRATION__HYDRA.md`
 - H6. Small things seen on the way: the Forecast's coarse step makes even sides' margins 0 (both fall in one step, prices
   floor out); the indirect estimate takes an unmoved enemy at a walk; the spotter value counts only when no friend sees
   the enemy (a better-placed second spotter is worth nothing to it).
+- H7. RAC UNJAMMING (Daniel, 2026-11-21: "Add it to the list"). Hydra has no unjam decision: it uses the shared stub
+  (`stubs::stub_unjam`, STUB_UNJAM on), so every jammed Rotary AC is declared at the start of the Movement Phase unless
+  prone or shut down, and that 'Mech is then held to stand still / walk BEFORE Hydra plans its move (p.183). Build:
+  price "unjam this turn" as the gun's worth to the Forecast over the turns left (chance of clearing at Gunnery + 3)
+  against what the walk-only limit costs this turn (the best running / jumping move's value lost); decide per 'Mech
+  inside the team plan. Princess / CASPAR use MegaMek's rule (`princess_declare_unjam`: walking move, expected damage < 5).
 
 **R. Research: fair duels** (Daniel, 2026-11-19/20; `tools/fair_duels.py`, Change Record 2026-11-20 "FAIR DUELS")
 - FAIR for every bot (each bot's score within 0.5 +- 0.09 over 120 battles; 480 a pair, every map x edge x bot three times):
