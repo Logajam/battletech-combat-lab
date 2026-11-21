@@ -594,6 +594,53 @@ Daniel: "Update Hydra to incorporate the new rules." What the rules added on 202
   6-14, new 5-15; Arrow IV lance (Patriot, Legionnaire, Hermes II v Hunchback, Griffin, Jenner; Caustic Valley) seeds 1-20
   old 17-1 (2 draws), new 14-3 (3); seeds 21-60 old 24-11 (5), new 31-7 (2). All within noise; speed unchanged.
 
+### The new rules, second pass (2026-11-21, same day): from the desired outcome, measured by behaviour
+Daniel on the first pass: "you got hydra working, but you didn't really think about how you would solve the 'how would i
+program the desired outcome'... Hydra is yours. Its performance reflects on you." He was right: the first pass plugged each
+rule into the nearest hook and called "within noise" fine, when noise meant the features did nothing. The second pass
+started from what a good commander does with each rule, and measured whether Hydra now does it.
+- **C3: measure first.** Priced with and without the network, Hydra's own C3 lance's planned shots gained only +3% / +6% /
+  +3% / +0% (1,143 shots): Hydra fights close, so a partner rarely improves the bracket. So the network goes into the
+  LEDGER as a measured bonus (`c3_gain`: each networked unit's own running tally, with a 4% prior worth 50 points of
+  damage; the prior also stands for enemy networks), kept apart in `Entry.net` so the FORECAST can take it away: a Slave
+  keeps its bonus in proportion to its Master's life left against the Master's full life (`net_loss`; the calibrated
+  Forecast spreads fire by life, so every unit of a side falls in the same step and a hard "Master destroyed" would never
+  single the Master out), and loses it all with no partner left. Unit test: a Master is priced above its Slaves in both
+  Forecast shapes. In play the effect is small, as the measurement says it should be (Hydra's fire on an enemy C3 Master
+  15% -> 14%; wins within noise over 120 battles). C3's real value would come from standing off while a partner holds
+  line of sight; on 16x17 boards Hydra seldom gets there.
+- **Indirect fire in the MOVER (`indirect_exchange`).** The evaluator priced direct fire only: a hex with no line of
+  sight to an enemy read 0 dealt, 0 received, so a hidden LRM boat did nothing and hiding was perfectly safe. Now a hidden
+  hex deals the mover's indirect weapons if a friend sees the enemy (that friend's spotting modifiers), receives the
+  enemy's indirect weapons if one of its friends sees the hex, and a hex that sees an enemy no friend sees gains the
+  indirect damage its line would open for the hidden friends (a friend that sees no enemy). The damage is
+  `move_select::IndirectProfile` with the move's own movement modifiers (a first try used the lifetime figures - the
+  attacker running, the target's best TMM - and on top of the indirect modifiers that left about a tenth of the damage).
+- **Two bugs the behaviour trials found.** (1) Arrow IV has no range brackets in the equipment table, so the spotting
+  check never counted an Arrow IV carrier as a friend to spot for: Hydra hid its Arrow IV units for spots that never came
+  (0 spots, 0 indirect shots; damage ratio 1.59 -> 1.28). `spotting::reaches_indirectly` gives artillery its reach with a
+  spotter (under 18 hexes). (2) The closing move read range from every weapon, empty launchers included: an Archer with
+  its LRMs spent "was in range" at 15 hexes and never closed to its lasers (two weaponless survivors, 50 turns). Fixed for
+  every bot at Daniel's word ("If gladiator is pricing weapons that cant actually fire, please fix that too"):
+  `move_select::weapon_ranges` / `max_range` count only weapons that can fire; Princess keeps MegaMek's own reading
+  (`max_range_megamek`: jammed out, empty launchers in, as MegaMek's `isReady`).
+- **Artillery aim: tried, measured, not kept.** Hydra's own aim (MegaMek's candidate hexes, each unit at Hydra's price,
+  fire whenever positive) fired five times as often, hit less and did worse (80 battles: damage ratio 1.28 / 1.57 v
+  1.87 / 1.82 with MegaMek's aim). MegaMek's "two enemies together" rule keeps rounds for better shots; Hydra has no value
+  for a round of ammunition. Hydra keeps MegaMek's aim. NEXT: a value for a round (its expected use later), which the
+  same evidence says Hydra's indirect LRM plinking needs too.
+- **Results (behaviour, then wins; Red = Hydra v Gladiator, same seeds, first pass v second):**
+  - LRM lance (Archer, Catapult, Bombardier, Jenner), 20 battles a board: indirect share of Red's attacks 2% -> 5% /
+    3% -> 3% / 2% -> 7% (Desert Hills / Hilltops / Scattered Woods); wins 6-14 -> 6-14, 1-18 -> 6-14, 5-15 -> 3-15;
+    damage ratio 0.84 -> 0.89, 0.69 -> 0.92, 0.93 -> 0.84. In one battle the Archer did as intended for its first turns:
+    out of every enemy's sight, fired its LRMs indirectly at TN 7-8 through a friend's spot, taking no fire.
+  - Arrow IV lance (Patriot, Legionnaire, Hermes II v Hunchback, Griffin, Jenner), 40 battles: spots 0 -> 104, indirect
+    shots 0 -> 115; wins 28-8 -> 29-5; damage ratio 1.59 -> 1.87.
+  - The standard match-ups, 40 new seeds each (lance woods, heavy hills, 8v8 valley, 2v2 grass): 98-49 (13 draws) ->
+    104-47 (9); 8v8 valley the one that slipped (21-11 -> 19-17).
+  - Left open: units hidden for a spot that does not come (the Arrow IV lance held fire hidden 796 times in 40
+    battles); a lone corner Archer and two Blue 'Mechs trading lasers at 9 hexes until the cap (both bots holding back).
+
 ## 8. Status
 
 **COMPLETE (Daniel, 2026-11-12: "I think this concludes building Hydra").** Defaults: all five switches on (Section 7,

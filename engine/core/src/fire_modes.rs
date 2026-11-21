@@ -550,8 +550,10 @@ pub fn kind_options(b: &mut Battle, attacker: UnitId, w: ItemId, target: UnitId)
             plans.push(ShotPlan::with_kind("artillery"));
             // distant fire (18+ hexes, lands next turn; p.182): whether to use it is a bot decision (a stub for now)
             let far = crate::forces::distance(b, attacker, target).is_some_and(|d| d >= crate::artillery::DISTANT_MIN);
-            // Princess / CASPAR aim by MegaMek's ArtilleryTargetingControl (princess_artillery.rs); Hydra borrows that aim
-            // (2026-11-21: it reads no Princess setting, and Hydra borrows its tools as it borrows Gladiator's); Gladiator: the stub
+            // Princess / CASPAR aim by MegaMek's ArtilleryTargetingControl (princess_artillery.rs). Hydra uses the same aim
+            // (2026-11-21): a Hydra-priced aim that fired whenever the priced damage was positive was tried and did worse
+            // (80 battles: damage ratio 1.28 / 1.57 v 1.87 / 1.82) - MegaMek's "two enemies together" rule keeps rounds for
+            // better shots, and Hydra has no value for a round of ammunition yet (INTEGRATION__HYDRA.md). Gladiator: the stub
             let offer = if b.units[attacker].is_princess_family() || b.units[attacker].bot == "hydra" {
                 let dmg = damage_per(b, attacker, w, &ShotPlan::with_kind("distant")).unwrap_or(0);
                 far && crate::princess_artillery::distant_aim(b, attacker, w, target, dmg).is_some()

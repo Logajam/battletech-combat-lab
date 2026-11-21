@@ -313,10 +313,53 @@ impl Partners {
     }
 }
 
+thread_local! {
+    /// `without`'s switch: while set, `best` offers nothing (the attack is priced as if no network existed)
+    static IGNORED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Runs `f` as if no C3 network existed (`best` offers nothing meanwhile). For pricing what a network adds to a shot:
+/// Hydra measures its networked units' shots with and without (hydra.rs, the ledger's network bonus).
+pub fn without<T>(f: impl FnOnce() -> T) -> T {
+    IGNORED.with(|c| c.set(true));
+    let out = f();
+    IGNORED.with(|c| c.set(false));
+    out
+}
+
+/// A unit's place in a working network, for Hydra's Forecast (hydra.rs): (the network's id, the unit it depends on).
+/// The id is the lowest unit id in its working network. The unit depended on is a Slave's Master (p.198: when the
+/// Master is lost, its Slaves drop out); a Master and a C3i member depend on no single unit, only on keeping at least
+/// one partner. None: the unit is in no working network now.
+pub fn link(b: &mut Battle, u: UnitId) -> Option<(UnitId, Option<UnitId>)> {
+    if b.units[u].c3_parent.is_none() && b.units[u].c3_net.is_none() {
+        let name = b.units[u].side_name.as_deref();
+        if name.is_none() || !b.units.iter().any(|o| o.c3_parent.as_deref() == name && o.team == b.units[u].team) {
+            return None;
+        }
+    }
+    let net = active_network(b, u);
+    if net.len() < 2 {
+        return None;
+    }
+    let id = *net.iter().min().unwrap();
+    let anchor = match kind_of(b, u) {
+        Some(Kind::Slave { .. }) => {
+            let team = b.units[u].team.clone();
+            b.units[u].c3_parent.clone().and_then(|p| unit_named(b, &team, &p)).filter(|m| net.contains(m))
+        }
+        _ => None,
+    };
+    Some((id, anchor))
+}
+
 /// What C3 offers `attacker` against `target` now: the closest distance from a linked member that can see the target,
 /// and whether that member's (or the attacker's) link is degraded by hostile ECM. None: no network, or no member closer
 /// than the attacker itself. Among members at the same distance one that is not degraded is used.
 pub fn best(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, bool)> {
+    if IGNORED.with(|c| c.get()) {
+        return None;
+    }
     // the common case first, cheaply: a unit nobody linked into a network (speed: this is asked for every attack priced)
     if b.units[attacker].c3_parent.is_none() && b.units[attacker].c3_net.is_none() {
         let name = b.units[attacker].side_name.as_deref();
