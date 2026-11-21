@@ -650,7 +650,8 @@ left), S4 scored through the play-out, the move order's opposite end; none is pl
 **STILL TO IMPROVE (2026-11-21, after the new rules' second pass; the same list is PROJECT_MAP Section 0 "H"):** H1 a value
 for a round of ammunition (first); H2 hiding for a spot that never comes; H3 C3 standoff (long guns back, a partner forward);
 H4 stalemates at the turn cap when outnumbered; H5 the 8v8 valley slip; H6 small things (coarse Forecast step, unmoved
-enemy at a walk, a second spotter worth nothing).
+enemy at a walk, a second spotter worth nothing). H7 RAC unjamming (today the shared stub always tries, and the walk-only limit
+is set before Hydra plans; to be priced against the move it costs).
 
 | Block | State |
 |---|---|
