@@ -6,6 +6,24 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), HYDRA AND THE NEW RULES: C3 IN ITS MOVEMENT, ITS OWN SPOTTING, DISTANT ARTILLERY. REVIEW PENDING
+  (higher-level model).** Daniel: "Update Hydra to incorporate the new rules." (1) C3: `c3::Partners` (a unit's network
+  partners, where they stand) and `MoveEvaluator::with_c3`: per hex, the closest partner that would see the target gives the
+  range modifier, for the mover's shots and the defender's; the figure rides in the evaluator's planner, memo and best-shot
+  keys. Only Hydra's five evaluators call it, so Gladiator, Legate, Princess and every reference battle without Hydra are
+  unchanged. (2) SPOTTING: `hydra::plan_spots` / `choose_spot` replace STUB_SPOT for Hydra (a priced team plan, built like
+  the fire plan; `HydraState.spots`, emptied with the fire plan). (3) DISTANT ARTILLERY: `fire_modes` offers Hydra the
+  distant shot through Princess's `princess_artillery::distant_aim` (was the "never" stub). Already covered before this:
+  the fire plan's dry declarations see C3, the special rounds and Narc homing; N8's cover discount was Hydra's already.
+  Left as is, with reasons in `INTEGRATION__HYDRA.md` ("The new rules"): AMS always on, no ammo conservation, no movement
+  toward spotting positions. Trials (20 a setting, same seeds; HYDRA.md): every difference within noise, no crashes, speed
+  unchanged. Docs: HYDRA.md, PROJECT_MAP Section 6 rows (spot / distant artillery) and REVIEW QUEUE, comments in
+  `spotting.rs`, `stubs.rs`, `artillery.rs`.
+  REFERENCE BATTLES: 8 Hydra ones re-recorded (`check_rust_reference.py --update`; the new Hydra spots in them, the old
+  never did): hydra_red 12v12 valley Draw at the 100-turn cap -> Red in 49 turns (one capped battle fewer); hydra_first_blue
+  8v8 Blue -> Red; hydra_noattention_blue 4v4 heavy Red -> Blue; hydra_nomoveorder_blue 8v8 Blue -> Red; the other four keep
+  their winner (turns change). Every other check passed (`run_checks.py --full`; then 91 of 91 references match).
+
 - **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (N5, N6, N8-N10). No code changes.** Daniel: "Next goal is
   to update the public facing website." From main 9ff2e7f (after pull request 310): `tools/publish_public.py --push` (961
   commits; no private paths, no non-public emails, files equal to private main; public main fcb349f..dc893a4) and

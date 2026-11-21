@@ -58,7 +58,11 @@ struct WetCase {
     bonus: i64,
 }
 
-type Memo = HashMap<(Vec<ItemId>, i64, &'static str, i64, i64, i64, i64, &'static str), f64>;
+type Memo = HashMap<(Vec<ItemId>, i64, &'static str, i64, i64, i64, i64, &'static str, C3), f64>;
+
+/// C3 (p.198; c3.rs): the closest network partner's distance to the target and whether its link is degraded; None = no
+/// network help (always None unless the evaluator was made `with_c3`).
+type C3 = Option<(i64, bool)>;
 
 /// scorer_getter + _make_heat_limited_scorer for one (firer, target) pair.
 struct FireSide {
@@ -72,7 +76,7 @@ struct FireSide {
     w_locs: crate::water::WeaponLocs,
     dissipation: i64,
     other: i64,
-    planners: HashMap<(i64, &'static str), (Rc<Adjuster>, Planner<'static>)>,
+    planners: HashMap<(i64, &'static str, C3), (Rc<Adjuster>, Planner<'static>)>,
     scales: HashMap<&'static str, HashMap<ItemId, f64>>,
     memo: Memo,
     unavail: HashMap<(ArcKey, Vec<ItemId>, Wet), Vec<ItemId>>,
@@ -92,7 +96,7 @@ impl FireSide {
     /// scorer(key, held, ams_k, wet)(distance, pre_tn, move_heat, side) -> expected damage (worth) of the weapons the
     /// heat-limited choice would fire.
     #[allow(clippy::too_many_arguments)]
-    fn score(&mut self, b: &mut Battle, cases: &[WetCase], key: &ArcKey, held: &HashSet<ItemId>, ams_k: i64, wet: Wet, distance: i64, pre_tn: i64, move_heat: i64, side: &'static str) -> f64 {
+    fn score(&mut self, b: &mut Battle, cases: &[WetCase], key: &ArcKey, held: &HashSet<ItemId>, ams_k: i64, wet: Wet, distance: i64, pre_tn: i64, move_heat: i64, side: &'static str, c3: C3) -> f64 {
         let mut held_sorted: Vec<ItemId> = held.iter().copied().collect();
         held_sorted.sort();
         let uk = (key.clone(), held_sorted, wet);
@@ -116,14 +120,17 @@ impl FireSide {
             Wet::Case(i) => (cases[i].state, cases[i].bonus),
             _ => (water::GROUND, 0),
         };
-        let mk = (unavailable.clone(), ams_k, w_state, bonus, distance, pre_tn, move_heat, side);
+        let mk = (unavailable.clone(), ams_k, w_state, bonus, distance, pre_tn, move_heat, side, c3);
         if let Some(v) = self.memo.get(&mk) {
             return *v;
         }
         // the planner of this (AMS count, water state)
-        let pk = (ams_k, w_state);
+        let pk = (ams_k, w_state, c3);
         if !self.planners.contains_key(&pk) {
-            let adj = ar::with_range_adjuster(self.base_adjust.clone(), &b.units[self.who], w_state);
+            let mut adj = ar::with_range_adjuster(self.base_adjust.clone(), &b.units[self.who], w_state);
+            if c3.is_some() {
+                adj.c3 = c3;
+            }
             let adj = Rc::new(adj);
             let share = fire_modes::ams_share(b, self.who, ams_k, &self.usable);
             let planner = Planner::new_shared(self.who, self.target, adj.clone(), share);
@@ -234,6 +241,8 @@ struct HexRow {
     k_def: i64,
     wet_dealt: Wet,
     wet_received: Wet,
+    c3_dealt: C3,
+    c3_received: C3,
     by_facing: [Option<(&'static str, Rc<Vec<ArcKey>>, usize, i64)>; 6],
     entry_at_atk: i64,
 }
@@ -256,8 +265,11 @@ pub struct MoveEvaluator {
     pub defender_physical: bool,
     mover_planner: PhysPlanner,
     defender_planner: PhysPlanner,
-    best_dealt: HashMap<(usize, i64, i64, i64, &'static str, i64, Wet), f64>,
-    best_received: HashMap<(usize, i64, i64, i64, &'static str, i64, Wet), f64>,
+    best_dealt: HashMap<(usize, i64, i64, i64, &'static str, i64, Wet, C3), f64>,
+    best_received: HashMap<(usize, i64, i64, i64, &'static str, i64, Wet, C3), f64>,
+    /// C3 partners of the mover and of the defender (`with_c3`; None = not counted, or no network)
+    mover_net: Option<crate::c3::Partners>,
+    defender_net: Option<crate::c3::Partners>,
     mover_classes: Classes,
     defender_classes: Classes,
     mover_own: i64,
@@ -339,7 +351,20 @@ impl MoveEvaluator {
             defender_own,
             mover_ams,
             defender_ams,
+            mover_net: None,
+            defender_net: None,
         }
+    }
+
+    /// Count C3 networks in this evaluator's estimates (Hydra, 2026-11-21: "Update Hydra to incorporate the new rules"): the
+    /// mover's shots read their range modifier from its closest partner that would see the defender, and the defender's
+    /// from its own partners' distance to each hex the mover might take (Core p.198-199, as `c3::best` for a real attack).
+    /// Only Hydra asks for it, so Gladiator's, Legate's and Princess's estimates (and every reference battle) stay as
+    /// they were.
+    pub fn with_c3(mut self, b: &mut Battle) -> MoveEvaluator {
+        self.mover_net = crate::c3::Partners::of(b, self.mover);
+        self.defender_net = crate::c3::Partners::of(b, self.defender);
+        self
     }
 
     /// _wet: the water case of `firer` at f_label shooting `target` at t_label.
@@ -433,20 +458,20 @@ impl MoveEvaluator {
                 h.by_facing[o.facing as usize] = Some((side, keys, cls, k));
             }
             let (side_on_mover, keys, cls, k_mov) = h.by_facing[o.facing as usize].clone().unwrap();
-            let (distance, side_on_def, k_def, wet_dealt, wet_received) = (h.distance, h.side_on_def, h.k_def, h.wet_dealt, h.wet_received);
+            let (distance, side_on_def, k_def, wet_dealt, wet_received, c3_dealt, c3_received) = (h.distance, h.side_on_def, h.k_def, h.wet_dealt, h.wet_received, h.c3_dealt, h.c3_received);
             let mut pre_tn = 0;
             let mut dealt;
             if self.mover_cond.is_none() || wet_dealt == Wet::Blocked {
                 dealt = 0.0;
             } else {
                 pre_tn = clamp_tn(h.dealt_hex + o.amm);
-                let mk = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def, wet_dealt);
+                let mk = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def, wet_dealt, c3_dealt);
                 dealt = match self.best_dealt.get(&mk) {
                     Some(v) => *v,
                     None => {
                         let mut best = f64::NEG_INFINITY;
                         for key in keys.iter() {
-                            let v = self.mover_side.score(b, &self.wet_cases, key, &HashSet::default(), k_def, wet_dealt, distance, pre_tn, o.move_heat, side_on_def);
+                            let v = self.mover_side.score(b, &self.wet_cases, key, &HashSet::default(), k_def, wet_dealt, distance, pre_tn, o.move_heat, side_on_def, c3_dealt);
                             if v > best {
                                 best = v;
                             }
@@ -462,13 +487,13 @@ impl MoveEvaluator {
                 received = 0.0;
             } else {
                 pre_tn2 = clamp_tn(h.received_hex + o.tmm + o.void_mod);
-                let mk = (h.r_cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov, wet_received);
+                let mk = (h.r_cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov, wet_received, c3_received);
                 received = match self.best_received.get(&mk) {
                     Some(v) => *v,
                     None => {
                         let mut best = f64::NEG_INFINITY;
                         for key in h.r_keys.iter() {
-                            let v = self.defender_side.score(b, &self.wet_cases, key, &HashSet::default(), k_mov, wet_received, distance, pre_tn2, def_move_heat, side_on_mover);
+                            let v = self.defender_side.score(b, &self.wet_cases, key, &HashSet::default(), k_mov, wet_received, distance, pre_tn2, def_move_heat, side_on_mover, c3_received);
                             if v > best {
                                 best = v;
                             }
@@ -499,7 +524,7 @@ impl MoveEvaluator {
                     let side = &mut self.mover_side;
                     let cases = &self.wet_cases;
                     let (mh, mv) = (o.move_heat, pre_tn);
-                    let mut ranged_for = |b: &mut Battle, key: &ArcKey, held: &HashSet<ItemId>| side.score(b, cases, key, held, k_def, wet_dealt, distance, mv, mh, side_on_def);
+                    let mut ranged_for = |b: &mut Battle, key: &ArcKey, held: &HashSet<ItemId>| side.score(b, cases, key, held, k_def, wet_dealt, distance, mv, mh, side_on_def, c3_dealt);
                     dealt = with_physical(b, &mut self.mover_planner, dealt, &mover_actions, &mover_legs, &a_to_d, o.facing, d_level - a_level, prone_def, base, side_on_def, if ranged { Some(&mut ranged_for) } else { None }, push, allowed, t_water);
                 }
                 if self.defender_physical && physical_reply {
@@ -510,7 +535,7 @@ impl MoveEvaluator {
                     let side = &mut self.defender_side;
                     let cases = &self.wet_cases;
                     let (dh, dv) = (def_move_heat, pre_tn2);
-                    let mut ranged_for = |b: &mut Battle, key: &ArcKey, held: &HashSet<ItemId>| side.score(b, cases, key, held, k_mov, wet_received, distance, dv, dh, side_on_mover);
+                    let mut ranged_for = |b: &mut Battle, key: &ArcKey, held: &HashSet<ItemId>| side.score(b, cases, key, held, k_mov, wet_received, distance, dv, dh, side_on_mover, c3_received);
                     received = with_physical(b, &mut self.defender_planner, received, &defender_actions, &defender_legs, &d_to_a, def_facing, a_level - d_level, false, base, side_on_mover, if ranged { Some(&mut ranged_for) } else { None }, push, allowed, t_water);
                 }
             }
@@ -557,6 +582,8 @@ impl MoveEvaluator {
             k_def,
             wet_dealt,
             wet_received,
+            c3_dealt: self.mover_net.as_ref().and_then(|n| n.distance_to(b, def_hex, d_height)),
+            c3_received: if no_return_fire { None } else { self.defender_net.as_ref().and_then(|n| n.distance_to(b, atk_hex, m_height)) },
             by_facing: Default::default(),
         })
     }

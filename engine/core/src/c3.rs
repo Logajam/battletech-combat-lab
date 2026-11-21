@@ -254,6 +254,65 @@ fn degraded(b: &mut Battle, u: UnitId) -> bool {
     false
 }
 
+/// A unit's network partners as a movement estimate uses them (Hydra, 2026-11-21): where each partner stands, its line
+/// of sight height, and whether its link is degraded, plus whether the unit's own link is. The estimate asks about hexes
+/// the unit or its target might stand in, so the members are taken once and the lines traced per hex (`distance_to`).
+/// Partners that have not moved yet are taken where they stand (an estimate, as the rest of the move scoring is).
+pub struct Partners {
+    members: Vec<((i64, i64), crate::los::Height, bool)>,
+    own_degraded: bool,
+}
+
+impl Partners {
+    /// `u`'s partners now; None when it is in no working network.
+    pub fn of(b: &mut Battle, u: UnitId) -> Option<Partners> {
+        // the same cheap test as `best`: most units are in no network
+        if b.units[u].c3_parent.is_none() && b.units[u].c3_net.is_none() {
+            let name = b.units[u].side_name.as_deref();
+            if name.is_none() || !b.units.iter().any(|o| o.c3_parent.as_deref() == name && o.team == b.units[u].team) {
+                return None;
+            }
+        }
+        let net = active_network(b, u);
+        let mut members = Vec::new();
+        for m in net {
+            if m == u {
+                continue;
+            }
+            let Some(p) = xy(b, m) else { continue };
+            let h = crate::attack_resolution::los_height(&b.units[m]);
+            let deg = degraded(b, m);
+            members.push((p, h, deg));
+        }
+        if members.is_empty() {
+            return None;
+        }
+        let own_degraded = degraded(b, u);
+        Some(Partners { members, own_degraded })
+    }
+
+    /// The closest partner's distance to a target standing at `t` (height `th`) among those that would see it, and
+    /// whether the link used is degraded: the figure `best` gives an actual attack. The range-modifier rule itself
+    /// (only a better bracket counts, p.198) is applied by the Adjuster, as for a real attack.
+    pub fn distance_to(&self, b: &Battle, t: (i64, i64), th: crate::los::Height) -> Option<(i64, bool)> {
+        let mut found: Option<(i64, bool)> = None;
+        for &(p, ph, deg) in &self.members {
+            if p == t {
+                continue;
+            }
+            let d = hex_distance(p, t);
+            if found.is_some_and(|(fd, fdeg)| d > fd || (d == fd && (!fdeg || deg))) {
+                continue;
+            }
+            if !crate::move_eval::pair_info(b, p, t, ph, th).is_some_and(|i| i.los.los) {
+                continue;
+            }
+            found = Some((d, deg));
+        }
+        found.map(|(d, deg)| (d, deg || self.own_degraded))
+    }
+}
+
 /// What C3 offers `attacker` against `target` now: the closest distance from a linked member that can see the target,
 /// and whether that member's (or the attacker's) link is degraded by hostile ECM. None: no network, or no member closer
 /// than the attacker itself. Among members at the same distance one that is not degraded is used.
