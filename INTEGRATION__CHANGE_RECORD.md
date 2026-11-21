@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (N5, N6, N8-N10). No code changes.** Daniel: "Next goal is
+  to update the public facing website." From main 9ff2e7f (after pull request 310): `tools/publish_public.py --push` (961
+  commits; no private paths, no non-public emails, files equal to private main; public main fcb349f..dc893a4) and
+  `tools/publish_web_lab.py --push` (gh-pages, 14 files, 11.0 MB). Before pushing: `check_web_ui.py` and `check_web_lab.py` pass,
+  and the browser build was opened in Chromium: Configure team shows Princess's 7 sliders and the C3 box, the unit window shows the
+  ammo bins, no page errors. Checked live at logajam.github.io/battletech-combat-lab (the new lab.js is served). The Combat Lab
+  website artifact (claude.ai/artifact/TxziRWUqF5gU96Bof16r3p) was updated from the same build (version 8). Lesson: build from
+  the session branch at origin/main, never a stale local `main` (a first build here came from a `main` 40 commits behind and
+  was thrown away).
+
 - **2026-11-20 (Claude), SEMI-GUIDED LRMs (backlog N10, part). REVIEW PENDING (higher-level model).**
   Core p.193. An Inner Sphere LRM bin may be loaded with semi-guided missiles (`ammo::bin_choices`; Configure unit). Fired at a
   target with no TAG designation: -1 on the Cluster Hits Table. At a TAG-designated target, directly: no -1, +2 on the Cluster
