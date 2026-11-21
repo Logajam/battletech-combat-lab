@@ -1,0 +1,398 @@
+/* Combat Lab pages (INTEGRATION__COMBAT_LAB_SPECS.md CL4). Daniel's style call (Part B): "a deliberately plain
+   Windows 3.x look ... functional, fast, clean, no unnecessary graphics". One look, light only, on purpose.
+   Layout: a window (title bar, tab strip, tab page); the Units page is team panels around a centre control column. */
+:root {
+  --face: #c0c0c0;        /* button and window face */
+  --light: #ffffff;       /* bevel highlight */
+  --shadow: #808080;      /* bevel shadow */
+  --dark: #000000;        /* bevel outer edge, text */
+  --field: #ffffff;       /* input fields, lists */
+  --title: #000080;       /* active title bar */
+  --title-text: #ffffff;
+  --select: #000080;      /* selected row */
+  --desk: #008080;        /* the desktop behind the window */
+  --good: #006400;
+  --bad: #a00000;
+  --ui: "Tahoma", "MS Sans Serif", "Segoe UI", Arial, sans-serif;
+  --mono: "Lucida Console", "Courier New", monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--face); color: var(--dark); font: 13px/1.35 var(--ui);
+  overflow: hidden;   /* CL11: the page never scrolls; each window or tab page scrolls its own content */
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+button, input, select { font: inherit; color: var(--dark); }
+:focus-visible { outline: 1px dotted var(--dark); outline-offset: -4px; }
+
+/* the bevels: raised (buttons, panels) and sunken (fields, lists) */
+.raised { background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
+.sunken { background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); box-shadow: inset 1px 1px 0 var(--dark); }
+
+.window { height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--face); }
+.titlebar { display: flex; align-items: center; gap: 8px; background: var(--title); color: var(--title-text); font-weight: bold; padding: 3px 4px 3px 6px; }
+.titlebar .box { width: 18px; height: 16px; background: var(--face); border: 1px solid var(--dark); box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--shadow); flex: none; }
+.titlebar .name { flex: 1; text-align: center; letter-spacing: .02em; }
+.titlebar .mode { font-weight: normal; font-size: 12px; opacity: .9; }
+.titlebar .name { text-align: left; }
+
+.banner { margin: 6px 8px 0; padding: 4px 8px; background: #ffffe1; border: 1px solid var(--dark); font-size: 12px; }
+
+/* tabs: a strip of raised tabs; the open one joins the page below it */
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 6px 6px 0; flex: none; }
+.tab { padding: 4px 14px 3px; background: var(--face); border: 2px solid; border-bottom: none; border-color: var(--light) var(--dark) var(--dark) var(--light); cursor: pointer; position: relative; top: 2px; }
+.tab[aria-selected="true"] { font-weight: bold; padding-bottom: 5px; top: 0; z-index: 1; }
+.tab:disabled { color: var(--shadow); cursor: default; }
+.page { flex: 1; min-height: 0; margin: 0 6px 4px; padding: 8px; overflow: auto; position: relative; border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); }
+.page[hidden] { display: none !important; }
+
+.btn { padding: 4px 12px; cursor: pointer; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
+.btn:active:not(:disabled) { border-color: var(--dark) var(--light) var(--light) var(--dark); box-shadow: inset 1px 1px 0 var(--shadow); }
+.btn:disabled { color: var(--shadow); text-shadow: 1px 1px 0 var(--light); cursor: default; }
+.btn.small { padding: 1px 6px; }
+.btn.big { padding: 14px 18px; font-size: 16px; font-weight: bold; width: 100%; }
+input[type=text], input[type=number], input[type=search], select { padding: 2px 4px; background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); box-shadow: inset 1px 1px 0 var(--dark); border-radius: 0; min-width: 0; }
+input[type=number] { width: 72px; }
+label { display: flex; flex-direction: column; gap: 2px; }
+label.row { flex-direction: row; align-items: center; gap: 6px; }
+
+fieldset { border: 2px groove var(--light); margin: 0; padding: 8px 10px 10px; min-width: 0; }
+legend { padding: 0 4px; }
+.note { color: #303030; font-size: 12px; }
+.err { color: var(--bad); font-weight: bold; }
+.num { font-variant-numeric: tabular-nums; text-align: right; }
+h2 { font-size: 14px; margin: 0 0 8px; }
+
+/* UNITS (CL11/CL12): the top row, then odd teams | Unit Browser | even teams. Each column scrolls by itself. */
+#page-units { display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.units-top { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: none; }
+.units-top .form { gap: 6px; }
+.units-top .readout { font-family: var(--mono); background: var(--field); padding: 6px; min-height: 2.8em; white-space: pre-line; }
+.run-box { display: flex; flex-direction: column; gap: 4px; }
+.units-desk { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(250px, 1fr) 8px minmax(360px, 1.5fr) 8px minmax(250px, 1fr); gap: 0; }
+/* the grips between the team columns and the Unit Browser: drag sideways to widen the teams (Daniel, 2026-11-17) */
+.colgrip { cursor: col-resize; touch-action: none; position: relative; }
+.colgrip::after { content: ""; position: absolute; left: 3px; top: 0; bottom: 0; width: 2px; background: transparent; }
+.colgrip:hover::after, .colgrip.dragging::after { background: var(--shadow); }
+.col { min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+.centre-col { overflow: hidden; }
+/* a team panel keeps its own height: without this the column squeezed teams 3 and up instead of scrolling (Daniel, 2026-11-15) */
+.col > .win { flex: none; }
+.float-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+/* a panel: title bar (the grip) over a body. Docked it sits in its column; dragged out it floats and resizes. */
+.win { display: flex; flex-direction: column; min-width: 0; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
+.wtitle { display: flex; align-items: center; gap: 6px; background: var(--title); color: var(--title-text); font-weight: bold; padding: 2px 6px; cursor: move; touch-action: none; user-select: none; flex: none; }
+.wtitle .name { flex: 1; }
+.wbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 6px; }
+.win.float { position: absolute; pointer-events: auto; resize: both; overflow: hidden; min-width: 240px; min-height: 120px; max-width: 100%; box-shadow: inset -1px -1px 0 var(--shadow), 4px 4px 0 rgba(0,0,0,.35); }
+.win.browser:not(.float) { flex: 1; min-height: 0; }
+@media (max-width: 900px) {
+  #page-units { overflow: auto; }
+  .units-top { grid-template-columns: minmax(0, 1fr); }
+  .units-desk { display: flex; flex-direction: column; flex: none; }
+  .colgrip { display: none; }
+  .col { overflow: visible; }
+  /* phone: the browser is one screenful tall and its list scrolls inside it, instead of running down the page */
+  .centre-col { order: -1; height: min(80vh, 640px); min-height: 420px; flex: none; }
+  .win.browser { height: 100%; min-height: 0; }
+  .ub-list { resize: none; }
+  .browser-grip { display: none; }
+  .win.float { position: static !important; width: auto !important; height: auto !important; resize: none; }
+}
+
+.team .wbody { gap: 6px; }
+.team .wtitle { border-left: 10px solid var(--shadow); }
+.team-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: end; }
+.team-head .swatch { width: 18px; height: 22px; border: 1px solid var(--dark); flex: none; }
+.team-head input[type=text] { width: 110px; }
+.team.drop { outline: 2px dashed var(--title); outline-offset: -4px; }
+.list { overflow: auto; min-height: 60px; }
+.team .list { max-height: 300px; }
+.win.float .team-list, .win.float .list { max-height: none; flex: 1; }
+.list table { width: 100%; border-collapse: collapse; }
+.list th { position: sticky; top: 0; background: var(--face); font-weight: normal; text-align: left; padding: 2px 4px; border-right: 1px solid var(--shadow); border-bottom: 1px solid var(--shadow); white-space: nowrap; }
+.list td { padding: 1px 4px; white-space: nowrap; }
+.list td.name { white-space: normal; min-width: 120px; }
+.list input[type=number] { width: 38px; padding: 0 2px; }
+.list tr.empty td { color: var(--shadow); padding: 10px 6px; white-space: normal; }
+.totals { display: flex; gap: 14px; font-size: 12px; }
+.adder { display: flex; flex-direction: column; gap: 2px; }
+.adder input { flex: 1; }
+.hits { max-height: 180px; overflow: auto; }
+.hits div { padding: 2px 6px; cursor: pointer; display: flex; gap: 8px; }
+.hits div span:first-child { flex: 1; }
+.hits div:hover, .hits div.on { background: var(--select); color: var(--title-text); }
+.hits div.bad { color: var(--shadow); cursor: default; background: none; }
+
+/* MAP / OPTIONS */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: 12px; align-items: start; }
+@media (max-width: 760px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
+.pick tbody tr { cursor: pointer; }
+.pick tbody tr.on { background: var(--select); color: var(--title-text); }
+.form { display: grid; gap: 10px; max-width: 520px; }
+
+/* RESULTS */
+.progress { height: 22px; padding: 2px; }
+.progress div { height: 100%; background: repeating-linear-gradient(90deg, var(--title) 0 12px, transparent 12px 14px); width: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+.stats fieldset { flex: 1 1 220px; }
+.stats dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; }
+.stats dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.winbar { display: flex; height: 18px; margin: 6px 0; border: 1px solid var(--dark); }
+.winbar div { height: 100%; }
+.battles { max-height: 360px; }
+.battles tbody tr { cursor: pointer; }
+.battles tbody tr:hover { background: var(--select); color: var(--title-text); }
+
+/* REPLAY */
+.replay-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
+.replay-frame { width: 100%; flex: 1; min-height: 320px; border: 0; display: block; background: var(--field); }
+#page-replay:not([hidden]) { display: flex; flex-direction: column; }
+.status { flex: none; margin: 0 6px 6px; padding: 2px 6px; font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }
+
+/* team panels: buttons under the list */
+.team-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.team-head input[type=color] { width: 44px; height: 24px; padding: 1px; background: var(--face); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); }
+
+/* the Unit Browser window (moves by its title bar; resizable at the corner) */
+.dialog { position: fixed; top: calc(80px + env(safe-area-inset-top, 0px)); left: 50%; margin-left: -190px; z-index: 40;
+  width: min(380px, calc(100vw - 32px)); height: auto; min-width: 260px; min-height: 120px; resize: both; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow), 4px 4px 0 rgba(0,0,0,.4); }
+.dialog[hidden] { display: none; }
+.dialog .titlebar { cursor: move; touch-action: none; user-select: none; }
+.closebox { width: 24px; height: 20px; padding: 0; line-height: 16px; font-size: 18px; font-weight: bold; flex: none; background: var(--face); color: var(--dark); border: 1px solid var(--dark); box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--shadow); cursor: pointer; }
+.dialog-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.dialog-body .filters { margin: 0; }
+.pair { display: flex; gap: 4px; }
+.pair input[type=number] { width: 64px; }
+.ub-list { flex: 1; min-height: 80px; max-height: none; }
+/* the docked Unit Browser's size grip (bottom-right) and draggable side edges: lab.js wireBrowserSize */
+.win.browser { position: relative; }
+.browser-grip { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; z-index: 2;
+  background: linear-gradient(135deg, transparent 0 40%, var(--dark) 40% 48%, transparent 48% 60%, var(--dark) 60% 68%, transparent 68% 80%, var(--dark) 80% 88%, transparent 88%); }
+.browser-grip:hover, .browser-grip.dragging { background-color: rgba(0,0,128,.15); }
+.win.browser.float .browser-grip { display: none; }
+.win.browser:not(.float) { border-left-width: 4px; border-right-width: 4px; }
+.win.browser.edge-hot, .win.browser.dragging { cursor: ew-resize; }
+.win.browser.dragging { user-select: none; }
+#ub-list tbody tr { cursor: grab; }
+#ub-list tbody tr.on { background: var(--select); color: var(--title-text); }
+#ub-list tbody tr.bad { color: var(--shadow); cursor: default; }
+#ub-list th[data-sort] { cursor: pointer; }
+#ub-list th.sorted { font-weight: bold; }
+@media (max-width: 760px) { .dialog { margin-left: 0 !important; left: max(8px, env(safe-area-inset-left, 0px)) !important; right: auto; width: calc(100vw - 16px); top: auto !important; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); height: 60vh; resize: none; } }
+
+/* the stitched map grid */
+.stitch-grid { display: grid; gap: 4px; margin-top: 6px; }
+.stitch-grid .cell { min-height: 54px; padding: 4px; font: inherit; font-size: 12px; text-align: center; background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.stitch-grid .cell.on { outline: 2px solid var(--title); outline-offset: -4px; }
+#stitch-box { margin-bottom: 8px; }
+
+/* results: the finder and the nested battle list */
+.finder { margin-bottom: 8px; }
+.cond { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.cond select, .cond input { max-width: 100%; }
+#battle-tree { padding: 4px; max-height: 420px; }
+.branch .twig { display: block; width: 100%; text-align: left; padding: 2px 4px; background: none; border: 0; cursor: pointer; font: inherit; }
+.branch .twig:hover { background: var(--select); color: var(--title-text); }
+.branch .twig:hover .note { color: inherit; }
+.branch .sign { display: inline-block; width: 12px; text-align: center; font-family: var(--mono); }
+.branch .kids { margin-left: 18px; border-left: 1px dotted var(--shadow); padding-left: 4px; }
+table.leaves { width: 100%; border-collapse: collapse; }
+table.leaves th { font-weight: normal; text-align: left; padding: 1px 4px; border-bottom: 1px solid var(--shadow); }
+table.leaves td { padding: 1px 4px; white-space: nowrap; }
+table.leaves tbody tr { cursor: pointer; }
+table.leaves tbody tr:hover { background: var(--select); color: var(--title-text); }
+.leaf { padding: 4px; }
+
+/* the About box: centred, sized to its text */
+.dialog.about { left: 50%; right: auto; top: 50%; transform: translate(-50%, -50%); height: auto; max-height: calc(100vh - 32px); width: min(560px, calc(100vw - 32px)); resize: none; }
+.about-body { overflow: auto; }
+.about-body p { margin: 0 0 8px; max-width: 65ch; }
+.status-right { display: flex; gap: 8px; align-items: center; }
+@media (max-width: 760px) { .dialog.about { left: 50% !important; top: 50% !important; bottom: auto; height: auto; } }
+
+/* CL12: weight-class icons - a grip and a little 'Mech whose build grows with the class, so a unit row has something to take hold of */
+.ico { width: 1%; white-space: nowrap; cursor: grab; }
+.grip { color: var(--shadow); font-family: var(--mono); letter-spacing: -2px; margin-right: 2px; user-select: none; }
+.cls { vertical-align: middle; width: 18px; height: 18px; fill: currentColor; }
+.cls-light { color: #2e8b57; } .cls-medium { color: #a67c00; } .cls-heavy { color: #c05a00; } .cls-assault { color: #a00000; } .cls-superheavy { color: #600060; }
+#adv { width: min(480px, calc(100vw - 32px)); height: min(78vh, 720px); margin-left: -240px; }
+.adv-scroll { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+.adv-scroll fieldset { padding: 4px 8px 6px; }
+.adv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 10px; align-items: end; }
+.checks { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.checks label.row { gap: 4px; }
+.wrow { display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
+.wrow input[type=text] { flex: 1; min-width: 0; }
+.wrow input[type=number] { width: 52px; }
+.pair input[type=number] { width: 70px; }
+@media (max-width: 760px) { #adv { margin-left: 0; } }
+.team-zone { min-height: 1px; }
+/* the starting zone as one line of text and checkboxes (team panel) */
+.zone-mini { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: center; font-size: 12px; }
+.zone-mini .zl { display: inline-flex; flex-direction: row; gap: 2px; align-items: center; white-space: nowrap; }
+.zone-mini .zl-head { font-weight: bold; }
+
+/* CL15: the Options tab - sub-tabs, folders, one row per option */
+.subtabs { display: flex; gap: 2px; margin-bottom: 8px; flex: none; }
+.subtab { padding: 3px 14px; background: var(--face); cursor: pointer; border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); }
+.subtab[aria-selected="true"] { font-weight: bold; border-color: var(--dark) var(--light) var(--light) var(--dark); background: #d8d8d8; }
+.opt-pane[hidden] { display: none; }
+details.folder { border: 2px groove var(--light); margin-bottom: 8px; padding: 0 8px 6px; }
+details.folder > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+details.folder[hidden] { display: none; }
+.opt { padding: 4px 0; border-top: 1px dotted var(--shadow); }
+.opt[hidden] { display: none; }
+.opt-main { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.opt-main label { flex-direction: row; font-weight: normal; }
+.opt-main input[type=text] { width: 220px; }
+.opt.changed .opt-main label { font-weight: bold; }
+.opt.inactive { color: var(--shadow); }
+.opt.inactive .note { color: var(--shadow); }
+.opt.inactive input { opacity: .55; }
+.tag { font-size: 11px; padding: 0 5px; border: 1px solid var(--shadow); background: var(--face); color: #404040; }
+.tag.off { background: #e8e8e8; color: var(--shadow); border-style: dashed; }
+.tag.chg { background: #ffffe1; color: var(--dark); border-color: var(--dark); }
+.opt .desc { margin: 2px 0 0 0; max-width: 90ch; }
+.opt input.bad { outline: 2px solid var(--bad); }
+.opt-body mark, .opt mark { background: #ffee66; color: inherit; }
+
+/* CL14: the map preview */
+#map-preview { width: 100%; height: auto; display: block; margin: 6px 0; image-rendering: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; margin-bottom: 4px; }
+.legend span { display: inline-flex; align-items: center; gap: 3px; }
+.legend i { width: 12px; height: 12px; border: 1px solid var(--dark); display: inline-block; }
+
+/* CL14: starting zones - a 3 x 3 grid of boxes per team, the playlist */
+.right-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.zone-grids { display: flex; flex-wrap: wrap; gap: 10px; }
+.zone-team { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.zone-team .zname { font-weight: bold; border-left: 8px solid var(--shadow); padding-left: 4px; }
+.zone-grid { display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 24px); gap: 2px; }
+.zone-grid button { padding: 0; font-size: 10px; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); cursor: pointer; color: var(--dark); }
+.zone-grid button.on { color: #fff; font-weight: bold; border-color: var(--dark) var(--light) var(--light) var(--dark); }
+.zone-grid.off button { opacity: .45; cursor: default; }
+.zone-tools { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; }
+.zone-mini { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.zone-mini .zone-grid { grid-template-columns: repeat(3, 20px); grid-template-rows: repeat(3, 16px); }
+.zone-mini .zone-grid button { font-size: 8px; border-width: 1px; }
+/* the map list: a table, so the up / down / remove buttons line up in their own columns (Daniel, 2026-11-17) */
+.playlist { margin: 0 0 8px; max-height: 180px; overflow: auto; }
+#playlist td.n { color: var(--shadow); width: 2em; text-align: right; }
+#playlist td.b { width: 1%; padding: 0 1px; }
+.pick tbody tr.peek { outline: 1px dotted var(--select); background: #e8e8ff; }
+
+/* CL18/CL19: unit statistics folders */
+#unit-stats-box { margin: 8px 0; }
+.ustat { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; align-items: start; padding: 4px 0 8px; }
+#unit-stats details.folder { margin: 4px 0 4px 12px; }
+.runfile { margin-bottom: 8px; }
+.ustat table { width: 100%; }
+#crashes fieldset { margin: 8px 0; }
+
+/* the report button flashes when a battle crashed (reduced motion: stays highlighted instead) */
+@keyframes flash { 0%, 100% { background: var(--face); color: inherit; } 50% { background: var(--bad); color: #fff; } }
+#report-btn.flash { animation: flash 1s steps(1, end) infinite; font-weight: bold; }
+@media (prefers-reduced-motion: reduce) { #report-btn.flash { animation: none; background: var(--bad); color: #fff; } }
+
+/* sizes (2026-11-15): half a line under the last unit, a pull-down corner on docked teams, column handles, sort triangles */
+.team .list { padding-bottom: .5em; }
+.win.team:not(.float) { resize: vertical; overflow: hidden; }
+/* a docked team window's inner edge (the side facing the Unit Browser) widens it sideways: lab.js dockWidth */
+#teams-left .win.team:not(.float) { border-right-width: 4px; }
+#teams-right .win.team:not(.float) { border-left-width: 4px; }
+.win.team.edge-hot, .win.team.dragging { cursor: ew-resize; }
+.win.team.dragging { user-select: none; }
+.win.sized .list { max-height: none; flex: 1; }
+.list th { position: sticky; }
+.rz { position: absolute; right: 0; top: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
+.rz:hover { background: var(--select); opacity: .5; }
+#ub-list th.sorted[data-dir="1"]::after { content: " \25B2"; font-size: 9px; }
+#ub-list th.sorted[data-dir="-1"]::after { content: " \25BC"; font-size: 9px; }
+.zone-mini { flex-wrap: nowrap; min-width: 0; overflow: hidden; gap: 0 .6em; }
+.zone-mini .zl input { width: 1em; height: 1em; margin: 0 .1em 0 0; }
+
+/* the unit sheet / editor */
+.dialog.sheet { left: 40px; top: 60px; margin-left: 0; width: min(1180px, calc(100vw - 80px)); height: calc(100vh - 100px); }
+.sheet-scroll { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); gap: 10px; align-content: start; }
+.sheet-scroll h3 { margin: 0 0 4px; font-size: 13px; }
+.sheet-scroll table { border-collapse: collapse; width: 100%; }
+.sheet-scroll td, .sheet-scroll th { padding: 1px 4px; text-align: left; font-weight: normal; }
+.sheet-scroll th { border-bottom: 1px solid var(--shadow); }
+.sheet-scroll td.num, .sheet-scroll th.num { text-align: right; }
+.sheet-scroll input[type=number] { width: 54px; padding: 0 2px; }
+.sheet-scroll .head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
+.sheet-scroll .head b { font-size: 15px; }
+.sheet-msgs { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; }
+.sheet-msgs .bad { color: #a00000; } .sheet-msgs .ok { color: #006000; } .sheet-msgs .warn { color: #8a5a00; }
+.crit-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; align-items: start; }
+.crit-loc { border: 1px solid var(--shadow); background: var(--field); }
+.crit-loc h4 { margin: 0; padding: 1px 4px; font-size: 11px; background: var(--face); border-bottom: 1px solid var(--shadow); display: flex; justify-content: space-between; }
+.crit-slot { padding: 0 4px; font-size: 11px; min-height: 15px; border-bottom: 1px dotted #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crit-slot.empty { color: #999; } .crit-slot.fixed { color: #666; background: #eee; }
+.crit-slot.managed { color: #345; background: #e4ecf5; }
+.sheet.editing .crit-slot:not(.fixed):not(.managed):hover { background: var(--select); color: var(--title-text); cursor: pointer; }
+.sheet.editing .crit-slot.empty:hover { cursor: copy; }
+.picker { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.picker select { width: 100%; }
+.picker details { border: 1px solid var(--shadow); padding: 2px 4px; }
+.picker summary { cursor: pointer; font-weight: bold; }
+.crit-slot label { display: flex; flex-direction: row; gap: 3px; align-items: center; margin: 0; white-space: nowrap; }
+.crit-slot input[type=checkbox] { margin: 0; width: 11px; height: 11px; }
+.sheet-foot { margin: 0; justify-content: flex-end; }
+@media (max-width: 760px) { .dialog.sheet { left: max(8px, env(safe-area-inset-left, 0px)) !important; width: calc(100vw - 16px); height: 80vh; } .sheet-scroll { grid-template-columns: minmax(0, 1fr); } }
+
+/* eye column, the "needs a place" tray, drop targets */
+#ub-list td.eye, #ub-list th.eyeh { width: 26px; text-align: center; padding: 0; }
+.eyebtn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 16px; cursor: pointer; color: #345; }
+.eyebtn:hover { background: var(--select); color: var(--title-text); }
+.tray { margin-top: 8px; padding: 4px; border: 1px dashed var(--shadow); min-height: 26px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px; background: #fff3c4; border: 1px solid #b08a00; cursor: grab; user-select: none; }
+.chip .x { border: 0; background: none; cursor: pointer; padding: 0 2px; }
+.crit-slot.drop { outline: 2px dashed var(--title); outline-offset: -2px; }
+.crit-slot[draggable="true"] { cursor: grab; }
+.dialog.sheet:not(.editing) .sheet-scroll { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
+.dialog.sheet:not(.editing) .crit-slot { font-size: 10px; }
+#unit-stats tr.cause-row { cursor: pointer; }
+#unit-stats tr.cause-row:hover td, #unit-stats tr.cause-row:hover a { background: var(--select); color: var(--title-text); }
+/* Full power's warning (Options > Run): grey until the box is ticked, then red */
+#full-power-warn { margin-left: 8px; }
+#full-power-warn.on { color: #a00000; font-weight: bold; }
+#cancel-btn-2 { margin-right: 6px; }
+
+/* Advanced search: a Close button under the filters as well as the X (Daniel, 2026-11-20) */
+.adv-foot { display: flex; justify-content: flex-end; flex: none; }
+
+/* Window resize, visible (Daniel, 2026-11-20: "Add window resize"; 2026-11-19: it worked "only after you move the box"): a docked team
+   window shows a grab strip on the edge that faces the Unit Browser, so there is something to find and pull. lab.js's EDGE is its width. */
+.win.team:not(.float) { position: relative; }
+.win.team:not(.float)::after { content: ""; position: absolute; top: 24px; bottom: 24px; width: 10px; cursor: ew-resize; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, var(--shadow) 0 2px, transparent 2px 6px); background-size: 2px 100%; background-repeat: no-repeat; background-position: center; opacity: .75; }
+#teams-left .win.team:not(.float)::after { right: 0; }
+#teams-right .win.team:not(.float)::after { left: 0; }
+.win.team.edge-hot::after { opacity: 1; background-color: rgba(0,0,128,.15); }
+@media (max-width: 760px) { .win.team:not(.float)::after { display: none; } }
+
+/* critical slot survival diagram: the unit sheet's grid, each slot shaded green (always working) to red (always lost) */
+#critmap { width: min(900px, calc(100vw - 32px)); height: min(80vh, 640px); margin-left: -450px; left: 50%; }
+@media (max-width: 760px) { #critmap { margin-left: 0; } }
+.crit-slot.surv { display: flex; justify-content: space-between; gap: 6px; }
+.crit-slot.surv b { font-weight: normal; font-variant-numeric: tabular-nums; }
+.eye { background: none; border: 0; cursor: pointer; font-size: 14px; padding: 0 4px; }
+
+.ustat table.wide { grid-column: 1 / -1; }
+.ustat > * { min-width: 0; }
+
+/* Configure team / Configure unit windows (N5) */
+.dialog.teamcfg, .dialog.unitcfg { width: min(560px, calc(100vw - 32px)); margin-left: 0; height: auto; }
+.dialog.teamcfg .dialog-body, .dialog.unitcfg .dialog-body { max-height: min(70vh, 640px); overflow: auto; padding: 8px; }
+.dialog.teamcfg .team-head, .dialog.unitcfg .team-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.opt.sliders .slider { display: grid; grid-template-columns: 12em 1fr 2em; align-items: center; gap: 6px; margin: 2px 0; }
+.opt.sliders .slider output { text-align: right; font-variant-numeric: tabular-nums; }
+.dialog.unitcfg table.ammo { width: 100%; border-collapse: collapse; }
+.dialog.unitcfg table.ammo td, .dialog.unitcfg table.ammo th { padding: 2px 6px; text-align: left; }
+@media (max-width: 600px) { .opt.sliders .slider { grid-template-columns: 1fr 1fr 2em; } }
