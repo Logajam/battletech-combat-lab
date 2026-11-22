@@ -375,3 +375,29 @@ Equipment); the formatted combat report popup; hazard confirm popups; MegaMek sp
 silhouette); landscape and wide layouts, the Terminal and Amber looks, text size S / M / L, the REC button and the Anatomy overlay;
 the dashed-outline-plus-band range display (reach is still tinted hexes with a dashed border).
 
+## 20. Weapon panel and detail sheet (2026-11-22; Daniel: "Weapon panel and details")
+
+Built from Sections 4 and 5 of `INTEGRATION__BATTLEROM_UI.md`. REVIEW PENDING (higher-level model).
+
+**Weapon panel** (fire phase, floating on the left of the map, about 40% of the width): header with the target and the range and a sort
+button; one row per weapon group: the target symbol (assign: grey, green when all of the group are assigned, olive when part), the name
+(tap = focus: shows its range bands and arc on the map and its detail in the info bar; press and hold for the card), a mode button, a rate-of-fire
+button and a capacitor button where the weapon has them, an ammunition button (opens the bin picker). Weapons share a row only if name, location,
+rear / torso-twist arc, ammunition bin, mode, rate, number to hit and in-range state all match; a tap adds one weapon of a group, a tap on a full group
+clears it, the count reads n/m. Mode, rate and ammunition changes apply to the whole group. Sort (mount order, range, damage, heat, each both ways)
+and "group identical" are remembered on the device. **Info bar:** target, range, heat now and if these fire; the focused weapon with its
+locations, damage, heat, Min/S/M/L, mode, ammunition bin, number to hit and odds. **Strike** cycles Strike (best damage per heat up to a comfortable
+end-of-turn heat of 8) and Alpha Strike (everything in range). The action cluster over the map reads the weapons assigned, expected damage and heat before
+and after, with **Fire!** and a clear button.
+
+**Dock** (the bottom sheet, replacing the old sheet and overlay): header with the unit name and smaller / bigger arrows (a flick up or down does the same);
+three sizes, remembered; the summary line; tabs **Plan** (what the question asks, as before), **Weapons** (every weapon of the selected unit, enemies too:
+location, damage, heat, Min/S/M/L), **Stats** (summary, equipment switches, critical slots) and **Armor** (a silhouette of location boxes, a pip for each
+point or for each few points on a large location, armour white outside, structure grey inside, lost points red from the outside in; rear armour in brackets).
+The tabs show whichever unit is selected (tap a unit or a chip), so you can read an enemy's weapons and armour while planning. The engine now sends each
+unit's weapon list once with its slot names (`weapons` in `units_json`), and `damage` / `rack` with each weapon row.
+
+**Not done:** the third Strike level (ALPHA STRIKE! at any available target) needs several targets, but the engine picks the target before the weapons
+(its own question): so previous / next target arrows are not there either; "missiles-only" renamed Strike levels; rear armour pips (shown as a number only);
+the armour silhouette is a box layout, not a drawn 'Mech.
+

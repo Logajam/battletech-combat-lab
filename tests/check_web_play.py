@@ -224,12 +224,23 @@ const POLICY = (r) => {
     else if (st.kind === 'spot') await tap('spot', '[data-id=""]');
     else if (st.kind === 'tag') await page.evaluate(() => send({ target: null }));
     else if (st.kind === 'target') await tap('target');
-    else if (st.kind === 'declaration') { await tap('alpha'); await tap('fire-go'); }
+    else if (st.kind === 'declaration') {
+      if (!out.panel) {
+        // the weapon panel lists the weapons, assigning one puts it on the target, the dock tabs show weapons and the armour pips
+        await tap('assign');
+        const assigned = await page.evaluate(() => __bm && document.querySelectorAll('#wpanel .fc.all, #wpanel .fc.part').length);
+        await tap('tab', '[data-t="weapons"]'); const weapons = await page.evaluate(() => document.querySelectorAll('#tabbody tr').length);
+        await tap('tab', '[data-t="armor"]'); const pips = await page.evaluate(() => document.querySelectorAll('#tabbody .pips i').length);
+        await tap('tab', '[data-t="plan"]');
+        out.panel = { rows: await page.evaluate(() => document.querySelectorAll('#wpanel .wrow').length), assigned, weapons, pips };
+      }
+      await tap('strike'); await tap('strike'); await tap('fire-go');
+    }
     else if (st.kind === 'physical') await tap('phys', '[data-k=""]');
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { over, kinds: [...kinds], arrow: out.arrow };
+  out.page = { over, kinds: [...kinds], arrow: out.arrow, panel: out.panel };
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -299,6 +310,8 @@ def main():
         report("Human" in (out["noHuman"]["run"].get("error") or ""), "a batch with a Human team is refused in words: " + str(out["noHuman"]["run"].get("error")))
         ar = out["page"].get("arrow") or out.get("arrow")
         report(bool(ar) and ar["blocked"] and ar["after"] == ar["facing"] and ar["before"] != ar["after"], f"a turn arrow works with another unit in the hex it points at ({ar})")
+        pn = out["page"].get("panel") or {}
+        report(pn.get("rows", 0) > 0 and pn.get("assigned", 0) > 0 and pn.get("weapons", 0) > 1 and pn.get("pips", 0) > 20, f"the weapon panel lists weapons, a tap assigns one, the Weapons and Armor tabs fill ({pn})")
         pg = out["page"]
         report(pg["over"] and {"deploy", "movement", "target", "declaration"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))

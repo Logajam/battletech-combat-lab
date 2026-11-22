@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, evening), BATTLEROM: weapon panel and detail sheet. REVIEW PENDING (higher-level model).** Daniel: "Weapon panel and details."
+  `play.js` / `play.html`: the floating weapon panel (grouping, assign, focus, mode / rate / capacitor / ammunition buttons, sort, Strike cycle, info-bar
+  detail, Fire! in the action cluster) and the dock (tabs Plan, Weapons, Stats, Armor; three sizes; flick; armour silhouette with pips). `play_session.rs`:
+  `weapons` per unit (sent once with the slot names) and `damage` / `rack` on weapon rows. Detail and what is not done: `INTEGRATION__PLAYER_DECISIONS.md` Section 20.
+
 - **2026-11-22 (Claude, later), BATTLEROM: Daniel's first impressions (browse units, deployment, shared map, turn arrows, mockup features). REVIEW PENDING (higher-level model).**
   `play_session.rs`: `MoveView` / `move_view` (the movement question's view, now for any unit), `reach` and `path` queries in the
   move-order question, a planned move carried by the `move_order` answer (`Screen::plan`, `ask_with`), `Controller::deploy` and

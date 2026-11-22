@@ -73,6 +73,41 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
 #menu{position:absolute;right:6px;top:36px;background:var(--panel);border:1px solid var(--bd);z-index:7;display:none;min-width:200px;padding:4px}
 #menu div.f{padding:6px 8px;cursor:pointer} #menu div.f:hover{background:var(--face)} #menu .sub{padding-left:14px;display:none} #menu .sub.open{display:block}
 #menu .item{padding:7px 8px;cursor:pointer;min-height:32px} #menu .item:hover{background:var(--face)} #menu .item.on::before{content:"\2713 ";color:var(--ok)}
+
+#dock{flex:none;display:flex;flex-direction:column;background:color-mix(in srgb,var(--panel) 94%,transparent);border-top:2px solid var(--bd);min-height:0}
+#dock[data-size="0"]{max-height:76px}#dock[data-size="0"] #docktabs,#dock[data-size="0"] #dockbody{display:none}
+#dock[data-size="1"]{max-height:44%}#dock[data-size="2"]{position:absolute;left:0;right:0;bottom:0;max-height:74%;height:74%;z-index:6;box-shadow:0 -6px 16px rgba(0,0,0,.45);background:color-mix(in srgb,var(--panel) 97%,transparent)}
+#dockhead{display:flex;align-items:center;gap:6px;padding:2px 6px;background:var(--title);color:var(--titletx);flex:none;touch-action:none}
+#dockhead b{font-size:13px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dockhead .sp{flex:1}
+#dockhead button{min-width:44px;min-height:32px;padding:0;font-size:15px}
+#docksum{padding:3px 8px;font-size:12px;color:var(--tx);flex:none;border-bottom:1px solid var(--sh)}
+#docktabs{display:flex;gap:2px;padding:4px 6px 0;flex:none;border-bottom:1px solid var(--bd)}
+#docktabs button{border-bottom:none;border-radius:var(--rad) var(--rad) 0 0;min-height:30px;background:transparent;box-shadow:none;color:var(--muted)}
+#docktabs button.on{background:var(--field);color:var(--tx);outline:none;border-color:var(--link)}
+#dockbody{overflow:auto;flex:1;min-height:0}
+#sheet{max-height:none;overflow:visible;border-top:0;background:transparent;padding:8px}
+#tabbody{padding:8px;display:none}
+#dock[data-tab="plan"] #tabbody{display:none}#dock:not([data-tab="plan"]) #sheet{display:none}#dock:not([data-tab="plan"]) #tabbody{display:block}
+#wpanel{position:absolute;left:6px;top:50px;width:min(40%,210px);max-height:calc(100% - 130px);overflow:auto;background:color-mix(in srgb,var(--panel) 90%,transparent);border:1px solid var(--bd);z-index:3;display:none;font-size:11.5px}
+#wpanel .wh{display:flex;align-items:center;gap:4px;padding:3px 5px;background:var(--title);color:var(--titletx);font-size:11.5px;position:sticky;top:0}
+#wpanel .wh span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#wpanel .wh button{min-height:24px;min-width:26px;padding:0 5px;font-size:11px}
+.wrow{display:flex;align-items:center;gap:3px;padding:2px 3px;border-bottom:1px solid var(--face);min-height:34px}
+.wrow.out{opacity:.55}.wrow.focus{background:color-mix(in srgb,var(--link) 22%,transparent)}.wrow.fired{background:#2a0d0d}
+.wrow .fc{min-width:32px;min-height:32px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.wrow .fc svg{width:20px;height:20px}.wrow .fc.all{background:var(--go);border-color:var(--ok)}.wrow .fc.part{background:#4b5a2b;border-color:var(--warn)}
+.wrow .wn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;padding:6px 0}
+.wrow .wn small{color:var(--muted)}
+.wrow button.sm{min-width:30px;min-height:30px;padding:0 4px;font-size:10.5px}
+.wrow.jam .wn{color:var(--err)}
+.wbins{padding:3px 6px;border-bottom:1px solid var(--face);display:flex;flex-wrap:wrap;gap:3px}
+.sil{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:360px;margin:4px auto}
+.sil .loc{border:1px solid var(--bd);background:var(--field);padding:3px;text-align:center;font-size:10px;color:var(--muted);min-height:44px}
+.sil .loc.dead{opacity:.35}
+.pips{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin:2px 0}
+.pips i{display:block;width:6px;height:6px;background:#f2f4f6;border:1px solid #0c0f13}.pips i.s{background:#8a96a3}.pips i.r{background:var(--err);border-color:#400}
+.wt{width:100%}.wt td,.wt th{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -83,13 +118,18 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
   <div id="estrip"></div>
   <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zfit" aria-label="Fit map">&#9635;</button></div>
+    <div id="wpanel"></div>
     <div id="info">Waiting for the game...</div>
     <div id="cluster"></div>
     <div id="report"></div>
   </div>
   <div id="strip"></div>
-  <div id="sheet"></div>
-  <div id="detail"></div>
+  <div id="dock" data-size="1">
+    <div id="dockhead"><b id="dockname">BattleROM</b><span class="sp"></span><button id="dockdn" aria-label="Smaller">&#9660;</button><button id="dockup" aria-label="Bigger">&#9650;</button></div>
+    <div id="docksum"></div>
+    <div id="docktabs"></div>
+    <div id="dockbody"><div id="sheet"></div><div id="tabbody"></div></div>
+  </div>
 </div>
 <script src="boardart.js"></script>
 <script src="play.js"></script>
