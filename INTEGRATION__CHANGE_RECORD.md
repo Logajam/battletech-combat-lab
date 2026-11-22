@@ -6,6 +6,9 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, night), BATTLEROM: Daniel's list of bugs and features recorded (docs only).** 28 items, none started (Daniel: compute for the week is too low for more tasks);
+  `INTEGRATION__PLAYER_DECISIONS.md` Section 24, pointer in PROJECT_MAP Section 4. REVIEW PENDING (higher-level model) for whoever builds them.
+
 - **2026-11-22 (Claude, night, second round), BATTLEROM: fire screen with split fire, TN line items, spoiler-safe report, hazards. REVIEW PENDING (higher-level model).** Daniel's play-through
   (PLAYER_DECISIONS Section 23). Engine: `next_secondary` on `RangedBot` / `BotSet` / `Controller` (a person's secondary targets, attack_resolution.rs, orchestrator.rs, human_bots.rs),
   `play_session.rs` `target_preview` / `target_query` / `decl_req_json` / `Screen::secondary`. Page: the fire screen, `tnCard`, the report queue (`feedLog` / `releaseLog`), `hazardList`, Place!,
