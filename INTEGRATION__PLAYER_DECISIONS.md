@@ -432,3 +432,22 @@ Defended differences (kept on purpose, Daniel agreed): the real map with hex num
 Still open from the audit: hazard confirmations and the combat report popup; dashed-outline range display and grey illegal paths; landscape and the Terminal / Amber looks; text size;
 ammo-pile and mode buttons on the weapon rows; a drawn silhouette and MegaMek sprites; placards still overlap near the start hex.
 
+## 23. Second round after the audit (2026-11-22; Daniel's play-through of the first fixes)
+
+REVIEW PENDING (higher-level model). Daniel: the number beside the target was wrong and could not be opened for its parts; the report counted running as walking (unverified) and showed
+things before they happened and should sit on top of everything; the Target! button locked the player in ("Select weapon. Click on a target. Push the fire button. Click on another target,
+fire on a secondary target. That's how it works in the demo."); hazard confirmation, the combat report after the firing phase and the extra weapon buttons are wanted; deployment should use
+the same action button; placards were not really done.
+
+| Point | Done |
+|---|---|
+| Fire flow | The target question is now the FIRE SCREEN. The engine's `preview` query returns, for every enemy, the declaration as it would be asked (weapon rows with their numbers, breakdown); the page lets the person assign weapons to any number of targets (arrows, chips, hexes pick the target in view; the target symbol assigns; a weapon moves from one target to another by assigning it again), and **Fire!** plays the engine's questions from the plan: the primary target (a forward-arc target if any, p.64) and its weapons, then each secondary target and its weapons. Engine: `RangedBot::next_secondary` / `BotSet::next_secondary` / `Controller::secondary` (a person's split fire, a `secondary` target question; bots are untouched and still use the STUB_SPLIT_FIRE policy), `target_preview` with a `primary` (the others are worked out as secondary targets, +1, or refused in words), `set` answered in the target question. |
+| Real TN | Every weapon row and every enemy hex carries the real number for the weapon in focus; tapping a number opens its line items (gunnery, how the attacker moved, the target's movement, terrain / line of sight, cover, heat, prone, stealth, other, the range band, the weapon's own modifiers = the number to hit and its odds). The to-hit breakdown now names the attacker's movement mode. NOT REPRODUCED: "the screen says 7 for 4 + run 2 + medium 2 + target movement": in scripted games a run counts +2 and the log says `[Run]`; the line items will show where a number differs from the sum Daniel expects. |
+| Report | A pop-up over every screen and button (Esc or Close). Bot reasoning is never shown. A movement line appears once that unit has moved; the firing, physical and heat phases wait until that phase is over. After the firing phase a formatted combat report (each attack, each weapon: needed, rolled, hit or miss) opens by itself; the Report button on the detail header shows the whole report, movement in words ("ran to 0103, 7 movement points..."). |
+| Move! | Hold about 0.6 s; the Stay button is gone (Move! with nothing planned stays). **Place!** in deployment is the same big hold button (my choice: placing is as hard to undo as a move; a plain tap there would be one line to change). |
+| Hazards | Holding Move! on a path with piloting rolls, terrain damage or dangerous terrain lists each and asks "Move anyway". |
+| Weapon buttons | The ammunition button wears an ammunition pictogram; mode, rate, charge and ammunition choices work on the fire screen (the engine applies them before the target is chosen). |
+| Placards | Drawn at one size on the screen whatever the zoom (name and the three bars), redrawn after a zoom, placed on the first spot that covers no sprite or other placard. |
+
+Known: the unit's own best-TMM route, not the planned route (Section 21); an enemy strip chip shows no TN pill; a split-fire plan whose secondary refuses is played as far as the engine allows (the rest is dropped, the error shows).
+
