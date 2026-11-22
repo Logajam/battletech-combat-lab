@@ -92,7 +92,9 @@ def desktop_game(port):
             return log, p["end"]
         r, seq = p["request"], p["seq"]
         k = r["kind"]
-        if k == "move_order":
+        if k == "deploy":
+            ans = {"hex": r["hexes"][0], "facing": "N"}
+        elif k == "move_order":
             ans = {"unit": r["candidates"][0]}
         elif k == "movement":
             best = max(r["options"], key=lambda o: (o["mode"] == "Run", o["mp"]), default=None)
@@ -122,6 +124,7 @@ const [,, base, setupFile] = process.argv;
 const SETUP = JSON.parse(require('fs').readFileSync(setupFile, 'utf8'));
 const POLICY = (r) => {
   const k = r.kind;
+  if (k === "deploy") return { hex: r.hexes[0], facing: "N" };
   if (k === "move_order") return { unit: r.candidates[0] };
   if (k === "movement") {
     let best = null;
@@ -191,11 +194,30 @@ const POLICY = (r) => {
     if (st.over) { over = true; break; }
     kinds.add(st.kind);
     const tap = (act, extra) => page.locator(`[data-act="${act}"]${extra || ""}`).first().click();
-    if (st.kind === 'move_order') await tap('pick-unit');
+    if (st.kind === 'deploy') { await page.locator('[data-deploy]').first().dispatchEvent('click'); await tap('place'); }
+    else if (st.kind === 'move_order') await tap('pick-unit');
     else if (st.kind === 'stand_up') await tap('stand', '[data-v="1"]');
     else if (st.kind === 'boost') await tap('boost', '[data-v="0"]');
     else if (st.kind === 'movement') {
       const hex = await page.evaluate(() => { const r = window.__bm.req; const o = r.options.filter((x) => x.mode === 'Walk').sort((a, b) => b.mp - a.mp)[0] || r.options[0]; return o && o.hex; });
+      if (hex && !out.arrow) {
+        // the turn arrows still work when another unit stands in the hex they point at: pick the cheapest hex with several facings,
+        // put a friend next to it where an arrow points, and tap that arrow with a real mouse click
+        const near = await page.evaluate(() => { const r = window.__bm.req; const by = {}; r.options.forEach((o) => (by[o.hex] = by[o.hex] || new Set()).add(o.facing)); const hs = Object.keys(by).filter((h) => by[h].size > 1); hs.sort((a, b) => Math.min(...r.options.filter((o) => o.hex === a).map((o) => o.mp)) - Math.min(...r.options.filter((o) => o.hex === b).map((o) => o.mp))); return hs[0] || null; });
+        if (near) {
+          await page.locator(`[data-reach="${near}"]`).first().dispatchEvent('click');
+          const probe = await page.evaluate(() => {
+            const f = [...document.querySelectorAll('[data-arrow]')][0]; if (!f) return null;
+            const DIRS = { N: 4, NE: 5, SE: 0, S: 1, SW: 2, NW: 3 }; const facing = f.dataset.arrow;
+            const target = neighbours(__bm.dest)[DIRS[facing]];
+            const friend = __bm.units.find((u) => u.id !== __bm.req.unit && u.team === __bm.myTeam && !u.destroyed);
+            if (friend) { friend.hex = target; redraw(); }
+            const g = document.querySelector(`[data-arrow="${facing}"]`).getBoundingClientRect();
+            return { facing, x: g.x + g.width / 2, y: g.y + g.height / 2, before: __bm.facing, blocked: !!friend };
+          });
+          if (probe) { await page.mouse.click(probe.x, probe.y); await page.waitForTimeout(100); out.arrow = { ...probe, after: await page.evaluate(() => __bm.facing) }; }
+        }
+      }
       if (hex) { await page.locator(`[data-reach="${hex}"]`).first().dispatchEvent('click'); await tap('commit'); }
       else await tap('stay');
     }
@@ -207,7 +229,7 @@ const POLICY = (r) => {
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { over, kinds: [...kinds] };
+  out.page = { over, kinds: [...kinds], arrow: out.arrow };
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -275,8 +297,10 @@ def main():
             report(g["extras"]["set"] and g["extras"]["switches"], "queries while a question waits (weapon modes, equipment switches) are answered in the browser")
         report("Human" in (out["noHuman"]["start"].get("error") or ""), "Play without a Human team is refused in words: " + str(out["noHuman"]["start"].get("error")))
         report("Human" in (out["noHuman"]["run"].get("error") or ""), "a batch with a Human team is refused in words: " + str(out["noHuman"]["run"].get("error")))
+        ar = out["page"].get("arrow") or out.get("arrow")
+        report(bool(ar) and ar["blocked"] and ar["after"] == ar["facing"] and ar["before"] != ar["after"], f"a turn arrow works with another unit in the hex it points at ({ar})")
         pg = out["page"]
-        report(pg["over"] and {"movement", "target", "declaration"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
+        report(pg["over"] and {"deploy", "movement", "target", "declaration"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))
         print(f"(the browser played two battles in {took:.0f} s)")
     finally:

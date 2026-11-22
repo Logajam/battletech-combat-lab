@@ -351,3 +351,27 @@ in a phone-sized window with no page error.
 **Not done / to watch.** Not tried on a real phone. iPhone Safari needs the service worker too (supported since iOS 15.2).
 The play tab holds the battle in memory only. A panic in the engine during a human game ends it ("the engine stopped"), as on the desktop.
 
+## 19. First impressions from Daniel (2026-11-22) and what was done
+
+Daniel, after trying the browser version: (1) cycle through the 'Mechs checking movement options before committing one: it locked
+you into the first unit selected; (2) the player has control during deployment too, within the game's deployment rules; (3) the
+map should be the same map as in the replay and the map browser; (4) the turn button did not work when another unit was in the
+hex you wanted to turn towards; (5) most of the functionality of the art demo (the mockup) is missing.
+
+| # | Now |
+|---|---|
+| 1 | The move-order question is the movement screen. Tap any of your units (map or strip) to see its reach, plan its move (hex, turn, mode) and press Move!: the answer carries the unit and the planned move (`move_order` answer {unit, plan}), and that unit's movement question is then answered from the plan (`Screen::plan`, `ask_with`). New queries while the question waits: `reach` {unit} (the movement question's own view for any unit that has not moved) and `path` {unit, ...}. A prone unit cannot be previewed (it stands up first). If boosting (MASC) or anything else changes what is legal between planning and moving, the movement question is asked normally with a sentence saying the plan no longer works. |
+| 2 | A `deploy` question (`orchestrator::start_battle_with` / `DeployHook`, `Controller::deploy`): where the rules place units before turn 1 (home edge row up to the deployment depth, or a placed zone), the person's units are placed by the person, taking turns with the bots as the engine already does. Green hexes are the legal ones; tap one, tap an arrow to face, Place here. Units that walk on instead (the rulebook's walk-on, or a walk-on zone) are still chosen in the movement question. |
+| 3 | `engine/lab/web/boardart.js` is the one painter of a map's hexes; the Lab's map preview and the play page both call it (the play page draws it once into an image under the interactive layer), so a map looks the same. The replay page (`INTEGRATION__replay_viewer.html`) still has its own, simpler painter: not changed. |
+| 4 | The turn arrows are rebuilt: a ring of triangles hugging the hex, one per facing the unit could end in, none on the side it faces, coloured by the mode that facing needs, on the top layer with a big tap area. Tested with a friend standing in the hex an arrow points at (`tests/check_web_play.py`, a real mouse click). I could not reproduce the old failure exactly (the old arrows were also drawn above units); the new ring cannot be covered by a unit. If it still fails for you, tell me what you tapped. |
+| 5 | Added from the mockup: the enemy strip (chips with % left and a red top), your force strip below the map, the info bar as an overlay on the map, sprites on tinted hex bases, placards with the three bars (A armour, S structure, H heat) placed so they do not cover each other with leader lines, the action cluster over the map (MP used / allowed, TMM, the big Move! button, the x for undo, Esc), the first view zoomed on your own units. |
+
+**Still missing from the mockup (honest list):** waypoint steering (numbered waypoints, step counts per waypoint; the engine always
+walks its own cheapest route, so showing waypoints would be a lie until the engine can walk a chosen one); the left weapons
+panel (fire-control target symbols, grouping, sort, the Strike / Alpha Strike cycle, previous / next target arrows: the weapon table
+is still a table in the sheet, and the target is still picked in its own question before the weapons); the detail sheet with
+the flick, tabs Plan / Weapons / Stats / Armor and the armour silhouette with pips (the current sheet has Summary, Armor, Criticals,
+Equipment); the formatted combat report popup; hazard confirm popups; MegaMek sprites (licence unchecked; the sprite is a plain
+silhouette); landscape and wide layouts, the Terminal and Amber looks, text size S / M / L, the REC button and the Anatomy overlay;
+the dashed-outline-plus-band range display (reach is still tinted hexes with a dashed border).
+

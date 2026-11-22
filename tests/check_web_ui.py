@@ -43,7 +43,7 @@ const { chromium } = require('playwright');
       const ctx = await b.newContext();
       await ctx.addInitScript((c) => Object.defineProperty(Navigator.prototype, "hardwareConcurrency", { get: () => c }), cores);
       const p = await ctx.newPage();
-      await p.goto(url);
+      await p.goto(url); await p.waitForFunction(() => window.crossOriginIsolated, null, { timeout: 20000 }).catch(() => {}); await p.waitForLoadState('load');
       await p.waitForFunction(() => window.LAB_WASM && document.getElementById("status").textContent.length > 0, null, { timeout: 120000 });
       const r = await p.evaluate(async () => {
         const units = (await LAB_WASM.api("list_units", {})).units;
@@ -68,7 +68,7 @@ const { chromium } = require('playwright');
     const ctx = await b.newContext({ viewport: { width: 1600, height: 1000 } });
     const p = await ctx.newPage();
     p.on("pageerror", (e) => out.errors.push(e.message));
-    await p.goto(url);
+    await p.goto(url); await p.waitForFunction(() => window.crossOriginIsolated, null, { timeout: 20000 }).catch(() => {}); await p.waitForLoadState('load');
     await p.waitForFunction(() => window.LAB_WASM && document.querySelectorAll("#ub-list tbody tr").length > 0, null, { timeout: 120000 });
     check("the page loads and the Unit Browser lists units", true, await p.locator("#ub-list tbody tr").count());
 

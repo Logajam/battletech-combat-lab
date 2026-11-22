@@ -73,6 +73,9 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const p = await b.newPage();
   const errors = []; p.on('pageerror', e => errors.push(e.message));
   await p.goto(url);
+  // the first visit installs the isolation service worker and reloads the page once (coi.js): wait for that to finish
+  await p.waitForFunction(() => window.crossOriginIsolated, null, { timeout: 20000 }).catch(() => {});
+  await p.waitForLoadState('load');
   const out = await p.evaluate(async (all) => {
     const res = {};
     for (const [name, setup] of Object.entries(all)) {

@@ -32,6 +32,7 @@ def play(lab, seed, kinds, wrong_once):
     g = lab.api("play_start", {"setup": SETUP, "seed": seed})
     gid = g["game"]
     answers = []
+    browse_unit = []
     for _ in range(5000):
         p = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
         if p["state"] == "waiting":
@@ -43,8 +44,27 @@ def play(lab, seed, kinds, wrong_once):
         r, seq = p["request"], p["seq"]
         k = r["kind"]
         kinds.add(k)
-        if k == "move_order":
+        if browse_unit and browse_unit[0] != -1:
+            # the question right after a planned move is not that unit's movement question again
+            assert not (k == "movement" and r["unit"] == browse_unit[0]), "a planned move is not asked again"
+            browse_unit[0] = -1
+        if k == "deploy":
+            ans = {"hex": r["hexes"][0], "facing": "N"}
+        elif k == "move_order":
             ans = {"unit": r["candidates"][0]}
+            if "browse" not in kinds and len(r["candidates"]) > 1:
+                # look over every unit's moves before choosing one, then commit the LAST one with its move planned: its movement
+                # question must not come again, and an unknown unit is refused
+                kinds.add("browse")
+                views = {u: lab.api("play_query", {"game": gid, "query": {"q": "reach", "unit": u}}) for u in r["candidates"]}
+                assert all(v.get("view", {}).get("options") for v in views.values()), "every candidate has a reach view: " + json.dumps(views)[:120]
+                assert "error" in lab.api("play_query", {"game": gid, "query": {"q": "reach", "unit": 99}}), "an unknown unit is refused"
+                last = r["candidates"][-1]
+                o = max(views[last]["view"]["options"], key=lambda x: (x["mode"] == "Walk", x["mp"]))
+                route = lab.api("play_query", {"game": gid, "query": {"q": "path", "unit": last, "hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}})
+                assert route.get("path"), "a route for a unit that is not the one asked about: " + json.dumps(route)[:100]
+                browse_unit[:] = [last]
+                ans = {"unit": last, "plan": {"hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}}
         elif k == "movement":
             if "path" not in kinds and r["options"]:
                 kinds.add("path")
@@ -108,7 +128,9 @@ def kit_game(lab, kinds):
         r, seq = p["request"], p["seq"]
         k = r["kind"]
         kinds.add(k)
-        if k == "move_order":
+        if k == "deploy":
+            ans = {"hex": r["hexes"][0], "facing": "N"}
+        elif k == "move_order":
             ans = {"unit": r["candidates"][0]}
         elif k == "stand_up":
             ans = {"stand": True}
