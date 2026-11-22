@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude), BATTLEROM IN THE BROWSER: a person can play in the web Lab. REVIEW PENDING (higher-level model).** Daniel:
+  "Getting the browser version built and pushed to the public website". `play_session.rs`: a battle now waits for the person through a
+  `Link` trait (the desktop's `Game` implements it unchanged; `play_blocking` plays on the caller's stack), so the engine code is
+  the same in both builds. `engine/wasm/src/lib.rs`: `PageLink` and the `play_run` call (the module still has no threads: the
+  page's play worker blocks inside the call on an `Atomics.wait` and the page writes answers and queries into a shared buffer;
+  `engine/wasm/web/playworker.js`). `engine.js` keeps the question / answer / query state the desktop server keeps, so `play.js` and
+  `lab.js` use the same calls in both builds (`lab.js`: `play_check`, then the setup goes to the play page through localStorage).
+  Cross-origin isolation (needed for shared memory) on a static host: `coi.js` + `coi-sw.js` (a service worker adds the two
+  headers; one reload on first visit). `tools/build_web_lab.py` ships `play.html`, `play.js`, the new scripts; `tools/publish_web_lab.py`'s
+  file list matches. New check `tests/check_web_play.py` (website group of `run_checks.py`): same player, same seed, desktop = browser
+  (109 answers, same end); queries; refusals; service-worker isolation on a plain server; the real play page tapped through a whole
+  battle. Bot battles are unchanged (reference battles). Details: `INTEGRATION__PLAYER_DECISIONS.md` Section 18.
+
 - **2026-11-21 (Claude, evening), BATTLEROM SLICE, SECOND PASS: the rest of the player's decisions. REVIEW PENDING (higher-level
   model).** Daniel: "Skip 5 and 7. Work on getting everything else working." Engine: `player_choices.rs` (what a person chose:
   munition, shots, ammo bin, unjam, capacitor charge, MASC / radical, coolant, sinks, Blue Shield; read first by the stubs, `ammo::take`,

@@ -1453,6 +1453,14 @@ async function playGame() {
   if (zp) { $("run-error").textContent = zp + " See the Map page."; return; }
   const chosen = setup();
   if (!$("seed").value.trim()) chosen.seed = freshSeed();
+  if (window.LAB_WASM) {
+    // the browser build: this page only checks the setup; the play page (its own tab) starts the battle in its own worker
+    const c = await api("play_check", { setup: chosen });
+    if (c.error) { $("run-error").textContent = c.error; return; }
+    try { localStorage.setItem("bm_play_setup", JSON.stringify(chosen)); } catch (e) { $("run-error").textContent = "This browser will not let the page hand the game over (storage is off)."; return; }
+    window.open("play.html", "_blank");
+    return;
+  }
   const r = await api("play_start", { setup: chosen });
   if (r.error) { $("run-error").textContent = r.error; return; }
   window.open(`play.html?game=${r.game}&colours=${encodeURIComponent(JSON.stringify(r.colours || {}))}`, "_blank");

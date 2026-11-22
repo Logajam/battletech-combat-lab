@@ -181,6 +181,102 @@
     return record;
   }
 
+  // ------------------------------------------------------------ BattleROM: a battle with a person in it
+  // One Web Worker plays the battle (playworker.js) and sleeps while the person thinks; this side keeps what the desktop
+  // Lab's server keeps (engine/core/src/play_session.rs `Game`): the question waiting, its number, the end, and the query
+  // being answered, and answers play_poll / play_answer / play_query in the same words. The shared buffer needs the
+  // page to be cross-origin isolated (coi.js), so without it Play says so.
+  const games = new Map();
+  const humanTeams = (setup) => (setup.teams || []).filter((t) => t.bot === "human").map((t) => t.name);
+  const asBots = (setup) => ({ ...setup, teams: (setup.teams || []).map((t) => (t.bot === "human" ? { ...t, bot: "gladiator" } : t)) });
+
+  class PlayGame {
+    constructor(id, setup, seed) {
+      this.id = id; this.seq = 0; this.pending = null; this.end = null; this.failed = null; this.waiters = []; this.outbox = []; this.qwait = null;
+      this.sab = new SharedArrayBuffer(8 + (1 << 20));
+      this.ctl = new Int32Array(this.sab, 0, 2); this.data = new Uint8Array(this.sab, 8);
+      this.worker = new Worker("playworker.js");
+      this.worker.onmessage = (e) => {
+        const m = e.data;
+        if (m.ev === "post") { this.seq++; this.pending = m.request; }
+        else if (m.ev === "qreply") { if (this.qwait) { this.qwait(m.reply); this.qwait = null; } }
+        else if (m.ev === "done") this.end = m.end;
+        else if (m.ev === "failed") this.failed = m.error;
+        const w = this.waiters; this.waiters = []; w.forEach((f) => f());
+      };
+      this.worker.postMessage({ cmd: "start", module: S.module, defaults: S.defaults, files: filesFor(setup), setup, seed, sab: this.sab });
+    }
+    // a message for the sleeping worker; one at a time: the next goes in once the worker has taken the last
+    send(msg) { this.outbox.push(msg); this.pump(); }
+    pump() {
+      if (!this.outbox.length) return;
+      if (Atomics.load(this.ctl, 0) !== 0) { setTimeout(() => this.pump(), 5); return; }
+      const bytes = new TextEncoder().encode(JSON.stringify(this.outbox.shift()));
+      this.data.set(bytes); Atomics.store(this.ctl, 1, bytes.length); Atomics.store(this.ctl, 0, 1); Atomics.notify(this.ctl, 0);
+      if (this.outbox.length) setTimeout(() => this.pump(), 5);
+    }
+    state() {
+      if (this.failed) return { state: "failed", error: this.failed };
+      if (this.end) return { state: "done", end: this.end };
+      if (this.pending) return { state: "pending", seq: this.seq, request: this.pending };
+      return null;
+    }
+    poll(waitMs) {
+      const now = this.state();
+      if (now) return Promise.resolve(now);
+      return new Promise((resolve) => {
+        const t = setTimeout(() => { this.waiters = this.waiters.filter((f) => f !== wake); resolve({ state: "waiting" }); }, waitMs);
+        const wake = () => { clearTimeout(t); resolve(this.state() || { state: "waiting" }); };
+        this.waiters.push(wake);
+      });
+    }
+    answer(seq, answer) {
+      if (!this.pending || this.seq !== seq) return { error: "that question is not the one waiting" };
+      this.pending = null;
+      this.send({ k: "a", v: answer });
+      return { ok: true };
+    }
+    query(q) {
+      if (!this.pending || this.qwait) return Promise.resolve({ error: "no question is waiting" });
+      return new Promise((resolve) => {
+        const t = setTimeout(() => { this.qwait = null; resolve({ error: "the engine did not answer" }); }, 60000);
+        this.qwait = (r) => { clearTimeout(t); resolve(r); };
+        this.send({ k: "q", v: q });
+      });
+    }
+  }
+
+  // a batch cannot be played by a person (the desktop Lab's `no_human`)
+  const noHuman = (setup) => {
+    const t = (setup.teams || []).find((x) => x.bot === "human");
+    return t ? { error: `Team ${t.name || "?"} is set to Human: a person plays it, so it cannot be run as a simulation. Use Play, or set the team to a bot.` } : null;
+  };
+
+  // the setup's mistakes, in words (the same check a batch's run makes), with the Human teams as bots
+  function playCheck(setup) {
+    if (!humanTeams(setup).length) return { error: "No team is set to Human. Set one team's bot to Human, then press Play." };
+    const plain = asBots(setup);
+    S.coord.call("files", { files: filesFor(plain) });
+    const r = S.coord.call("run", { setup: plain });
+    if (r.error) return r;
+    S.coord.call("cancel", { run: r.run });
+    return { ok: true };
+  }
+
+  function playStart(setup, seedAsked) {
+    if (!window.crossOriginIsolated || typeof SharedArrayBuffer === "undefined") {
+      return { error: "Playing needs a browser that allows this site's service worker (it gives the page the shared memory the battle waits in). Reload the page once; if this stays, try another browser, or use the desktop Lab." };
+    }
+    const bad = playCheck(setup);
+    if (bad.error) return bad;
+    const seed = (seedAsked || setup.seed || 0) || (Math.floor(Math.random() * 0xFFFFFFFF) + 1);
+    const id = games.size + 1;
+    games.set(id, new PlayGame(id, setup, seed));
+    const colours = {};
+    for (const t of setup.teams || []) if (t.name && t.colour) colours[t.name] = t.colour;
+    return { game: id, seed, colours };
+  }
+
   // ------------------------------------------------------------ the api
   async function api(name, body) {
     await init();
@@ -189,8 +285,9 @@
       case "list_units": return { units: S.catalog.units };
       case "list_boards": return { boards: S.catalog.boards };
       case "board": { const text = S.pack.text(body.id); return text == null ? { error: "no board " + body.id } : { id: body.id, text }; }
-      case "estimate": return estimate(body.setup);
+      case "estimate": return noHuman(body.setup) || estimate(body.setup);
       case "run": {
+        if (noHuman(body.setup)) return noHuman(body.setup);
         const files = filesFor(body.setup);
         S.coord.call("files", { files });
         const r = S.coord.call("run", { setup: body.setup });
@@ -216,6 +313,15 @@
         return r;
       }
       case "history": return historyOf(body);
+      case "play_check": return playCheck(body.setup);
+      case "play_start": return playStart(body.setup, body.seed);
+      case "play_poll": case "play_answer": case "play_query": {
+        const g = games.get(body.game);
+        if (!g) return { error: "no such game (the page was reloaded?)" };
+        if (name === "play_poll") return g.poll(Math.min(body.wait_ms || 25000, 60000));
+        if (name === "play_answer") return g.answer(body.seq, body.answer);
+        return g.query(body.query);
+      }
       case "add_unit": return { error: "Adding your own unit files is not available in the browser version yet." };
       // the unit sheet and editor: the file text comes from the data block, the engine's reading and the equipment list from the module
       case "unit_text": { const text = S.pack.text(body.id); return text == null ? { error: "no unit " + body.id } : { id: body.id, text }; }
