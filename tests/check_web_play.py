@@ -100,7 +100,7 @@ def desktop_game(port):
             best = max(r["options"], key=lambda o: (o["mode"] == "Run", o["mp"]), default=None)
             ans = {"stay": True} if best is None else {"hex": best["hex"], "facing": best["facing"], "mode": best["mode"]}
         elif k == "target":
-            ans = {"target": r["enemies"][0]["id"]}
+            ans = {"target": None if r.get("secondary") else r["enemies"][0]["id"]}
         elif k == "declaration":
             ans = {"weapons": [w["id"] for w in r["weapons"] if w["in_range"] and not w["needs_twist"]]}
         elif k == "stand_up":
@@ -131,7 +131,7 @@ const POLICY = (r) => {
     for (const o of r.options) { const key = (o.mode === "Run" ? 1 : 0) * 1e6 + o.mp; if (!best || key > best.key) best = { key, o }; }   // the first of equals, as Python's max
     return best ? { hex: best.o.hex, facing: best.o.facing, mode: best.o.mode } : { stay: true };
   }
-  if (k === "target") return { target: r.enemies[0].id };
+  if (k === "target") return { target: r.secondary ? null : r.enemies[0].id };
   if (k === "declaration") return { weapons: r.weapons.filter((w) => w.in_range && !w.needs_twist).map((w) => w.id) };
   if (k === "stand_up") return { stand: true };
   if (k === "boost") return { use: false };
@@ -194,13 +194,22 @@ const POLICY = (r) => {
     if (st.over) { over = true; break; }
     kinds.add(st.kind);
     const tap = (act, extra) => page.locator(`[data-act="${act}"]${extra || ""}`).first().click();
+    // the combat report opens by itself once the firing phase is over; it is on top of every screen and button until closed
+    if (!out.pop && await page.evaluate(() => document.getElementById('report').style.display === 'block')) {
+      out.pop = await page.evaluate(() => { const r = document.getElementById('report'), b = document.querySelector('#dockhead button'); const bb = b.getBoundingClientRect(); const top = document.elementFromPoint(bb.x + bb.width / 2, bb.y + bb.height / 2); return { title: document.getElementById('rtitle').textContent, onTop: !!top && r.contains(top), shots: r.querySelectorAll('.rs').length, heads: r.querySelectorAll('.rh').length, fmt: !/\[Ranged\]/.test(r.innerText) }; });
+    }
+    if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await tap('report-close');
     // Move! is a long press: a plain tap must not commit; holding it does
+    const holdBtn = async (page, act) => {
+      const b = await page.locator(`[data-act="${act}"]`).first().boundingBox();
+      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.down(); await page.waitForTimeout(800); await page.mouse.up();
+    };
     const holdMove = async (page, out) => {
       const b = await page.locator('[data-act="commit"]').first().boundingBox();
       if (!out.tapIgnored) { await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2); await page.waitForTimeout(150); out.tapIgnored = await page.evaluate(() => !!window.__bm.req && window.__bm.req.kind === 'movement'); }
       await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.down(); await page.waitForTimeout(800); await page.mouse.up();
     };
-    if (st.kind === 'deploy') { await page.locator('[data-deploy]').first().dispatchEvent('click'); await tap('place'); }
+    if (st.kind === 'deploy') { await page.locator('[data-deploy]').first().dispatchEvent('click'); await page.waitForSelector('[data-act="place"]'); await holdBtn(page, 'place'); }
     else if (st.kind === 'move_order') await tap('pick-unit');
     else if (st.kind === 'stand_up') await tap('stand', '[data-v="1"]');
     else if (st.kind === 'boost') await tap('boost', '[data-v="0"]');
@@ -248,32 +257,41 @@ const POLICY = (r) => {
     else if (st.kind === 'spot') await tap('spot', '[data-id=""]');
     else if (st.kind === 'tag') await page.evaluate(() => send({ target: null }));
     else if (st.kind === 'target') {
-      if (!out.target) {
-        // weapons first: the panel lists the weapons with their numbers, the enemy hexes carry a pill, the arrows cycle the look
-        await page.waitForFunction(() => window.__bm.pv, null, { timeout: 15000 });
-        const before = await page.evaluate(() => __bm.tcur);
-        await tap('tgt-next'); await page.waitForTimeout(100);
-        out.target = await page.evaluate((b) => ({ rows: document.querySelectorAll('#wpanel .wrow').length, tn: document.querySelectorAll('#wpanel .tnp').length, pills: document.querySelectorAll('#map text').length, moved: __bm.tcur !== b || __bm.req.enemies.length === 1, hold: !!document.querySelector('[data-act="target"][data-id=""]') }), before);
-      }
-      await tap('target', ':not([data-id=""])');
-    }
-    else if (st.kind === 'declaration') {
-      if (!out.panel) {
-        // the weapon panel lists the weapons, assigning one puts it on the target, the dock tabs show weapons and the armour pips
-        await tap('assign');
-        const assigned = await page.evaluate(() => __bm && document.querySelectorAll('#wpanel .fc.all, #wpanel .fc.part').length);
+      // the fire screen: weapons first, then any number of targets, then Fire! (the page plays the engine's questions from the plan)
+      await page.waitForFunction(() => window.__bm.fire && window.__bm.decl, null, { timeout: 20000 }).catch(() => {});
+      if (!out.target && await page.evaluate(() => !!window.__bm.decl)) {
+        if (!out.leak) out.leak = await page.evaluate(() => __bm.shown.some((l) => /\[Ranged\]|rolled|Firing order|Movement select/.test(l)));
+        const before = await page.evaluate(() => __bm.fire.tcur);
+        await tap('tgt-next'); await page.waitForTimeout(200);
+        const base = await page.evaluate((b) => ({ rows: document.querySelectorAll('#wpanel .wrow').length, tn: document.querySelectorAll('#wpanel .tnp').length, pills: document.querySelectorAll('#map [data-tn-pill]').length, moved: __bm.fire.tcur !== b || __bm.req.enemies.length === 1, hold: !!document.querySelector('[data-act="hold"]') }), before);
+        // a number opens its line items, on top of everything
+        await page.locator('#wpanel .tnp[data-act="tn"]').first().click().catch(() => {});
+        const card = await page.evaluate(() => { const c = document.getElementById('card'); const r = c.getBoundingClientRect(); const top = document.elementFromPoint(r.x + 10, r.y + 10); return { shown: c.style.display === 'block', rows: c.querySelectorAll('tr').length, total: !!c.querySelector('tr.tot'), onTop: !!top && c.contains(top) }; });
+        await tap('card-close').catch(() => {});
+        // two targets: a weapon at this one, then another weapon at the next
+        await tap('assign', ':not([disabled])').catch(() => {});
+        await tap('tgt-next'); await page.waitForTimeout(250);
+        await tap('assign', ':not([disabled])').catch(() => {});
+        await page.waitForTimeout(250);
+        const plan = await page.evaluate(() => ({ weapons: __bm.fire.assign.size, targets: new Set(__bm.fire.assign.values()).size }));
+        const assigned = await page.evaluate(() => document.querySelectorAll('#wpanel .fc.all, #wpanel .fc.part, #wpanel .fc.else').length);
         await tap('tab', '[data-t="weapons"]'); const weapons = await page.evaluate(() => document.querySelectorAll('#tabbody tr').length);
         await tap('tab', '[data-t="armor"]'); const pips = await page.evaluate(() => document.querySelectorAll('#tabbody .pips i').length); const rear = await page.evaluate(() => document.querySelectorAll('#tabbody .pips.rear i').length);
         await tap('tab', '[data-t="plan"]');
         out.panel = { rear, report: await page.evaluate(() => !!document.querySelector('#dockhead #rep-btn') && !!document.querySelector('header #rec-btn') && !document.querySelector('header #rep-btn')), line: await page.evaluate(() => document.querySelectorAll('#map line[stroke-dasharray]').length), rows: await page.evaluate(() => document.querySelectorAll('#wpanel .wrow').length), assigned, weapons, pips };
+        out.target = { ...base, card, plan };
       }
+      if (await page.evaluate(() => __bm.fire && __bm.fire.assign.size > 0)) await tap('fire-go'); else await tap('hold');
+    }
+    else if (st.kind === 'declaration') {
+      await tap('assign').catch(() => {});
       await tap('strike'); await tap('strike'); await tap('fire-go');
     }
     else if (st.kind === 'physical') await tap('phys', '[data-k=""]');
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
+  out.page = { pop: out.pop, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -346,7 +364,14 @@ def main():
         pn = out["page"].get("panel") or {}
         report(pn.get("rows", 0) > 0 and pn.get("assigned", 0) > 0 and pn.get("weapons", 0) > 1 and pn.get("pips", 0) > 20, f"the weapon panel lists weapons, a tap assigns one, the Weapons and Armor tabs fill ({pn})")
         tg = out["page"].get("target") or {}
-        report(tg.get("rows", 0) > 0 and tg.get("tn", 0) > 0 and tg.get("pills", 0) > 0 and tg.get("moved") and tg.get("hold"), f"the target step lists the weapons with their numbers first, the enemy hexes carry a number pill, and the arrows cycle the look ({tg})")
+        report(out["page"].get("leak") is False, "the report holds back the firing, physical and heat phases and the bots' reasoning until the phase is over")
+        report(tg.get("rows", 0) > 0 and tg.get("tn", 0) > 0 and tg.get("pills", 0) > 0 and tg.get("moved") and tg.get("hold"), f"the fire screen lists the weapons with their numbers, the enemy hexes carry a number pill, and the arrows cycle the look ({tg})")
+        cd = tg.get("card") or {}
+        report(cd.get("shown") and cd.get("rows", 0) >= 4 and cd.get("total") and cd.get("onTop"), f"a number opens its line items on top of everything ({cd})")
+        pp = out["page"].get("pop") or {}
+        report(pp.get("title") == "Combat report" and pp.get("onTop") and pp.get("heads", 0) >= 1 and pp.get("fmt"), f"a formatted combat report opens by itself after the firing phase, on top of every button ({pp})")
+        pl = tg.get("plan") or {}
+        report(pl.get("weapons", 0) >= 1, f"weapons can be assigned to targets, several targets in one plan ({pl})")
         report(bool(out["page"].get("tapIgnored")), "a plain tap on Move! does not commit; holding it does")
         report(pn.get("rear", 0) > 0 and pn.get("report") and pn.get("line", 0) > 0, f"the Armor tab shows rear-armour pips, Report sits on the detail header with REC in the title bar, and the fire step draws the range line ({pn})")
         wy = out["page"].get("way") or {}

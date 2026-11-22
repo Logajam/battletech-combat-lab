@@ -571,28 +571,68 @@ fn hex_of(label: &str) -> Option<(i64, i64)> {
 
 /// The weapon table for a declaration, priced now (after any mode / ammunition choice): rows, and the candidates the engine
 /// would let fire (weapon, expected damage, heat).
-/// The target question's `preview` query: the weapon rows (arcs, range bands, damage, heat) once, and for every enemy the to-hit number
-/// of each weapon against it, worked out as the declaration will (a quiet dry run; nothing is changed or logged). An enemy no weapon can
-/// be declared against has `"tn": null`.
-fn target_preview(b: &mut Battle, attacker: UnitId, enemies: &[UnitId]) -> Value {
+/// The queries the target question (the first, or a secondary one) answers while it waits: `preview` and `set`.
+fn target_query(b: &mut Battle, attacker: UnitId, enemies: &[UnitId], q: &Value, default_primary: Option<UnitId>) -> Option<Value> {
+    let primary = q["primary"].as_u64().map(|p| p as usize).filter(|p| enemies.contains(p)).or(default_primary);
+    match q["q"].as_str() {
+        Some("preview") => Some(target_preview(b, attacker, enemies, primary)),
+        // a mode / ammunition / rate change made on the fire screen before the target is chosen (the settings belong to the unit)
+        Some("set") => {
+            let t = q["target"].as_u64().map(|t| t as usize).filter(|t| enemies.contains(t)).unwrap_or(enemies[0]);
+            apply_weapon_settings(b, attacker, t, q);
+            Some(target_preview(b, attacker, enemies, primary))
+        }
+        _ => None,
+    }
+}
+
+/// The declaration question's body for one attacker and target: the to-hit number in its parts (the weapon rows add the range band and
+/// the weapon's own modifiers on top), the weapon rows, heat and the rest. The target step's preview builds the same for every enemy.
+fn decl_req_json(b: &Battle, ctx: &DeclCtx, rows: Vec<Value>, attacker: UnitId, target: UnitId) -> Value {
+    let u = &b.units[attacker];
+    let listed = u.gunnery + ctx.amm + ctx.tmm + ctx.los_modifier + ctx.cover + ctx.heat_mod + ctx.prone_mod + ctx.stealth_mod;
+    let breakdown = json!({"gunnery": u.gunnery, "attacker_movement": ctx.amm, "attacker_mode": u.move_mode, "target_movement": ctx.tmm, "line_of_sight": ctx.los_modifier, "cover": ctx.cover,
+                           "heat": ctx.heat_mod, "target_prone": ctx.prone_mod, "stealth": ctx.stealth_mod, "other": ctx.sel_pre_tn - listed, "base": ctx.sel_pre_tn,
+                           "secondary": ctx.secondary, "indirect": ctx.indirect, "note": ctx.cond_note});
+    json!({"kind": "declaration", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
+           "base_tn": ctx.sel_pre_tn, "breakdown": breakdown, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat,
+           "dissipation": ctx.dissipation, "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary,
+           "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len()})
+}
+
+/// The target question's `preview` query (and the answer to a `set` there): everything the fire screen needs to plan a whole turn's fire
+/// before any question is answered (Daniel, 2026-11-22: pick weapons and targets, then Fire!). For every enemy, the declaration's body as
+/// it would be asked (weapon rows with their real numbers); the arcs once. `primary`: the enemy the first weapons go at, so the others
+/// are worked out as secondary targets (+1, p.64). A quiet dry run: nothing is changed or logged.
+fn target_preview(b: &mut Battle, attacker: UnitId, enemies: &[UnitId], primary: Option<UnitId>) -> Value {
     b.log.quiet += 1;
-    let mut weapons = Value::Null;
+    let saved = b.split_fire.clone();
+    if let Some(p) = primary {
+        crate::split_fire::record(b, attacker, p, &[], 0);
+    }
+    let mut arcs = serde_json::Map::new();
     let mut targets: Vec<Value> = Vec::new();
     for &t in enemies {
-        let crate::attack_resolution::Prep::Ready(ctx) = crate::attack_resolution::prepare_declaration(b, attacker, t, true) else {
-            targets.push(json!({"id": t, "tn": Value::Null}));
+        let forward = crate::split_fire::in_forward_arc(b, attacker, t);
+        let refusal = if primary.is_some() && primary != Some(t) { crate::split_fire::refusal(b, attacker, t) } else { None };
+        let ready = if refusal.is_none() { crate::attack_resolution::prepare_declaration(b, attacker, t, true) } else { crate::attack_resolution::Prep::Done };
+        let crate::attack_resolution::Prep::Ready(ctx) = ready else {
+            targets.push(json!({"id": t, "req": Value::Null, "forward": forward, "why": refusal}));
             continue;
         };
         let mut planner = Planner::new(attacker, t, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
-        let (rows, ..) = weapon_rows(b, &ctx, &mut planner, attacker);
-        let per_weapon: serde_json::Map<String, Value> = rows.iter().map(|r| (r["id"].to_string(), r["tn"].clone())).collect();
-        targets.push(json!({"id": t, "base_tn": ctx.sel_pre_tn, "distance": ctx.distance, "tn": per_weapon}));
-        if weapons.is_null() {
-            weapons = Value::Array(rows);
+        let (mut rows, ..) = weapon_rows(b, &ctx, &mut planner, attacker);
+        for r in rows.iter_mut() {
+            if let Some(o) = r.as_object_mut() {
+                let (a1, a2) = (o.remove("arc"), o.remove("arc_twist"));
+                arcs.entry(r["id"].to_string()).or_insert_with(|| json!({"arc": a1, "arc_twist": a2}));
+            }
         }
+        targets.push(json!({"id": t, "req": decl_req_json(b, &ctx, rows, attacker, t), "forward": forward, "why": Value::Null}));
     }
+    b.split_fire = saved;
     b.log.quiet -= 1;
-    json!({"weapons": weapons, "targets": targets})
+    json!({"targets": targets, "arcs": arcs})
 }
 
 fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId) -> (Vec<Value>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) {
@@ -925,25 +965,32 @@ impl Controller for Screen {
         let list: Vec<Value> = enemies.iter().map(|&e| json!({"id": e, "name": name(b, e), "distance": crate::forces::distance(b, attacker, e)})).collect();
         let req = json!({"kind": "target", "unit": attacker, "name": name(b, attacker), "enemies": list});
         // the page may look at the weapons (their arcs and range bands) and the real to-hit numbers before it picks (Daniel, 2026-11-22)
-        self.ask(b, req, |b, q| if q["q"].as_str() == Some("preview") { Some(target_preview(b, attacker, &enemies)) } else { None }, |_, a| match a["target"].as_u64() {
+        self.ask(b, req, |b, q| target_query(b, attacker, &enemies, q, None), |_, a| match a["target"].as_u64() {
             None => Ok(None),
             Some(t) if enemies.contains(&(t as usize)) => Ok(Some(t as usize)),
             Some(_) => Err("that is not an enemy you can target".to_string()),
         })
     }
 
+    /// Further targets after the primary: asked again as a target question marked `secondary` until the person answers no target.
+    fn secondary(&mut self, b: &mut Battle, attacker: UnitId, primary: UnitId, done: &[UnitId], _inner: &mut GladiatorBots) -> Option<UnitId> {
+        let all: Vec<UnitId> = crate::forces::enemies_of(b, attacker).into_iter().filter(|&e| b.units[e].hex.is_some() && !b.is_destroyed(e)).collect();
+        let open: Vec<UnitId> = all.iter().copied().filter(|e| !done.contains(e) && crate::split_fire::refusal(b, attacker, *e).is_none()).collect();
+        if open.is_empty() {
+            return None;
+        }
+        let list: Vec<Value> = open.iter().map(|&e| json!({"id": e, "name": name(b, e), "distance": crate::forces::distance(b, attacker, e)})).collect();
+        let req = json!({"kind": "target", "secondary": true, "primary": primary, "unit": attacker, "name": name(b, attacker), "enemies": list});
+        self.ask(b, req, |b, q| target_query(b, attacker, &all, q, Some(primary)), |_, a| match a["target"].as_u64() {
+            None => Ok(None),
+            Some(t) if open.contains(&(t as usize)) => Ok(Some(t as usize)),
+            Some(_) => Err("that is not a target you can still fire at".to_string()),
+        })
+    }
+
     fn declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, _inner: &mut GladiatorBots) -> DeclChoice {
         let (rows, ..) = weapon_rows(b, ctx, planner, attacker);
-        let u = &b.units[attacker];
-        // the to-hit number in its parts (the weapon rows add the range band and the weapon's own modifiers on top)
-        let listed = u.gunnery + ctx.amm + ctx.tmm + ctx.los_modifier + ctx.cover + ctx.heat_mod + ctx.prone_mod + ctx.stealth_mod;
-        let breakdown = json!({"gunnery": u.gunnery, "attacker_movement": ctx.amm, "target_movement": ctx.tmm, "line_of_sight": ctx.los_modifier, "cover": ctx.cover,
-                               "heat": ctx.heat_mod, "target_prone": ctx.prone_mod, "stealth": ctx.stealth_mod, "other": ctx.sel_pre_tn - listed, "base": ctx.sel_pre_tn,
-                               "secondary": ctx.secondary, "indirect": ctx.indirect, "note": ctx.cond_note});
-        let req = json!({"kind": "declaration", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
-                         "base_tn": ctx.sel_pre_tn, "breakdown": breakdown, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat,
-                         "dissipation": ctx.dissipation, "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary,
-                         "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len()});
+        let req = decl_req_json(b, ctx, rows, attacker, target);
         let result: (Vec<usize>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) = {
             let planner_cell = std::cell::RefCell::new(planner);
             self.ask(
