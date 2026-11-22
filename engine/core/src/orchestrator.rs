@@ -210,6 +210,19 @@ pub fn phase_movement(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, othe
     hazards::end_of_movement(b, mover);
 }
 
+/// Runs `f` with `mover`'s movement context set the way `phase_movement` sets it (the mobile enemies' hexes closed to its
+/// ground moves, the occupied hexes), then cleared. BattleROM uses it to show what a unit that has not moved yet could do.
+pub fn with_move_context<R>(b: &mut Battle, mover: UnitId, f: impl FnOnce(&mut Battle) -> R) -> R {
+    let blocked: Vec<serde_json::Value> = forces::blocked_xy(b, mover).into_iter().map(|(x, y)| serde_json::json!([x, y])).collect();
+    b.units[mover].blocked_hex = Some(serde_json::Value::Array(blocked));
+    let occ = forces::occupied_labels(b, mover);
+    b.units[mover].other_unit_hexes = Some(serde_json::json!(occ));
+    let r = f(b);
+    b.units[mover].blocked_hex = Some(serde_json::Value::Null);
+    b.units[mover].other_unit_hexes = Some(serde_json::Value::Null);
+    r
+}
+
 fn move_budget(b: &Battle, u: UnitId) -> (i64, i64, i64) {
     (compute_walk_mp(&b.units[u]), compute_running_mp(&b.units[u]), water::jump_mp(b, u))
 }
@@ -688,8 +701,12 @@ fn edges_for_teams(first_edge: &str, count: usize) -> Vec<&'static str> {
     (0..count).map(|i| cycle[i % 4]).collect()
 }
 
+/// BattleROM: asked where a unit stands when its turn to place comes (the unit, the free hexes it may take); `Some((hex, facing))`
+/// is a person's choice, `None` leaves the placement to the engine. Bot battles pass a hook that always says None.
+pub type DeployHook<'a> = &'a mut dyn FnMut(&mut Battle, UnitId, &[String]) -> Option<(String, String)>;
+
 /// Default deployment (Core p.37): the sides roll 2D6; the loser chooses a home edge, the winner takes the opposite.
-fn deploy_teams(b: &mut Battle) {
+fn deploy_teams(b: &mut Battle, deploy: DeployHook) {
     let all: Vec<UnitId> = (0..b.units.len()).collect();
     let teams = forces::team_names(b, &all);
     let mut rolls: IndexMap<String, i64> = IndexMap::default();
@@ -725,7 +742,7 @@ fn deploy_teams(b: &mut Battle) {
         }
     }
     if placed_mode {
-        for (i, u) in place_in_turns(b, parts) {
+        for (i, u) in place_in_turns(b, parts, deploy) {
             let nm = name(b, u);
             b.log(format!("  Deployment: {} has no free hex on its home edge and walks on.", nm));
             walk_on_edge(b, u, edges[i], false);
@@ -783,7 +800,7 @@ struct Placing {
 /// deployment roll's loser first), a team with more units taking proportionally more turns (its units / the smallest team's, as
 /// MegaMek's even turn order spreads them), each seeing the units already on the board. Returns (index in `parts`, unit) for
 /// every unit that found no free hex.
-fn place_in_turns(b: &mut Battle, mut parts: Vec<Placing>) -> Vec<(usize, UnitId)> {
+fn place_in_turns(b: &mut Battle, mut parts: Vec<Placing>, deploy: DeployHook) -> Vec<(usize, UnitId)> {
     let centre: crate::fasthash::HashSet<String> = deployment::zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
     let mut taken: Vec<String> = (0..b.units.len()).filter_map(|u| b.units[u].hex.clone()).collect();
     let smallest = parts.iter().map(|p| p.members.len()).filter(|n| *n > 0).min().unwrap_or(1);
@@ -811,7 +828,12 @@ fn place_in_turns(b: &mut Battle, mut parts: Vec<Placing>) -> Vec<(usize, UnitId
                     }
                 };
                 let (boxes, enemy_zone) = (parts[i].boxes, parts[i].enemy_zone);
-                let placed = place_unit(b, u, good, &boxes, enemy_zone, &mut parts[i].clusters, &centre, &taken);
+                // a person's unit is placed where they say (among `good`); everyone else by the engine
+                let chosen = if good.is_empty() { None } else { deploy(b, u, &good) };
+                let placed = match chosen {
+                    Some((h, f)) => Some((h, f, String::new())),
+                    None => place_unit(b, u, good, &boxes, enemy_zone, &mut parts[i].clusters, &centre, &taken),
+                };
                 match placed {
                     Some((h, facing, note)) => {
                         b.units[u].facing = facing;
@@ -869,7 +891,7 @@ fn edge_boxes(edge: &str) -> [bool; 9] {
 /// Zone deployment (Combat Lab): DEPLOY_ZONES = {team: {"boxes": [9 bools], "walk_on": bool}}. A walk-on unit starts off the
 /// board with the zone's border hexes as its entry hexes (as the home edge does); a placed unit starts on a free hex of the
 /// zone, facing the middle of the board. The dice are drawn only for placed units (one pick each).
-fn deploy_zones(b: &mut Battle) {
+fn deploy_zones(b: &mut Battle, deploy: DeployHook) {
     let zones = b.cfg.get("DEPLOY_ZONES").clone();
     let all: Vec<UnitId> = (0..b.units.len()).collect();
     let teams = forces::team_names(b, &all);
@@ -914,7 +936,7 @@ fn deploy_zones(b: &mut Battle) {
         parts.sort_by_key(|(t, _)| order.iter().position(|o| o == t).unwrap());
     }
     let labels: Vec<String> = parts.iter().map(|(_, p)| p.label.clone()).collect();
-    let unplaced = place_in_turns(b, parts.into_iter().map(|(_, p)| p).collect());
+    let unplaced = place_in_turns(b, parts.into_iter().map(|(_, p)| p).collect(), deploy);
     if let Some((i, u)) = unplaced.first() {
         let nm = name(b, *u);
         panic!("deployment: no free hex in zone {} for {}", labels[*i], nm);
@@ -958,14 +980,19 @@ pub fn effective_hp(b: &Battle, u: UnitId) -> f64 {
 }
 
 pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
+    start_battle_with(b, max_turns, marks, &mut |_, _, _| None)
+}
+
+/// `start_battle` with a hook that may place a person's units (BattleROM); see `DeployHook`.
+pub fn start_battle_with(b: &mut Battle, max_turns: i64, marks: Marks, deploy: DeployHook) -> Play {
     b.limbs_on_ground.clear();
     b.smoky.clear();
     crate::ammo::narc_homing_for_force(b);
     crate::c3::check_networks(b);
     if b.cfg.has("DEPLOY_ZONES") {
-        deploy_zones(b);
+        deploy_zones(b, deploy);
     } else if b.cfg.s("DEPLOYMENT") == "home_edge" {
-        deploy_teams(b);
+        deploy_teams(b, deploy);
     } else if b.cfg.s("DEPLOYMENT") != "fixed_hexes" {
         panic!("Unknown DEPLOYMENT");
     }

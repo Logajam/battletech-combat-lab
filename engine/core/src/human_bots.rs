@@ -66,6 +66,10 @@ pub trait Controller {
     fn tag(&mut self, _b: &mut Battle, _attacker: UnitId, _cands: &[crate::tag::TagCandidate]) -> Option<(UnitId, &'static str)> {
         None
     }
+    /// A person's unit is to be placed before turn 1: where (hex, facing) among the free hexes `good`. None = the engine places it.
+    fn deploy(&mut self, _b: &mut Battle, _u: UnitId, _good: &[String]) -> Option<(String, String)> {
+        None
+    }
     /// Spot for indirect fire.
     fn spot(&mut self, b: &mut Battle, u: UnitId, inner: &mut GladiatorBots) -> Option<(UnitId, bool)> {
         inner.choose_spot(b, u)
@@ -83,6 +87,18 @@ pub struct HumanBots<C: Controller> {
 }
 
 impl<C: Controller> HumanBots<C> {
+    /// The deployment hook (`orchestrator::DeployHook`): a person's units are placed by the controller, the rest by the engine.
+    pub fn deploy(&mut self, b: &mut Battle, u: UnitId, good: &[String]) -> Option<(String, String)> {
+        if !self.human.contains(&u) {
+            return None;
+        }
+        let placed = self.ctl.deploy(b, u, good);
+        if let Some((h, f)) = &placed {
+            self.log.push(Decision::Choice { unit: u, kind: "deploy", answer: format!("{} {}", h, f) });
+        }
+        placed
+    }
+
     pub fn new(ctl: C, human: impl IntoIterator<Item = UnitId>) -> Self {
         HumanBots { inner: GladiatorBots, ctl, human: human.into_iter().collect(), log: Vec::new() }
     }

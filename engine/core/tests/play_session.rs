@@ -66,6 +66,7 @@ fn a_scripted_player_plays_a_battle_to_its_end() {
             continue;
         }
         let ans: Value = match kind.as_str() {
+            "deploy" => json!({"hex": r["hexes"][0], "facing": "N"}),
             "move_order" => json!({"unit": r["candidates"][0]}),
             "movement" => {
                 // the farthest-forward legal state this unit can reach, by MP spent: any legal option will do

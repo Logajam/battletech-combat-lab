@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, later), BATTLEROM: Daniel's first impressions (browse units, deployment, shared map, turn arrows, mockup features). REVIEW PENDING (higher-level model).**
+  `play_session.rs`: `MoveView` / `move_view` (the movement question's view, now for any unit), `reach` and `path` queries in the
+  move-order question, a planned move carried by the `move_order` answer (`Screen::plan`, `ask_with`), `Controller::deploy` and
+  the `deploy` question; `orchestrator.rs`: `with_move_context`, `start_battle_with` and `DeployHook` threaded through
+  `deploy_teams` / `deploy_zones` / `place_in_turns` (bot battles pass a hook that says None: the 91 reference battles are
+  unchanged); `human_bots.rs`: `HumanBots::deploy`. Pages: `boardart.js` (the shared map painter, taken out of `lab.js`'s map preview;
+  also served by the Lab, shipped by `build_web_lab.py` / `publish_web_lab.py`, inlined by `make_lab_demo.py`), `play.js` / `play.html`
+  (movement planning while choosing a unit, the deployment screen, the turn-arrow ring, enemy strip, placards, sprites, action cluster, first
+  zoom). Tests: `check_play.py` (browse, plan, deploy), `check_web_play.py` (deploy, blocked turn arrow). What is still missing from the
+  mockup: `INTEGRATION__PLAYER_DECISIONS.md` Section 19.
+
 - **2026-11-22 (Claude), BATTLEROM IN THE BROWSER: a person can play in the web Lab. REVIEW PENDING (higher-level model).** Daniel:
   "Getting the browser version built and pushed to the public website". `play_session.rs`: a battle now waits for the person through a
   `Link` trait (the desktop's `Game` implements it unchanged; `play_blocking` plays on the caller's stack), so the engine code is

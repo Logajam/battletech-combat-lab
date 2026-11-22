@@ -47,7 +47,7 @@ use crate::human_bots::{Controller, HumanBots, PhysicalChoice};
 use crate::mech_state as ms;
 use crate::mech_state::ArcAction;
 use crate::move_options::{self, PathNotes};
-use crate::orchestrator::{play_on, start_battle, BotSet, PathGate};
+use crate::orchestrator::{play_on, start_battle_with, with_move_context, BotSet, PathGate};
 use crate::ranged_combat::Pick;
 use crate::scenario::Scenario;
 
@@ -198,9 +198,10 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let mut play = start_battle(&mut b, sc.max_turns, &mut marks);
-    let screen = Screen { link, sent_log: 0, first: true };
+    let screen = Screen { link, sent_log: 0, first: true, plan: None };
     let mut bots = HumanBots::new(screen, human);
+    // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
+    let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
     play_on(&mut b, &mut bots, &mut play, &mut marks);
     let r = &play.result;
     json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()})
@@ -345,12 +346,118 @@ struct Screen {
     link: Arc<dyn Link>,
     sent_log: usize,
     first: bool,
+    /// a move the person planned while choosing the unit to move (`move_order`'s "plan"): the unit and the movement answer, used
+    /// when that unit's movement question comes
+    plan: Option<(UnitId, Value)>,
+}
+
+/// Everything the movement question and its queries need about one unit's possible moves.
+struct MoveView {
+    req: Value,
+    opts: Vec<move_options::Opt>,
+    best: std::collections::BTreeMap<(String, String, String), (usize, i64)>,
+    attacks: Vec<(Value, Pick)>,
+}
+
+/// The unit's possible moves now (in its movement context): the reach table, the charge / death-from-above stops, and the request that
+/// shows them. Used for the unit being asked to move and, in `move_order`, for any unit that has not moved yet.
+fn move_view(b: &mut Battle, mover: UnitId, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> MoveView {
+    let mut notes = PathNotes::default();
+    let mut states = move_options::movement_options(b, mover, standup_mp, entry_edge, true, &mut notes);
+    // a unit may pass through a friend's hex but not end there (the bots exclude these hexes the same way)
+    let occupied = move_options::occupied_hexes(b, mover, mover);
+    states.retain(|st| !occupied.contains(&(st.0, st.1)));
+    let opts = move_options::prepare_options(b, mover, &states);
+    // the cheapest way to each (hex, facing, mode); the screen draws reach from these
+    let mut best: std::collections::BTreeMap<(String, String, String), (usize, i64)> = Default::default();
+    for (i, o) in opts.iter().enumerate() {
+        let k = (o.label.clone(), o.facing_compass.to_string(), o.mode.to_string());
+        match best.get(&k) {
+            Some((_, mp)) if *mp <= o.mp_spent => {}
+            _ => {
+                best.insert(k, (i, o.mp_spent));
+            }
+        }
+    }
+    let list: Vec<Value> = best
+        .values()
+        .map(|(i, _)| {
+            let o = &opts[*i];
+            let k = o.key();
+            json!({"hex": o.label, "facing": o.facing_compass, "mode": o.mode, "mp": o.mp_spent, "hexes": o.fc, "heat": o.move_heat, "tmm": o.tmm,
+                   "psrs": notes.psrs.get(&k).copied().unwrap_or(0), "hazard": notes.hazard.get(&k).copied().unwrap_or(0.0)})
+        })
+        .collect();
+    // charges and death from above (Core pp.78-80): the stops next to an enemy that has moved (or cannot), with the numbers
+    let mut attacks: Vec<(Value, Pick)> = Vec::new();
+    if entry_edge.is_none() && standup_mp.is_none() && !b.units[mover].prone && (b.cfg.b("CHARGES") || b.cfg.b("DFA")) {
+        let mut n2 = PathNotes::default();
+        let index = crate::move_attacks::MoverIndex::new(b, mover, standup_mp, &mut n2);
+        for t in crate::forces::enemies_of(b, mover) {
+            let moved = b.units[t].moved_this_turn;
+            if b.units[t].hex.is_none() || !crate::move_attacks::can_be_attacked(b, t, moved) {
+                continue;
+            }
+            let pose = crate::move_attacks::pose_of(b, t);
+            let mut picks: Vec<Pick> = Vec::new();
+            if b.cfg.b("CHARGES") && !pose.prone {
+                picks.extend(index.charge_states(b, &pose));
+            }
+            if b.cfg.b("DFA") {
+                picks.extend(index.dfa_states(b, &pose));
+            }
+            for p in picks {
+                let (_, _, hit, tn, dmg, _side, _) = crate::move_attacks::values(b, mover, t, &pose, &p);
+                let self_dmg = if p.charge { crate::charge::attacker_damage(&b.units[t]) } else { crate::dfa::attacker_damage(&b.units[mover]) };
+                let kind = if p.charge { "charge" } else { "dfa" };
+                attacks.push((json!({"kind": kind, "target": t, "target_name": name(b, t), "hex": p.hex, "facing": p.facing, "mode": p.mode, "mp": p.mp_spent, "hexes": p.fc, "tn": tn, "hit": hit, "damage": dmg, "self_damage": self_dmg}), p));
+            }
+        }
+    }
+    let m = &b.units[mover];
+    let req = json!({"kind": "movement", "unit": mover, "name": name(b, mover), "hex": m.hex, "facing": m.facing, "standup_mp": standup_mp,
+                     "entry": entry_edge.is_some(), "walk": ms::compute_walk_mp(m), "run": ms::compute_running_mp(m),
+                     "jump": ms::compute_jump_mp(m), "options": list, "attacks": attacks.iter().map(|a| a.0.clone()).collect::<Vec<_>>()});
+    MoveView { req, opts, best, attacks }
+}
+
+impl MoveView {
+    /// The route the engine will walk to a chosen end (or to a charge / DFA stop): the "path" query's answer.
+    fn route(&self, b: &mut Battle, mover: UnitId, q: &Value, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> Option<Value> {
+        let pick = if let Some(a) = q.get("attack").filter(|a| a.is_object()) {
+            // a charge's cost includes the step into the target's hex, which the route tables do not hold: the route to
+            // the stop is the cheapest ordinary way to end there (a jump for death from above)
+            let jump = a["kind"] == "dfa";
+            self.opts.iter().filter(|o| o.label == a["hex"].as_str().unwrap_or("") && o.facing_compass == a["facing"].as_str().unwrap_or("") && (o.mode == "Jump") == jump).min_by_key(|o| o.mp_spent).map(|o| o.pick())
+        } else {
+            let k = (q["hex"].as_str().unwrap_or("").to_string(), q["facing"].as_str().unwrap_or("").to_string(), q["mode"].as_str().unwrap_or("").to_string());
+            self.best.get(&k).map(|(i, _)| self.opts[*i].pick())
+        }?;
+        let steps = crate::ranged_combat::path_to(b, mover, &pick, standup_mp, entry_edge)?;
+        let list: Vec<Value> = steps
+            .iter()
+            .map(|(kind, (x, y, f), mp)| json!({"k": kind, "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "facing": crate::hex_geometry::facing_to_compass(*f).unwrap_or(""), "mp": mp}))
+            .collect();
+        Some(json!({"path": list}))
+    }
 }
 
 impl Screen {
     /// Send `request` (units and log added) and wait for the answer, serving the page's queries meanwhile. `check` turns an
     /// answer into the engine's choice or an error text, in which case the person is asked again.
-    fn ask<T>(&mut self, b: &mut Battle, mut request: Value, mut tools: impl FnMut(&mut Battle, &Value) -> Option<Value>, mut check: impl FnMut(&mut Battle, &Value) -> Result<T, String>) -> T {
+    fn ask<T>(&mut self, b: &mut Battle, request: Value, tools: impl FnMut(&mut Battle, &Value) -> Option<Value>, check: impl FnMut(&mut Battle, &Value) -> Result<T, String>) -> T {
+        self.ask_with(b, request, None, tools, check)
+    }
+
+    /// `ask` with an answer the person gave ahead of time (a move planned while choosing the unit): used if `check` accepts it,
+    /// else the question is asked and says why it was not.
+    fn ask_with<T>(&mut self, b: &mut Battle, mut request: Value, preset: Option<Value>, mut tools: impl FnMut(&mut Battle, &Value) -> Option<Value>, mut check: impl FnMut(&mut Battle, &Value) -> Result<T, String>) -> T {
+        if let Some(a) = preset {
+            match check(b, &a) {
+                Ok(t) => return t,
+                Err(e) => request["error"] = json!(format!("The move you planned is no longer possible ({}). Plan it again.", e)),
+            }
+        }
         request["units"] = units_json(b, self.first);
         request["log"] = json!(new_log(b, &mut self.sent_log));
         if self.first {
@@ -528,10 +635,43 @@ impl Controller for Screen {
     fn move_order(&mut self, b: &mut Battle, candidates: &[UnitId], _inner: &mut GladiatorBots) -> UnitId {
         let cands: Vec<UnitId> = candidates.to_vec();
         let req = json!({"kind": "move_order", "candidates": cands});
-        self.ask(b, req, |_, _| None, |_, a| {
-            let u = a["unit"].as_u64().ok_or("which unit?")? as usize;
-            if cands.contains(&u) { Ok(u) } else { Err("that unit is not waiting to move".to_string()) }
-        })
+        // While the person looks over the candidates the page may ask for any of them: "reach" (what the unit could do, in the
+        // movement question's own form) and "path" (a route). The answer may carry the move chosen for the unit ("plan").
+        let mut views: std::collections::HashMap<UnitId, (MoveView, Option<Vec<String>>)> = Default::default();
+        let (unit, plan) = self.ask(
+            b,
+            req,
+            |b, q| {
+                let kind = q["q"].as_str()?;
+                if kind != "reach" && kind != "path" {
+                    return None;
+                }
+                let u = q["unit"].as_u64()? as usize;
+                if !cands.contains(&u) {
+                    return Some(json!({"error": "that unit is not waiting to move"}));
+                }
+                if b.units[u].prone {
+                    return Some(json!({"error": "this unit is prone: it stands up first, and then you choose its move"}));
+                }
+                if !views.contains_key(&u) {
+                    let edge = if b.units[u].hex.is_none() { b.units[u].home_edge.clone() } else { None };
+                    let v = with_move_context(b, u, |b| move_view(b, u, None, edge.as_deref()));
+                    views.insert(u, (v, edge));
+                }
+                let (v, edge) = &views[&u];
+                if kind == "reach" {
+                    return Some(json!({"view": v.req}));
+                }
+                let r = with_move_context(b, u, |b| v.route(b, u, q, None, edge.as_deref()));
+                Some(r.unwrap_or_else(|| json!({"error": "no route"})))
+            },
+            |_, a| {
+                let u = a["unit"].as_u64().ok_or("which unit?")? as usize;
+                if cands.contains(&u) { Ok((u, a.get("plan").filter(|p| p.is_object()).cloned())) } else { Err("that unit is not waiting to move".to_string()) }
+            },
+        );
+        self.plan = plan.map(|p| (unit, p));
+        unit
     }
 
     fn stand_up(&mut self, b: &mut Battle, mover: UnitId) -> bool {
@@ -559,63 +699,13 @@ impl Controller for Screen {
     }
 
     fn movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, inner: &mut GladiatorBots) -> (Option<Pick>, String, PathGate) {
-        let _ = (moves_first, &inner);
-        let mut notes = PathNotes::default();
-        let mut states = move_options::movement_options(b, mover, standup_mp, entry_edge, true, &mut notes);
-        // a unit may pass through a friend's hex but not end there (the bots exclude these hexes the same way)
-        let occupied = move_options::occupied_hexes(b, mover, other);
-        states.retain(|st| !occupied.contains(&(st.0, st.1)));
-        let opts = move_options::prepare_options(b, mover, &states);
-        // the cheapest way to each (hex, facing, mode); the screen draws reach from these
-        let mut best: std::collections::BTreeMap<(String, String, String), (usize, i64)> = Default::default();
-        for (i, o) in opts.iter().enumerate() {
-            let k = (o.label.clone(), o.facing_compass.to_string(), o.mode.to_string());
-            match best.get(&k) {
-                Some((_, mp)) if *mp <= o.mp_spent => {}
-                _ => {
-                    best.insert(k, (i, o.mp_spent));
-                }
-            }
-        }
-        let list: Vec<Value> = best
-            .values()
-            .map(|(i, _)| {
-                let o = &opts[*i];
-                let k = o.key();
-                json!({"hex": o.label, "facing": o.facing_compass, "mode": o.mode, "mp": o.mp_spent, "hexes": o.fc, "heat": o.move_heat, "tmm": o.tmm,
-                       "psrs": notes.psrs.get(&k).copied().unwrap_or(0), "hazard": notes.hazard.get(&k).copied().unwrap_or(0.0)})
-            })
-            .collect();
-        // charges and death from above (Core pp.78-80): the stops next to an enemy that has moved (or cannot), with the numbers
-        let mut attacks: Vec<(Value, Pick)> = Vec::new();
-        if entry_edge.is_none() && standup_mp.is_none() && !b.units[mover].prone && (b.cfg.b("CHARGES") || b.cfg.b("DFA")) {
-            let mut n2 = PathNotes::default();
-            let index = crate::move_attacks::MoverIndex::new(b, mover, standup_mp, &mut n2);
-            for t in crate::forces::enemies_of(b, mover) {
-                let moved = b.units[t].moved_this_turn;
-                if b.units[t].hex.is_none() || !crate::move_attacks::can_be_attacked(b, t, moved) {
-                    continue;
-                }
-                let pose = crate::move_attacks::pose_of(b, t);
-                let mut picks: Vec<Pick> = Vec::new();
-                if b.cfg.b("CHARGES") && !pose.prone {
-                    picks.extend(index.charge_states(b, &pose));
-                }
-                if b.cfg.b("DFA") {
-                    picks.extend(index.dfa_states(b, &pose));
-                }
-                for p in picks {
-                    let (_, _, hit, tn, dmg, _side, _) = crate::move_attacks::values(b, mover, t, &pose, &p);
-                    let self_dmg = if p.charge { crate::charge::attacker_damage(&b.units[t]) } else { crate::dfa::attacker_damage(&b.units[mover]) };
-                    let kind = if p.charge { "charge" } else { "dfa" };
-                    attacks.push((json!({"kind": kind, "target": t, "target_name": name(b, t), "hex": p.hex, "facing": p.facing, "mode": p.mode, "mp": p.mp_spent, "hexes": p.fc, "tn": tn, "hit": hit, "damage": dmg, "self_damage": self_dmg}), p));
-                }
-            }
-        }
-        let m = &b.units[mover];
-        let req = json!({"kind": "movement", "unit": mover, "name": name(b, mover), "hex": m.hex, "facing": m.facing, "standup_mp": standup_mp,
-                         "entry": entry_edge.is_some(), "walk": ms::compute_walk_mp(m), "run": ms::compute_running_mp(m),
-                         "jump": ms::compute_jump_mp(m), "options": list, "attacks": attacks.iter().map(|a| a.0.clone()).collect::<Vec<_>>()});
+        let _ = (moves_first, other, &inner);
+        let MoveView { req, opts, best, attacks } = move_view(b, mover, standup_mp, entry_edge);
+        // a move planned while the unit was being chosen
+        let preset = match self.plan.take() {
+            Some((u, p)) if u == mover => Some(p),
+            _ => None,
+        };
         enum Chosen {
             Stay,
             End(usize),
@@ -623,31 +713,17 @@ impl Controller for Screen {
         }
         let chosen = {
             let best_ref = &best;
-            let opts_ref = &opts;
             let attacks_ref = &attacks;
-            self.ask(
+            let view = MoveView { req: Value::Null, opts: opts.clone(), best: best.clone(), attacks: Vec::new() };
+            self.ask_with(
                 b,
                 req,
+                preset,
                 |b, q| {
                     if q["q"].as_str() != Some("path") {
                         return None;
                     }
-                    // the route the engine will walk to a chosen end (or to a charge / DFA stop)
-                    let pick = if let Some(a) = q.get("attack").filter(|a| a.is_object()) {
-                        // a charge's cost includes the step into the target's hex, which the route tables do not hold: the route to
-                        // the stop is the cheapest ordinary way to end there (a jump for death from above)
-                        let jump = a["kind"] == "dfa";
-                        opts_ref.iter().filter(|o| o.label == a["hex"].as_str().unwrap_or("") && o.facing_compass == a["facing"].as_str().unwrap_or("") && (o.mode == "Jump") == jump).min_by_key(|o| o.mp_spent).map(|o| o.pick())
-                    } else {
-                        let k = (q["hex"].as_str().unwrap_or("").to_string(), q["facing"].as_str().unwrap_or("").to_string(), q["mode"].as_str().unwrap_or("").to_string());
-                        best_ref.get(&k).map(|(i, _)| opts_ref[*i].pick())
-                    }?;
-                    let steps = crate::ranged_combat::path_to(b, mover, &pick, standup_mp, entry_edge)?;
-                    let list: Vec<Value> = steps
-                        .iter()
-                        .map(|(kind, (x, y, f), mp)| json!({"k": kind, "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "facing": crate::hex_geometry::facing_to_compass(*f).unwrap_or(""), "mp": mp}))
-                        .collect();
-                    Some(json!({"path": list}))
+                    view.route(b, mover, q, standup_mp, entry_edge)
                 },
                 |_, a| {
                     if let Some(at) = a.get("attack").filter(|x| x.is_object()) {
@@ -684,6 +760,23 @@ impl Controller for Screen {
             }
             None => (None, "player stays put".into(), PathGate::default()),
         }
+    }
+
+    fn deploy(&mut self, b: &mut Battle, u: UnitId, good: &[String]) -> Option<(String, String)> {
+        const FACINGS: [&str; 6] = ["N", "NE", "SE", "S", "SW", "NW"];
+        let hexes: Vec<String> = good.to_vec();
+        let req = json!({"kind": "deploy", "unit": u, "name": name(b, u), "hexes": hexes, "facing": b.units[u].facing});
+        Some(self.ask(b, req, |_, _| None, |_, a| {
+            let h = a["hex"].as_str().ok_or("which hex?")?;
+            let f = a["facing"].as_str().unwrap_or("N");
+            if !hexes.iter().any(|x| x == h) {
+                return Err(format!("{} is not in your deployment area (or is taken)", h));
+            }
+            if !FACINGS.contains(&f) {
+                return Err("which way does it face?".to_string());
+            }
+            Ok((h.to_string(), f.to_string()))
+        }))
     }
 
     fn spot(&mut self, b: &mut Battle, u: UnitId, inner: &mut GladiatorBots) -> Option<(UnitId, bool)> {

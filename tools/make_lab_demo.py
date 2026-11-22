@@ -86,8 +86,10 @@ def main(argv):
     body = page.split("<!--LAB-BODY-->")[1].split("<!--LAB-SCRIPT-->")[0]
     with open(os.path.join(WEB, "lab.css"), encoding="utf-8") as f:
         css = f.read()
+    with open(os.path.join(WEB, "boardart.js"), encoding="utf-8") as f:
+        js = f.read() + "\n"      # the shared map painting, ahead of lab.js
     with open(os.path.join(WEB, "lab.js"), encoding="utf-8") as f:
-        js = f.read()
+        js += f.read()
     data = json.dumps(demo, separators=(",", ":")).replace("</", "<\\/")
     html = ("<title>Combat Lab</title>\n<meta name=\"claude:viewport-fit-sides\" content=\"cover\">\n"
             f"<style>\n{css}</style>\n{body}<script>window.LAB_DEMO = {data};</script>\n<script>\n{js}</script>\n")

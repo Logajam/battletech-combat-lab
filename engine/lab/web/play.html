@@ -46,7 +46,18 @@ tr.pick td{background:rgba(111,191,134,.14)}
 tr.jam td{background:rgba(224,116,104,.15)}
 td.w{white-space:normal}
 td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
-#info{flex:none;padding:4px 8px;background:var(--field);border-top:1px solid var(--sh);font-size:12px;min-height:28px;color:var(--muted)}
+#info{position:absolute;left:6px;top:6px;max-width:calc(100% - 56px);padding:4px 8px;background:color-mix(in srgb,var(--panel) 86%,transparent);border:1px solid var(--bd);font-size:12px;color:var(--tx);z-index:3;pointer-events:none}
+#info:empty{display:none}
+#estrip{display:flex;gap:4px;padding:4px 6px 4px 22px;overflow-x:auto;background:var(--panel);border-bottom:1px solid var(--sh);flex:none;min-height:46px;position:relative}
+#estrip::before{content:"ENEMY";writing-mode:vertical-rl;transform:rotate(180deg);position:absolute;left:3px;top:50%;margin-top:-22px;font-size:9px;letter-spacing:.12em;color:var(--muted)}
+.echip{flex:none;min-width:58px;text-align:center;border:1px solid var(--bd);border-top:4px solid var(--err);background:var(--field);cursor:pointer;padding:2px 6px;font-size:12px;line-height:1.2}
+.echip b{display:block;font-size:14px}.echip.sel{outline:2px solid var(--link)}.echip.dead{opacity:.4;border-top-color:var(--dis)}
+#cluster{position:absolute;left:6px;right:6px;bottom:6px;display:none;gap:6px;align-items:stretch;z-index:4;pointer-events:none}
+#cluster>*{pointer-events:auto}
+#cluster .readout{background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--bd);padding:5px 8px;font-size:12px;line-height:1.3;min-width:96px}
+#cluster .readout span{color:var(--muted)}
+#cluster button.big{flex:1;min-height:48px;font-size:20px;font-weight:700;max-width:260px}
+#cluster button.x{min-width:48px;min-height:48px;font-size:24px;padding:0}
 #report{position:absolute;inset:0;background:rgba(10,13,17,.94);color:#e6ebf0;overflow:auto;padding:10px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;display:none}
 #detail{position:absolute;left:0;right:0;bottom:0;height:62%;background:var(--panel);border-top:2px solid var(--bd);display:none;flex-direction:column;z-index:5;box-shadow:0 -6px 16px rgba(0,0,0,.4)}
 #detail .tabs{display:flex;gap:2px;padding:4px 6px;border-bottom:1px solid var(--sh);flex:none;align-items:center}
@@ -69,15 +80,18 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
   <header><b>BattleROM</b><span id="phase">starting...</span><span class="sp"></span><button id="det-btn">Unit</button><button id="rep-btn">Report</button><button id="menu-btn">Menu</button></header>
   <div id="menu"></div>
   <div id="card"></div>
-  <div id="strip"></div>
+  <div id="estrip"></div>
   <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zfit" aria-label="Fit map">&#9635;</button></div>
+    <div id="info">Waiting for the game...</div>
+    <div id="cluster"></div>
     <div id="report"></div>
   </div>
+  <div id="strip"></div>
   <div id="sheet"></div>
   <div id="detail"></div>
-  <div id="info">Waiting for the game...</div>
 </div>
+<script src="boardart.js"></script>
 <script src="play.js"></script>
 </body>
 </html>
