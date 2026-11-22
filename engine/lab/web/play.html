@@ -81,6 +81,13 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
 #dockhead b{font-size:13px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #dockhead .sp{flex:1}
 #dockhead button{min-width:44px;min-height:32px;padding:0;font-size:15px}
+#dockhead button#rep-btn{min-width:60px;padding:0 8px;font-size:12px}
+#rec-btn{color:#ff9d92}
+.tnp{font-size:11px;font-weight:700;padding:0 4px;border:1px solid var(--bd);background:var(--face);min-width:26px;text-align:center;white-space:nowrap}
+.tnp.no{color:var(--muted);font-weight:400}
+#cluster button.go.holding{background-image:linear-gradient(90deg,rgba(255,255,255,.35),rgba(255,255,255,.35));background-repeat:no-repeat;background-size:0 100%;animation:hold .6s linear forwards}
+@keyframes hold{to{background-size:100% 100%}}
+#cluster button.go small{display:block;font-size:10px;font-weight:400}
 #docksum{padding:3px 8px;font-size:12px;color:var(--tx);flex:none;border-bottom:1px solid var(--sh)}
 #docktabs{display:flex;gap:2px;padding:4px 6px 0;flex:none;border-bottom:1px solid var(--bd)}
 #docktabs button{border-bottom:none;border-radius:var(--rad) var(--rad) 0 0;min-height:30px;background:transparent;box-shadow:none;color:var(--muted)}
@@ -112,7 +119,7 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
 </head>
 <body>
 <div id="app">
-  <header><b>BattleROM</b><span id="phase">starting...</span><span class="sp"></span><button id="det-btn">Unit</button><button id="rep-btn">Report</button><button id="menu-btn">Menu</button></header>
+  <header><b>BattleROM</b><span id="phase">starting...</span><span class="sp"></span><button id="rec-btn" title="Timeline and branching: not built yet">&#9679; REC</button><button id="det-btn">Unit</button><button id="menu-btn">Menu</button></header>
   <div id="menu"></div>
   <div id="card"></div>
   <div id="estrip"></div>
@@ -125,7 +132,7 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
   </div>
   <div id="strip"></div>
   <div id="dock" data-size="1">
-    <div id="dockhead"><b id="dockname">BattleROM</b><span class="sp"></span><button id="dockdn" aria-label="Smaller">&#9660;</button><button id="dockup" aria-label="Bigger">&#9650;</button></div>
+    <div id="dockhead"><b id="dockname">BattleROM</b><span class="sp"></span><button id="rep-btn" title="Combat report">Report</button><button id="dockdn" aria-label="Smaller">&#9660;</button><button id="dockup" aria-label="Bigger">&#9650;</button></div>
     <div id="docksum"></div>
     <div id="docktabs"></div>
     <div id="dockbody"><div id="sheet"></div><div id="tabbody"></div></div>
