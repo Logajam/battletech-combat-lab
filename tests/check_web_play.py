@@ -260,7 +260,7 @@ const POLICY = (r) => {
       // the fire screen: weapons first, then any number of targets, then Fire! (the page plays the engine's questions from the plan)
       await page.waitForFunction(() => window.__bm.fire && window.__bm.decl, null, { timeout: 20000 }).catch(() => {});
       if (!out.target && await page.evaluate(() => !!window.__bm.decl)) {
-        if (out.leak === undefined) out.leak = await page.evaluate(() => { const i = __bm.shown.map((l) => /=== TURN/.test(l)).lastIndexOf(true); return __bm.shown.slice(i + 1).some((l) => /\[Ranged\]|\[Heat\]|rolled|Firing order|Movement select/.test(l)); });
+        if (out.leak === undefined) out.leak = await page.evaluate(() => { const i = __bm.shown.map((l) => /=== TURN/.test(l)).lastIndexOf(true); return __bm.shown.slice(i + 1).filter((l) => /\[Ranged\]|\[Heat\]|rolled|Firing order|Movement select/.test(l)); });
         const before = await page.evaluate(() => __bm.fire.tcur);
         await tap('tgt-next'); await page.waitForTimeout(200);
         const base = await page.evaluate((b) => ({ rows: document.querySelectorAll('#wpanel .wrow').length, tn: document.querySelectorAll('#wpanel .tnp').length, pills: document.querySelectorAll('#map [data-tn-pill]').length, moved: __bm.fire.tcur !== b || __bm.req.enemies.length === 1, hold: !!document.querySelector('[data-act="hold"]') }), before);
@@ -291,7 +291,7 @@ const POLICY = (r) => {
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { pop: out.pop, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
+  out.page = { pop: out.pop, leak: out.leak, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -364,7 +364,7 @@ def main():
         pn = out["page"].get("panel") or {}
         report(pn.get("rows", 0) > 0 and pn.get("assigned", 0) > 0 and pn.get("weapons", 0) > 1 and pn.get("pips", 0) > 20, f"the weapon panel lists weapons, a tap assigns one, the Weapons and Armor tabs fill ({pn})")
         tg = out["page"].get("target") or {}
-        report(out["page"].get("leak") is False, "the report holds back the firing, physical and heat phases and the bots' reasoning until the phase is over")
+        report(out["page"].get("leak") == [], f"the report holds back the firing, physical and heat phases and the bots' reasoning until the phase is over ({out['page'].get('leak')})")
         report(tg.get("rows", 0) > 0 and tg.get("tn", 0) > 0 and tg.get("pills", 0) > 0 and tg.get("moved") and tg.get("hold"), f"the fire screen lists the weapons with their numbers, the enemy hexes carry a number pill, and the arrows cycle the look ({tg})")
         cd = tg.get("card") or {}
         report(cd.get("shown") and cd.get("rows", 0) >= 4 and cd.get("total") and cd.get("onTop"), f"a number opens its line items on top of everything ({cd})")
