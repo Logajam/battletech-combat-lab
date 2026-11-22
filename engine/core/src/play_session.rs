@@ -1,5 +1,10 @@
 //! A LIVE GAME WITH A PERSON IN IT (BattleROM, first playable slice, steps E2-E6 and the server's half of S1;
-//! INTEGRATION__PLAYER_DECISIONS.md Section 15). Not translated from the Python. Native only: the browser build cannot wait.
+//! INTEGRATION__PLAYER_DECISIONS.md Section 15). Not translated from the Python.
+//!
+//! The battle waits for the person through a `Link`. The desktop Lab's link is `Game` (below: the battle on its own
+//! thread, a Mutex and a Condvar). The browser build has no threads, so engine/wasm gives it a link whose "wait" blocks the
+//! page's play worker (an Atomics wait on a shared buffer; INTEGRATION__PLAYER_DECISIONS.md Section 18): `play_blocking`
+//! plays the whole battle on the caller's stack, asking through that link.
 //!
 //! `Game::start` plays a battle on its own thread with a `human_bots::HumanBots` whose controller (`Screen`) turns each
 //! question to the person into a JSON request - the battle's units, the question's own data (hexes the unit can reach,
@@ -22,8 +27,10 @@
 //! While a question waits the page may also send a QUERY (`Game::query`): "path" (a move's route), "set" (a weapon's mode /
 //! ammunition, answered with the weapon table afresh), "switches" / "equipment" (equipment switches, any time). A request
 //! answered with something illegal is asked again, with an "error" saying why.
-#![cfg(not(target_arch = "wasm32"))]
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::Arc;
+#[cfg(not(target_arch = "wasm32"))]
+use std::sync::{Condvar, Mutex};
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
 use serde_json::{json, Value};
@@ -47,6 +54,21 @@ use crate::scenario::Scenario;
 const BOOST_LABEL: &str = "MASC / supercharger";
 const RADICAL_LABEL: &str = "radical heat sink system";
 
+/// What the battle gets back while it waits: the person's answer, or a question about the waiting question's data.
+pub enum Incoming {
+    Answer(Value),
+    Query(Value),
+}
+
+/// How a waiting battle reaches the person (see the module comment): `post` shows a question, `wait` blocks until the page
+/// answers it or asks something about it, `reply` answers such a query.
+pub trait Link {
+    fn post(&self, request: &Value);
+    fn wait(&self) -> Incoming;
+    fn reply(&self, reply: Value);
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 #[derive(Default)]
 struct Slot {
     /// the question the battle is waiting on, and its number
@@ -62,11 +84,37 @@ struct Slot {
     failed: Option<String>,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub struct Game {
     slot: Mutex<Slot>,
     cv: Condvar,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+impl Link for Game {
+    fn post(&self, request: &Value) {
+        let mut s = self.slot.lock().unwrap();
+        s.seq += 1;
+        s.pending = Some(request.clone());
+        s.answer = None;
+        s.query = None;
+        self.cv.notify_all();
+    }
+    fn wait(&self) -> Incoming {
+        let mut s = self.slot.lock().unwrap();
+        s = self.cv.wait_while(s, |s| s.answer.is_none() && s.query.is_none()).unwrap();
+        match s.answer.take() {
+            Some(a) => Incoming::Answer(a),
+            None => Incoming::Query(s.query.take().unwrap()),
+        }
+    }
+    fn reply(&self, reply: Value) {
+        self.slot.lock().unwrap().query_reply = Some(reply);
+        self.cv.notify_all();
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 impl Game {
     /// Start a battle on `seed`; the units of `human_teams` are the person's. Returns at once.
     pub fn start(scenario: Arc<Scenario>, seed: u64, human_teams: Vec<String>) -> Arc<Game> {
@@ -133,7 +181,16 @@ impl Game {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn play(game: &Arc<Game>, sc: &Scenario, seed: u64, human_teams: &[String]) {
+    let end = play_blocking(game.clone(), sc, seed, human_teams);
+    game.slot.lock().unwrap().done = Some(end);
+    game.cv.notify_all();
+}
+
+/// Play the whole battle on this stack, asking the person through `link`; returns the end (winner, turns, final units,
+/// the log's last lines, how many decisions the person made).
+pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams: &[String]) -> Value {
     let mut b = sc.battle(Box::new(PcgDice::new(seed)));
     let human: Vec<UnitId> = (0..b.units.len()).filter(|&u| b.units[u].team.as_deref().is_some_and(|t| human_teams.iter().any(|h| h == t))).collect();
     for &u in &human {
@@ -142,13 +199,11 @@ fn play(game: &Arc<Game>, sc: &Scenario, seed: u64, human_teams: &[String]) {
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
     let mut play = start_battle(&mut b, sc.max_turns, &mut marks);
-    let screen = Screen { game: game.clone(), sent_log: 0, first: true };
+    let screen = Screen { link, sent_log: 0, first: true };
     let mut bots = HumanBots::new(screen, human);
     play_on(&mut b, &mut bots, &mut play, &mut marks);
     let r = &play.result;
-    let end = json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()});
-    game.slot.lock().unwrap().done = Some(end);
-    game.cv.notify_all();
+    json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()})
 }
 
 fn name(b: &Battle, u: UnitId) -> String {
@@ -287,7 +342,7 @@ fn common_tools(b: &mut Battle, q: &Value) -> Option<Value> {
 // The controller that talks to the page
 // ---------------------------------------------------------------------------------------------------------------------
 struct Screen {
-    game: Arc<Game>,
+    link: Arc<dyn Link>,
     sent_log: usize,
     first: bool,
 }
@@ -303,26 +358,15 @@ impl Screen {
             self.first = false;
         }
         loop {
-            {
-                let mut s = self.game.slot.lock().unwrap();
-                s.seq += 1;
-                s.pending = Some(request.clone());
-                s.answer = None;
-                s.query = None;
-                self.game.cv.notify_all();
-            }
+            self.link.post(&request);
             let answer = loop {
-                let mut s = self.game.slot.lock().unwrap();
-                s = self.game.cv.wait_while(s, |s| s.answer.is_none() && s.query.is_none()).unwrap();
-                if let Some(a) = s.answer.take() {
-                    break a;
+                match self.link.wait() {
+                    Incoming::Answer(a) => break a,
+                    Incoming::Query(q) => {
+                        let reply = tools(b, &q).or_else(|| common_tools(b, &q)).unwrap_or_else(|| json!({"error": "unknown query"}));
+                        self.link.reply(reply);
+                    }
                 }
-                let q = s.query.take().unwrap();
-                drop(s);
-                let reply = tools(b, &q).or_else(|| common_tools(b, &q)).unwrap_or_else(|| json!({"error": "unknown query"}));
-                let mut s = self.game.slot.lock().unwrap();
-                s.query_reply = Some(reply);
-                self.game.cv.notify_all();
             };
             match check(b, &answer) {
                 Ok(t) => return t,

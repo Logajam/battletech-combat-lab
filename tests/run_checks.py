@@ -54,11 +54,11 @@ def run_test_file(path, args=()):
 
 
 def run_web_checks():
-    """The browser build's two checks, one after the other (they share the web_lab/ build): check_web_ui.py (the page as a
-    person uses it; it rebuilds web_lab/ when its sources are newer) then check_web_lab.py (browser = desktop, battle for
-    battle). Exit code 77 = skipped (no node / Playwright / wasm32 target here): reported as a NOTE, not a failure."""
+    """The browser build's three checks, one after the other (they share the web_lab/ build): check_web_ui.py (the page as a
+    person uses it; it rebuilds web_lab/ when its sources are newer), check_web_lab.py (browser = desktop, battle for
+    battle) then check_web_play.py (a person's game in the browser = the desktop's). Exit code 77 = skipped (no node / Playwright / wasm32 target here): reported as a NOTE, not a failure."""
     start, out, ok = time.time(), [], True
-    for script, args in (("check_web_ui.py", []), ("check_web_lab.py", ["--battles", "4"])):
+    for script, args in (("check_web_ui.py", []), ("check_web_lab.py", ["--battles", "4"]), ("check_web_play.py", [])):
         proc = subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tests", script), *args], cwd=REPO_ROOT,
                               capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
         if proc.returncode == 77:
@@ -103,7 +103,7 @@ def kind_of(path):
             or name.startswith(("INTEGRATION__token", "INTEGRATION__shell", "INTEGRATION__structure_table")) or name == "test_lowpoly_ref.py":
         return "art"
     if path.startswith(("engine/lab/web/", "engine/wasm/web/")) or path in (
-            "tools/build_web_lab.py", "tools/make_lab_demo.py", "tests/check_web_ui.py", "tests/check_web_lab.py"):
+            "tools/build_web_lab.py", "tools/make_lab_demo.py", "tools/publish_web_lab.py", "tests/check_web_ui.py", "tests/check_web_lab.py", "tests/check_web_play.py"):
         return "pages"
     return "engine"
 
@@ -163,7 +163,7 @@ def main(argv):
         heavy.append(("rust       check_play.py",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_play.py"), [])))
         # Combat Lab in the browser: the website clicked through, and the browser v the desktop
-        heavy.append(("web        check_web_ui.py + check_web_lab.py --battles 4", run_web_checks, ()))
+        heavy.append(("web        check_web_ui.py + check_web_lab.py --battles 4 + check_web_play.py", run_web_checks, ()))
     if not light and not heavy:
         print("\nNothing to run for this change.")
         return 0

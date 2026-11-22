@@ -5,7 +5,7 @@
 // a route, re-price a weapon after a mode / ammunition change, and set equipment switches.
 const $ = (id) => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
-const GAME = +qs.get("game");
+let GAME = +qs.get("game");
 let COLOURS = {};
 try { COLOURS = JSON.parse(qs.get("colours") || "{}"); } catch (e) { /* default colours */ }
 const R = 34, SQ3 = Math.sqrt(3);
@@ -31,6 +31,7 @@ const svg = $("map");
 const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
 
 async function api(name, body) {
+  if (window.LAB_WASM) return window.LAB_WASM.api(name, { game: GAME, ...body });   // the browser build (engine/wasm): this page plays the battle
   const r = await fetch("api/" + name, { method: "POST", body: JSON.stringify({ game: GAME, ...body }) });
   return r.json();
 }
@@ -591,5 +592,20 @@ $("rep-btn").onclick = toggleReport;
 $("det-btn").onclick = () => { if ($("detail").style.display === "flex") closeDetail(); else openDetail(); };
 window.addEventListener("resize", () => { if (S.board) fit(); });
 applyLook();
-if (!GAME) { $("info").textContent = "No game: start one from the Lab (set a team to Human, then Play)."; } else { loop(); }
+// The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
+// starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
+async function boot() {
+  if (!GAME && window.LAB_WASM) {
+    let setup = null;
+    try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); localStorage.removeItem("bm_play_setup"); } catch (e) { /* storage off */ }
+    if (setup) {
+      $("info").textContent = "Starting the battle...";
+      const r = await api("play_start", { setup });
+      if (r.error) { setPhase("could not start"); $("info").textContent = r.error; return; }
+      GAME = r.game; COLOURS = r.colours || {};
+    }
+  }
+  if (!GAME) { $("info").textContent = "No game: start one from the Lab (set a team to Human, then Play)."; } else { loop(); }
+}
+boot();
 window.__bm = S;

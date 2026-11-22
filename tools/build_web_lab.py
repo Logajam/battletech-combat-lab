@@ -155,15 +155,21 @@ def main():
                "info": {"bots": info["bots"], "default_board": info["default_board"], "skill_table": info["skill_table"]}}
     json.dump(catalog, open(os.path.join(out, "catalog.json"), "w"), separators=(",", ":"))
     shutil.copy(os.path.join(engine, "defaults", "config.json"), os.path.join(out, "defaults.json"))
-    for n in ("index.html", "lab.css", "lab.js", "options.json", "availability.json"):
+    for n in ("index.html", "play.html", "play.js", "lab.css", "lab.js", "options.json", "availability.json"):
         shutil.copy(os.path.join(engine, "lab", "web", n), os.path.join(out, n))
-    for n in ("wasmio.js", "engine.js", "worker.js"):
+    for n in ("wasmio.js", "engine.js", "worker.js", "playworker.js", "coi.js", "coi-sw.js"):
         shutil.copy(os.path.join(engine, "wasm", "web", n), os.path.join(out, n))
     shutil.copy(wasm, os.path.join(out, "combatlab.wasm"))
     # the page loads the glue before lab.js
     html = open(os.path.join(out, "index.html"), encoding="utf-8").read()
-    html = html.replace('<script src="lab.js"></script>', '<script src="wasmio.js"></script>\n<script src="engine.js"></script>\n<script src="lab.js"></script>')
+    # coi.js first: it makes the page cross-origin isolated (a service worker adds the headers), which BattleROM's play worker
+    # needs for the shared memory its battle waits in
+    html = html.replace('<script src="lab.js"></script>', '<script src="coi.js"></script>\n<script src="wasmio.js"></script>\n<script src="engine.js"></script>\n<script src="lab.js"></script>')
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(html)
+    # the play page: the same glue, then play.js (which starts the battle in a worker of its own)
+    play = open(os.path.join(out, "play.html"), encoding="utf-8").read()
+    play = play.replace('<script src="play.js"></script>', '<script src="coi.js"></script>\n<script src="wasmio.js"></script>\n<script src="engine.js"></script>\n<script src="play.js"></script>')
+    open(os.path.join(out, "play.html"), "w", encoding="utf-8").write(play)
     for n in sorted(os.listdir(out)):
         print(f"  {n:20} {os.path.getsize(os.path.join(out, n))/1e6:7.2f} MB")
 

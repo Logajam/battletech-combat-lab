@@ -24,6 +24,12 @@
 //! | `history` | {setup, sim, seed?} | one battle's record |
 //! | `page` | {record} | {html}: the replay page of a `history` record |
 //! | `seed` | {run_seed, sim} | {seed}: the seed battle `sim` is played on |
+//! | `play_run` | {setup, seed} | {end}: a battle with a person in it (the teams whose bot is "human"), played to its end on this call; see below |
+//!
+//! `play_run` is BattleROM in the browser (play_session.rs, INTEGRATION__PLAYER_DECISIONS.md Section 18). The module cannot
+//! wait, so the page's play worker lets the call BLOCK: each question goes out through `host_play_post`, and `host_play_wait`
+//! does not return until the page has answered it (an Atomics wait on a shared buffer; web/playworker.js). A query while a
+//! question waits (a route, a weapon's mode) comes in through the same wait and goes back through `host_play_reply`.
 //!
 //! Only the browser build (wasm32) has anything in it; on the desktop this crate is empty.
 #![cfg(target_arch = "wasm32")]
@@ -62,6 +68,38 @@ use serde_json::{json, Value};
 extern "C" {
     /// the page is told a panic's message just before the instance stops
     fn host_panic(ptr: *const u8, len: usize);
+    /// BattleROM: a question for the person (JSON text)
+    fn host_play_post(ptr: *const u8, len: usize);
+    /// BattleROM: blocks until the person answers or asks a query; returns the length of what came ({"k": "a" | "q", "v": ...})
+    fn host_play_wait() -> usize;
+    /// BattleROM: copies what `host_play_wait` announced to `ptr`
+    fn host_play_take(ptr: *mut u8);
+    /// BattleROM: the reply to a query (JSON text)
+    fn host_play_reply(ptr: *const u8, len: usize);
+}
+
+/// The link of a battle with a person in it: the page's play worker, through the imports above.
+struct PageLink;
+
+impl btsim_core::play_session::Link for PageLink {
+    fn post(&self, request: &Value) {
+        let t = request.to_string();
+        unsafe { host_play_post(t.as_ptr(), t.len()) };
+    }
+    fn wait(&self) -> btsim_core::play_session::Incoming {
+        let n = unsafe { host_play_wait() };
+        let mut buf = vec![0u8; n];
+        unsafe { host_play_take(buf.as_mut_ptr()) };
+        let m: Value = serde_json::from_slice(&buf).unwrap_or(Value::Null);
+        match m["k"].as_str() {
+            Some("a") => btsim_core::play_session::Incoming::Answer(m["v"].clone()),
+            _ => btsim_core::play_session::Incoming::Query(m["v"].clone()),
+        }
+    }
+    fn reply(&self, reply: Value) {
+        let t = reply.to_string();
+        unsafe { host_play_reply(t.as_ptr(), t.len()) };
+    }
 }
 
 struct State {
@@ -228,6 +266,25 @@ fn dispatch(name: &str, req: &Value) -> Result<Value, String> {
                 let (crash, line) = runs::play_one(plan, *seed, sim);
                 Ok(json!({"crash": crash, "line": line}))
             })
+        }
+        "play_run" => {
+            let mut setup = req["setup"].clone();
+            let mut human: Vec<String> = Vec::new();
+            for t in setup["teams"].as_array_mut().into_iter().flatten() {
+                if t["bot"].as_str() == Some("human") {
+                    human.push(t["name"].as_str().unwrap_or("").to_string());
+                    t["bot"] = json!("gladiator"); // the engine builds the team with a bot; the person answers in its place
+                }
+            }
+            if human.is_empty() {
+                return Err("No team is set to Human. Set one team's bot to Human, then press Play.".into());
+            }
+            let seed = req["seed"].as_u64().filter(|s| *s != 0).unwrap_or(1);
+            let plan = plan_of(&setup)?;
+            let scenario = plan.scenario_for(1, seed).0;
+            // no borrow of STATE is held from here on: the battle may be waiting for hours
+            let end = btsim_core::play_session::play_blocking(Arc::new(PageLink), &scenario, seed, &human);
+            Ok(json!({"end": end}))
         }
         // the unit editor's calls (the desktop Lab's `unit_eval` and `equipment_list`; unit text comes from the page's data block)
         "unit_eval" => {

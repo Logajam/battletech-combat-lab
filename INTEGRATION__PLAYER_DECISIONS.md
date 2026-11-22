@@ -318,3 +318,36 @@ move); a person is no longer asked in a forecast (`BotSet::move_pick_forecast`).
 - **Placards can overlap** each other and units (no placement pass like the mockup's); no MegaMek sprites (licence and art not checked); the Win95 list screens and the timeline screen; the combat report is the raw log, not a formatted popup.
 - **Not tried on a real phone**; only a 390 x 800 headless browser. Colour-blind palettes not checked with a simulator.
 - Not built by choice: 5 (take-control checkbox, declaration order, option changes), 7 (browser build), saving and resuming a game (spare compute).
+
+## 18. BattleROM in the browser (2026-11-22; Daniel: "Getting the browser version built and pushed to the public website")
+
+Item 7 (the browser build), which Daniel had skipped, built. REVIEW PENDING (higher-level model).
+
+**The problem.** The browser's engine module has no threads and cannot wait, but a human battle must stop at every question
+until the person answers. **How it works.** One Web Worker plays the whole battle (`engine/wasm/web/playworker.js`) and
+simply BLOCKS inside the engine's call: the question goes out to the page (`host_play_post`), and the engine then calls
+`host_play_wait`, which sleeps on a shared buffer (`Atomics.wait`) until the page writes the answer, or a query (a route,
+a weapon's mode), into it. The engine code is the same as the desktop's: `play_session.rs` now reaches the person through
+a small `Link` trait (the desktop's is `Game`, the battle on its own thread; the browser's is `PageLink` in
+`engine/wasm/src/lib.rs`), and `play_blocking` plays the battle on the caller's stack. `engine/wasm/web/engine.js` keeps what the
+desktop server keeps (the question waiting and its number, the end, the query in flight), so `play.js` and `lab.js` use the
+same `play_poll` / `play_answer` / `play_query` calls in both builds.
+
+**Cross-origin isolation.** A shared buffer needs the page to be "cross-origin isolated", which means two response headers a
+static host such as GitHub Pages cannot send. `coi-sw.js` (a small service worker) adds them; `coi.js` installs it and reloads
+the page once. After that first visit the pages are isolated. A browser that refuses service workers (some private windows)
+gets a plain sentence from Play saying so; the batch runs do not need any of this.
+
+**How a game starts in the browser.** The Lab page checks the setup (`play_check`: the same mistakes-in-words check a batch
+makes), leaves it in `localStorage` (`bm_play_setup`) and opens `play.html`, which starts the battle in a worker of its own.
+Closing the play tab ends the game (saving and resuming is still the spare-compute item, Section 17).
+
+**Checked** (`tests/check_web_play.py`, in `run_checks.py`'s website group): the same scripted player, same setup and seed, on
+the desktop Lab and in the browser gives the same 109 answers to the same questions and the same battle (winner, turns,
+final units); queries work while a question waits; a Human team in a batch run, and Play without a Human team, are refused in
+words; on a plain static server the service worker isolates the page by itself; the real play page plays a whole battle by taps
+in a phone-sized window with no page error.
+
+**Not done / to watch.** Not tried on a real phone. iPhone Safari needs the service worker too (supported since iOS 15.2).
+The play tab holds the battle in memory only. A panic in the engine during a human game ends it ("the engine stopped"), as on the desktop.
+

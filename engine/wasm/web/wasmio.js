@@ -4,13 +4,18 @@
 
 // module: a compiled WebAssembly.Module. Returns {call(name, request) -> answer, panic}: `panic` is the message of the
 // last panic (after which the instance is dead: start another).
-async function makeEngine(module) {
+// extra (optional): a function that is handed `mem()` (the module's memory) and returns more imports for the module's "env"
+// (BattleROM's play worker adds the question and wait calls, playworker.js).
+async function makeEngine(module, extra) {
   let panic = "";
   let memory = null;
   const imports = {
     env: {
       host_now_ms: () => performance.now(),
       host_panic: (ptr, len) => { panic = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len)); },
+      // a module that plays a battle with a person needs these four; any other worker never calls them
+      host_play_post: () => {}, host_play_wait: () => 0, host_play_take: () => {}, host_play_reply: () => {},
+      ...(extra ? extra(() => memory) : {}),
     },
   };
   const instance = await WebAssembly.instantiate(module, imports);
