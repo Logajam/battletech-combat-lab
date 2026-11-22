@@ -496,6 +496,8 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
 22. FEAT **Use the same weapons table on screen as the ranged attacks, complete with a commit button.**
 23. FEAT **Do not list every limb that can make an attack:** "Always use the best available limbs with the highest expected damage."
 
+24a. FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
+
 ### F. Armour and placards
 24. BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
     `INTEGRATION__BATTLEROM_UI.md` Section 5).
