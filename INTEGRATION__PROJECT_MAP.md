@@ -95,6 +95,23 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
+- O1. THE FRONT END FOR PLAYER-CONTROLLED FORCES: designed as an interactive phone-first mockup, saved at
+  `reference_art/battlerom_ui/battlerom_play_mockup.html`; the words for each part of the screen, Daniel's decisions and the
+  ideas-for-later list are in `INTEGRATION__BATTLEROM_UI.md` (read it before touching the Lab's play pages). Needs: the engine
+  queries listed there (section 6), the setup list screens in the Win95 look, a decision on the BattleROM name and a new
+  repo, and Daniel's answers to its section 8. All numbers in the mockup are samples.
+- O2. BATTLEROM FIRST PLAYABLE SLICE (2026-11-21, built; REVIEW PENDING): a person plays a team against bots in the desktop
+  Combat Lab (set a team's bot to Human, press Play; `engine/lab/web/play.html`). Engine: `core/src/human_bots.rs`,
+  `core/src/play_session.rs`; Lab calls `play_start` / `play_poll` / `play_answer`. Status table and the ordered list of what is
+  NOT built (waypoints, charge / DFA, stand-up button, weapon modes and ammo order, equipment switches, spot / TAG / artillery,
+  take-control in replay, declaration order, the mockup's look, the browser build, saving a game): `INTEGRATION__PLAYER_DECISIONS.md`
+  Section 16 (second pass, Section 17: charge / DFA, stand up, route preview, weapon modes, ammo bins, equipment switches, End
+  Phase question, spot, TAG, artillery aim, firing arcs, detail sheet, looks, colour-blind mode). Still not built: waypoint
+  steering, going prone, ejection / voluntary shutdown, hex-only artillery, placard placement, sprites, formatted combat report,
+  and (Daniel: skip) take-control / declaration order / option changes (5), the browser build (7); saving a game is "spare compute".
+  The audit of every player decision and Daniel's answers: the same file, Sections 1-15.
+
 **N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
 - N1. NARC HOMING AMMO RULE: BUILT 2026-11-20 (Change Record), setting `NARC_HOMING_FOR_FORCE` (on in the Lab / btsim). Per-bin
   ammo choice comes later (N5's window).
@@ -371,6 +388,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s33-play) BATTLEROM FIRST PLAYABLE SLICE** (2026-11-21): `engine/core/src/human_bots.rs`, `play_session.rs` (+ tests `human_bots`, `play_session`), Lab calls in `engine/lab/src/main.rs`, pages `engine/lab/web/play.html` / `play.js`, `tests/check_play.py`. Look at: that a Human unit's decisions never reach the normal bots' state (the pass-through test covers only a controller that forwards everything); the friend-occupied-hex filter in the movement query (a crash was found and fixed there); the automatic twist choice (first arc action that lets every picked weapon fire; assumes the engine lists "no change" first); the physical attack answer (current arc action, no twist choice); `player_choices.rs` (the stubs / ammo / heat code look there first for a person's units: check that an empty store changes nothing, as the 91 reference battles show); the new `BotSet` hooks (`before_move`, `wants_stand_up`, `end_phase`, `choose_tag`, `move_pick_forecast`) and `tag::designation_units`' new parameter; `ammo::auto_bin` (Daniel's order) and `ams_off` no longer needing `heat_managed`.
+- **(s33-ui) BATTLEROM PLAY SCREEN MOCKUP AND DESIGN RECORD** (2026-11-21): `reference_art/battlerom_ui/battlerom_play_mockup.html`, `INTEGRATION__BATTLEROM_UI.md` (design only, no engine change). Look at: the MegaMek facts that are marked NOT VERIFIED (walk = `Color.CYAN`, which constant each movement mode uses, the Esc binding), the grouping rule for weapons (name, arc, ammo bin, mode, TN must all match), the stacking limits and hazard text (placeholders), the contrast figures, and that nothing in the mockup is taken as a rule.
 - **(s31-hydra2) HYDRA SECOND PASS + WEAPON RANGE FIX** (2026-11-21): `hydra::indirect_exchange`, `Entry.net` / `c3_gain` / `forecast_net` / `net_loss`, `c3::without` / `link`, `move_select::IndirectProfile` / `weapon_ranges` (usable weapons only, every bot) / `max_range_megamek`, `spotting::reaches_indirectly`. Look at: the indirect profile's movement modifiers (enemy at a walk when unmoved), the Slave-bonus expectation in `net_loss`, the spotter value counted only when no friend sees the enemy, Princess's range against MegaMek's `isReady`.
 - **(s31-hydra) HYDRA AND THE NEW RULES** (2026-11-21): `hydra::plan_spots` / `choose_spot` (team spotting plan), `MoveEvaluator::with_c3` + `c3::Partners` (C3 range in Hydra's movement estimates, per hex both ways), Hydra on `princess_artillery::distant_aim` (`fire_modes`). Look at: the greedy spot plan's value (friends' gain vs the spotter's own +1), the C3 partners taken where they stand (unmoved ones too), the memo keys that now carry the C3 figure.
 - **(s31-n10) AUTOCANNON MUNITIONS** (2026-11-20): `ammo::bin_choices` / `munition_multiplier`, `electronics::control_for` (precision), `fire_modes::has_special_ac_round` / bin_kinds (caseless only), the caseless break and the AP check in attack_resolution (`armor_and_structure`). Look at: the caseless critical (here: a crit check of 8+ wrecks the whole gun, the book applies crits slot by slot), a RAC with a broken caseless feed could later be unjammed.
@@ -712,6 +731,15 @@ untranslated "until they're actually needed". What is left of the port is finish
   Later refusals traced too (a lost hip, a GET_UP with the gyro gone, an unlocked twist; MEGAMEK_BRIDGE 3e); one Run
   refusal (to 1207) not reproduced - the per-game bridge logs now keep MegaMek's reason if it recurs.
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
+
+**Known issues to fix later (Daniel, 2026-11-21):**
+- **Gladiator vs Gladiator ran a deployment step with the Core Rulebook's "walk on" setting active.**
+  Daniel saw a deployment step in a Gladiator-vs-Gladiator battle where the units should have walked
+  on from the map edge, so the decision loop may not honour the walk-on setting (or it calls the
+  deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
+  When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
+  Gladiator decision loop before changing anything.
+- **Ejection and voluntary shutdown are not modelled** (Daniel, 2026-11-21: "leave out for the moment ... make sure they're a known short fall"). UI plan: Shut down on the engine's critical-stats page, Eject on the cockpit (`INTEGRATION__PLAYER_DECISIONS.md` Section 12). Other unit types (vehicles, infantry) also later.
 
 **Known issues to fix later (found session 13, Claude):**
 - ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`

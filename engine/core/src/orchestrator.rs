@@ -30,6 +30,11 @@ pub trait BotSet {
     fn move_pick(&mut self, _b: &mut Battle, _candidates: &[UnitId]) -> Option<UnitId> {
         None
     }
+    /// The same pick while the turn loop only FORECASTS the move queue (nothing is decided): a person is not asked. Default: as
+    /// `move_pick`.
+    fn move_pick_forecast(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
+        self.move_pick(b, candidates)
+    }
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice;
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)>;
     /// bots.choose_movement: (pick, note, the terrain PSRs / hazard the search noted for the pick)
@@ -50,6 +55,21 @@ pub trait BotSet {
         crate::stubs::stub_spot(b, u)
     }
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
+    /// BattleROM: a unit is about to move (before it stands up, before MASC / a supercharger is rolled): a person's
+    /// controller records the switches it sets here (player_choices.rs). Default: nothing.
+    fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) {}
+    /// BattleROM: may a prone unit that can stand try to? A person may leave it prone. Default: yes (the engine always tried).
+    fn wants_stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        true
+    }
+    /// BattleROM: the Heat Phase is about to start for this unit; `weapon_heat` is what its weapons added this turn. A
+    /// person's controller sets coolant pod / radical heat sink / heat sink / Blue Shield / unjam switches here.
+    fn end_phase(&mut self, _b: &mut Battle, _u: UnitId, _weapon_heat: i64) {}
+    /// BattleROM: TAG designation before the Ranged Attack Phase (Core p.200). None = not a person's unit (the stubs decide);
+    /// Some(None) = does not designate; Some(Some((target, "mech" | "hex"))) = designates.
+    fn choose_tag(&mut self, _b: &mut Battle, _attacker: UnitId, _candidates: &[crate::tag::TagCandidate]) -> Option<Option<(UnitId, &'static str)>> {
+        None
+    }
 }
 
 /// mover.path_psrs[pick] / mover.path_hazard[pick] as the search left them.
@@ -229,12 +249,19 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
             return;
         }
     }
+    bots.before_move(b, mover);
     let mut standup_mp: Option<i64> = None;
     let mut booster_failures: Vec<&'static str> = Vec::new();
     if b.units[mover].prone {
         let m = &b.units[mover];
         let tries = pr::can_stand(m) && m.pilot_hits < 5 && compute_running_mp(m) > 0;
-        let remaining = b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, None));
+        // BattleROM: a person may leave the unit prone (a bot always tries)
+        let stays = tries && !bots.wants_stand_up(b, mover);
+        if stays {
+            b.log(format!("  [Movement] {}: stays prone (chosen).", nm));
+        }
+        let remaining = if stays { 0 } else { b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, None)) };
+        let tries = tries && !stays;
         if tries {
             b.units[mover].move_mode = "Run".into();
         }
@@ -560,12 +587,13 @@ fn after_fall_midmove(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, othe
 }
 
 // ---- other phases ---------------------------------------------------------------------------------------------------
-fn phase_heat(b: &mut Battle, reports: &[(UnitId, SideReport)]) {
+fn phase_heat(b: &mut Battle, bots: &mut dyn BotSet, reports: &[(UnitId, SideReport)]) {
     for u in 0..b.units.len() {
         if b.is_destroyed(u) {
             continue;
         }
         let wh = reports.iter().find(|(x, _)| *x == u).map_or(0, |(_, r)| r.weapon_heat);
+        bots.end_phase(b, u, wh);
         heat::resolve_heat_phase(b, u, wh);
     }
 }
@@ -1052,7 +1080,22 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         b.move_queue = {
             let mut ahead = act.clone();
             let mut queue = Vec::new();
-            while let Some(u) = ahead.next(b, &mut pick) {
+            let mut forecast = |b: &mut Battle, c: &[UnitId]| -> UnitId {
+                if let Some(u) = bots.move_pick_forecast(b, c) {
+                    return u;
+                }
+                let mut best = c[0];
+                let mut best_v = forces::move_index(b, best);
+                for &u in &c[1..] {
+                    let v = forces::move_index(b, u);
+                    if v > best_v {
+                        best = u;
+                        best_v = v;
+                    }
+                }
+                best
+            };
+            while let Some(u) = ahead.next(b, &mut forecast) {
                 queue.push(u);
             }
             queue
@@ -1104,7 +1147,8 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let mut fighters = forces::fire_order(b, &order, &mut |_b, c| c[0]);
     {
         let mut target_of = |b: &mut Battle, u: UnitId| forces::choose_target(b, u, true, false);
-        tag::designation_units(b, &fighters, &mut target_of);
+        let mut chosen = |b: &mut Battle, u: UnitId, c: &[tag::TagCandidate]| bots.choose_tag(b, u, c);
+        tag::designation_units(b, &fighters, &mut target_of, &mut chosen);
     }
     if bots.fire_pick_active(b) {
         let mut pick = |b: &mut Battle, c: &[UnitId]| bots.fire_pick(b, c);
@@ -1133,7 +1177,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     after_phase(b);
     marks(b, turn, "Physical attacks");
     let heat_reports: Vec<(UnitId, SideReport)> = scrappers.iter().copied().zip(phys_reports).collect();
-    phase_heat(b, &heat_reports);
+    phase_heat(b, bots, &heat_reports);
     after_phase(b);
     bots.manage_heat_equipment(b);
     bots.end_of_turn(b);

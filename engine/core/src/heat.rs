@@ -244,7 +244,12 @@ pub fn extra_cooling(b: &mut Battle, u: UnitId, projected: i64) -> (i64, &'stati
         equip::destroy_system(b, u, "radical", "failed activation");
         return (0, "");
     }
-    if projected > b.units[u].min_heat && !equip::unused_coolant_pods(&b.units[u]).is_empty() {
+    let pods_ok = match b.player.unit(&b.units[u].side_name.clone().unwrap_or_default()).and_then(|c| c.coolant) {
+        Some(false) => false,
+        Some(true) => projected > 0,
+        None => projected > b.units[u].min_heat,
+    };
+    if pods_ok && !equip::unused_coolant_pods(&b.units[u]).is_empty() {
         let pod = equip::use_coolant_pod(b, u);
         let line = format!("    {}: {} triggered.", b.units[u].side_name.clone().unwrap_or_default(), b.units[u].items[pod].name);
         b.log(line);
@@ -556,6 +561,11 @@ pub fn choose_heat_sink_deactivation(b: &mut Battle, u: UnitId, next_turn: Optio
         let keep_on = 0.max(working.min((potential - b.units[u].min_heat - fixed_cooling).div_euclid(per_sink)));
         wanted_off = working - keep_on;
     }
+    // a person who set the number of sinks to leave off decides (player_choices.rs)
+    let wanted_off = match b.player.unit(&b.units[u].side_name.clone().unwrap_or_default()).and_then(|c| c.sinks_off) {
+        Some(n) => n.clamp(0, working),
+        None => wanted_off,
+    };
     if wanted_off != b.units[u].deactivated_heat_sinks {
         let m = &b.units[u];
         let line = format!(

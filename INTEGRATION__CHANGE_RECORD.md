@@ -6,6 +6,43 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude, evening), BATTLEROM SLICE, SECOND PASS: the rest of the player's decisions. REVIEW PENDING (higher-level
+  model).** Daniel: "Skip 5 and 7. Work on getting everything else working." Engine: `player_choices.rs` (what a person chose:
+  munition, shots, ammo bin, unjam, capacitor charge, MASC / radical, coolant, sinks, Blue Shield; read first by the stubs, `ammo::take`,
+  `heat::extra_cooling` / `choose_heat_sink_deactivation`, `fire_modes::Planner::decide`, only for units with an entry, so bot battles
+  are unchanged); `ammo::auto_bin` (Center Torso, side torsos, arms, legs, head); new `BotSet` hooks `before_move`, `wants_stand_up`,
+  `end_phase`, `choose_tag`, `move_pick_forecast` (defaults change nothing) with call sites in the turn loop; `tag::designation_units`
+  takes a hook; `ams_off` also honours a person's off switch. `play_session.rs`: questions stand_up, boost, spot, tag, end_phase; the
+  movement question carries charge / DFA stops with numbers; queries path, set, switches, equipment (`play_query`); weapon table with
+  modes, rates, bins, charge, arcs, ranges, to-hit parts. Page: sheets for all of it, detail sheet, press-and-hold cards, range bands and
+  arcs, looks and colour-blind mode. Found and fixed: the move order was asked during the engine's queue forecast. Checks: all 91
+  reference battles match; `check_play.py` now also plays a full-kit game (MASC, TAG, coolant pods, AMS, a charge); a 6 v 3 game and a
+  2 v 2 were played by tapping in a 390 x 800 browser with no page errors (`tests/play_page_kitchen_e2e.js`). Not done: see Section 17
+  of `INTEGRATION__PLAYER_DECISIONS.md`.
+- **2026-11-21 (Claude), BATTLEROM FIRST PLAYABLE SLICE: A PERSON PLAYS A TEAM IN THE COMBAT LAB. REVIEW PENDING (higher-level
+  model).** Daniel: "Time to start making it real ... a working model even if it has issues." Step 1 was an audit of every
+  decision a player must make (`INTEGRATION__PLAYER_DECISIONS.md`, with Daniel's answers). Built: `human_bots.rs` (a `BotSet` that
+  hands a person's units' decisions to a controller, waits as long as needed, and keeps a decision list; the engine has no clock),
+  `play_session.rs` (a game on its own thread; JSON questions for move order, move, target, weapons, physical attacks; answers
+  checked and re-asked with an error when illegal; native only), `Scenario` unchanged except for the new `run_with` entry point,
+  `history::unit_state` / `board` made public, Lab calls `play_start` / `play_poll` / `play_answer` (a Human team is refused by
+  `run` and `estimate`), a Play button, and a new page `play.html` / `play.js` (SL-HIS Dark, phone first). The existing bots and
+  every reference battle are untouched: `check_rust_reference` passes (91 battles), so does everything else `run_checks.py`
+  picked (10 of 10, run before the play check was added; the website check skipped itself, no wasm32 target in this container).
+  New checks: `core/tests/human_bots.rs`, `core/tests/play_session.rs`, `tests/check_play.py` (registered in `run_checks.py`);
+  `tests/play_page_e2e.js` (a whole battle by tapping, not registered). Found and fixed on the way: the movement list offered a hex
+  a friend stands on (two units ended in one hex and the engine stopped). Known gaps, in order: Section 16 of the audit file.
+- **2026-11-21 (Claude), BATTLEROM PLAY SCREEN: DESIGN MOCKUP AND DESIGN RECORD (no engine or Lab change). REVIEW PENDING (higher-level
+  model).** Daniel asked how the website's Combat Lab could improve; the talk grew into a phone-first play screen for
+  player-controlled forces ("BattleROM: Record, Observe, Meddle"). Built as an interactive mockup (16 versions, each checked in
+  headless Chromium at phone, wide and landscape sizes; not tried on a real phone) and published as a private claude.ai Artifact;
+  the source is now saved at `reference_art/battlerom_ui/battlerom_play_mockup.html` (private path) with a README, and the design
+  is written down in `INTEGRATION__BATTLEROM_UI.md` (vocabulary, decisions, MegaMek facts read from its source and which parts are
+  NOT verified, what the engine would have to supply, ideas for later, open questions). Looks: SL-HIS 7.2 Dark is the default
+  (Daniel), with Light, Win95, Modern, Terminal and Amber. Backlog item O1 in PROJECT_MAP Section 0. Daniel also asked to leave the
+  Gladiator walk-on deployment bug for later: it is in Section 4 (committed earlier today). Checks: art level only (files under
+  `reference_art/` and `.md`).
+
 - **2026-11-21 (Claude), PUBLISHED: THE UNIT BROWSER SIZE GRIP.** Public repo (`publish_public.py --push`), GitHub Pages
   (`publish_web_lab.py --push --skip-build`) and the Combat Lab artifact (version 11) now carry the docked Unit Browser's
   corner grip and draggable sides. Daniel asked whether a square grip would suit better, with phones in mind (a question,

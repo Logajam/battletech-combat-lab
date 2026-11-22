@@ -125,6 +125,10 @@ impl ShotPlan {
         }
         tn
     }
+    /// How the shot option is named to a person (and in `player_choices`): its note, else its munition.
+    pub fn label(&self) -> String {
+        if self.note().is_empty() { self.munition().to_string() } else { self.note() }
+    }
     pub fn note(&self) -> String {
         let mut parts: Vec<String> = Vec::new();
         if !self.guidance.note.is_empty() {
@@ -712,6 +716,11 @@ impl<'a> Planner<'a> {
         Planner { attacker, target, adjust: AdjustRef::Shared(adjust), ams_share, pod_values: HashMap::default(), hex_offset: None, kinds_cache: HashMap::default(), memo: HashMap::default() }
     }
 
+    /// Forget what was priced (a person changed a weapon's mode or ammunition: the next question is priced afresh).
+    pub fn forget(&mut self) {
+        self.memo.clear();
+    }
+
     /// The bracket the shot's damage uses: an energy weapon firing from under water fires one bracket longer.
     pub fn damage_bracket(&self, w: ItemId, b: Option<&str>) -> String {
         match b {
@@ -815,7 +824,9 @@ impl<'a> Planner<'a> {
         if options.is_empty() {
             return None;
         }
-        let mut plan = if options.len() > 1 { crate::stubs::stub_munition_choice(b, &name, w, a, &options, warn) } else { options[0].0.clone() };
+        // a unit a person controls fires what the person chose (player_choices.rs), else the stub's rule
+        let chosen = b.player.unit(&name).and_then(|c| c.munition.get(&w)).and_then(|l| options.iter().find(|(p, _)| &p.label() == l)).map(|(p, _)| p.clone());
+        let mut plan = if let Some(p) = chosen { p } else if options.len() > 1 { crate::stubs::stub_munition_choice(b, &name, w, a, &options, warn) } else { options[0].0.clone() };
         let rates = rate_options(b, a, w, &plan);
         if rates.len() > 1 {
             let mut priced: Vec<(i64, f64)> = Vec::new();
@@ -824,7 +835,8 @@ impl<'a> Planner<'a> {
                 p.shots = *n;
                 priced.push((*n, self.value(b, w, &p, distance, pre_tn).unwrap().0));
             }
-            plan.shots = crate::stubs::stub_rate_of_fire(b, &name, a, w, &priced, warn);
+            let chosen = b.player.unit(&name).and_then(|c| c.shots.get(&w)).copied().filter(|n| priced.iter().any(|(s, _)| s == n));
+            plan.shots = match chosen { Some(n) => n, None => crate::stubs::stub_rate_of_fire(b, &name, a, w, &priced, warn) };
         }
         Some(plan)
     }

@@ -1445,6 +1445,19 @@ function randomMap() {
 }
 
 // ---------------------------------------------------------------- RUN and RESULTS
+// BATTLEROM: play a battle. The teams whose bot is Human are played from the play page; the rest by their bots.
+async function playGame() {
+  $("run-error").textContent = "";
+  if (!mapCheck().ok) { $("run-error").textContent = "The map is not ready: see the Map page."; return; }
+  const zp = zonesProblem();
+  if (zp) { $("run-error").textContent = zp + " See the Map page."; return; }
+  const chosen = setup();
+  if (!$("seed").value.trim()) chosen.seed = freshSeed();
+  const r = await api("play_start", { setup: chosen });
+  if (r.error) { $("run-error").textContent = r.error; return; }
+  window.open(`play.html?game=${r.game}&colours=${encodeURIComponent(JSON.stringify(r.colours || {}))}`, "_blank");
+}
+
 async function runBatch() {
   $("run-error").textContent = "";
   if (!mapCheck().ok) { $("run-error").textContent = "The map is not ready: see the Map page."; return; }
@@ -2484,6 +2497,7 @@ async function start() {
   ["battles", "seed", "threads", "max-turns"].forEach((id) => $(id).addEventListener("change", save));
   $("estimate-btn").addEventListener("click", estimate);
   $("run-btn").addEventListener("click", runBatch);
+  $("play-btn").addEventListener("click", playGame);
   $("opt-search").addEventListener("input", filterOptions);
   document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
   $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });

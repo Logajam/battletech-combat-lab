@@ -148,7 +148,7 @@ fn label(b: &Battle, u: usize) -> String {
 }
 
 /// One unit's state now (`_mech_state` of INTEGRATION__replay.py).
-fn unit_state(b: &Battle, u: usize) -> Value {
+pub fn unit_state(b: &Battle, u: usize) -> Value {
     let m = &b.units[u];
     let ttd = b.cfg.has("FIGHT_TO_THE_DEATH") && b.cfg.b("FIGHT_TO_THE_DEATH");
     // asked of a copy: is_destroyed marks the unit it decides about (recording must change nothing)
@@ -174,7 +174,7 @@ fn unit_state(b: &Battle, u: usize) -> Value {
 
 /// Width, height and each hex's level and terrain features (`_board`): a water hex shows its surface, a building its
 /// roof ("b": 1).
-fn board(b: &Battle) -> Value {
+pub fn board(b: &Battle) -> Value {
     let mut hexes = Map::new();
     for (label, h) in &b.board.hexes {
         let feats: Map<String, Value> = h
