@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, late night), BATTLEROM: audit fixes (weapons first, real TNs, long-press Move!). REVIEW PENDING (higher-level model).** Daniel's answers to the audit
+  (PLAYER_DECISIONS Section 22). `play_session.rs`: `target_preview` (the `preview` query of the target question: weapon rows, and each enemy's number per weapon from a quiet dry
+  declaration). `play.js` / `play.html`: weapons-first target step (panel, arcs and bands, enemy pills, arrows, Target!), centre and range line in the fire step, a number on every
+  weapon row and the real to-hit parts, rear-armour pips, Report moved to the detail header, REC in the title bar, no Stay button (Move! held for 0.6 s; stay when nothing is
+  planned). No change to a battle's results. Tests: `check_play.py` (preview), `check_web_play.py` (target step, tap ignored / hold commits, rear pips, header buttons).
+
 - **2026-11-22 (Claude, night), BATTLEROM: waypoints. REVIEW PENDING (higher-level model).** Daniel: a waypoint plan only has to fix the destination and the mode; the unit's
   own best-TMM route is fine, as a known issue. `play_session.rs`: `way_query` (the `way` query, served in the move-order and movement questions). `play.js`: waypoint planning
   (numbered markers, re-lit range, route line, undo one at a time). Tests: `check_play.py` (the query, an impossible hex refused), `check_web_play.py` (two waypoints planned and undone

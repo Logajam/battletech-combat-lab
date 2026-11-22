@@ -229,6 +229,12 @@ function infoBar() {
     $("info").innerHTML = line;
     return;
   }
+  if (S.req && S.req.kind === "target" && S.pv) {
+    const P = S.pv, w = P.rows.find((x) => x.id === P.focus), t = S.req.enemies.find((e) => e.id === S.tcur), tu = unit(S.tcur) || {};
+    let line = `<b>&rarr; ${esc(tu.name || "")}</b> ${esc(tu.mech || "")} &middot; range ${t ? t.distance : "?"}`;
+    if (w) { const od = oddsOf(w.tn); line += `<br><b>${esc(w.name)}</b> ${esc([].concat(w.loc || []).map((l) => LOCAB[l] || l).join("/"))} &middot; dmg ${esc(dmgText(w))} &middot; heat ${w.heat ?? 0} &middot; ${rangeText(w.ranges)} &middot; ${w.tn == null ? "cannot fire at this target" : `<b>TN ${w.tn}+</b> (${Math.round(od * 100)}%)`}`; }
+    $("info").innerHTML = line; return;
+  }
   const u = unit(S.sel);
   if (!u) { $("info").textContent = "Tap a unit for its details."; return; }
   const f = fracs(u);
@@ -240,7 +246,7 @@ function redraw() {
   if (!gDyn) return;
   gDyn.innerHTML = ""; gTop.innerHTML = "";
   const r = S.req;
-  if (r && r.kind === "declaration") drawRings(gDyn);
+  if (r && (r.kind === "declaration" || r.kind === "target")) drawRings(gDyn);
   if (moving()) drawReach(gDyn);
   if (r && r.kind === "deploy") drawDeploy(gDyn);
   if (r && r.kind === "target") drawTargets(gDyn);
@@ -248,13 +254,14 @@ function redraw() {
   drawUnits(gDyn);
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
-  if (r && r.kind === "declaration") drawAim(gDyn);
+  if (r && r.kind === "declaration") { drawAim(gDyn); drawShotLine(gTop, r.unit, r.target, r.distance); }
+  if (r && r.kind === "target" && S.tcur != null) drawShotLine(gTop, r.unit, S.tcur, (r.enemies.find((e) => e.id === S.tcur) || {}).distance);
   renderStrip(); infoBar(); dockRender();
 }
 function setPhase(t) { $("phase").textContent = t; }
 function sheet(html) { $("sheet").innerHTML = html; }
 async function send(answer) {
-  const seq = S.seq; S.req = null; S.decl = null; $("wpanel").style.display = "none"; sheet('<div class="msg">Working...</div>'); redraw();
+  const seq = S.seq; S.req = null; S.decl = null; S.pv = null; $("wpanel").style.display = "none"; sheet('<div class="msg">Working...</div>'); redraw();
   const r = await api("play_answer", { seq, answer });
   if (r.error) sheet(`<div class="err">${esc(r.error)}</div>`);
   loop();
@@ -283,7 +290,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -371,10 +378,12 @@ function moveIntro(unavailable) {
       <div class="msg">${v ? "Tap a tinted hex to plan the move: cyan = walk, yellow = run, orange = jump. Nothing is decided until you press Move!" : esc(unavailable || "No move can be shown for this unit.")}</div>
       <div class="msg">Look at your other units first: tap one on the map or in the strip${others ? ", or here" : ""}.</div>
       <div class="row">${others}</div>
-      <div class="row">${v ? '<button data-act="stay">Stay here</button>' : ""}<button data-act="pick-unit" data-id="${S.sel}">${v ? "Choose it, and plan the move in the next step" : "Move this unit"}</button></div>`);
+      <div class="row"><button data-act="pick-unit" data-id="${S.sel}">${v ? "Choose it, and plan the move in the next step" : "Move this unit"}</button></div>`);
+    if (v) stayCluster();
     return;
   }
-  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div><div class="row">${v.entry ? "" : '<button data-act="stay">Stay here</button>'}</div>`);
+  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}`);
+  stayCluster();
 }
 // WAYPOINTS: each tap inside the lit range adds a waypoint and the range re-lights from there with the points left; the last tap is the
 // destination. The cost (and so the mode) is that of going through them all. When the unit moves it takes its own best route to the
@@ -471,6 +480,22 @@ function drawAttackStops(layer) {
     p.addEventListener("click", (e) => { e.stopPropagation(); chooseAttack(a); });
   }
 }
+// Leaving the 'Mech where it stands needs no button of its own: Move! with no destination chosen is the stay (Daniel, 2026-11-22). Move! is a
+// long press (about 0.6 s, with a fill that shows the progress) so a stray tap cannot commit a move.
+function stayCluster() {
+  const v = S.mv; if (!v || v.entry || S.dest) return;
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; stays here<br><span>no destination chosen</span></div><button class="go big" data-act="commit">Move!<small>hold</small></button>`;
+}
+let HOLD = null;
+const holdEnd = () => { if (HOLD) { clearTimeout(HOLD.t); HOLD.b.classList.remove("holding"); HOLD = null; } };
+document.addEventListener("pointerdown", (e) => {
+  const b = e.target.closest('button.go[data-act="commit"]'); if (!b) return; holdEnd();
+  b.classList.add("holding");
+  HOLD = { b, t: setTimeout(() => { const x = HOLD; HOLD = null; x.b.classList.remove("holding"); doCommit(); }, 600) };
+});
+["pointerup", "pointercancel"].forEach((n) => document.addEventListener(n, holdEnd));
+const doCommit = () => { if (S.dest) commitMove({ hex: S.dest, facing: S.facing, mode: S.mode }); else commitMove({ stay: true }); };
 // the action cluster over the map: the move readout, the commit button, undo
 function clearCluster() { $("cluster").innerHTML = ""; $("cluster").style.display = "none"; }
 function setCluster(o, label, extra) {
@@ -488,7 +513,7 @@ function moveSheet() {
     ${warns.length ? `<div class="warnt">&#9888; ${warns.join("; ")}. Moving on accepts the warning.</div>` : ""}
     ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The cost counts the whole way round. The unit ends at the last hex in the mode shown, taking its own best route there (the one that moves the most hexes), which may not pass through the waypoints.</div>` : ""}
     <div class="msg">Tap another tinted hex to add a waypoint (the lit range is what is left from here). Tap an arrow around the hex to turn. &times; or Esc removes the last waypoint.</div>
-    <div class="row"><button data-act="stay">Stay here</button></div>`);
+    `);
 }
 function undo() {
   if (!S.req) return;
@@ -550,24 +575,69 @@ function drawDeployMarker(layer, top) {
 }
 
 // ---- target, weapons
+// The target question: the weapons come first (Daniel, 2026-11-22), so the arcs and range bands of a weapon can show which target to shoot at.
+// The engine's `preview` query gives the weapon rows and, for every enemy, the real to-hit number of each weapon. Tapping an enemy (its hex,
+// its chip, or the arrows) only looks at it; the Target! button chooses.
+const tgtOrder = () => S.req.enemies.slice().sort((a, b) => (a.distance ?? 99) - (b.distance ?? 99));
+const tgtInfo = (id) => (S.pv && S.pv.targets.find((t) => t.id === id)) || null;
+HANDLERS.target = async (r) => {
+  S.sel = r.unit; S.pv = null;
+  S.tcur = (tgtOrder()[0] || {}).id ?? null;
+  tgtSheet(); redraw(); lookAtTarget();
+  const seq = S.seq, pv = await query({ q: "preview", unit: r.unit });
+  if (seq !== S.seq || !S.req || S.req.kind !== "target") return;
+  if (pv && pv.weapons) { const first = (pv.weapons.find((w) => w.in_range) || pv.weapons[0] || {}).id; S.pv = { rows: pv.weapons, base: pv.weapons, targets: pv.targets || [], focus: first, sel: new Set(), groups: [] }; }
+  tgtSheet(); redraw();
+};
+function lookAtTarget() { const me = unit(S.req.unit), t = unit(S.tcur); if (me && me.hex && t && t.hex) focusOn([me.hex, t.hex], 3); }
+function setTcur(id) { if (!S.req || S.req.kind !== "target" || !S.req.enemies.some((e) => e.id === id)) return false; S.tcur = id; tgtSheet(); redraw(); lookAtTarget(); return true; }
+function cycleTcur(dir) { const o = tgtOrder(); if (!o.length) return; const i = Math.max(0, o.findIndex((e) => e.id === S.tcur)); setTcur(o[(i + dir + o.length) % o.length].id); }
+function tgtSheet() {
+  const r = S.req, t = r.enemies.find((e) => e.id === S.tcur), tu = unit(S.tcur) || {}, info = tgtInfo(S.tcur);
+  const wp = $("wpanel");
+  if (S.pv) {
+    const P = S.pv, per = info && info.tn ? info.tn : {};
+    P.rows = P.base.map((w) => ({ ...w, tn: per[w.id] ?? null, in_range: per[w.id] != null }));
+    P.groups = makeGroups(P.rows);
+    const sortName = (SORTS.find((x) => x[0] === O.sort) || SORTS[0])[1];
+    wp.style.display = "block";
+    wp.innerHTML = `<div class="wh"><button class="sm" data-act="tgt-prev" aria-label="previous target">&#9664;</button><span title="${esc(tu.name || "")}">${esc(short(tu))} &middot; ${t ? t.distance : "?"}</span><button class="sm" data-act="tgt-next" aria-label="next target">&#9654;</button><button data-act="sort" title="Sort: ${esc(sortName)}">&#8645;</button></div>` + P.groups.map((g, gi) => {
+      const w = g.rep, n = g.members.length, ok = w.in_range && !w.jammed, foc = P.focus != null && g.members.some((m) => m.id === P.focus);
+      return `<div class="wrow ${ok ? "" : "out"} ${foc ? "focus" : ""}" data-g="${gi}"><span class="wn" data-act="focus" data-g="${gi}">${esc(w.name)}${n > 1 ? ` <small>x${n}</small>` : ""}${w.rear ? " <small>(r)</small>" : ""}${w.needs_twist ? " <small>(twist)</small>" : ""}</span>${tnPill(w)}</div>`;
+    }).join("");
+    wp.querySelectorAll(".wn").forEach((node) => holdFor(node, () => { const g = P.groups[+node.dataset.g]; if (g) showWeaponCard(g.rep); }));
+    wp.style.top = ($("info").offsetHeight + 12) + "px";
+  } else { wp.style.display = "none"; }
+  const best = S.pv ? Math.min(...S.pv.rows.filter((w) => w.tn != null).map((w) => w.tn), 99) : null;
+  sheet(`<h3>${esc(r.name)}: choose a target</h3>${errLine(r)}<div class="msg">Weapons first: tap a weapon's name to see its firing arc and range bands on the map, then look at each enemy with the arrows, its chip or its hex. The number beside each weapon is what it needs to hit the enemy shown. <b>Target!</b> chooses it. Press and hold a weapon name for its card.</div>
+    <div class="row">${tgtOrder().map((e) => `<button class="${e.id === S.tcur ? "on" : ""}" data-act="look-target" data-id="${e.id}">${esc(e.name)} ${esc((unit(e.id) || {}).mech || "")} &middot; range ${e.distance ?? "?"}</button>`).join("")}<button data-act="target" data-id="">Hold fire</button></div>`);
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>${esc(short(tu))}</b> &middot; range ${t ? t.distance : "?"}<br><span>${best != null && best < 99 ? "best TN " + best + "+" : S.pv ? "nothing can fire at it" : "..."}</span></div><button class="go big" data-act="target" data-id="${S.tcur ?? ""}">Target!</button>`;
+  infoBar();
+}
 function drawTargets(layer) {
-  const me = unit(S.req.unit);
+  const me = unit(S.req.unit), FV = S.pv, w = FV && FV.rows.find((x) => x.id === FV.focus);
   for (const t of S.req.enemies) {
     const u = unit(t.id); if (!u || !u.hex) continue;
-    const [x, y] = centre(u.hex);
-    const p = el("polygon", { points: pts(x, y, 0.95), fill: "#e07468", "fill-opacity": ".22", stroke: "#e07468", "stroke-width": 2.5, style: "cursor:pointer" }, layer);
-    p.addEventListener("click", () => send({ target: t.id }));
-    if (me && me.hex) { const [mx, my] = centre(me.hex); el("line", { x1: mx, y1: my, x2: x, y2: y, stroke: "#e07468", "stroke-width": 1.5, "stroke-dasharray": "5 4", "pointer-events": "none" }, layer); }
+    const [x, y] = centre(u.hex), cur = t.id === S.tcur;
+    const p = el("polygon", { points: pts(x, y, 0.95), fill: "#e07468", "fill-opacity": cur ? ".35" : ".18", stroke: "#e07468", "stroke-width": cur ? 3.5 : 2, style: "cursor:pointer" }, layer);
+    p.addEventListener("click", () => setTcur(t.id));
+    const inf = tgtInfo(t.id); let tn = null;
+    if (inf && inf.tn) tn = w ? inf.tn[w.id] : inf.base_tn;
+    if (FV) { // the to-hit pill on the enemy's hex: the focused weapon's number against it
+      const txt = tn == null ? "-" : tn + "+";
+      el("rect", { x: x + R * 0.35, y: y - R * 0.95, width: 26, height: 14, rx: 3, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2, "pointer-events": "none" }, layer);
+      const tx = el("text", { x: x + R * 0.35 + 13, y: y - R * 0.95 + 11, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, layer); tx.textContent = txt;
+    }
   }
 }
-HANDLERS.target = (r) => {
-  S.sel = r.unit;
-  sheet(`<h3>${esc(r.name)}: choose a target</h3>${errLine(r)}<div class="msg">Tap a red hex, or pick from the list. Press and hold a hex for its details.</div><div class="row">${r.enemies.map((t) => `<button data-act="target" data-id="${t.id}">${esc(t.name)} ${esc((unit(t.id) || {}).mech || "")} &middot; range ${t.distance ?? "?"}</button>`).join("")}<button data-act="target" data-id="">Hold fire</button></div>`);
-};
 // range bands and firing arc for the weapon in focus: shaded = outside its arc, dashed = in its arc only after a torso twist / arm flip
+// the weapon view in use: the declaration's, or the target question's preview (weapons first, so the arcs and bands can guide the pick)
+const fireView = () => S.decl || (S.req && S.req.kind === "target" ? S.pv : null);
 function drawRings(layer) {
-  if (!O.rings || !S.decl) return;
-  const me = unit(S.decl.req.unit), w = S.decl.rows.find((x) => x.id === S.decl.focus);
+  const FV = fireView();
+  if (!O.rings || !FV) return;
+  const me = unit(S.req.unit), w = FV.rows.find((x) => x.id === FV.focus);
   if (!me || !me.hex || !w || !w.ranges) return;
   const rg = w.ranges, col = BAND(), L = { short: "S", medium: "M", long: "L" };
   const inNow = new Set(w.arc || []), inTwist = new Set(w.arc_twist || []);
@@ -582,6 +652,15 @@ function drawRings(layer) {
     if (O.cvd && (d === rg.short || d === rg.medium || d === rg.long)) { const t = el("text", { x, y: y + 3, "text-anchor": "middle", "font-size": 9, "font-weight": 700, fill: col[band], "pointer-events": "none" }, layer); t.textContent = L[band]; }
   }
 }
+// the line from the attacker to the target with the range on it
+function drawShotLine(layer, from, to, range) {
+  const a = unit(from), t = unit(to); if (!a || !t || !a.hex || !t.hex) return;
+  const [x1, y1] = centre(a.hex), [x2, y2] = centre(t.hex);
+  el("line", { x1, y1, x2, y2, stroke: "#e07468", "stroke-width": 1.8, "stroke-dasharray": "5 4", "pointer-events": "none" }, layer);
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, txt = String(range ?? "");
+  el("rect", { x: mx - 4 - txt.length * 3.5, y: my - 8, width: 8 + txt.length * 7, height: 16, rx: 8, fill: "#000", stroke: "#e07468", "stroke-width": 1.2, "pointer-events": "none" }, layer);
+  const tx = el("text", { x: mx, y: my + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, layer); tx.textContent = txt + "h";
+}
 function drawAim(layer) {
   if (!S.decl) return;
   for (const [wid, hex] of Object.entries(S.decl.aim)) { const [x, y] = centre(hex); el("circle", { cx: x, cy: y, r: R * 0.6, fill: "none", stroke: "#e07468", "stroke-width": 2.5, "stroke-dasharray": "4 3", "pointer-events": "none" }, layer); el("circle", { cx: x, cy: y, r: 3, fill: "#e07468", "pointer-events": "none" }, layer); }
@@ -591,8 +670,11 @@ HANDLERS.declaration = (r) => {
   S.sel = r.unit;
   S.decl = { req: r, rows: r.weapons, sel: new Set(), aim: {}, charge: new Set(r.weapons.filter((w) => w.charge).map((w) => w.name)), focus: (r.weapons.find((w) => w.in_range) || r.weapons[0] || {}).id, aimFor: null, bin: null, strike: 0, groups: [] };
   declSheet();
+  const me = unit(r.unit); if (me && me.hex && r.target_hex) focusOn([me.hex, r.target_hex], 3);
 };
 const isDistant = (w) => (w.modes || []).some((m) => m.selected && /distant/i.test(m.label)) || /distant/i.test(w.mode || "");
+const focusTn = (D) => { const w = D.rows.find((x) => x.id === D.focus); return w && w.tn != null ? `: ${esc(w.name)} needs ${w.tn}+ (${Math.round((oddsOf(w.tn) || 0) * 100)}%)` : ""; };
+const focusParts = (D) => { const w = D.rows.find((x) => x.id === D.focus); if (!w || w.tn == null) return ""; const b = D.req.breakdown.base, adj = w.adj || 0; return ` <b>${esc(w.name)}</b>: base ${b} ${w.range ? esc(w.range) + " range and its own modifiers " : "its modifiers "}${adj >= 0 ? "+" : ""}${adj} = <b>${w.tn}</b>.`; };
 function breakdownText(r) {
   const b = r.breakdown, parts = [["gunnery", b.gunnery], ["you moved", b.attacker_movement], ["target moved", b.target_movement], ["line of sight", b.line_of_sight], ["cover", b.cover], ["heat", b.heat], ["target prone", b.target_prone], ["stealth", b.stealth], ["other", b.other]].filter((p) => p[1]);
   return `base ${b.base}${b.secondary ? " (includes +1 for a secondary target)" : ""}: ` + parts.map((p) => `${p[0]} ${p[1] > 0 && p[0] !== "gunnery" ? "+" : ""}${p[1]}`).join(", ") + `. Each weapon adds its range band and its own modifiers.${b.note ? " " + esc(b.note) : ""}`;
@@ -615,6 +697,7 @@ function makeGroups(rows) {
   if (by) out.sort((a, b) => by(a) - by(b) || a.order - b.order);
   return out;
 }
+const tnPill = (w) => (w.tn == null ? '<span class="tnp no" title="cannot fire at this target">&ndash;</span>' : `<span class="tnp" title="the number to hit with this weapon: ${w.tn} or more on 2d6 (${Math.round((oddsOf(w.tn) || 0) * 100)}%)">${w.tn}+</span>`);
 const assignedIn = (g) => g.members.filter((w) => S.decl.sel.has(w.id)).length;
 function heatIfFired() { const D = S.decl, r = D.req; return Math.max(0, r.heat + r.move_heat + [...D.sel].reduce((a, id) => a + ((D.rows.find((w) => w.id === id) || {}).heat || 0), 0) - r.dissipation); }
 function declSheet() {
@@ -629,7 +712,7 @@ function declSheet() {
     const w = g.rep, n = g.members.length, k = assignedIn(g), ok = w.in_range && !w.jammed, fired = false;
     const cls = ["wrow", ok ? "" : "out", w.jammed ? "jam" : "", D.focus != null && g.members.some((m) => m.id === D.focus) ? "focus" : ""].join(" ");
     const state = k === 0 ? "" : k === n ? "all" : "part";
-    return `<div class="${cls}" data-g="${gi}"><button class="fc ${state}" data-act="assign" data-g="${gi}" ${ok ? "" : "disabled"} aria-label="assign ${esc(w.name)} to the target">${FC_ICON}</button><span class="wn" data-act="focus" data-g="${gi}">${esc(w.name)}${n > 1 ? ` <small>${k}/${n}</small>` : ""}${w.rear ? " <small>(r)</small>" : ""}${w.needs_twist ? " <small>(twist)</small>" : ""}${w.jammed ? " JAMMED" : ""}${ok ? "" : w.jammed ? "" : " <small>out</small>"}</span>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-g="${gi}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-g="${gi}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-g="${gi}" title="charge the capacitor instead of firing">&#9889;</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-g="${gi}" title="ammunition bin">&#9776;${(w.bins.find((b) => b.selected) || {}).shots ?? ""}</button>` : ""}</div>${D.bin === gi ? binRows(g, gi) : ""}`;
+    return `<div class="${cls}" data-g="${gi}"><button class="fc ${state}" data-act="assign" data-g="${gi}" ${ok ? "" : "disabled"} aria-label="assign ${esc(w.name)} to the target">${FC_ICON}</button><span class="wn" data-act="focus" data-g="${gi}">${esc(w.name)}${n > 1 ? ` <small>${k}/${n}</small>` : ""}${w.rear ? " <small>(r)</small>" : ""}${w.needs_twist ? " <small>(twist)</small>" : ""}${w.jammed ? " JAMMED" : ""}${ok ? "" : w.jammed ? "" : " <small>out</small>"}</span>${tnPill(w)}${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-g="${gi}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-g="${gi}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-g="${gi}" title="charge the capacitor instead of firing">&#9889;</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-g="${gi}" title="ammunition bin">&#9776;${(w.bins.find((b) => b.selected) || {}).shots ?? ""}</button>` : ""}</div>${D.bin === gi ? binRows(g, gi) : ""}`;
   }).join("");
   wp.querySelectorAll(".wn").forEach((node) => holdFor(node, () => { const g = D.groups[+node.dataset.g]; if (g) showWeaponCard(g.rep); }));
   // the plan tab
@@ -638,7 +721,7 @@ function declSheet() {
   sheet(`<h3>${esc(r.name)} fires on ${esc(r.target_name)} &middot; range ${r.distance}${r.indirect ? " &middot; indirect" : ""}</h3>${errLine(r)}
     <div class="msg">Selected: ${D.sel.size} weapon${D.sel.size === 1 ? "" : "s"}, about ${ev.toFixed(1)} damage. Heat at end of turn about <span class="${heatCls}">${heat}</span> (now ${r.heat}, movement ${r.move_heat}, weapons ${wh}, sinks take off ${r.dissipation}).${heat >= 14 ? " Shutdown risk." : ""}</div>
     <div class="msg">Tap the target symbol to put a weapon on the target (a group adds one at a time; tapping a full group clears it). Tap a name to see its range bands and arc. Press and hold a name for its card.</div>
-    <details><summary class="msg">To-hit parts</summary><div class="msg">${breakdownText(r)}</div></details>
+    <details open><summary class="msg">To-hit number${focusTn(D)}</summary><div class="msg">${breakdownText(r)}${focusParts(D)}</div></details>
     ${aimW ? `<div class="msg warnt">${esc(aimW.name)} is a distant shot: it lands next turn. Aim: <b>${D.aim[aimW.id] || r.target_hex}</b> <button class="sm ${D.aimFor ? "on" : ""}" data-act="aim-w" data-id="${aimW.id}">${D.aimFor ? "tap a hex on the map" : "Change the aim hex"}</button></div>` : ""}
     <div class="row"><button data-act="strike" title="Strike: the weapons worth their heat. Alpha Strike: everything in range.">${next}</button><button data-act="clear">Clear</button><button data-act="hold">Hold fire</button><button data-act="group">${O.group ? "Ungroup identical" : "Group identical"}</button><span class="msg">Sorted: ${esc(sortName)}</span></div>`);
   // the action cluster: what is assigned, and Fire!
@@ -728,12 +811,12 @@ function armorTab(u) {
   const mx = S.maxLoc[u.id] || {}, locs = u.locs || {};
   const box = (loc) => {
     const v = locs[loc]; if (!v) return "<div></div>";
-    const m = mx[loc] || v, per = Math.max(1, Math.ceil(Math.max(m[0], m[2]) / 14));
+    const m = mx[loc] || v, per = Math.max(1, Math.ceil(Math.max(m[0], m[1] || 0, m[2]) / 14));
     const pips = (now, max, cls) => { const n = Math.ceil(max / per), have = Math.ceil(now / per); return Array.from({ length: n }, (_, i) => `<i class="${i < n - have ? "r" : cls}"></i>`).join(""); };
-    return `<div class="loc ${v[3] ? "dead" : ""}"><b>${LOCAB[loc] || loc}</b><div class="pips" title="armour ${v[0]}/${m[0]}">${pips(v[0], m[0], "")}</div><div class="pips" title="structure ${v[2]}/${m[2]}">${pips(v[2], m[2], "s")}</div><span>${v[3] ? "gone" : v[0] + "/" + v[2]}${v[1] ? ` (r ${v[1]})` : ""}</span></div>`;
+    return `<div class="loc ${v[3] ? "dead" : ""}"><b>${LOCAB[loc] || loc}</b><div class="pips" title="armour ${v[0]}/${m[0]}">${pips(v[0], m[0], "")}</div><div class="pips" title="structure ${v[2]}/${m[2]}">${pips(v[2], m[2], "s")}</div>${m[1] > 0 ? `<div class="pips rear" title="rear armour ${v[1]}/${m[1]}">${pips(v[1], m[1], "")}</div>` : ""}<span>${v[3] ? "gone" : v[0] + "/" + v[2]}${v[1] ? ` (r ${v[1]})` : ""}</span></div>`;
   };
-  const per = Math.max(1, Math.ceil(Math.max(...Object.values(mx).map((m) => Math.max(m[0], m[2])), 1) / 14));
-  return `<div class="sil"><div></div><div></div>${box("Head")}<div></div><div></div>${box("Left Arm")}${box("Left Torso")}${box("Center Torso")}${box("Right Torso")}${box("Right Arm")}<div></div>${box("Left Leg")}<div></div>${box("Right Leg")}<div></div></div><div class="msg">White = armour, grey = structure, red = lost; one pip is up to ${per} point${per > 1 ? "s" : ""} (hover for the numbers). Numbers: armour / structure, rear armour in brackets.</div>`;
+  const per = Math.max(1, Math.ceil(Math.max(...Object.values(mx).map((m) => Math.max(m[0], m[1] || 0, m[2])), 1) / 14));
+  return `<div class="sil"><div></div><div></div>${box("Head")}<div></div><div></div>${box("Left Arm")}${box("Left Torso")}${box("Center Torso")}${box("Right Torso")}${box("Right Arm")}<div></div>${box("Left Leg")}<div></div>${box("Right Leg")}<div></div></div><div class="msg">Top row = front armour, middle = structure, bottom (torsos) = rear armour; red = lost; one pip is up to ${per} point${per > 1 ? "s" : ""} (hover for the numbers). Numbers: armour / structure, rear armour in brackets.</div>`;
 }
 // flick the header (or a body scrolled to its top) to make the dock bigger or smaller
 (() => {
@@ -771,15 +854,17 @@ async function setSwitch(sw, uid) {
 // ---------------------------------------------------------------- clicks
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-act]");
+  if (t && t.dataset.act === "commit" && e.detail > 0) return; // Move! is a long press; only a keyboard activation (no click count) commits at once
   if (t && !(t.tagName === "INPUT" && t.type === "checkbox")) { act(t); return; }
-  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if (DOCK.tab !== "plan") dockRender(); return; }
-  const un = e.target.closest("[data-unit]"); if (un && !(S.req && S.req.kind === "target" && S.req.enemies.some((x) => x.id === +un.dataset.unit))) { onUnitTap(+un.dataset.unit); return; }
+  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; if (setTcur(id)) return; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if (DOCK.tab !== "plan") dockRender(); return; }
+  const un = e.target.closest("[data-unit]"); if (un && setTcur(+un.dataset.unit)) return; if (un && !(S.req && S.req.kind === "target" && S.req.enemies.some((x) => x.id === +un.dataset.unit))) { onUnitTap(+un.dataset.unit); return; }
   if (!e.target.closest("#menu") && !e.target.closest("#menu-btn")) $("menu").style.display = "none";
 });
 document.addEventListener("change", (e) => { const t = e.target; if (t.dataset && t.dataset.act === "fire") { t.checked ? S.decl.sel.add(+t.dataset.id) : S.decl.sel.delete(+t.dataset.id); declSheet(); redraw(); } else if (t.dataset && t.dataset.act === "sw-unjam") { sendUnjam(); } });
 function sendUnjam() { const names = [...document.querySelectorAll('[data-act="sw-unjam"]')].filter((c) => c.checked).map((c) => c.dataset.name); setSwitch({ unjam: names }, S.req ? S.req.unit : S.sel); }
+function refreshPanel() { if (S.decl) declSheet(); else if (S.req && S.req.kind === "target") tgtSheet(); }
 function act(t) {
-  const d = t.dataset, a = d.act, D = S.decl, r = S.req;
+  const d = t.dataset, a = d.act, D = S.decl || S.pv, r = S.req;
   switch (a) {
     case "card-close": $("card").style.display = "none"; break;
     case "pick-unit": send({ unit: +d.id }); break;
@@ -788,16 +873,18 @@ function act(t) {
     case "spot": send({ target: d.id === "" ? null : +d.id, fires: true }); break;
     case "tag": send(d.id === "" ? { target: null } : { target: +d.id, aim: d.aim }); break;
     case "target": send({ target: d.id === "" ? null : +d.id }); break;
-    case "stay": commitMove({ stay: true }); break;
     case "look": selectMover(+d.id); break;
     case "place": if (S.dp && S.dp.hex) send({ hex: S.dp.hex, facing: S.dp.facing }); break;
     case "undo": undo(); break;
     case "mode": S.mode = d.m; { const os = destOpts().filter((x) => x.mode === S.mode); if (!os.some((x) => x.facing === S.facing)) S.facing = os[0].facing; } moveSheet(); redraw(); loadPath(); break;
-    case "commit": commitMove({ hex: S.dest, facing: S.facing, mode: S.mode }); break;
+    case "commit": doCommit(); break;
     case "atk": chooseAttack(S.mv.attacks.filter((x) => x.target === S.attackTarget)[+d.i]); break;
     case "atk-yes": commitMove({ attack: S.attackSel }); break;
     case "atk-no": S.attackSel = null; S.attackConfirm = false; S.path = null; attackSheet(S.mv.attacks.filter((x) => x.target === S.attackTarget)); redraw(); break;
-    case "focus": { const g = D.groups[+d.g]; if (g) { D.focus = g.rep.id; declSheet(); redraw(); } break; }
+    case "focus": { const g = D.groups[+d.g]; if (g) { D.focus = g.rep.id; refreshPanel(); redraw(); } break; }
+    case "tgt-prev": cycleTcur(-1); break;
+    case "tgt-next": cycleTcur(1); break;
+    case "look-target": setTcur(+d.id); break;
     case "mode-w": { const g = D.groups[+d.g], w = g.rep, i = w.modes.findIndex((m) => m.selected), next = w.modes[(i + 1) % w.modes.length]; setWeapons({ modes: Object.fromEntries(g.members.map((m) => [m.id, next.label])) }); break; }
     case "rate-w": { const g = D.groups[+d.g], w = g.rep, i = w.rates.findIndex((m) => m.selected), next = w.rates[(i + 1) % w.rates.length]; setWeapons({ shots: Object.fromEntries(g.members.map((m) => [m.id, next.shots])) }); break; }
     case "charge-w": { const g = D.groups[+d.g], w = g.rep; D.charge.has(w.name) ? D.charge.delete(w.name) : (D.charge.add(w.name), D.rows.filter((x) => x.name === w.name).forEach((x) => D.sel.delete(x.id))); setWeapons({}); break; }
@@ -805,7 +892,7 @@ function act(t) {
     case "bin-pick": { const g = D.groups[+d.g]; D.bin = null; setWeapons({ bins: Object.fromEntries(g.members.map((m) => [m.id, d.b === "" ? null : +d.b])) }); break; }
     case "assign": { const g = D.groups[+d.g]; const free = g.members.find((m) => !D.sel.has(m.id)); if (free) D.sel.add(free.id); else g.members.forEach((m) => D.sel.delete(m.id)); declSheet(); redraw(); break; }
     case "strike": strikePick(D.strike % 2); D.strike++; declSheet(); redraw(); break;
-    case "sort": { const i = SORTS.findIndex((x) => x[0] === O.sort); O.sort = SORTS[(i + 1) % SORTS.length][0]; setPref("sort", O.sort); declSheet(); break; }
+    case "sort": { const i = SORTS.findIndex((x) => x[0] === O.sort); O.sort = SORTS[(i + 1) % SORTS.length][0]; setPref("sort", O.sort); refreshPanel(); break; }
     case "group": O.group = !O.group; setPref("group", O.group ? "1" : "0"); declSheet(); break;
     case "aim-w": D.aimFor = D.aimFor ? null : +d.id; declSheet(); redraw(); break;
     case "clear": D.sel.clear(); declSheet(); redraw(); break;
@@ -854,6 +941,7 @@ function buildMenu() {
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
 $("rep-btn").onclick = toggleReport;
+$("rec-btn").onclick = () => showCard("<b>REC: timeline and branching</b><div class=\"msg\">Not built yet. It will record the battle so you can step back to an earlier phase and branch from it.</div>");
 $("det-btn").onclick = () => { if (DOCK.size === 2) closeDetail(); else openDetail("stats"); };
 window.addEventListener("resize", () => { if (S.board) fit(); });
 applyLook(); dockSize(+pref("dock", "1")); dockRender();

@@ -413,3 +413,22 @@ modifier, `pathfinder.rs`), which may not pass through the waypoints, and the TM
 (PROJECT_MAP Section 4). Jumps, stand-up moves and entering the map take no waypoints (the destination alone). Not done: waypoint chains through a charge or
 death from above; backward steps inside a waypoint leg; illegal paths drawn grey (the lit range only shows legal ones).
 
+## 22. The audit against the mockup (2026-11-22; Daniel: "Audit time. Compare the working version to the art version.")
+
+REVIEW PENDING (higher-level model). Compared at 390 px wide: mockup (move, fire, Weapons tab) against the working page (deployment, move, fire, Armor tab); the rest read from the
+mockup's code and `INTEGRATION__BATTLEROM_UI.md`. Daniel's answers, and what was built from them:
+
+| Point | Decision | Done |
+|---|---|---|
+| Target before weapons | The weapons come FIRST so a weapon's arc and range bands show which target to shoot at (the mockup's order). | The target question now shows the weapon panel (rows with the real to-hit number each), arc and bands of the weapon in focus, a number pill on each enemy hex, previous / next arrows, enemy chips and hexes to LOOK at a target, and a **Target!** button to choose it. Engine: the `preview` query in the target question (`target_preview`: weapon rows once, every enemy's number per weapon, a quiet dry run). |
+| Fire phase view | The map centres on the target; a range line joins the pair. | The declaration and target steps centre on attacker and target and draw a dashed line with the range in hexes. |
+| REC | Keep the button although it does nothing yet. | Title bar REC (a card says "not built yet"). |
+| Report | A button on the detail sheet header beside the arrows, not in the title bar. | Done. |
+| Armour tab | Rear armour pips under the structure pips: front armour on top, structure in the middle, rear at the bottom. | Torsos show a third row of pips (rear). |
+| Actual TN | The number to hit must be the real one, per weapon, not a general text. | Every weapon row carries its own number (the declaration's and the target step's), "To-hit number" shows base + range band and the weapon's own modifiers = the number, the info bar shows it with the odds. |
+| Stand still | No button of its own: Move! with the unit left where it is is the stay. Move! is a long press. | The Stay buttons are gone; Move! (a 0.6 s hold with a fill that shows progress) is shown whenever a move can be planned and with no destination chosen it stays; a plain tap never commits (a keyboard activation does). |
+
+Defended differences (kept on purpose, Daniel agreed): the real map with hex numbers; the move readout counting the whole waypoint route; waypoints use the engine's best-TMM route (known issue).
+Still open from the audit: hazard confirmations and the combat report popup; dashed-outline range display and grey illegal paths; landscape and the Terminal / Amber looks; text size;
+ammo-pile and mode buttons on the weapon rows; a drawn silhouette and MegaMek sprites; placards still overlap near the start hex.
+

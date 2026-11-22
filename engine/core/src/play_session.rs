@@ -571,6 +571,30 @@ fn hex_of(label: &str) -> Option<(i64, i64)> {
 
 /// The weapon table for a declaration, priced now (after any mode / ammunition choice): rows, and the candidates the engine
 /// would let fire (weapon, expected damage, heat).
+/// The target question's `preview` query: the weapon rows (arcs, range bands, damage, heat) once, and for every enemy the to-hit number
+/// of each weapon against it, worked out as the declaration will (a quiet dry run; nothing is changed or logged). An enemy no weapon can
+/// be declared against has `"tn": null`.
+fn target_preview(b: &mut Battle, attacker: UnitId, enemies: &[UnitId]) -> Value {
+    b.log.quiet += 1;
+    let mut weapons = Value::Null;
+    let mut targets: Vec<Value> = Vec::new();
+    for &t in enemies {
+        let crate::attack_resolution::Prep::Ready(ctx) = crate::attack_resolution::prepare_declaration(b, attacker, t, true) else {
+            targets.push(json!({"id": t, "tn": Value::Null}));
+            continue;
+        };
+        let mut planner = Planner::new(attacker, t, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
+        let (rows, ..) = weapon_rows(b, &ctx, &mut planner, attacker);
+        let per_weapon: serde_json::Map<String, Value> = rows.iter().map(|r| (r["id"].to_string(), r["tn"].clone())).collect();
+        targets.push(json!({"id": t, "base_tn": ctx.sel_pre_tn, "distance": ctx.distance, "tn": per_weapon}));
+        if weapons.is_null() {
+            weapons = Value::Array(rows);
+        }
+    }
+    b.log.quiet -= 1;
+    json!({"weapons": weapons, "targets": targets})
+}
+
 fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId) -> (Vec<Value>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) {
     planner.forget();
     let weapons = crate::damage_resolution::get_weapons(&b.units[attacker]);
@@ -900,7 +924,8 @@ impl Controller for Screen {
         }
         let list: Vec<Value> = enemies.iter().map(|&e| json!({"id": e, "name": name(b, e), "distance": crate::forces::distance(b, attacker, e)})).collect();
         let req = json!({"kind": "target", "unit": attacker, "name": name(b, attacker), "enemies": list});
-        self.ask(b, req, |_, _| None, |_, a| match a["target"].as_u64() {
+        // the page may look at the weapons (their arcs and range bands) and the real to-hit numbers before it picks (Daniel, 2026-11-22)
+        self.ask(b, req, |b, q| if q["q"].as_str() == Some("preview") { Some(target_preview(b, attacker, &enemies)) } else { None }, |_, a| match a["target"].as_u64() {
             None => Ok(None),
             Some(t) if enemies.contains(&(t as usize)) => Ok(Some(t as usize)),
             Some(_) => Err("that is not an enemy you can target".to_string()),

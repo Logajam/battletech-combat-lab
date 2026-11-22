@@ -94,6 +94,15 @@ def play(lab, seed, kinds, wrong_once):
                 again = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
                 wrong_once.append(again["request"].get("error"))
                 seq = again["seq"]
+            if "preview" not in kinds:
+                # the weapons first: the preview query gives the weapon rows (ranges, arcs) and every enemy's real to-hit number per weapon
+                kinds.add("preview")
+                pv = lab.api("play_query", {"game": gid, "query": {"q": "preview", "unit": r["unit"]}})
+                assert pv.get("weapons") and pv.get("targets"), "a target preview returns weapons and targets: " + json.dumps(pv)[:120]
+                w0 = pv["weapons"][0]
+                assert w0.get("ranges") and "arc" in w0 and "arc_twist" in w0, "a preview weapon carries its ranges and arcs"
+                seen_tn = [t for t in pv["targets"] if t.get("tn")]
+                assert seen_tn and all(isinstance(v, (int, type(None))) for t in seen_tn for v in t["tn"].values()), "every enemy carries a number per weapon"
             ans = {"target": r["enemies"][0]["id"]}
         elif k == "declaration":
             if "decl" not in kinds:
