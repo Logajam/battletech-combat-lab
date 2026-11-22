@@ -63,6 +63,20 @@ def play(lab, seed, kinds, wrong_once):
                 o = max(views[last]["view"]["options"], key=lambda x: (x["mode"] == "Walk", x["mp"]))
                 route = lab.api("play_query", {"game": gid, "query": {"q": "path", "unit": last, "hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}})
                 assert route.get("path"), "a route for a unit that is not the one asked about: " + json.dumps(route)[:100]
+                # waypoints: the cost of going through a chosen hex, and what is left to reach from there
+                vo = views[last]["view"]["options"]
+                walks = sorted((x for x in vo if x["mode"] == "Walk"), key=lambda x: x["mp"])
+                if len(walks) > 3:
+                    h1 = walks[len(walks) // 2]["hex"]
+                    w1 = lab.api("play_query", {"game": gid, "query": {"q": "way", "unit": last, "waypoints": [h1]}})
+                    assert w1.get("reach") and w1.get("legs"), "a waypoint gives what is reachable from it: " + json.dumps(w1)[:100]
+                    h2 = next((x["hex"] for x in w1["reach"] if x["hex"] != h1), None)
+                    if h2:
+                        w2 = lab.api("play_query", {"game": gid, "query": {"q": "way", "unit": last, "waypoints": [h1, h2]}})
+                        direct = min(x["mp"] for x in vo if x["hex"] == h2) if any(x["hex"] == h2 for x in vo) else 0
+                        via = min(x["mp"] for x in w2["reach"] if x["hex"] == h2)
+                        assert w2["legs"][-1]["hex"] == h2 and via >= direct, f"through a waypoint costs at least the direct way ({via} v {direct})"
+                    assert "error" in lab.api("play_query", {"game": gid, "query": {"q": "way", "unit": last, "waypoints": ["9999"]}}), "an impossible waypoint is refused in words"
                 browse_unit[:] = [last]
                 ans = {"unit": last, "plan": {"hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}}
         elif k == "movement":

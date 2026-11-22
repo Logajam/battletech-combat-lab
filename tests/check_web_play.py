@@ -206,6 +206,7 @@ const POLICY = (r) => {
         const near = await page.evaluate(() => { const r = window.__bm.req; const by = {}; r.options.forEach((o) => (by[o.hex] = by[o.hex] || new Set()).add(o.facing)); const hs = Object.keys(by).filter((h) => by[h].size > 1); hs.sort((a, b) => Math.min(...r.options.filter((o) => o.hex === a).map((o) => o.mp)) - Math.min(...r.options.filter((o) => o.hex === b).map((o) => o.mp))); return hs[0] || null; });
         if (near) {
           await page.locator(`[data-reach="${near}"]`).first().dispatchEvent('click');
+          await page.waitForSelector('[data-arrow]');
           const probe = await page.evaluate(() => {
             const f = [...document.querySelectorAll('[data-arrow]')][0]; if (!f) return null;
             const DIRS = { N: 4, NE: 5, SE: 0, S: 1, SW: 2, NW: 3 }; const facing = f.dataset.arrow;
@@ -218,7 +219,24 @@ const POLICY = (r) => {
           if (probe) { await page.mouse.click(probe.x, probe.y); await page.waitForTimeout(100); out.arrow = { ...probe, after: await page.evaluate(() => __bm.facing) }; }
         }
       }
-      if (hex) { await page.locator(`[data-reach="${hex}"]`).first().dispatchEvent('click'); await tap('commit'); }
+      if (hex && out.arrow && !out.way) {
+        // waypoints: tap a hex, then another hex of the re-lit range: two numbered waypoints, the last is the destination
+        const first = await page.evaluate(() => { const r = __bm.req; const o = r.options.filter((x) => x.mode === 'Walk' && x.mp >= 1 && x.mp < r.walk).sort((a, b) => a.mp - b.mp)[0]; return o ? o.hex : null; });
+        if (first) {
+          await page.locator(`[data-reach="${first}"]`).first().dispatchEvent('click');
+          await page.waitForFunction(() => __bm.way.length === 1);
+          const second = await page.evaluate((f) => Object.keys(__bm.wrIdx).find((h) => h !== f), first);
+          if (second) {
+            await page.locator(`[data-reach="${second}"]`).first().dispatchEvent('click');
+            await page.waitForFunction(() => __bm.way.length === 2, null, { timeout: 5000 }).catch(() => {});
+            out.way = await page.evaluate(() => ({ n: __bm.way.length, dest: __bm.dest, marks: document.querySelectorAll('#map circle[r="9"]').length }));
+            await tap('undo');
+            await page.waitForFunction(() => __bm.way.length === 1, null, { timeout: 5000 }).catch(() => {});
+            out.way.afterUndo = await page.evaluate(() => __bm.way.length);
+          } else out.way = { n: 1, skipped: true };
+        }
+      }
+      if (hex) { await page.locator(`[data-reach="${hex}"]`).first().dispatchEvent('click'); await page.waitForSelector('[data-act="commit"]'); await tap('commit'); }
       else await tap('stay');
     }
     else if (st.kind === 'spot') await tap('spot', '[data-id=""]');
@@ -240,7 +258,7 @@ const POLICY = (r) => {
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { over, kinds: [...kinds], arrow: out.arrow, panel: out.panel };
+  out.page = { over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way };
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -312,6 +330,8 @@ def main():
         report(bool(ar) and ar["blocked"] and ar["after"] == ar["facing"] and ar["before"] != ar["after"], f"a turn arrow works with another unit in the hex it points at ({ar})")
         pn = out["page"].get("panel") or {}
         report(pn.get("rows", 0) > 0 and pn.get("assigned", 0) > 0 and pn.get("weapons", 0) > 1 and pn.get("pips", 0) > 20, f"the weapon panel lists weapons, a tap assigns one, the Weapons and Armor tabs fill ({pn})")
+        wy = out["page"].get("way") or {}
+        report(wy.get("n") == 2 and wy.get("marks", 0) >= 2 and wy.get("afterUndo") == 1, f"two waypoints can be planned and undone one by one ({wy})")
         pg = out["page"]
         report(pg["over"] and {"deploy", "movement", "target", "declaration"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))
