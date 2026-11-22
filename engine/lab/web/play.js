@@ -1082,7 +1082,7 @@ function fmtLine(l) {
     return `<div class="rm"><b>${esc(m[1])}</b> heat ${m[2]} &rarr; ${m[7]} (movement +${m[3]}, weapons +${m[4]}, engine +${m[5]}, sinks &minus;${m[6]})</div>`;
   if (/=== TURN/.test(l)) return `<div class="rt">${esc(l.trim().replace(/=+/g, "").trim())}</div>`;
   if (/^\s{4}/.test(l)) return `<div class="rs">${esc(l.trim())}</div>`;
-  return `<div class="rd">${esc(l.trim())}</div>`;
+  return `<div class="rd">${esc(l.trim().replace(/^\[[^\]]+\]\s*/, ""))}</div>`;
 }
 function renderReport() {
   const r = $("report"); if (!r.firstChild) r.innerHTML = '<div id="rbox"><div id="rhead"><b id="rtitle">Report</b><button data-act="report-close">Close</button></div><div id="rbody"></div></div>';

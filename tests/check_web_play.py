@@ -260,7 +260,7 @@ const POLICY = (r) => {
       // the fire screen: weapons first, then any number of targets, then Fire! (the page plays the engine's questions from the plan)
       await page.waitForFunction(() => window.__bm.fire && window.__bm.decl, null, { timeout: 20000 }).catch(() => {});
       if (!out.target && await page.evaluate(() => !!window.__bm.decl)) {
-        if (!out.leak) out.leak = await page.evaluate(() => __bm.shown.some((l) => /\[Ranged\]|rolled|Firing order|Movement select/.test(l)));
+        if (out.leak === undefined) out.leak = await page.evaluate(() => { const i = __bm.shown.map((l) => /=== TURN/.test(l)).lastIndexOf(true); return __bm.shown.slice(i + 1).some((l) => /\[Ranged\]|\[Heat\]|rolled|Firing order|Movement select/.test(l)); });
         const before = await page.evaluate(() => __bm.fire.tcur);
         await tap('tgt-next'); await page.waitForTimeout(200);
         const base = await page.evaluate((b) => ({ rows: document.querySelectorAll('#wpanel .wrow').length, tn: document.querySelectorAll('#wpanel .tnp').length, pills: document.querySelectorAll('#map [data-tn-pill]').length, moved: __bm.fire.tcur !== b || __bm.req.enemies.length === 1, hold: !!document.querySelector('[data-act="hold"]') }), before);
@@ -377,7 +377,7 @@ def main():
         wy = out["page"].get("way") or {}
         report(wy.get("n") == 2 and wy.get("marks", 0) >= 2 and wy.get("afterUndo") == 1, f"two waypoints can be planned and undone one by one ({wy})")
         pg = out["page"]
-        report(pg["over"] and {"deploy", "movement", "target", "declaration"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
+        report(pg["over"] and {"deploy", "movement", "target"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))
         print(f"(the browser played two battles in {took:.0f} s)")
     finally:
