@@ -732,10 +732,10 @@ untranslated "until they're actually needed". What is left of the port is finish
   refusal (to 1207) not reproduced - the per-game bridge logs now keep MegaMek's reason if it recurs.
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
 
-**BattleROM bugs and features list (Daniel, 2026-11-22, night): 28 items recorded, none started** - `INTEGRATION__PLAYER_DECISIONS.md` Section 24 (movement: jump toggle, stand-up undo and free turn,
+**BattleROM bugs and features list (Daniel, 2026-11-22, night): 29 items recorded, none started** - `INTEGRATION__PLAYER_DECISIONS.md` Section 24 (movement: jump toggle, stand-up undo and free turn,
 moved-unit signal, initiative in the title bar; firing: ground target with the -4, Fire! with nothing selected, Alpha Strike button, red Fire!, partial fill, a skipped attack phase when a torso twist
 would bring a target into sight, one shot per weapon per turn, long-press on an enemy; TAG: commit button, two reports of TAG ending the person's whole ranged phase, TN in the report; reports: hit-by-hit
-effects, who / who, critical slots highlighted, opens at the latest phase, Get Results; physical attacks: the ranged weapons table, best limbs only; left / right health bars; REC as the replay bar; Play
+effects, who / who, critical slots highlighted, opens at the latest phase, Get Results; physical attacks: the ranged weapons table, best limbs only, their damage in the results' per-weapon stats; left / right health bars; REC as the replay bar; Play
 and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of the whole conversation for missed details).
 
 **Known issues to fix later (Daniel, 2026-11-21):**
