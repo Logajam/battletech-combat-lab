@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, night, second round), BATTLEROM: fire screen with split fire, TN line items, spoiler-safe report, hazards. REVIEW PENDING (higher-level model).** Daniel's play-through
+  (PLAYER_DECISIONS Section 23). Engine: `next_secondary` on `RangedBot` / `BotSet` / `Controller` (a person's secondary targets, attack_resolution.rs, orchestrator.rs, human_bots.rs),
+  `play_session.rs` `target_preview` / `target_query` / `decl_req_json` / `Screen::secondary`. Page: the fire screen, `tnCard`, the report queue (`feedLog` / `releaseLog`), `hazardList`, Place!,
+  placards at a constant screen size. No change to bot battles (the reference battles are run before the merge). Tests: `check_play.py` (preview, secondary), `check_web_play.py` (fire screen, number
+  card, report pop-up and spoiler rule, hold buttons).
+
 - **2026-11-22 (Claude, late night), BATTLEROM: audit fixes (weapons first, real TNs, long-press Move!). REVIEW PENDING (higher-level model).** Daniel's answers to the audit
   (PLAYER_DECISIONS Section 22). `play_session.rs`: `target_preview` (the `preview` query of the target question: weapon rows, and each enemy's number per weapon from a quiet dry
   declaration). `play.js` / `play.html`: weapons-first target step (panel, arcs and bands, enemy pills, arrows, Target!), centre and range line in the fire step, a number on every

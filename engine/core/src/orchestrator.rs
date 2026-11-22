@@ -22,6 +22,10 @@ pub trait BotSet {
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId>;
     /// bots.choose_target: the one enemy a unit fires at in the Ranged phase
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
+    /// A person's further targets after the primary (split fire, p.64): None = not asked (a bot); see `RangedBot::next_secondary`.
+    fn next_secondary(&mut self, _b: &mut Battle, _attacker: UnitId, _primary: UnitId, _done: &[UnitId]) -> Option<Option<UnitId>> {
+        None
+    }
     /// bots.fire_pick active? (Gladiator's firing order); then `fire_pick` chooses among the candidates
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool;
     fn fire_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> UnitId;
@@ -101,6 +105,9 @@ impl RangedBot for RangedAdapter<'_> {
     }
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
         self.bots.choose_spot(b, u)
+    }
+    fn next_secondary(&mut self, b: &mut Battle, attacker: UnitId, primary: UnitId, done: &[UnitId]) -> Option<Option<UnitId>> {
+        self.bots.next_secondary(b, attacker, primary, done)
     }
 }
 

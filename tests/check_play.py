@@ -98,12 +98,18 @@ def play(lab, seed, kinds, wrong_once):
                 # the weapons first: the preview query gives the weapon rows (ranges, arcs) and every enemy's real to-hit number per weapon
                 kinds.add("preview")
                 pv = lab.api("play_query", {"game": gid, "query": {"q": "preview", "unit": r["unit"]}})
-                assert pv.get("weapons") and pv.get("targets"), "a target preview returns weapons and targets: " + json.dumps(pv)[:120]
-                w0 = pv["weapons"][0]
-                assert w0.get("ranges") and "arc" in w0 and "arc_twist" in w0, "a preview weapon carries its ranges and arcs"
-                seen_tn = [t for t in pv["targets"] if t.get("tn")]
-                assert seen_tn and all(isinstance(v, (int, type(None))) for t in seen_tn for v in t["tn"].values()), "every enemy carries a number per weapon"
-            ans = {"target": r["enemies"][0]["id"]}
+                assert pv.get("targets") and pv.get("arcs") is not None, "a target preview returns targets and arcs: " + json.dumps(pv)[:120]
+                ready = [t for t in pv["targets"] if t.get("req")]
+                assert ready, "at least one enemy can be declared at"
+                q0 = ready[0]["req"]
+                assert q0["weapons"] and q0["weapons"][0].get("ranges") and "tn" in q0["weapons"][0] and q0.get("breakdown") and q0["breakdown"].get("attacker_mode"), "each target carries the declaration's body with the numbers in parts"
+                assert all(t["id"] in [e["id"] for e in r["enemies"]] for t in pv["targets"]), "the preview covers the enemies asked about"
+                # a secondary target (p.64): with a primary named, the others are worked out as secondary (+1) or refused in words
+                if len(pv["targets"]) > 1:
+                    p2 = lab.api("play_query", {"game": gid, "query": {"q": "preview", "unit": r["unit"], "primary": ready[0]["id"]}})
+                    other = [t for t in p2["targets"] if t["id"] != ready[0]["id"]]
+                    assert all((t.get("req") and t["req"]["secondary"]) or t.get("why") or t.get("req") is None for t in other), "the others are secondary targets"
+            ans = {"target": None if r.get("secondary") else r["enemies"][0]["id"]}
         elif k == "declaration":
             if "decl" not in kinds:
                 # the weapon table carries the to-hit parts, and a mode change / switch query is answered while the question waits
@@ -175,7 +181,7 @@ def kit_game(lab, kinds):
             c = r["candidates"][0]
             ans = {"target": c["id"], "aim": "mech" if c["tn_mech"] is not None else "hex"}
         elif k == "target":
-            ans = {"target": r["enemies"][0]["id"]}
+            ans = {"target": None if r.get("secondary") else r["enemies"][0]["id"]}
         elif k == "declaration":
             modes = {str(w["id"]): w["modes"][-1]["label"] for w in r["weapons"] if w["modes"]}
             shots = {str(w["id"]): w["rates"][-1]["shots"] for w in r["weapons"] if w["rates"]}

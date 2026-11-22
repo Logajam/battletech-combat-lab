@@ -1640,6 +1640,11 @@ pub trait RangedBot {
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
         crate::stubs::stub_spot(b, u)
     }
+    /// A PERSON'S split fire (p.64): the next secondary target after the primary and the ones in `done`. `None` = this unit is not asked
+    /// (a bot: the STUB_SPLIT_FIRE policy decides); `Some(None)` = no more targets; `Some(Some(t))` = declare on `t` next.
+    fn next_secondary(&mut self, _b: &mut Battle, _attacker: UnitId, _primary: UnitId, _done: &[UnitId]) -> Option<Option<UnitId>> {
+        None
+    }
 }
 
 /// Step 2 for one attacker. Rolls to-hit for every selected weapon and fills `report`.
@@ -1693,7 +1698,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         declare_attacks(b, attacker, target, &mut rep, bot);
         // split fire (p.64): further targets with the weapons left, each a secondary target (+1)
         if crate::split_fire::state_of(b, attacker).is_some() {
-            let secs = crate::stubs::stub_split_fire(b, attacker, target);
+            let mut done: Vec<UnitId> = vec![target];
+            let mut asked = bot.next_secondary(b, attacker, target, &done);
+            let secs = if asked.is_none() { crate::stubs::stub_split_fire(b, attacker, target) } else { Vec::new() };
             // the primary declaration's twist / flip stands for the secondary targets (one per turn): held locked while
             // they are declared, then put back (an unlocked "no twist" may still twist in the Physical phase)
             let was_locked = b.units[attacker].arc_action_locked;
@@ -1704,6 +1711,15 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
                 }
                 pairs.push((attacker, sec));
                 declare_attacks(b, attacker, sec, &mut rep, bot);
+            }
+            // a person is asked for each further target in turn until they say no more
+            while let Some(Some(sec)) = asked {
+                done.push(sec);
+                if !pairs.contains(&(attacker, sec)) {
+                    pairs.push((attacker, sec));
+                    declare_attacks(b, attacker, sec, &mut rep, bot);
+                }
+                asked = bot.next_secondary(b, attacker, target, &done);
             }
             b.units[attacker].arc_action_locked = was_locked;
         }

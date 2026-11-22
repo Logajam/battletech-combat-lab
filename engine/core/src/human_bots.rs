@@ -48,6 +48,10 @@ pub trait Controller {
     #[allow(clippy::too_many_arguments)]
     fn movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, inner: &mut GladiatorBots) -> (Option<Pick>, String, PathGate);
     fn target(&mut self, b: &mut Battle, attacker: UnitId, inner: &mut GladiatorBots) -> Option<UnitId>;
+    /// A further (secondary) target after the primary and the ones in `done`; None: no more (the default: a person's unit fires at one target).
+    fn secondary(&mut self, _b: &mut Battle, _attacker: UnitId, _primary: UnitId, _done: &[UnitId], _inner: &mut GladiatorBots) -> Option<UnitId> {
+        None
+    }
     fn declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, inner: &mut GladiatorBots) -> DeclChoice;
     fn physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, inner: &mut GladiatorBots) -> PhysicalChoice;
     /// A unit is about to move: MASC / supercharger and similar switches. Returns what was set, as text (None: nothing asked).
@@ -116,6 +120,15 @@ impl<C: Controller> BotSet for HumanBots<C> {
         let target = self.ctl.target(b, attacker, &mut self.inner);
         self.log.push(Decision::Target { unit: attacker, target });
         target
+    }
+
+    fn next_secondary(&mut self, b: &mut Battle, attacker: UnitId, primary: UnitId, done: &[UnitId]) -> Option<Option<UnitId>> {
+        if !self.human.contains(&attacker) {
+            return None;
+        }
+        let t = self.ctl.secondary(b, attacker, primary, done, &mut self.inner);
+        self.log.push(Decision::Target { unit: attacker, target: t });
+        Some(t)
     }
 
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool {
