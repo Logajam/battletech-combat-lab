@@ -451,3 +451,65 @@ the same action button; placards were not really done.
 
 Known: the unit's own best-TMM route, not the planned route (Section 21); an enemy strip chip shows no TN pill; a split-fire plan whose secondary refuses is played as far as the engine allows (the rest is dropped, the error shows).
 
+## 24. Daniel's list of bugs and features after the second play-through (2026-11-22, night) - RECORDED, NOT STARTED
+
+Daniel: "Adding bugs and features to the list. Record and save. Compute for the week is too low for any more real tasks." Nothing here is built or investigated yet (a note says
+where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL = a decision for Daniel is still open. Daniel's own words are quoted where they carry the meaning.
+
+### A. Movement
+1. FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
+2. BUG **Stand-up.** "I should be able to undo a plan of stand." And: "I can not turn after a stand, which should be a free action." Also: "Should probably run an audit of Megamek and the
+   Bridge for missing movement options." (An audit task of its own: MegaMek's movement choices against the engine's and the bridge's.)
+3. FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
+4. FEAT **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
+   bar. (Phones might make me change my mind.)"
+
+### B. Firing
+5. FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";
+   Daniel means area-effect attacks). Source the rule from the library (CLAUDE.md), cite the page.
+6. FEAT **Fire! with no weapons selected** "should both give a pop up warning, and count as holding fire."
+7. BUG **The Alpha Strike button is missing from underneath the weapons list** (the mockup puts Strike / Alpha Strike under the list on the map; the page has it only in the dock's Plan tab).
+8. FEAT **The Fire button should turn red.**
+9. FEAT **Stacked weapons:** the target symbol "should fill up from left to right in partial increments" (n of m assigned).
+10. BUG **My Attack phase was skipped despite being able to torso twist to bring a target into sight.** (Probably the engine's "no line of sight / out of arc" test runs before the twist
+    is considered. Not traced.)
+11. FEAT/RULE **A weapon fires once a turn:** "Weapons may only be fired once per turn. (So a TAG in the TAG phase is not available in the weapon attack phase.)" (Check what the engine does.)
+12. FEAT **A help-text pop-up when an attack the player tries is impossible** (e.g. "enemy missing an arm and prone"), and NOT an unprompted pop-up telling the player the enemy cannot attack:
+    "I don't need a pop up warning that the enemy can't make attacks because its missing an arm and prone. I might need a help text popup if I try to attack in such a condition and I can't."
+13. BUG **Long click to view detailed information on the enemy is not working.**
+
+### C. TAG
+14. FEAT **TAG should use the same commit button** (the big hold/tap button in the action cluster) instead of the sheet's own buttons.
+15. BUG **"Somehow pushing skip tag ended my firing phase..."** and **"Now TAGing the enemy skipped the rest of my attack phase. WTF."** (Two reports of the same kind: the TAG question's answer
+    ends the person's whole ranged phase. Possibly the page's `tag` answer or the engine's TAG-then-fire sequence; not traced. Likely a regression-test gap: `check_web_play.py` answers TAG with no target.)
+16. BUG **TAG's to-hit number is not expanded in the round report.** And: "since TAG is used in its own sub phase it would be reported before the ranged attack phase begins."
+
+### D. Reports (round report, combat report)
+17. FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a
+    weapon that hits should immediately report where it hit and any additional results of that hit before resolving the next attack. Attacks that miss are simply reported that they miss."
+18. FEAT **Clearer about who is firing, who is taking damage, and highlight significant events like a critical hit.**
+19. FEAT **Critical hits:** "The critical hit pool and current critical slots do not need to be reported in the log. Only the critical slot that was hit. Highlighted for visibility."
+20. FEAT **The report opens at the start of the most recent phase it has information on** (not at the end or the top).
+21. FEAT **When the battle is over the commit button turns into "Get Results"**, which switches to the results tab with all the battle statistics.
+
+### E. Physical attacks
+22. FEAT **Use the same weapons table on screen as the ranged attacks, complete with a commit button.**
+23. FEAT **Do not list every limb that can make an attack:** "Always use the best available limbs with the highest expected damage."
+
+### F. Armour and placards
+24. BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
+    `INTEGRATION__BATTLEROM_UI.md` Section 5).
+25. TASK **An audit of this whole conversation for missed details:** "I feel like I need to send you on an audit of this entire conversation looking for missed details." (Go through the
+    sessions' transcripts and the BATTLEROM_UI design record item by item against the working page; the first audit, Section 22, compared the screens only.)
+
+### G. REC, replay and the Lab
+26. FEAT **The REC button opens the bar used in replay to control which event is shown**, so the game can be rewound to a specific point in time.
+27. CALL **Should Play and Replay become one tab?** "While the Run simulation button dynamically becomes Play, or if we just keep it as run simulation either way." (Open: Daniel asked the question.)
+28. FEAT **Heat maps:** "Need to complete them for replays for the other bots. I want them to be toggles, probably in another tab of the detail sheet that lets the player see things like
+    damage envelopes."
+
+### Notes
+- Items 5, 11 and 15-16 touch rules and the engine; the rulebook comes from the library (CLAUDE.md), not from memory. Items 10 and 15 may be engine bugs: reproduce with the scripted
+  harness (`tests/check_play.py` style) before changing anything.
+- The weeks' compute is low (Daniel): keep each piece small, and record what is done in the Change Record as before.
+
