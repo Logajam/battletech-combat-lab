@@ -25,7 +25,7 @@ const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A
 const modeDash = (m) => (O.cvd ? { Walk: "", Run: "7 4", Jump: "2 4" }[m] || "" : "");
 const BAND = () => (O.cvd ? { short: "#56B4E9", medium: "#F0E442", long: "#CC79A7" } : { short: "#6fbf86", medium: "#dba94a", long: "#e07468" });
 
-const S = { seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
+const S = { wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
   decl: null, path: null, attackSel: null, pending: false, myTeam: null };
 const svg = $("map");
 const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
@@ -217,6 +217,18 @@ function renderStrip() {
   $("estrip").innerHTML = foes.map((u) => `<div class="echip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}" data-u="${u.id}" title="${esc(u.name + " " + (u.mech || ""))}">${esc(short(u))}<b>${Math.round(fracOf(u) * 100)}%</b></div>`).join("");
 }
 function infoBar() {
+  const D = S.decl;
+  if (D && S.req && S.req.kind === "declaration") {
+    // the fire phase: target, range, heat; then the focused weapon in the order Min/S/M/L, damage, heat, mode, ammunition, number to hit and odds
+    const r = D.req, w = D.rows.find((x) => x.id === D.focus), h = heatIfFired();
+    let line = `<b>&rarr; ${esc(r.target_name)}</b> &middot; range ${r.distance} &middot; heat ${r.heat}${D.sel.size ? ` (${h} if these fire)` : ""}`;
+    if (w) {
+      const bin = (w.bins || []).find((b) => b.selected), od = oddsOf(w.tn);
+      line += `<br><b>${esc(w.name)}</b> ${esc([].concat(w.loc || []).map((l) => LOCAB[l] || l).join("/"))}${w.rear ? " (rear)" : ""} &middot; dmg ${esc(dmgText(w))} &middot; heat ${w.heat ?? 0} &middot; ${rangeText(w.ranges)}${w.mode ? " &middot; " + esc(w.mode) : ""}${bin ? ` &middot; ${esc(bin.name)} ${bin.shots ?? "?"}` : ""}${w.in_range && w.tn != null ? ` &middot; <b>TN ${w.tn}</b>${od != null ? " (" + Math.round(od * 100) + "%)" : ""}` : w.jammed ? " &middot; JAMMED" : " &middot; out of range"}`;
+    }
+    $("info").innerHTML = line;
+    return;
+  }
   const u = unit(S.sel);
   if (!u) { $("info").textContent = "Tap a unit for its details."; return; }
   const f = fracs(u);
@@ -237,12 +249,12 @@ function redraw() {
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
   if (r && r.kind === "declaration") drawAim(gDyn);
-  renderStrip(); infoBar();
+  renderStrip(); infoBar(); dockRender();
 }
 function setPhase(t) { $("phase").textContent = t; }
 function sheet(html) { $("sheet").innerHTML = html; }
 async function send(answer) {
-  const seq = S.seq; S.req = null; S.decl = null; sheet('<div class="msg">Working...</div>'); redraw();
+  const seq = S.seq; S.req = null; S.decl = null; $("wpanel").style.display = "none"; sheet('<div class="msg">Working...</div>'); redraw();
   const r = await api("play_answer", { seq, answer });
   if (r.error) sheet(`<div class="err">${esc(r.error)}</div>`);
   loop();
@@ -264,13 +276,14 @@ function take(r) {
   for (const u of S.units) { // first sight of a unit: its full armour, structure and slot names (for the bars and the criticals tab)
     if (!S.maxLoc[u.id]) S.maxLoc[u.id] = JSON.parse(JSON.stringify(u.locs || {}));
     if (u.crit_names) S.critNames[u.id] = u.crit_names;
+    if (u.weapons) S.wlist[u.id] = u.weapons;
   }
   if (r.board && !S.board) { S.board = r.board; buildMap(); S.needFocus = true; }
   if (r.log && r.log.length) { S.log.push(...r.log); $("report").textContent = S.log.join("\n"); }
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; clearCluster();
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -447,6 +460,7 @@ function moveSheet() {
 function undo() {
   if (!S.req) return;
   if (moving()) { S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
+  if (S.decl && S.req.kind === "declaration") { S.decl.sel.clear(); declSheet(); redraw(); return; }
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); }
 }
 // Send the move: in the move_order question the move is a plan that goes with the unit chosen; later the movement question uses it.
@@ -541,7 +555,7 @@ function drawAim(layer) {
 }
 HANDLERS.declaration = (r) => {
   S.sel = r.unit;
-  S.decl = { req: r, rows: r.weapons, sel: new Set(), aim: {}, charge: new Set(r.weapons.filter((w) => w.charge).map((w) => w.name)), focus: (r.weapons.find((w) => w.in_range) || r.weapons[0] || {}).id, aimFor: null, bin: null };
+  S.decl = { req: r, rows: r.weapons, sel: new Set(), aim: {}, charge: new Set(r.weapons.filter((w) => w.charge).map((w) => w.name)), focus: (r.weapons.find((w) => w.in_range) || r.weapons[0] || {}).id, aimFor: null, bin: null, strike: 0, groups: [] };
   declSheet();
 };
 const isDistant = (w) => (w.modes || []).some((m) => m.selected && /distant/i.test(m.label)) || /distant/i.test(w.mode || "");
@@ -549,26 +563,66 @@ function breakdownText(r) {
   const b = r.breakdown, parts = [["gunnery", b.gunnery], ["you moved", b.attacker_movement], ["target moved", b.target_movement], ["line of sight", b.line_of_sight], ["cover", b.cover], ["heat", b.heat], ["target prone", b.target_prone], ["stealth", b.stealth], ["other", b.other]].filter((p) => p[1]);
   return `base ${b.base}${b.secondary ? " (includes +1 for a secondary target)" : ""}: ` + parts.map((p) => `${p[0]} ${p[1] > 0 && p[0] !== "gunnery" ? "+" : ""}${p[1]}`).join(", ") + `. Each weapon adds its range band and its own modifiers.${b.note ? " " + esc(b.note) : ""}`;
 }
+// ---- the weapon panel (the fire phase)
+const SORTS = [["mount", "Mount order"], ["range-d", "Range, long to short"], ["range-a", "Range, short to long"], ["dmg-d", "Damage, high to low"], ["dmg-a", "Damage, low to high"], ["heat-d", "Heat, high to low"], ["heat-a", "Heat, low to high"]];
+O.sort = pref("sort", "mount"); O.group = pref("group", "1") === "1";
+const oddsOf = (tn) => { if (tn == null) return null; let n = 0; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) if (a + b >= tn) n++; return n / 36; };
+const wDamage = (w) => (w.damage || (w.ev != null && oddsOf(w.tn) ? w.ev / oddsOf(w.tn) : 0) || 0);
+const FC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg>';
+// weapons share a row only when name, place and arc (rear / torso twist), ammunition bin, mode, rate and the number to hit all match
+function groupKey(w) { return [w.name, [].concat(w.loc || []).join("/"), w.rear ? "r" : "", w.needs_twist ? "t" : "", ((w.bins || []).find((b) => b.selected) || {}).id ?? "", w.mode, w.shots, w.tn, w.in_range, w.jammed].join("|"); }
+function makeGroups(rows) {
+  const out = [], seen = new Map();
+  rows.forEach((w, i) => {
+    const k = O.group ? groupKey(w) : String(w.id);
+    if (seen.has(k)) seen.get(k).members.push(w); else { const g = { members: [w], rep: w, order: i }; seen.set(k, g); out.push(g); }
+  });
+  const by = { "range-d": (g) => -(g.rep.ranges ? g.rep.ranges.long : 0), "range-a": (g) => (g.rep.ranges ? g.rep.ranges.long : 0), "dmg-d": (g) => -wDamage(g.rep), "dmg-a": (g) => wDamage(g.rep), "heat-d": (g) => -(g.rep.heat || 0), "heat-a": (g) => g.rep.heat || 0 }[O.sort];
+  if (by) out.sort((a, b) => by(a) - by(b) || a.order - b.order);
+  return out;
+}
+const assignedIn = (g) => g.members.filter((w) => S.decl.sel.has(w.id)).length;
+function heatIfFired() { const D = S.decl, r = D.req; return Math.max(0, r.heat + r.move_heat + [...D.sel].reduce((a, id) => a + ((D.rows.find((w) => w.id === id) || {}).heat || 0), 0) - r.dissipation); }
 function declSheet() {
   const D = S.decl, r = D.req, rows = D.rows;
+  D.groups = makeGroups(rows);
   const sel = rows.filter((w) => D.sel.has(w.id)), wh = sel.reduce((a, w) => a + (w.heat || 0), 0), ev = sel.reduce((a, w) => a + (w.ev || 0), 0);
-  const heat = Math.max(0, r.heat + r.move_heat + wh - r.dissipation), heatCls = heat >= 14 ? "err" : heat >= 8 ? "warnt" : "";
-  const trs = rows.map((w) => {
-    const ok = w.in_range && !w.jammed, on = D.sel.has(w.id);
-    const modeBtn = w.charge || D.charge.has(w.name) ? "" : "";
-    return `<tr class="${w.jammed ? "jam" : ok ? (on ? "pick" : "") : "out"}" data-w="${w.id}"><td><input type="checkbox" data-act="fire" data-id="${w.id}" ${on ? "checked" : ""} ${ok ? "" : "disabled"} aria-label="fire ${esc(w.name)}"></td><td class="w" data-act="focus" data-id="${w.id}">${esc(w.name)}${w.loc ? ' <span class="msg">' + esc([].concat(w.loc).join("/")) + "</span>" : ""}${w.rear ? ' <span class="msg">(rear)</span>' : ""}${w.needs_twist ? ' <span class="msg">(torso twist)</span>' : ""}${w.jammed ? ' <span class="err">JAMMED</span>' : ""}</td><td title="${w.adj != null ? "range and weapon modifiers: " + (w.adj >= 0 ? "+" : "") + w.adj : ""}">${ok ? "TN " + w.tn : w.jammed ? "" : "out"}</td><td>${ok ? (+w.ev).toFixed(1) : ""}</td><td>${w.heat ?? ""}</td><td>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-id="${w.id}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-id="${w.id}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-id="${w.id}" title="charge the capacitor instead of firing">&#9889; Charge</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-id="${w.id}" title="ammunition bin: which bin this weapon draws from">Ammo ${(w.bins.find((b) => b.selected) || {}).shots ?? "?"}</button>` : ""}</td></tr>${D.bin === w.id ? binRows(w) : ""}`;
+  const heat = heatIfFired(), heatCls = heat >= 14 ? "err" : heat >= 8 ? "warnt" : "";
+  // the panel on the map
+  const wp = $("wpanel"); wp.style.display = "block";
+  const sortName = (SORTS.find((x) => x[0] === O.sort) || SORTS[0])[1];
+  wp.innerHTML = `<div class="wh"><span title="${esc(r.target_name)}">&#9678; ${esc(r.target_name)} &middot; ${r.distance}</span><button data-act="sort" title="Sort: ${esc(sortName)}">&#8645;</button></div>` + D.groups.map((g, gi) => {
+    const w = g.rep, n = g.members.length, k = assignedIn(g), ok = w.in_range && !w.jammed, fired = false;
+    const cls = ["wrow", ok ? "" : "out", w.jammed ? "jam" : "", D.focus != null && g.members.some((m) => m.id === D.focus) ? "focus" : ""].join(" ");
+    const state = k === 0 ? "" : k === n ? "all" : "part";
+    return `<div class="${cls}" data-g="${gi}"><button class="fc ${state}" data-act="assign" data-g="${gi}" ${ok ? "" : "disabled"} aria-label="assign ${esc(w.name)} to the target">${FC_ICON}</button><span class="wn" data-act="focus" data-g="${gi}">${esc(w.name)}${n > 1 ? ` <small>${k}/${n}</small>` : ""}${w.rear ? " <small>(r)</small>" : ""}${w.needs_twist ? " <small>(twist)</small>" : ""}${w.jammed ? " JAMMED" : ""}${ok ? "" : w.jammed ? "" : " <small>out</small>"}</span>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-g="${gi}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-g="${gi}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-g="${gi}" title="charge the capacitor instead of firing">&#9889;</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-g="${gi}" title="ammunition bin">&#9776;${(w.bins.find((b) => b.selected) || {}).shots ?? ""}</button>` : ""}</div>${D.bin === gi ? binRows(g, gi) : ""}`;
   }).join("");
+  wp.querySelectorAll(".wn").forEach((node) => holdFor(node, () => { const g = D.groups[+node.dataset.g]; if (g) showWeaponCard(g.rep); }));
+  // the plan tab
   const aimW = rows.find((w) => isDistant(w) && D.sel.has(w.id));
+  const next = ["Strike", "Alpha Strike"][D.strike % 2];
   sheet(`<h3>${esc(r.name)} fires on ${esc(r.target_name)} &middot; range ${r.distance}${r.indirect ? " &middot; indirect" : ""}</h3>${errLine(r)}
-    <table><tr><th></th><th>Weapon</th><th>To hit</th><th>Dmg</th><th>Heat</th><th>Mode</th></tr>${trs}</table>
+    <div class="msg">Selected: ${D.sel.size} weapon${D.sel.size === 1 ? "" : "s"}, about ${ev.toFixed(1)} damage. Heat at end of turn about <span class="${heatCls}">${heat}</span> (now ${r.heat}, movement ${r.move_heat}, weapons ${wh}, sinks take off ${r.dissipation}).${heat >= 14 ? " Shutdown risk." : ""}</div>
+    <div class="msg">Tap the target symbol to put a weapon on the target (a group adds one at a time; tapping a full group clears it). Tap a name to see its range bands and arc. Press and hold a name for its card.</div>
     <details><summary class="msg">To-hit parts</summary><div class="msg">${breakdownText(r)}</div></details>
-    <div class="msg">Selected: ${D.sel.size} weapon${D.sel.size === 1 ? "" : "s"}, about ${ev.toFixed(1)} damage. Heat at end of turn about <span class="${heatCls}">${heat}</span> (now ${r.heat}, movement ${r.move_heat}, weapons ${wh}, sinks take off ${r.dissipation}).${heat >= 14 ? " Shutdown risk." : ""} Press and hold a weapon for its card.</div>
     ${aimW ? `<div class="msg warnt">${esc(aimW.name)} is a distant shot: it lands next turn. Aim: <b>${D.aim[aimW.id] || r.target_hex}</b> <button class="sm ${D.aimFor ? "on" : ""}" data-act="aim-w" data-id="${aimW.id}">${D.aimFor ? "tap a hex on the map" : "Change the aim hex"}</button></div>` : ""}
-    <div class="row"><button class="go" data-act="fire-go">Fire!</button><button data-act="alpha">Alpha strike</button><button data-act="clear">Clear</button><button data-act="hold">Hold fire</button></div>`);
-  $("sheet").querySelectorAll("tr[data-w]").forEach((tr) => holdFor(tr, () => { const w = rows.find((x) => x.id === +tr.dataset.w); if (w) showWeaponCard(w); }));
+    <div class="row"><button data-act="strike" title="Strike: the weapons worth their heat. Alpha Strike: everything in range.">${next}</button><button data-act="clear">Clear</button><button data-act="hold">Hold fire</button><button data-act="group">${O.group ? "Ungroup identical" : "Group identical"}</button><span class="msg">Sorted: ${esc(sortName)}</span></div>`);
+  // the action cluster: what is assigned, and Fire!
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>${D.sel.size} weapon${D.sel.size === 1 ? "" : "s"}</b> &middot; ~${ev.toFixed(1)} dmg<br><span>heat ${r.heat} &rarr; <b class="${heatCls}">${heat}</b></span></div><button class="go big" data-act="fire-go">Fire!</button><button class="x" data-act="clear" aria-label="Clear (Esc)">&times;</button>`;
+  infoBar();
+  wp.style.top = ($("info").offsetHeight + 12) + "px"; // under the info box
 }
-const shortMode = (m) => String(m || "mode").replace(/rounds?/i, "").trim().slice(0, 12) || "mode";
-function binRows(w) { return `<tr><td></td><td colspan="5"><div class="msg">Draw ${esc(w.name)} from:</div>${w.bins.map((b) => `<button class="sm ${b.selected ? "on" : ""}" data-act="bin-pick" data-w="${w.id}" data-b="${b.id}">${esc(LOCAB[b.loc] || b.loc || "?")} ${esc(b.name)} &middot; ${b.shots ?? "?"} shots</button>`).join(" ")} <button class="sm" data-act="bin-pick" data-w="${w.id}" data-b="">Automatic</button></div></td></tr>`; }
+const shortMode = (m) => String(m || "mode").replace(/rounds?/i, "").trim().slice(0, 9) || "mode";
+function binRows(g, gi) { const w = g.rep; return `<div class="wbins"><span class="msg">${esc(w.name)} draws from:</span>${w.bins.map((b) => `<button class="sm ${b.selected ? "on" : ""}" data-act="bin-pick" data-g="${gi}" data-b="${b.id}">${esc(LOCAB[b.loc] || b.loc || "?")} ${esc(b.name)} &middot; ${b.shots ?? "?"}</button>`).join("")}<button class="sm" data-act="bin-pick" data-g="${gi}" data-b="">Automatic</button></div>`; }
+// the Strike button: the weapons worth their heat first (best damage per heat, up to a comfortable end-of-turn heat); pressed again, everything in range
+function strikePick(level) {
+  const D = S.decl, r = D.req, usable = D.rows.filter((w) => w.in_range && !w.jammed && !D.charge.has(w.name));
+  D.sel.clear();
+  if (level === 1) { usable.forEach((w) => D.sel.add(w.id)); return; }
+  let h = Math.max(0, r.heat + r.move_heat - r.dissipation);
+  for (const w of usable.slice().sort((a, b) => (b.ev || 0) / ((b.heat || 0) + 0.5) - (a.ev || 0) / ((a.heat || 0) + 0.5))) { if ((w.heat || 0) === 0 || h + w.heat <= 8) { D.sel.add(w.id); h += w.heat || 0; } }
+}
 function holdFor(node, fn) { let t = null; const stop = () => { if (t) { clearTimeout(t); t = null; } }; node.addEventListener("pointerdown", () => { stop(); t = setTimeout(() => { t = null; fn(); }, 650); }); ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach((e) => node.addEventListener(e, stop)); }
 async function setWeapons(extra) {
   const D = S.decl; if (!D) return;
@@ -597,31 +651,64 @@ HANDLERS.end_phase = (r) => {
     <div class="row"><button class="go" data-act="end-go">Continue</button><button data-act="detail">All switches...</button></div>`);
 };
 
-// ---------------------------------------------------------------- detail sheet: Summary, Armour, Criticals, Equipment
-let detailTab = "summary";
-function openDetail(tab) { detailTab = tab || detailTab; renderDetail(); $("detail").style.display = "flex"; }
-function closeDetail() { $("detail").style.display = "none"; }
-function renderDetail() {
-  const u = unit(S.sel) || S.units[0]; if (!u) return;
-  const tabs = [["summary", "Summary"], ["armor", "Armor"], ["crits", "Criticals"], ["equip", "Equipment"]];
-  $("detail").innerHTML = `<div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${k === detailTab ? "on" : ""}" data-act="tab" data-t="${k}">${n}</button>`).join("")}<span class="sp" style="flex:1"></span><button class="sm" data-act="detail-close">Close</button></div><div class="body"><div style="margin-bottom:6px"><b>${esc(u.name)}</b> ${esc(u.mech || "")}</div>${detailBody(u)}</div>`;
+// ---------------------------------------------------------------- the dock: the bottom sheet with the unit's tabs
+// Header (unit name, smaller / bigger arrows; a flick up or down does the same), a summary line, and the tabs Plan (what the question
+// asks), Weapons, Stats (equipment switches, critical slots) and Armor (the silhouette with a pip for each point, damage turns pips red from
+// the outside in). The question's own controls always live in Plan; the other tabs show whichever unit is selected (enemies read-only).
+const DOCK = { size: 1, tab: "plan" };
+const TABS = [["plan", "Plan"], ["weapons", "Weapons"], ["stats", "Stats"], ["armor", "Armor"]];
+function dockSize(n) { DOCK.size = Math.max(0, Math.min(2, n)); $("dock").dataset.size = DOCK.size; setPref("dock", DOCK.size); }
+function dockTab(t) { DOCK.tab = t; if (DOCK.size === 0) dockSize(1); dockRender(); }
+function dockRender() {
+  const u = unit(S.sel) || S.units.find((x) => x.team === S.myTeam) || S.units[0];
+  $("dock").dataset.tab = DOCK.tab;
+  if (!u) return;
+  const f = fracs(u);
+  $("dockname").textContent = `${u.name} ${u.mech || ""}`.trim();
+  $("docksum").innerHTML = `Walk ${u.walk} / Run ${u.run}${u.jump ? " / Jump " + u.jump : ""} &nbsp; Heat ${u.heat}${u.max_heat ? "/" + u.max_heat : ""} &nbsp; Armor ${Math.round(f.a * 100)}% &nbsp; Structure ${Math.round(f.s * 100)}%${u.prone ? " &nbsp; <b class='warnt'>PRONE</b>" : ""}${u.shutdown ? " &nbsp; <b class='err'>SHUT DOWN</b>" : ""}`;
+  $("docktabs").innerHTML = TABS.map(([k, n]) => `<button class="tab ${k === DOCK.tab ? "on" : ""}" data-act="tab" data-t="${k}">${n}</button>`).join("");
+  if (DOCK.tab !== "plan") $("tabbody").innerHTML = tabBody(u);
 }
-function detailBody(u) {
-  if (detailTab === "summary") {
-    const eqp = eq(u);
-    return `<div class="msg">${u.tons || "?"} tons &middot; gunnery ${u.gunnery} / piloting ${u.piloting} &middot; walk ${u.walk} run ${u.run}${u.jump ? " jump " + u.jump : ""}</div><div class="msg">Heat ${u.heat} &middot; facing ${u.facing} &middot; pilot hits ${u.pilot_hits}${u.prone ? " &middot; PRONE" : ""}${u.shutdown ? " &middot; SHUT DOWN" : ""}</div><div class="msg">Last move: ${esc(u.move_mode || "")}</div>${eqp.auto_eject ? '<div class="msg">Ejection is not built yet (a known shortfall).</div>' : ""}`;
-  }
-  if (detailTab === "armor") {
-    const mx = S.maxLoc[u.id] || {};
-    return Object.entries(u.locs || {}).map(([loc, v]) => { const m = mx[loc] || v, a = m[0] ? v[0] / m[0] : 0, s = m[2] ? v[2] / m[2] : 0, ra = m[1] ? v[1] / m[1] : null;
-      return `<div class="locrow"><span class="nm">${LOCAB[loc] || loc}</span><div class="bars"><div class="bar2" title="armour"><b style="width:${Math.round(a * 100)}%;background:var(--ok)"></b></div><div class="bar2" title="structure"><b style="width:${Math.round(s * 100)}%;background:${s > 0.5 ? "#8aa" : "var(--err)"}"></b></div>${ra != null ? `<div class="bar2" title="rear armour"><b style="width:${Math.round(ra * 100)}%;background:var(--warn)"></b></div>` : ""}</div><span class="msg">${v[3] ? "destroyed" : `${v[0]}${v[1] ? " (" + v[1] + " rear)" : ""} / ${v[2]}`}</span></div>`; }).join("") + '<div class="msg">Top bar armour, then structure, then rear armour.</div>';
-  }
-  if (detailTab === "crits") {
-    const names = S.critNames[u.id] || {}, alive = u.crit_alive || {};
-    return Object.keys(names).map((loc) => `<div><b>${LOCAB[loc] || loc}</b></div><div class="crit">${names[loc].map((n, i) => `<span class="${alive[loc] && alive[loc][i] === false ? "x" : ""}">${esc(n)}</span>`).join("")}</div>`).join("");
-  }
-  return equipBody(u);
+const renderDetail = dockRender;
+function openDetail(tab) { DOCK.tab = tab === "equip" ? "stats" : tab || "stats"; dockSize(2); dockRender(); }
+function closeDetail() { DOCK.tab = "plan"; dockSize(1); dockRender(); }
+function tabBody(u) {
+  if (DOCK.tab === "weapons") return weaponsTab(u);
+  if (DOCK.tab === "armor") return armorTab(u);
+  return statsTab(u);
 }
+const rangeText = (r) => (r ? `${r.min ?? "-"}/${r.short}/${r.medium}/${r.long}` : "?");
+const dmgText = (w) => (w.damage ? w.damage : w.rack ? w.rack + " msl" : "-");
+function weaponsTab(u) {
+  const list = S.wlist[u.id] || [];
+  if (!list.length) return '<div class="msg">No weapons listed.</div>';
+  return `<table class="wt"><tr><th>Weapon</th><th>Loc</th><th>Dmg</th><th>Heat</th><th title="minimum / short / medium / long">Min/S/M/L</th></tr>${list.map((w) => `<tr><td>${esc(w.name)}${w.rear ? " (rear)" : ""}</td><td>${esc([].concat(w.loc || []).map((l) => LOCAB[l] || l).join("/"))}</td><td>${esc(dmgText(w))}</td><td>${w.heat ?? ""}</td><td>${rangeText(w.ranges)}</td></tr>`).join("")}</table>${u.team === S.myTeam ? '<div class="msg">Modes and ammunition are set in the weapon panel during the fire phase.</div>' : '<div class="msg">An enemy unit: read only.</div>'}`;
+}
+function statsTab(u) {
+  const names = S.critNames[u.id] || {}, alive = u.crit_alive || {};
+  const crits = Object.keys(names).map((loc) => `<div><b>${LOCAB[loc] || loc}</b></div><div class="crit">${names[loc].map((n, i) => `<span class="${alive[loc] && alive[loc][i] === false ? "x" : ""}">${esc(n)}</span>`).join("")}</div>`).join("");
+  return `<div class="msg">${u.tons || "?"} tons &middot; gunnery ${u.gunnery} / piloting ${u.piloting} &middot; pilot hits ${u.pilot_hits} &middot; facing ${u.facing} &middot; last move ${esc(u.move_mode || "none")}</div>${equipBody(u)}<h3 style="margin:8px 0 4px;font-size:13px">Critical slots</h3>${crits}`;
+}
+// the armour silhouette: each location a box of pips, armour outside (white), structure inside (grey); lost points are red from the outside in
+function armorTab(u) {
+  const mx = S.maxLoc[u.id] || {}, locs = u.locs || {};
+  const box = (loc) => {
+    const v = locs[loc]; if (!v) return "<div></div>";
+    const m = mx[loc] || v, per = Math.max(1, Math.ceil(Math.max(m[0], m[2]) / 14));
+    const pips = (now, max, cls) => { const n = Math.ceil(max / per), have = Math.ceil(now / per); return Array.from({ length: n }, (_, i) => `<i class="${i < n - have ? "r" : cls}"></i>`).join(""); };
+    return `<div class="loc ${v[3] ? "dead" : ""}"><b>${LOCAB[loc] || loc}</b><div class="pips" title="armour ${v[0]}/${m[0]}">${pips(v[0], m[0], "")}</div><div class="pips" title="structure ${v[2]}/${m[2]}">${pips(v[2], m[2], "s")}</div><span>${v[3] ? "gone" : v[0] + "/" + v[2]}${v[1] ? ` (r ${v[1]})` : ""}</span></div>`;
+  };
+  const per = Math.max(1, Math.ceil(Math.max(...Object.values(mx).map((m) => Math.max(m[0], m[2])), 1) / 14));
+  return `<div class="sil"><div></div><div></div>${box("Head")}<div></div><div></div>${box("Left Arm")}${box("Left Torso")}${box("Center Torso")}${box("Right Torso")}${box("Right Arm")}<div></div>${box("Left Leg")}<div></div>${box("Right Leg")}<div></div></div><div class="msg">White = armour, grey = structure, red = lost; one pip is up to ${per} point${per > 1 ? "s" : ""} (hover for the numbers). Numbers: armour / structure, rear armour in brackets.</div>`;
+}
+// flick the header (or a body scrolled to its top) to make the dock bigger or smaller
+(() => {
+  let y0 = null, top = false;
+  const dock = $("dock");
+  dock.addEventListener("touchstart", (e) => { const body = e.target.closest("#dockbody"); top = !body || body.scrollTop <= 0; y0 = e.touches[0].clientY; }, { passive: true });
+  dock.addEventListener("touchend", (e) => { if (y0 == null) return; const dy = e.changedTouches[0].clientY - y0; y0 = null; if (Math.abs(dy) < 60) return; if (dy < 0) dockSize(DOCK.size + 1); else if (top) dockSize(DOCK.size - 1); }, { passive: true });
+  $("dockup").onclick = () => dockSize(DOCK.size + 1); $("dockdn").onclick = () => dockSize(DOCK.size - 1);
+})();
 function equipBody(u) {
   const e = eq(u), mine = u.team === S.myTeam; if (!mine) return '<div class="msg">The switches of an enemy unit are not yours to set.</div>';
   const headAmmo = ((S.critNames[u.id] || {}).Head || []).some((n) => /ammo/i.test(n));
@@ -639,10 +726,10 @@ function equipBody(u) {
 }
 async function setSwitch(sw, uid) {
   const id = uid ?? S.sel, r = await query({ q: "switches", unit: id, switches: sw });
-  if (r.error) { $("detail").querySelector(".body").insertAdjacentHTML("afterbegin", `<div class="err">${esc(r.error)}</div>`); return null; }
+  if (r.error) { $("tabbody").insertAdjacentHTML("afterbegin", `<div class="err">${esc(r.error)}</div>`); return null; }
   const u = unit(id); if (u) u.equipment = r.equipment;
   if (S.req && S.req.kind === "end_phase") S.req.equipment = r.equipment;
-  if ($("detail").style.display === "flex") renderDetail();
+  if (DOCK.tab !== "plan") dockRender();
   if (S.req && S.req.kind === "end_phase") HANDLERS.end_phase(S.req);
   return r.equipment;
 }
@@ -651,7 +738,7 @@ async function setSwitch(sw, uid) {
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-act]");
   if (t && !(t.tagName === "INPUT" && t.type === "checkbox")) { act(t); return; }
-  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if ($("detail").style.display === "flex") renderDetail(); return; }
+  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if (DOCK.tab !== "plan") dockRender(); return; }
   const un = e.target.closest("[data-unit]"); if (un && !(S.req && S.req.kind === "target" && S.req.enemies.some((x) => x.id === +un.dataset.unit))) { onUnitTap(+un.dataset.unit); return; }
   if (!e.target.closest("#menu") && !e.target.closest("#menu-btn")) $("menu").style.display = "none";
 });
@@ -676,22 +763,25 @@ function act(t) {
     case "atk": chooseAttack(S.mv.attacks.filter((x) => x.target === S.attackTarget)[+d.i]); break;
     case "atk-yes": commitMove({ attack: S.attackSel }); break;
     case "atk-no": S.attackSel = null; S.attackConfirm = false; S.path = null; attackSheet(S.mv.attacks.filter((x) => x.target === S.attackTarget)); redraw(); break;
-    case "focus": D.focus = +d.id; declSheet(); redraw(); break;
-    case "mode-w": { const w = D.rows.find((x) => x.id === +d.id), i = w.modes.findIndex((m) => m.selected), next = w.modes[(i + 1) % w.modes.length]; setWeapons({ modes: { [w.id]: next.label } }); break; }
-    case "rate-w": { const w = D.rows.find((x) => x.id === +d.id), i = w.rates.findIndex((m) => m.selected), next = w.rates[(i + 1) % w.rates.length]; setWeapons({ shots: { [w.id]: next.shots } }); break; }
-    case "charge-w": { const w = D.rows.find((x) => x.id === +d.id); D.charge.has(w.name) ? D.charge.delete(w.name) : (D.charge.add(w.name), D.sel.delete(w.id)); setWeapons({}); break; }
-    case "bins-w": D.bin = D.bin === +d.id ? null : +d.id; declSheet(); break;
-    case "bin-pick": D.bin = null; setWeapons({ bins: { [d.w]: d.b === "" ? null : +d.b } }); break;
+    case "focus": { const g = D.groups[+d.g]; if (g) { D.focus = g.rep.id; declSheet(); redraw(); } break; }
+    case "mode-w": { const g = D.groups[+d.g], w = g.rep, i = w.modes.findIndex((m) => m.selected), next = w.modes[(i + 1) % w.modes.length]; setWeapons({ modes: Object.fromEntries(g.members.map((m) => [m.id, next.label])) }); break; }
+    case "rate-w": { const g = D.groups[+d.g], w = g.rep, i = w.rates.findIndex((m) => m.selected), next = w.rates[(i + 1) % w.rates.length]; setWeapons({ shots: Object.fromEntries(g.members.map((m) => [m.id, next.shots])) }); break; }
+    case "charge-w": { const g = D.groups[+d.g], w = g.rep; D.charge.has(w.name) ? D.charge.delete(w.name) : (D.charge.add(w.name), D.rows.filter((x) => x.name === w.name).forEach((x) => D.sel.delete(x.id))); setWeapons({}); break; }
+    case "bins-w": D.bin = D.bin === +d.g ? null : +d.g; declSheet(); break;
+    case "bin-pick": { const g = D.groups[+d.g]; D.bin = null; setWeapons({ bins: Object.fromEntries(g.members.map((m) => [m.id, d.b === "" ? null : +d.b])) }); break; }
+    case "assign": { const g = D.groups[+d.g]; const free = g.members.find((m) => !D.sel.has(m.id)); if (free) D.sel.add(free.id); else g.members.forEach((m) => D.sel.delete(m.id)); declSheet(); redraw(); break; }
+    case "strike": strikePick(D.strike % 2); D.strike++; declSheet(); redraw(); break;
+    case "sort": { const i = SORTS.findIndex((x) => x[0] === O.sort); O.sort = SORTS[(i + 1) % SORTS.length][0]; setPref("sort", O.sort); declSheet(); break; }
+    case "group": O.group = !O.group; setPref("group", O.group ? "1" : "0"); declSheet(); break;
     case "aim-w": D.aimFor = D.aimFor ? null : +d.id; declSheet(); redraw(); break;
-    case "alpha": D.rows.forEach((w) => { if (w.in_range && !w.jammed && !D.charge.has(w.name)) D.sel.add(w.id); }); declSheet(); redraw(); break;
     case "clear": D.sel.clear(); declSheet(); redraw(); break;
     case "hold": send({ weapons: [] }); break;
     case "fire-go": { const aim = {}; for (const [k, v] of Object.entries(D.aim)) aim[k] = v; send({ weapons: [...D.sel], charge: [...D.charge], aim }); break; }
     case "phys": send({ kind: d.k === "" ? null : d.k }); break;
     case "end-go": send({}); break;
-    case "detail": openDetail("equip"); break;
+    case "detail": openDetail("stats"); break;
     case "detail-close": closeDetail(); break;
-    case "tab": detailTab = d.t; renderDetail(); break;
+    case "tab": dockTab(d.t); break;
     case "sw-cool": setSwitch({ coolant: d.v }); break;
     case "sw-rad": setSwitch({ radical: d.v === "1" }); break;
     case "sw-boost": setSwitch({ boost: d.v === "1" }); break;
@@ -730,9 +820,9 @@ function buildMenu() {
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
 $("rep-btn").onclick = toggleReport;
-$("det-btn").onclick = () => { if ($("detail").style.display === "flex") closeDetail(); else openDetail(); };
+$("det-btn").onclick = () => { if (DOCK.size === 2) closeDetail(); else openDetail("stats"); };
 window.addEventListener("resize", () => { if (S.board) fit(); });
-applyLook();
+applyLook(); dockSize(+pref("dock", "1")); dockRender();
 // The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
 // starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
 async function boot() {

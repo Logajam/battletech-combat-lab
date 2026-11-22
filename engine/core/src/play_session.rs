@@ -235,6 +235,13 @@ fn units_json(b: &Battle, with_names: bool) -> Value {
                 if with_names {
                     let names: serde_json::Map<String, Value> = m.crits.keys().map(|loc| (loc.clone(), json!(ms::display_crits(m, loc)))).collect();
                     s["crit_names"] = Value::Object(names);
+                    // the unit's weapons for the detail sheet's Weapons tab (read-only for an enemy): where, damage, heat, ranges
+                    let locs = crate::attack_resolution::weapon_locations(m);
+                    let ws: Vec<Value> = m.items.iter().enumerate().filter(|(_, it)| it.category.as_deref() == Some("weapon")).map(|(i, it)| {
+                        json!({"id": i, "name": it.name, "loc": locs.get(&i), "heat": it.heat, "damage": it.damage_per_shot, "rack": it.rack_size, "rear": it.rear_mounted,
+                               "ranges": it.weapon_range.as_ref().map(|r| json!({"min": r.min, "short": r.short, "medium": r.medium, "long": r.long}))})
+                    }).collect();
+                    s["weapons"] = Value::Array(ws);
                 }
                 s["equipment"] = equipment_json(b, u);
                 s
@@ -584,7 +591,7 @@ fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: U
         };
         let charge = cap && b.player.unit(&pname).is_some_and(|c| c.charge.contains(&iname));
         rows.push(json!({"id": w, "name": iname, "loc": ctx.w_locs.get(&w), "heat": cand.map(|c| c.heat).or(iheat), "ev": cand.map(|c| c.value),
-                         "tn": tn, "adj": tn.map(|t| t - ctx.sel_pre_tn), "range": bracket, "in_range": cand.is_some(), "jammed": jammed,
+                         "tn": tn, "adj": tn.map(|t| t - ctx.sel_pre_tn), "range": bracket, "damage": b.units[attacker].items[w].damage_per_shot, "rack": b.units[attacker].items[w].rack_size, "in_range": cand.is_some(), "jammed": jammed,
                          "needs_twist": cand.is_some() && per_action.first().is_some_and(|u| u.contains(&w)),
                          "modes": modes, "mode": mode_now, "rates": rates, "shots": shots_now, "bins": bins,
                          "chargeable": cap, "charge": charge, "rear": rear, "arc": arc_now, "arc_twist": arc_twist,
