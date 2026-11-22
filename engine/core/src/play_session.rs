@@ -428,6 +428,76 @@ fn move_view(b: &mut Battle, mover: UnitId, standup_mp: Option<i64>, entry_edge:
     MoveView { req, opts, best, attacks }
 }
 
+/// WAYPOINTS (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same,
+/// letting the auto route figure out how to get there while maximizing TMM is fine"; a known issue, not a bug): the cost of getting to the
+/// last of `waypoints` through all the others, and what can be reached from there with the points left. Ground moves only. Returns
+/// {"reach": [{hex, facing, mode, mp}], "legs": [{hex, mp}...]} - the legs are the route through the waypoints (the drawn line); the unit,
+/// when it moves, takes its own best route to the destination, so its line may differ.
+fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
+    let hexes: Vec<(i64, i64)> = match q["waypoints"].as_array().map(|a| a.iter().map(|h| h.as_str().and_then(hex_geometry_parse)).collect::<Option<Vec<_>>>()) {
+        Some(Some(h)) => h,
+        _ => return json!({"error": "which waypoints?"}),
+    };
+    let m = &b.units[mover];
+    let Some(label) = m.hex.as_deref() else { return json!({"error": "waypoints need a unit on the map"}) };
+    let Ok((sx, sy, f0)) = crate::hex_geometry::state_from_label(label, &m.facing) else { return json!({"error": "no start"}) };
+    let (walk, run) = (ms::compute_walk_mp(m), ms::compute_running_mp(m));
+    let blocked = crate::ranged_combat::blocked_set(&m.blocked_hex);
+    let level_limit = crate::terrain_rules::max_level_change(ms::ground_level_limited(m), ms::is_superheavy(m));
+    // where we stand at each stage: facing -> (points spent, the route so far as (hex, points))
+    type Route = Vec<(String, i64)>;
+    let mut at = (sx, sy);
+    let mut cur: std::collections::BTreeMap<i64, (i64, Route)> = Default::default();
+    cur.insert(f0, (0, vec![]));
+    let table = |x: i64, y: i64, f: i64, budget: i64| crate::pathfinder::build_movement_table(x, y, f, budget, Some(&b.board), None, level_limit, true, &blocked);
+    for &(wx, wy) in &hexes {
+        let mut next: std::collections::BTreeMap<i64, (i64, Route)> = Default::default();
+        for (f, (spent, route)) in &cur {
+            let Ok(t) = table(at.0, at.1, *f, run - spent) else { continue };
+            for f2 in 0..6 {
+                let state = (wx, wy, f2);
+                let Some(col) = t.entries.get(&state) else { continue };
+                let Some(&mp) = col.keys().min() else { continue };
+                if next.get(&f2).is_some_and(|(have, _)| *have <= spent + mp) {
+                    continue;
+                }
+                let mut r = route.clone();
+                r.extend(t.path(state, mp).into_iter().map(|(_, st, mm)| (crate::hex_geometry::hex_label(st.0, st.1).unwrap_or_default(), spent + mm)));
+                next.insert(f2, (spent + mp, r));
+            }
+        }
+        if next.is_empty() {
+            return json!({"error": "that hex cannot be reached through the waypoints with the points you have"});
+        }
+        cur = next;
+        at = (wx, wy);
+    }
+    // what is reachable from the last waypoint: the cheapest points per (hex, facing, mode)
+    let mut best: std::collections::BTreeMap<(i64, i64, i64, &'static str), i64> = Default::default();
+    for (f, (spent, _)) in &cur {
+        let Ok(t) = table(at.0, at.1, *f, run - spent) else { continue };
+        for (&(x, y, f2), col) in &t.entries {
+            for &mp in col.keys() {
+                let total = spent + mp;
+                let mode = crate::combat::classify_movement_mode(total, walk);
+                let e = best.entry((x, y, f2, mode)).or_insert(i64::MAX);
+                *e = (*e).min(total);
+            }
+        }
+    }
+    let reach: Vec<Value> = best
+        .iter()
+        .filter_map(|(&(x, y, f, mode), &mp)| Some(json!({"hex": crate::hex_geometry::hex_label(x, y).ok()?, "facing": crate::hex_geometry::facing_to_compass(f).ok()?, "mode": mode, "mp": mp})))
+        .collect();
+    // the drawn route: the cheapest way to arrive at the last waypoint (any facing)
+    let legs = cur.values().min_by_key(|(sp, _)| *sp).map(|(_, r)| r.iter().map(|(h, mp)| json!({"k": "forward", "hex": h, "mp": mp})).collect::<Vec<_>>()).unwrap_or_default();
+    json!({"reach": reach, "legs": legs})
+}
+
+fn hex_geometry_parse(label: &str) -> Option<(i64, i64)> {
+    crate::hex_geometry::parse_hex_label(label).ok()
+}
+
 impl MoveView {
     /// The route the engine will walk to a chosen end (or to a charge / DFA stop): the "path" query's answer.
     fn route(&self, b: &mut Battle, mover: UnitId, q: &Value, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> Option<Value> {
@@ -650,7 +720,7 @@ impl Controller for Screen {
             req,
             |b, q| {
                 let kind = q["q"].as_str()?;
-                if kind != "reach" && kind != "path" {
+                if kind != "reach" && kind != "path" && kind != "way" {
                     return None;
                 }
                 let u = q["unit"].as_u64()? as usize;
@@ -668,6 +738,9 @@ impl Controller for Screen {
                 let (v, edge) = &views[&u];
                 if kind == "reach" {
                     return Some(json!({"view": v.req}));
+                }
+                if kind == "way" {
+                    return Some(if edge.is_some() { json!({"error": "waypoints are not available for this move"}) } else { with_move_context(b, u, |b| way_query(b, u, q)) });
                 }
                 let r = with_move_context(b, u, |b| v.route(b, u, q, None, edge.as_deref()));
                 Some(r.unwrap_or_else(|| json!({"error": "no route"})))
@@ -727,6 +800,9 @@ impl Controller for Screen {
                 req,
                 preset,
                 |b, q| {
+                    if q["q"].as_str() == Some("way") {
+                        return Some(if standup_mp.is_some() || entry_edge.is_some() { json!({"error": "waypoints are not available for this move"}) } else { way_query(b, mover, q) });
+                    }
                     if q["q"].as_str() != Some("path") {
                         return None;
                     }

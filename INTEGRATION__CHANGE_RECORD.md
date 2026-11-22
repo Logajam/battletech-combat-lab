@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-22 (Claude, night), BATTLEROM: waypoints. REVIEW PENDING (higher-level model).** Daniel: a waypoint plan only has to fix the destination and the mode; the unit's
+  own best-TMM route is fine, as a known issue. `play_session.rs`: `way_query` (the `way` query, served in the move-order and movement questions). `play.js`: waypoint planning
+  (numbered markers, re-lit range, route line, undo one at a time). Tests: `check_play.py` (the query, an impossible hex refused), `check_web_play.py` (two waypoints planned and undone
+  by taps). Known issue recorded in PROJECT_MAP Section 4; `INTEGRATION__PLAYER_DECISIONS.md` Section 21.
+
 - **2026-11-22 (Claude, evening), BATTLEROM: weapon panel and detail sheet. REVIEW PENDING (higher-level model).** Daniel: "Weapon panel and details."
   `play.js` / `play.html`: the floating weapon panel (grouping, assign, focus, mode / rate / capacitor / ammunition buttons, sort, Strike cycle, info-bar
   detail, Fire! in the action cluster) and the dock (tabs Plan, Weapons, Stats, Armor; three sizes; flick; armour silhouette with pips). `play_session.rs`:

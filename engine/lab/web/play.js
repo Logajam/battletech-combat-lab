@@ -25,7 +25,7 @@ const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A
 const modeDash = (m) => (O.cvd ? { Walk: "", Run: "7 4", Jump: "2 4" }[m] || "" : "");
 const BAND = () => (O.cvd ? { short: "#56B4E9", medium: "#F0E442", long: "#CC79A7" } : { short: "#6fbf86", medium: "#dba94a", long: "#e07468" });
 
-const S = { wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
+const S = { way: [], wrIdx: null, wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
   decl: null, path: null, attackSel: null, pending: false, myTeam: null };
 const svg = $("map");
 const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
@@ -246,7 +246,7 @@ function redraw() {
   if (r && r.kind === "target") drawTargets(gDyn);
   if (r && (r.kind === "spot" || r.kind === "tag")) drawPickTargets(gDyn);
   drawUnits(gDyn);
-  if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
+  if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
   if (r && r.kind === "declaration") drawAim(gDyn);
   renderStrip(); infoBar(); dockRender();
@@ -283,7 +283,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -318,7 +318,8 @@ function drawPickTargets(layer) {
 function reachIndex(r) { const byHex = {}; for (const o of r.options) (byHex[o.hex] = byHex[o.hex] || []).push(o); return byHex; }
 const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.kind === "move_order");
 function drawReach(layer) {
-  const idx = S.reachIdx || (S.reachIdx = reachIndex(S.mv));
+  S.reachIdx = S.reachIdx || reachIndex(S.mv);
+  const idx = S.way.length ? S.wrIdx : S.reachIdx;
   const sets = { Walk: new Set(), Run: new Set(), Jump: new Set() };
   for (const [h, os] of Object.entries(idx)) for (const o of os) if (sets[o.mode]) sets[o.mode].add(h);
   for (const mode of ["Jump", "Run", "Walk"]) {
@@ -348,7 +349,7 @@ HANDLERS.move_order = (r) => {
   selectMover(S.sel);
 };
 async function selectMover(id) {
-  S.sel = id; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null;
+  S.sel = id; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.way = []; S.wrIdx = null;
   const seq = S.seq;
   let v = S.views[id];
   if (!v || v.seq !== seq) {
@@ -375,16 +376,44 @@ function moveIntro(unavailable) {
   }
   sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div><div class="row">${v.entry ? "" : '<button data-act="stay">Stay here</button>'}</div>`);
 }
-async function pickDest(h) {
-  const os = S.reachIdx[h]; if (!os) return;
-  const cheapest = os.reduce((a, b) => (a.mp <= b.mp ? a : b));
-  S.dest = h; S.mode = cheapest.mode; S.attackSel = null;
+// WAYPOINTS: each tap inside the lit range adds a waypoint and the range re-lights from there with the points left; the last tap is the
+// destination. The cost (and so the mode) is that of going through them all. When the unit moves it takes its own best route to the
+// destination (the one with the most hexes moved, so the best target movement modifier), which may not pass through the waypoints: a
+// known issue, not a bug (Daniel, 2026-11-22); the destination, facing and mode are what the answer carries.
+const enrich = (o) => { const e = ((S.reachIdx || {})[o.hex] || []).find((x) => x.facing === o.facing && x.mode === o.mode) || ((S.reachIdx || {})[o.hex] || [])[0] || {}; return { tmm: 0, hexes: 0, heat: 0, ...e, ...o }; };
+async function setWay(way) {
+  const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: way });
+  if (seq !== S.seq || !S.req) return false;
+  if (r.error) { sheet(`<h3>Waypoint</h3><div class="err">${esc(r.error)}</div><div class="row"><button data-act="undo">Back</button></div>`); return false; }
+  S.way = way; S.wrIdx = reachIndex({ options: r.reach.map(enrich) }); S.attackSel = null;
+  S.path = r.legs.map((l, i, a) => ({ ...l, k: i && a[i - 1].hex === l.hex ? "turn" : "forward" }));
+  S.dest = way[way.length - 1];
+  const os = S.wrIdx[S.dest] || [], cheapest = os.reduce((a, b) => (a.mp <= b.mp ? a : b), os[0]);
+  if (!cheapest) return false;
+  if (!os.some((o) => o.mode === S.mode)) S.mode = cheapest.mode;
   const same = os.filter((o) => o.mode === S.mode), cur = unit(S.mv.unit);
-  S.facing = (same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
-  moveSheet(); redraw(); loadPath();
+  if (!same.some((o) => o.facing === S.facing)) S.facing = (same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
+  moveSheet(); redraw();
+  return true;
 }
-const optNow = () => ((S.reachIdx || {})[S.dest] || []).find((o) => o.mode === S.mode && o.facing === S.facing);
+async function pickDest(h) {
+  S.reachIdx = S.reachIdx || reachIndex(S.mv);
+  const idx = S.way.length ? S.wrIdx : S.reachIdx, os = idx[h]; if (!os) return;
+  const canWay = S.mv.standup_mp == null && !S.mv.entry && os.some((o) => o.mode !== "Jump");
+  if (!S.way.length && !canWay) {   // a jump, a stand-up move or an entry: the destination alone
+    const cheapest = os.reduce((a, b) => (a.mp <= b.mp ? a : b));
+    S.dest = h; S.mode = cheapest.mode; S.attackSel = null;
+    const same = os.filter((o) => o.mode === S.mode), cur = unit(S.mv.unit);
+    S.facing = (same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
+    moveSheet(); redraw(); loadPath(); return;
+  }
+  if (S.way.length && S.way[S.way.length - 1] === h) return;
+  await setWay([...S.way, h]);
+}
+const destOpts = () => (S.way.length ? (S.wrIdx || {})[S.dest] : (S.reachIdx || {})[S.dest]) || [];
+const optNow = () => destOpts().find((o) => o.mode === S.mode && o.facing === S.facing);
 async function loadPath() {
+  if (S.way.length && !S.attackSel) return;      // the route through the waypoints is already drawn
   const seq = S.seq; let q;
   if (S.attackSel) q = { q: "path", unit: S.mv.unit, attack: S.attackSel };
   else if (S.dest) q = { q: "path", unit: S.mv.unit, hex: S.dest, facing: S.facing, mode: S.mode };
@@ -400,6 +429,9 @@ function drawPath(layer) {
   el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: black ? "#fff" : "#000", "stroke-width": 7, "stroke-opacity": ".55", "pointer-events": "none" }, layer);
   el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 3.5, "stroke-dasharray": modeDash(S.mode), "pointer-events": "none" }, layer);
   S.path.forEach((s, i) => { if (s.k === "turn") return; const [x, y] = centre(s.hex); const t = el("text", { x, y: y - 10, "text-anchor": "middle", "font-size": 9, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5, "paint-order": "stroke", "pointer-events": "none" }, layer); t.textContent = s.mp; });
+}
+function drawWayMarks(layer) {
+  S.way.forEach((h, i) => { const [x, y] = centre(h); el("circle", { cx: x - R * 0.5, cy: y - R * 0.5, r: 9, fill: "#fff", stroke: "#000", "stroke-width": 1.5, "pointer-events": "none" }, layer); const t = el("text", { x: x - R * 0.5, y: y - R * 0.5 + 3.5, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); t.textContent = i + 1; });
 }
 function drawDestHex(layer) {
   if (!S.dest) return;
@@ -422,7 +454,7 @@ function arrowRing(layer, cx, cy, facings, current, colourOf, onPick) {
 }
 function drawTurnArrows(layer) {
   if (!S.dest) return;
-  const os = S.reachIdx[S.dest], [x, y] = centre(S.dest), cheap = {};
+  const os = destOpts(), [x, y] = centre(S.dest), cheap = {};
   for (const o of os) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
   arrowRing(layer, x, y, Object.keys(cheap), S.facing, (f) => modeCol((os.find((o) => o.facing === f && o.mode === S.mode) || cheap[f]).mode), (f) => {
     const same = os.find((o) => o.facing === f && o.mode === S.mode);
@@ -446,7 +478,7 @@ function setCluster(o, label, extra) {
   c.innerHTML = `<div class="readout"><b>MP ${o.mp} / ${mvBudget(o.mode)}</b> &middot; TMM +${o.tmm}${extra || ""}<br><span>${o.mode}${o.psrs ? ` &middot; ${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""}` : ""}</span></div><button class="go big" data-act="commit">${label}</button><button class="x" data-act="undo" aria-label="Undo (Esc)">&times;</button>`;
 }
 function moveSheet() {
-  const os = S.reachIdx[S.dest], modes = [...new Set(os.map((o) => o.mode))], o = optNow() || os[0], warns = [];
+  const os = destOpts(), modes = [...new Set(os.map((o) => o.mode))], o = optNow() || os[0], warns = [];
   if (o.psrs) warns.push(`${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""} on this path`);
   if (o.hazard) warns.push(`about ${(+o.hazard).toFixed(1)} damage from terrain`);
   setCluster(o, S.order ? "Move!" : "Move!");
@@ -454,12 +486,14 @@ function moveSheet() {
     <div class="row">${modes.map((m) => `<button data-act="mode" data-m="${m}" class="${m === S.mode ? "on" : ""}" style="border-color:${modeCol(m)}">${m === "Stand Still" ? "Stand still" : m + " " + mvBudget(m)}</button>`).join("")}</div>
     <div class="msg">${o.mp} MP (turns included) &middot; ${o.hexes} hex${o.hexes === 1 ? "" : "es"} &middot; target movement modifier +${o.tmm} &middot; movement heat ${o.heat}</div>
     ${warns.length ? `<div class="warnt">&#9888; ${warns.join("; ")}. Moving on accepts the warning.</div>` : ""}
-    <div class="msg">The line on the map is the route the engine takes (the cheapest, avoiding hazards). Tap an arrow around the hex to turn. Esc or &times; clears the choice.</div>
+    ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The cost counts the whole way round. The unit ends at the last hex in the mode shown, taking its own best route there (the one that moves the most hexes), which may not pass through the waypoints.</div>` : ""}
+    <div class="msg">Tap another tinted hex to add a waypoint (the lit range is what is left from here). Tap an arrow around the hex to turn. &times; or Esc removes the last waypoint.</div>
     <div class="row"><button data-act="stay">Stay here</button></div>`);
 }
 function undo() {
   if (!S.req) return;
-  if (moving()) { S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
+  if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
+  if (moving()) { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
   if (S.decl && S.req.kind === "declaration") { S.decl.sel.clear(); declSheet(); redraw(); return; }
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); }
 }
@@ -472,7 +506,7 @@ function onUnitTap(id) {
   S.sel = id;
   if (moving()) {
     const list = S.mv.attacks.filter((a) => a.target === id);
-    if (list.length) { S.attackTarget = id; S.dest = null; S.path = null; S.attackSel = null; S.attackConfirm = false; clearCluster(); attackSheet(list); redraw(); return; }
+    if (list.length) { S.attackTarget = id; S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackConfirm = false; clearCluster(); attackSheet(list); redraw(); return; }
   }
   if (r && (r.kind === "spot" || r.kind === "tag")) { const c = r.candidates.find((x) => x.id === id); if (c && r.kind === "spot") { send({ target: id, fires: true }); return; } }
   redraw();
@@ -758,7 +792,7 @@ function act(t) {
     case "look": selectMover(+d.id); break;
     case "place": if (S.dp && S.dp.hex) send({ hex: S.dp.hex, facing: S.dp.facing }); break;
     case "undo": undo(); break;
-    case "mode": S.mode = d.m; { const os = S.reachIdx[S.dest].filter((x) => x.mode === S.mode); if (!os.some((x) => x.facing === S.facing)) S.facing = os[0].facing; } moveSheet(); redraw(); loadPath(); break;
+    case "mode": S.mode = d.m; { const os = destOpts().filter((x) => x.mode === S.mode); if (!os.some((x) => x.facing === S.facing)) S.facing = os[0].facing; } moveSheet(); redraw(); loadPath(); break;
     case "commit": commitMove({ hex: S.dest, facing: S.facing, mode: S.mode }); break;
     case "atk": chooseAttack(S.mv.attacks.filter((x) => x.target === S.attackTarget)[+d.i]); break;
     case "atk-yes": commitMove({ attack: S.attackSel }); break;

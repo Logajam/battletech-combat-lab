@@ -401,3 +401,15 @@ unit's weapon list once with its slot names (`weapons` in `units_json`), and `da
 (its own question): so previous / next target arrows are not there either; "missiles-only" renamed Strike levels; rear armour pips (shown as a number only);
 the armour silhouette is a box layout, not a drawn 'Mech.
 
+## 21. Waypoints (2026-11-22; Daniel: "So long as the final destination and movement mode that the waypoint method selects is the same, letting the auto route figure out how to get there while maximizing TMM is fine. It becomes a known issue rather than a bug.")
+
+Built from Section 3 of `INTEGRATION__BATTLEROM_UI.md`. REVIEW PENDING (higher-level model). Each tap on a lit hex adds a numbered waypoint; the range re-lights from the
+last one with the points left; the cluster reads the points used out of the points allowed (counting the whole way through the waypoints, turns included), and
+the drawn line goes through them. The last waypoint is the destination; the turn arrows, mode buttons and Move! work on it as before; the x (or Esc) removes the last
+waypoint, then the destination. Engine: the query `way` {unit, waypoints} (`play_session.rs` `way_query`, ground moves only): stage by stage it finds the cheapest way to each
+waypoint from each facing the previous one could be left in, then lists what is reachable from the last, the cheapest points per hex, facing and mode. Because the
+answer to the movement question is still {hex, facing, mode}, the unit walks the engine's own route, the one with the most hexes moved (best target movement
+modifier, `pathfinder.rs`), which may not pass through the waypoints, and the TMM, hexes and heat shown are the engine route's; recorded as a known issue
+(PROJECT_MAP Section 4). Jumps, stand-up moves and entering the map take no waypoints (the destination alone). Not done: waypoint chains through a charge or
+death from above; backward steps inside a waypoint leg; illegal paths drawn grey (the lit range only shows legal ones).
+

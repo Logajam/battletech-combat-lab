@@ -108,7 +108,7 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   take-control in replay, declaration order, the mockup's look, the browser build, saving a game): `INTEGRATION__PLAYER_DECISIONS.md`
   Section 16 (second pass, Section 17: charge / DFA, stand up, route preview, weapon modes, ammo bins, equipment switches, End
   Phase question, spot, TAG, artillery aim, firing arcs, detail sheet, looks, colour-blind mode). Still not built: waypoint
-  steering, going prone, ejection / voluntary shutdown, hex-only artillery, placard placement, sprites, formatted combat report,
+  steering (planned through waypoints since 2026-11-22; the unit walks its own route, known issue in Section 4), going prone, ejection / voluntary shutdown, hex-only artillery, placard placement, sprites, formatted combat report,
   and (Daniel: skip) take-control / declaration order / option changes (5), the browser build (7); saving a game is "spare compute".
   The audit of every player decision and Daniel's answers: the same file, Sections 1-15.
 
@@ -739,6 +739,7 @@ untranslated "until they're actually needed". What is left of the port is finish
   deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
   When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
   Gladiator decision loop before changing anything.
+- **Waypoint routes are not walked as drawn** (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same, letting the auto route figure out how to get there while maximizing TMM is fine. It becomes a known issue rather than a bug"). The play page plans a move through numbered waypoints (the cost, and so the mode, is that of going through all of them, `play_session.rs` `way_query`), but the unit takes the engine's own best route to the last hex (most hexes moved, so the best TMM; `pathfinder.rs`), which may not pass through the waypoints, and the heat, TMM and hexes shown come from that engine route while the MP shown is the waypoint route's. A route that must avoid a hazard or a hex needs the engine to walk a chosen route (`walk_path` from a list of hexes). Jumps and stand-up / entry moves take no waypoints.
 - **Ejection and voluntary shutdown are not modelled** (Daniel, 2026-11-21: "leave out for the moment ... make sure they're a known short fall"). UI plan: Shut down on the engine's critical-stats page, Eject on the cockpit (`INTEGRATION__PLAYER_DECISIONS.md` Section 12). Other unit types (vehicles, infantry) also later.
 
 **Known issues to fix later (found session 13, Claude):**
