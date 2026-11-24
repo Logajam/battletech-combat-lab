@@ -193,6 +193,9 @@ const POLICY = (r) => {
     const st = await page.evaluate(() => ({ kind: window.__bm.req && window.__bm.req.kind, over: window.__bm.over }));
     if (st.over) { over = true; break; }
     kinds.add(st.kind);
+    // situational awareness (Daniel's session 35 work order): the title bar's count of units to move, the moved mark, attack lines, the jump toggle
+    const aw = await page.evaluate(() => ({ title: /to move: /.test(document.getElementById('phase').innerText), moved: !!document.querySelector('#strip .chip.moved'), atk: document.querySelectorAll('#map [data-atk]').length > 0, jump: !!document.querySelector('[data-act="jump-toggle"]') }));
+    out.aware = out.aware || {}; for (const k of Object.keys(aw)) out.aware[k] = out.aware[k] || aw[k];
     const tap = (act, extra) => page.locator(`[data-act="${act}"]${extra || ""}`).first().click();
     // the combat report opens by itself once the firing phase is over; it is on top of every screen and button until closed
     if (!out.pop && await page.evaluate(() => document.getElementById('report').style.display === 'block')) {
@@ -295,7 +298,7 @@ const POLICY = (r) => {
     else if (st.kind === 'end_phase') await tap('end-go');
     await page.waitForTimeout(60);
   }
-  out.page = { pop: out.pop, leak: out.leak, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
+  out.page = { aware: out.aware, pop: out.pop, leak: out.leak, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
   // ---- 5: a Fire! plan never answers a LATER question by itself (Daniel's bugs B10 / B15, 2026-11-22: "skip TAG ended my firing
   // phase"). One Raven (it carries TAG) against one Atlas: each turn the real "Skip TAG" button, then a weapon and the real Fire!
   // button. With one enemy the engine never asks "another target?", so the old page kept the plan and answered the Raven's NEXT
@@ -456,6 +459,8 @@ def main():
         report(so.get("getResults") and rs.get("shown") and rs.get("battles"), f"at the end Get Results opens the Lab's Results tab with the played battle (B21; {so.get('getResults')}, {rs})")
         ini = so.get("init") or {}
         report(ini.get("lines", 0) > 0 and ini.get("rolled") == ini.get("lines"), f"every turn's Initiative dice are shown: each report line carries the dice ({ini})")
+        aw = out["page"].get("aware") or {}
+        report(aw.get("title") and aw.get("moved") and aw.get("atk") and aw.get("jump"), f"the title bar counts the units still to move, moved units carry a mark, attack lines are drawn and a jumper has the jump toggle ({aw})")
         pg = out["page"]
         report(pg["over"] and {"deploy", "movement", "target"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))

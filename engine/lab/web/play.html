@@ -56,18 +56,21 @@ td input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
 #cluster>*{pointer-events:auto}
 #cluster .readout{background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--bd);padding:5px 8px;font-size:12px;line-height:1.3;min-width:96px}
 #cluster .readout span{color:var(--muted)}
+#cluster .readout .jt{display:block;margin-top:4px;min-height:28px;width:100%}#cluster .readout .jt.on{background:#c0392b;color:#fff;border-color:#e74c3c}
+#strip .chip.moved{opacity:.72}
+#card .cardrep{max-height:50vh;overflow:auto;padding:4px 0;font-size:12px}
 #cluster button.big{flex:1;min-height:48px;font-size:20px;font-weight:700;max-width:260px}
 #cluster button.x{min-width:48px;min-height:48px;font-size:24px;padding:0}
 #report{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);display:none;padding:12px}
 #rbox{height:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--bd);box-shadow:0 8px 28px rgba(0,0,0,.6)}
 #rhead{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--title);color:var(--titletx)}#rhead button{min-height:34px;min-width:80px}
 #rbody{flex:1;overflow:auto;padding:8px 10px;font-size:13px;line-height:1.45;color:var(--tx)}
-#rbody .rt{margin:10px 0 4px;padding:3px 6px;background:var(--face);font-weight:700}#rbody .rh{margin:8px 0 2px;border-top:1px solid var(--bd);padding-top:6px}#rbody small,#rbody .rd,#rbody .rm{color:var(--muted)}#rbody .rm b{color:var(--tx)}#rbody .rm{margin:2px 0}
-#rbody .rp{margin:8px 0 2px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu,#9aa6b2)}
-#rbody .rr{margin:0 0 4px 30px}#rbody .rl{font-size:12px}#rbody .rl.dm{color:var(--mu,#9aa6b2)}
-#rbody .rl.crit{color:#ffd24a;font-weight:700;background:rgba(255,210,74,.12);padding:1px 4px;border-radius:3px;display:inline-block;margin:1px 0}
-#rbody .rl.big{color:#ff9b8f;font-weight:600}#rbody .rl.ck{color:#ffd24a}#report.nodice .dice{display:none}
-#rbody .rs{margin:1px 0 1px 12px;padding-left:6px;border-left:3px solid var(--bd)}#rbody .rs.hit{border-left-color:var(--err);color:var(--tx)}#rbody .rs.miss{border-left-color:var(--bd);color:var(--muted)}
+:is(#rbody,.cardrep) .rt{margin:10px 0 4px;padding:3px 6px;background:var(--face);font-weight:700}:is(#rbody,.cardrep) .rh{margin:8px 0 2px;border-top:1px solid var(--bd);padding-top:6px}#rbody small,:is(#rbody,.cardrep) .rd,:is(#rbody,.cardrep) .rm{color:var(--muted)}:is(#rbody,.cardrep) .rm b{color:var(--tx)}:is(#rbody,.cardrep) .rm{margin:2px 0}
+:is(#rbody,.cardrep) .rp{margin:8px 0 2px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu,#9aa6b2)}
+:is(#rbody,.cardrep) .rr{margin:0 0 4px 30px}:is(#rbody,.cardrep) .rl{font-size:12px}:is(#rbody,.cardrep) .rl.dm{color:var(--mu,#9aa6b2)}
+:is(#rbody,.cardrep) .rl.crit{color:#ffd24a;font-weight:700;background:rgba(255,210,74,.12);padding:1px 4px;border-radius:3px;display:inline-block;margin:1px 0}
+:is(#rbody,.cardrep) .rl.big{color:#ff9b8f;font-weight:600}:is(#rbody,.cardrep) .rl.ck{color:#ffd24a}#report.nodice .dice,body.nodice .cardrep .dice{display:none}
+:is(#rbody,.cardrep) .rs{margin:1px 0 1px 12px;padding-left:6px;border-left:3px solid var(--bd)}:is(#rbody,.cardrep) .rs.hit{border-left-color:var(--err);color:var(--tx)}:is(#rbody,.cardrep) .rs.miss{border-left-color:var(--bd);color:var(--muted)}
 .tnt{border-collapse:collapse;margin:6px 0;width:100%}.tnt td{padding:2px 4px;border-bottom:1px solid var(--face)}.tnt td+td{text-align:right;font-weight:700;white-space:nowrap}.tnt tr.tot td{border-top:2px solid var(--bd);font-size:15px}
 .wrow .fc.else{background:#3b3550;border-color:#8a7fc0}
 #detail{position:absolute;left:0;right:0;bottom:0;height:62%;background:var(--panel);border-top:2px solid var(--bd);display:none;flex-direction:column;z-index:5;box-shadow:0 -6px 16px rgba(0,0,0,.4)}

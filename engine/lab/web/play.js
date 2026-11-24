@@ -18,7 +18,7 @@ const LOCAB = { "Head": "H", "Center Torso": "CT", "Left Torso": "LT", "Right To
 const LOOKS = { slhisd: "SL-HIS Dark", slhis: "SL-HIS Light", w95: "Windows 95", modern: "Modern" };
 const pref = (k, d) => { try { const v = localStorage.getItem("bm_" + k); return v == null ? d : v; } catch (e) { return d; } };
 const setPref = (k, v) => { try { localStorage.setItem("bm_" + k, v); } catch (e) { /* storage off */ } };
-const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1", dice: pref("dice", "1") === "1" };
+const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1", dice: pref("dice", "1") === "1", atk: pref("atk", "1") === "1" };
 // movement colours follow MegaMek's (walk cyan, run yellow, jump orange; NOT VERIFIED against its source); the colour-blind set
 // (Okabe-Ito) also gives each mode its own line pattern
 const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A7" } : { Walk: "#00e5ff", Run: "#ffd400", Jump: "#ff7a3c" })[m] || "#99a";
@@ -127,6 +127,8 @@ const HOLD_SLOP = 10;
   svg.addEventListener("pointerdown", (e) => {
     ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; lastDist = 0; cancel(); start = [e.clientX, e.clientY];
     if (ptrs.size === 1) {
+      const al = e.target.closest("[data-atk]");
+      if (al) { timer = setTimeout(() => { timer = null; moved = true; attackCard(+al.dataset.atk); }, 650); return; }
       const t = e.target.closest("[data-unit],[data-hex],[data-reach]");
       const uid = t && t.dataset.unit != null ? +t.dataset.unit : null;
       const hex = t && (t.dataset.hex || t.dataset.reach);
@@ -183,6 +185,47 @@ function fracOf(u) {
 // A 'Mech sprite (a plain silhouette, not MegaMek's art) on a tinted hex base, a placard (name and the three bars: armour, structure,
 // heat) joined to the unit by a leader line. Placards are placed one at a time on the first spot that does not cover another.
 const SPOTS = [[0, 0.7], [0, -0.8], [1.15, 0.2], [-1.15, 0.2], [1.1, -0.7], [-1.1, -0.7], [1.1, 1.0], [-1.1, 1.0], [0, 1.5], [0, -1.6], [1.7, 0.2], [-1.7, 0.2], [1.6, -1.1], [-1.6, -1.1], [1.6, 1.3], [-1.6, 1.3]];
+// ATTACK LINES, both sides (Daniel, 2026-11-24: "Attack lines drawn for both sides (So you can see what is shooting at you. Long press on the attack
+// line to get details of that attack.)"): the latest turn's attacks from the report lines already released (no spoilers), a line from the
+// attacker to its target in the attacker's colour with hits / shots; a tap or a long press opens that attack's report.
+function attacksOfLatestTurn() {
+  const all = []; let turn = 0, cur = null;
+  for (const l of S.shown) {
+    const t = /=== TURN (\d+)/.exec(l); if (t) { turn = +t[1]; cur = null; continue; }
+    let m;
+    if ((m = /\[Ranged\] (.+?) -> (.+?): range/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: "weapons", lines: [l], shots: 0, hits: 0 }; all.push(cur); continue; }
+    if ((m = /\[Physical\] (.+?) -> (.+?): (.+?) needs \d+ .* -> (HIT|miss)/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: m[3], lines: [l], shots: 1, hits: m[4] === "HIT" ? 1 : 0 }; all.push(cur); continue; }
+    if (cur && /^\s{2}\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|-- end of turn/.test(l) && !/\[Resolve\]/.test(l)) { cur = null; continue; }
+    if (cur) { cur.lines.push(l); if (cur.kind === "weapons" && /^\s{4}.+?: needs \d+/.test(l)) { cur.shots++; if (/-> HIT/.test(l)) cur.hits++; } }
+  }
+  const last = Math.max(0, ...all.map((x) => x.turn));
+  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line
+}
+function drawAttackLines(layer) {
+  if (!O.atk) return;
+  S.atkList = attacksOfLatestTurn();
+  const byName = (n) => S.units.find((u) => u.name === n);
+  S.atkList.forEach((a, i) => {
+    const A = byName(a.a), T = byName(a.t); if (!A || !T || !A.hex || !T.hex) return;
+    const [x1, y1] = centre(A.hex), [x2, y2] = centre(T.hex), len = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / len * 4, ny = (x2 - x1) / len * 4;
+    const col = teamColour(A), g = el("g", { "data-atk": i, style: "cursor:pointer" }, layer);
+    const p = [x1 + nx, y1 + ny, x2 + nx - (x2 - x1) / len * R * 0.55, y2 + ny - (y2 - y1) / len * R * 0.55];
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "transparent", "stroke-width": 14 }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "#000", "stroke-width": 5.5, "stroke-opacity": ".55", "pointer-events": "none" }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: col, "stroke-width": 3.2, "stroke-dasharray": a.kind === "weapons" ? "" : "2 3", "pointer-events": "none" }, g);
+    const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+    el("polygon", { points: `${p[2] + ux * 7},${p[3] + uy * 7} ${p[2] - uy * 5},${p[3] + ux * 5} ${p[2] + uy * 5},${p[3] - ux * 5}`, fill: col, stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+    const lx = (p[0] + p[2]) / 2, ly = (p[1] + p[3]) / 2;
+    el("rect", { x: lx - 13, y: ly - 9, width: 26, height: 15, rx: 3, fill: "#0c0f13", "fill-opacity": ".85", stroke: col, "stroke-width": 1.2, "pointer-events": "none" }, g);
+    const tx = el("text", { x: lx, y: ly + 2.5, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5, "paint-order": "stroke", "pointer-events": "none" }, g);
+    tx.textContent = `${a.hits}/${a.shots}`;
+    g.addEventListener("click", (e) => { e.stopPropagation(); attackCard(i); });
+  });
+}
+function attackCard(i) {
+  const a = (S.atkList || [])[i]; if (!a) return;
+  showCard(`<b>${esc(a.a)} &rarr; ${esc(a.t)}</b> <small>turn ${a.turn}, ${a.hits} of ${a.shots} hit</small><div class="cardrep">${reportHtml(a.lines)}</div>`); document.body.classList.toggle("nodice", !O.dice);
+}
 function drawUnits(layer) {
   const placed = [], hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   const list = S.units.filter((u) => u.hex && !u.destroyed);
@@ -202,6 +245,12 @@ function drawUnits(layer) {
     el("rect", { x: -6, y: 5, width: 5, height: 10, rx: 1.5 }, sp); el("rect", { x: 1, y: 5, width: 5, height: 10, rx: 1.5 }, sp);
     const d = DIR[u.facing] || DIR.N;
     el("polygon", { points: `${x + d[0] * R * 0.82},${y + d[1] * R * 0.82} ${x + d[0] * R * 0.58 - d[1] * 6},${y + d[1] * R * 0.58 + d[0] * 6} ${x + d[0] * R * 0.58 + d[1] * 6},${y + d[1] * R * 0.58 - d[0] * 6}`, fill: "#fff", stroke: "#0c0f13", "stroke-width": 1.2, "pointer-events": "none" }, g);
+    // TORSO TWIST, either side (Daniel, 2026-11-24: "a clear signal of torso twists made by both sides"): an amber arrow the way the torso faces
+    if (u.twist) { const F = ["N", "NE", "SE", "S", "SW", "NW"], tf = F[(F.indexOf(u.facing) + u.twist + 6) % 6], t = DIR[tf] || DIR.N;
+      el("polygon", { points: `${x + t[0] * R * 0.62},${y + t[1] * R * 0.62} ${x + t[0] * R * 0.36 - t[1] * 5},${y + t[1] * R * 0.36 + t[0] * 5} ${x + t[0] * R * 0.36 + t[1] * 5},${y + t[1] * R * 0.36 - t[0] * 5}`, fill: "#ffb000", stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+      const tt = el("title", {}, g); tt.textContent = `torso twisted to face ${tf}`; }
+    // moved this turn: a check mark on the hex base
+    if (movedMark(u)) { el("circle", { cx: x - R * 0.55, cy: y - R * 0.55, r: 7, fill: "#2e7d4f", stroke: "#fff", "stroke-width": 1.2, "pointer-events": "none" }, g); const ck = el("text", { x: x - R * 0.55, y: y - R * 0.55 + 3.5, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); ck.textContent = "\u2713"; }
     // placard: the first spot that does not cover a sprite or another placard
     let spot = SPOTS[0];
     for (const s of SPOTS) { const r = { x: x + s[0] * R - W / 2, y: y + s[1] * R - (s[1] < 0 ? H : 0), w: W, h: H }; if (!placed.slice(baseCount).some((p) => hit(p, r)) && !placed.slice(0, baseCount).some((p) => hit(p, r) && !(Math.abs(s[0]) < 0.01 && Math.abs(s[1]) < 0.9))) { spot = s; break; } }
@@ -227,9 +276,12 @@ function fracs(u) {
   for (const [loc, v] of Object.entries(u.locs || {})) { const m = mx[loc] || v; a += v[0] + (v[1] || 0); am += m[0] + (m[1] || 0); st += v[2]; sm += m[2]; }
   return { a: am ? Math.max(0, a / am) : 1, s: sm ? Math.max(0, st / sm) : 1, h: Math.min(1, (u.heat || 0) / Math.max(1, u.max_heat || 30)) };
 }
+// MOVED THIS TURN (Section 24 item 3): during the Movement Phase a unit that has moved carries a check mark (map, placard, strip)
+const inMovement = () => !!S.req && ["move_order", "movement", "stand_up", "boost"].includes(S.req.kind);
+const movedMark = (u) => inMovement() && !!u.moved && !u.destroyed;
 function renderStrip() {
   const mine = S.units.filter((u) => u.team === S.myTeam), foes = S.units.filter((u) => u.team !== S.myTeam);
-  $("strip").innerHTML = mine.map((u) => `<div class="chip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}" data-u="${u.id}"><i style="background:${teamColour(u)}"></i>${esc(u.name)} <span class="msg">${esc(u.mech || "")}</span><span class="bar" title="armour and structure left"><b style="width:${Math.round(fracOf(u) * 100)}%"></b></span>${u.heat ? `<span class="warnt">${u.heat}H</span>` : ""}${u.shutdown ? '<span class="err">OFF</span>' : ""}${u.prone ? "<span>PRONE</span>" : ""}</div>`).join("");
+  $("strip").innerHTML = mine.map((u) => `<div class="chip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}${movedMark(u) ? " moved" : ""}" data-u="${u.id}"><i style="background:${teamColour(u)}"></i>${movedMark(u) ? "&#10003; " : ""}${esc(u.name)} <span class="msg">${esc(u.mech || "")}</span><span class="bar" title="armour and structure left"><b style="width:${Math.round(fracOf(u) * 100)}%"></b></span>${u.heat ? `<span class="warnt">${u.heat}H</span>` : ""}${u.shutdown ? '<span class="err">OFF</span>' : ""}${u.prone ? "<span>PRONE</span>" : ""}</div>`).join("");
   $("estrip").innerHTML = foes.map((u) => `<div class="echip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}" data-u="${u.id}" title="${esc(u.name + " " + (u.mech || ""))}">${esc(short(u))}<b>${Math.round(fracOf(u) * 100)}%</b></div>`).join("");
 }
 function infoBar() {
@@ -261,6 +313,7 @@ function redraw() {
   if (r && r.kind === "deploy") drawDeploy(gDyn);
   if (r && r.kind === "target") drawTargets(gDyn);
   if (r && (r.kind === "spot" || r.kind === "tag")) drawPickTargets(gDyn);
+  drawAttackLines(gDyn);
   drawUnits(gDyn);
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
@@ -269,7 +322,21 @@ function redraw() {
   if (r && r.kind === "target" && S.fire && S.fire.tcur != null) { drawAim(gDyn); drawShotLine(gTop, r.unit, S.fire.tcur, (r.enemies.find((e) => e.id === S.fire.tcur) || {}).distance); }
   renderStrip(); infoBar(); dockRender();
 }
-function setPhase(t) { $("phase").textContent = t; }
+function setPhase(t) { $("phase").textContent = t; $("phase").title = t; }
+// WHOSE TURN (Section 24 item 4, Daniel: "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate
+// should probably be displayed in the Title bar"): who has the Initiative this turn and, while moving, each side's units still to move
+function turnStatus() {
+  const il = S.log.slice().reverse().find((l) => /^\s*Initiative/.test(l)) || "";
+  const loser = (/Initiative: (.+?) lost the roll/.exec(il) || [])[1];
+  const teams = [...new Set(S.units.map((u) => u.team))];
+  const winner = loser && teams.length === 2 ? teams.find((t) => t !== loser) : null;
+  let txt = winner ? ` · ${winner === S.myTeam ? "you have" : winner + " has"} the initiative` : "";
+  if (inMovement()) {
+    const left = teams.map((t) => [t, S.units.filter((u) => u.team === t && u.hex && !u.destroyed && !u.shutdown && !u.moved).length]);
+    txt += " · to move: " + left.map(([t, n]) => `${t === S.myTeam ? "you" : t} ${n}`).join(", ");
+  }
+  return txt;
+}
 function sheet(html) { $("sheet").innerHTML = html; }
 async function send(answer) {
   const seq = S.seq; S.req = null; S.decl = null; S.pv = null; S.fire = null; $("wpanel").style.display = "none"; sheet('<div class="msg">Working...</div>'); redraw();
@@ -306,7 +373,7 @@ function take(r) {
   S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; S.drop = false; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
-  setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
+  setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}${turnStatus()}`);
   HANDLERS[r.kind](r);
   redraw();
   if (S.needFocus && r.kind !== "deploy") { S.needFocus = false; const mine = S.units.filter((u) => u.team === S.myTeam && u.hex).map((u) => u.hex); if (mine.length) focusOn(mine, 3); }
@@ -366,7 +433,15 @@ function drawPickTargets(layer) {
 // ---- movement (also the planning done while choosing which unit moves, and placing units before turn 1)
 // S.mv is the movement view being shown: the movement question itself, or, in the move_order question, the view of whichever
 // candidate is selected (fetched with the "reach" query), so the player can look over every unit before moving one.
-function reachIndex(r) { const byHex = {}; for (const o of r.options) (byHex[o.hex] = byHex[o.hex] || []).push(o); return byHex; }
+// JUMP TOGGLE (Section 24 item 1, Daniel 2026-11-24: "Jump toggle in the movement tracker in the lower left of the screen"; "The chosen option
+// is remembered from one turn to the next"): for a unit with jump MP, on = only the jumps are lit, off = only walking and running.
+S.jumpPref = {};
+const jumpOn = () => !!(S.mv && S.mv.jump > 0 && S.jumpPref[S.mv.unit]);
+function reachIndex(r) {
+  const filter = r === S.mv && S.mv.jump > 0 && !standing(), j = jumpOn();
+  const byHex = {}; for (const o of r.options) { if (filter && (o.mode === "Jump") !== j) continue; (byHex[o.hex] = byHex[o.hex] || []).push(o); } return byHex;
+}
+function jumpButton() { const v = S.mv; if (!v || !(v.jump > 0) || standing()) return ""; const on = jumpOn(); return `<button class="sm jt ${on ? "on" : ""}" data-act="jump-toggle" title="Jump on: only jumps are shown">Jump ${on ? "on" : "off"}</button>`; }
 const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.kind === "move_order" || S.req.kind === "stand_up");
 const standing = () => !!S.req && S.req.kind === "stand_up";
 function drawReach(layer) {
@@ -546,7 +621,7 @@ function drawAttackStops(layer) {
 function stayCluster() {
   const v = S.mv; if (!v || v.entry || S.dest) return;
   const c = $("cluster"); c.style.display = "flex";
-  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; ${standing() ? "stands here" : "stays here"}<br><span>no destination chosen</span></div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>${standing() ? '<button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>' : ""}`;
+  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; ${standing() ? "stands here" : "stays here"}<br><span>no destination chosen</span>${jumpButton()}</div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>${standing() ? '<button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>' : ""}`;
 }
 let HOLD = null;
 const holdEnd = () => { if (HOLD) { clearTimeout(HOLD.t); HOLD.b.classList.remove("holding"); HOLD = null; } };
@@ -575,7 +650,7 @@ const doCommit = () => {
 function clearCluster() { $("cluster").innerHTML = ""; $("cluster").style.display = "none"; }
 function setCluster(o, label, extra) {
   const c = $("cluster"); c.style.display = "flex";
-  c.innerHTML = `<div class="readout"><b>MP ${o.mp} / ${mvBudget(o.mode)}</b> &middot; TMM +${o.tmm}${extra || ""}<br><span>${o.mode}${o.psrs ? ` &middot; ${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""}` : ""}</span></div><button class="go big" data-act="commit" data-hold="1">${label}<small>hold</small></button><button class="x" data-act="undo" aria-label="Undo (Esc)">&times;</button>`;
+  c.innerHTML = `<div class="readout"><b>MP ${o.mp} / ${mvBudget(o.mode)}</b> &middot; TMM +${o.tmm}${extra || ""}<br><span>${o.mode}${o.psrs ? ` &middot; ${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""}` : ""}</span>${jumpButton()}</div><button class="go big" data-act="commit" data-hold="1">${label}<small>hold</small></button><button class="x" data-act="undo" aria-label="Undo (Esc)">&times;</button>`;
 }
 function moveSheet() {
   const os = destOpts(), modes = [...new Set(os.map((o) => o.mode))], o = optNow() || os[0], warns = [];
@@ -1081,6 +1156,7 @@ function act(t) {
     // EJECT (TO:AR p.164-165; engine pass 2026-11-24): instead of moving; asked again on a card, as it cannot be undone
     case "eject-ask": showCard(`<b>Eject?</b><div class="msg">The MechWarrior ejects instead of moving and lands behind the 'Mech (a piloting roll; a hard landing costs hits). The 'Mech is abandoned and out of the battle. This cannot be undone.</div><div class="row"><button class="go" data-act="eject-go">Eject</button><button data-act="card-close">Stay in the cockpit</button></div>`); break;
     case "eject-go": $("card").style.display = "none"; if (S.req && S.req.kind === "movement") send({ eject: true }); break;
+    case "jump-toggle": if (S.mv) { S.jumpPref[S.mv.unit] = !jumpOn(); S.reachIdx = null; S.dest = null; S.way = []; S.wrIdx = null; S.path = null; S.attackSel = null; moveIntro(); redraw(); } break;
     case "drop": S.drop = !S.drop; if (S.dest) moveSheet(); else moveIntro(); break;
     case "prone-plan": pronePlan(); break;
     case "prone-go": if (S.prone) send(S.prone.facing ? { stand: false, facing: S.prone.facing } : { stand: false }); break;
@@ -1131,6 +1207,7 @@ function act(t) {
     case "menu-folder": { const sub = document.querySelector(`#menu .sub[data-f="${d.f}"]`); if (sub) sub.classList.toggle("open"); break; }
     case "look": O.look = d.v; setPref("look", d.v); applyLook(); buildMenu(); break;
     case "cvd": O.cvd = !O.cvd; setPref("cvd", O.cvd ? "1" : "0"); buildMenu(); redraw(); if (moving()) { if (S.dest) moveSheet(); } if (S.decl) declSheet(); break;
+    case "atk": O.atk = !O.atk; setPref("atk", O.atk ? "1" : "0"); buildMenu(); redraw(); break;
     case "dice": O.dice = !O.dice; setPref("dice", O.dice ? "1" : "0"); buildMenu(); if ($("report").firstChild) renderReport(); break;
     case "rings": O.rings = !O.rings; setPref("rings", O.rings ? "1" : "0"); buildMenu(); redraw(); break;
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
@@ -1302,7 +1379,7 @@ function buildMenu() {
   const m = $("menu");
   const item = (label, act, extra, on) => `<div class="item ${on ? "on" : ""}" data-act="${act}" ${extra || ""}>${label}</div>`;
   m.innerHTML = `<div class="f" data-act="menu-folder" data-f="look">Look &#9656;</div><div class="sub open" data-f="look">${Object.entries(LOOKS).map(([k, n]) => item(n, "look", `data-v="${k}"`, O.look === k)).join("")}</div>
-    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}</div>
+    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}${item("Attack lines (the latest turn)", "atk", "", O.atk)}</div>
     <div class="f" data-act="menu-folder" data-f="game">Game &#9656;</div><div class="sub open" data-f="game">${item("Report", "report")}${item("Back to the Lab", "lab")}</div>`;
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };

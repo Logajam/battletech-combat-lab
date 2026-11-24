@@ -457,16 +457,21 @@ Daniel: "Adding bugs and features to the list. Record and save. Compute for the 
 where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL = a decision for Daniel is still open. Daniel's own words are quoted where they carry the meaning.
 
 ### A. Movement
-1. FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
+1. FIXED 2026-11-24 FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
 2. FIXED 2026-11-24 (except the audit) BUG **Stand-up.** "I should be able to undo a plan of stand." And: "I can not turn after a stand, which should be a free action." Also: "Should probably run an audit of Megamek and the
    Bridge for missing movement options." (An audit task of its own: MegaMek's movement choices against the engine's and the bridge's.)
    DONE: "Stand up" now opens the move as it would be after a first-try stand; nothing is rolled until Move! is held (x goes back to the prone choice), and the stand and move go in
    one answer (`stand_up` answer "plan"). Turning in place: the 'Mech's own token covered its hex; a tap on the 'Mech, or the arrows that now ring it, turns it (any move, not only a
    stand). STILL OPEN: the MegaMek / bridge movement audit. FOUND, NOT BUILT: a 'Mech that chooses to stay prone may still change facing at 1 MP a hexside (Core p.51), but the engine
    gives a unit that stays prone no move at all.
-3. FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
-4. FEAT (title bar: OPEN; the dice: DONE 2026-11-24, in the report) **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
+3. FIXED 2026-11-24 FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
+4. FIXED 2026-11-24 (title bar: who has the initiative, units still to move per side; the dice in the report) FEAT **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
    bar. (Phones might make me change my mind.)"
+
+   (1, 3, 4 DONE 2026-11-24, with two new items of Daniel's the same day: "a clear signal of torso twists made by both sides" (an amber torso arrow on
+   any twisted unit) and "Attack lines drawn for both sides ... Long press on the attack line to get details of that attack" (the latest turn's attacks,
+   ranged and physical, from the released report lines, hits / shots on each, a tap or long press opens that attack's report; View menu "Attack lines").
+   The jump toggle sits in the move readout at the lower left ("slated to become a conditional button and information spot", Daniel) and is kept per unit.)
 
 ### B. Firing
 5. MOVED TO THE ENGINE PASS 2026-11-24 (PROJECT_MAP Section 4, item 4; the rules found there) FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";

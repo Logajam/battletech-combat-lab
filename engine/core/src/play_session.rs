@@ -230,6 +230,8 @@ fn units_json(b: &Battle, with_names: bool) -> Value {
                 s["jump"] = json!(ms::compute_jump_mp(m));
                 s["max_heat"] = json!(m.max_heat);
                 s["move_mode"] = json!(m.move_mode);
+                // has it moved this turn (the map's moved mark and the title bar's count of units still to move)
+                s["moved"] = json!(m.moved_this_turn);
                 s["gunnery"] = json!(m.gunnery);
                 s["piloting"] = json!(m.piloting);
                 // critical slots: which are destroyed now (and, once, their names)
