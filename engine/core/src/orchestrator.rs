@@ -1225,7 +1225,7 @@ pub fn play_on(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, marks: Ma
 }
 
 /// The turn's Initiative line, with the dice (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be
-/// shown"; a known change from the answer key, stage6_battles.rs `known_changes`): each team's 2D6, then any tie re-rolls (p.39).
+/// shown"; a known change from the answer key, whose test `stage6_battles.rs` was removed 2026-11-24): each team's 2D6, then any tie re-rolls (p.39).
 fn log_initiative(b: &mut Battle, order: &[String]) {
     let text = |round: &Vec<(String, i64)>| round.iter().map(|(t, v)| format!("{} {}", t, v)).collect::<Vec<_>>().join(", ");
     let dice = match b.initiative_throws.split_first() {

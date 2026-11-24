@@ -51,7 +51,7 @@ fn first_diff(a: &Value, b: &Value, path: &str) -> Option<String> {
 }
 
 /// Smoke that clears in one End Phase prints in hash order in the Python (INTEGRATION__RUST_PORT.md "Found on the way"
-/// 1; stage6_battles.rs does the same): each step's runs of those lines are compared sorted.
+/// 1; the removed stage6_battles.rs did the same): each step's runs of those lines are compared sorted.
 fn normalize(record: &mut Value) {
     if let Some(o) = record.as_object_mut() {
         o.remove("heat"); // the Lab's heat maps (CL21) are not in the Python record

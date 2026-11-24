@@ -30,6 +30,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 
@@ -41,6 +42,10 @@ LOG_DIR = os.path.join(ENGINE, "reference", "logs")
 # each battle's event records (INTEGRATION__EVENTS.md), beside its log: one JSON event a line, gzipped. Played with events ON, so
 # every run of this check also proves that recording events leaves the battle's log byte for byte the same.
 EVENT_DIR = os.path.join(ENGINE, "reference", "events")
+# the reference LIST: which battles of the zip are played (chosen by tools/choose_reference_set.py for event coverage)
+LIST_FILE = os.path.join(ENGINE, "reference", "battles.txt")
+# every event type must happen in at least this many of the list's battles (below it: a NOTE; at zero: the check FAILS)
+EVENT_MIN_BATTLES = 3
 SEED = 1
 
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
@@ -71,6 +76,10 @@ VARIANTS = {
     "caspar_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "caspar:Blue"),
     "caspar_red__hy_8v8_valley": ("hy_8v8_valley", "caspar:Red"),
     "caspar_red__team_4v4_princess_v_gladiator": ("team_4v4_princess_v_gladiator", "caspar:Red"),
+    # event coverage (2026-11-24, tools/make_event_scenarios.py): Hydra on both teams of two jump-'Mech scenarios, where a
+    # death-from-above happens (rare: Gladiator never makes one)
+    "hydra_both__ev_dfa_a": ("ev_dfa_a", "Red,Blue"),
+    "hydra_both__ev_dfa_b": ("ev_dfa_b", "Red,Blue"),
 }
 
 
@@ -98,12 +107,30 @@ def build():
                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
 
-def battles(scenario_dir):
-    """[(saved-log name, scenario folder, (Hydra teams or None, settings))] for every reference battle."""
+def listed_names():
+    """The reference list, engine/reference/battles.txt: one battle name a line, text after # is the reason it is there."""
+    names = []
+    for line in open(LIST_FILE, encoding="utf-8"):
+        line = line.split("#", 1)[0].strip()
+        if line:
+            names.append(line)
+    return names
+
+
+def battles(scenario_dir, everything=False):
+    """[(saved-log name, scenario folder, (Hydra teams or None, settings))] for the battles of the reference LIST
+    (engine/reference/battles.txt). `everything` = every scenario folder in the zip and every variant, listed or not (the pool
+    tools/choose_reference_set.py chooses from)."""
     folders = sorted(d for d in os.listdir(scenario_dir) if os.path.isdir(os.path.join(scenario_dir, d)))
     out = [(f, f, (None, [])) for f in folders]
     out += [(name, v[0], (v[1], v[2] if len(v) > 2 else [])) for name, v in VARIANTS.items()]
-    return out
+    if everything:
+        return out
+    by_name = {o[0]: o for o in out}
+    missing = [n for n in listed_names() if n not in by_name]
+    if missing:
+        raise SystemExit(f"battles.txt names battles that do not exist: {', '.join(missing)}")
+    return [by_name[n] for n in listed_names()]
 
 
 def play(scenario_dir, folder, variant, parity=False, history_dir=None):
@@ -155,9 +182,10 @@ def events_text(path):
     return head + "".join(json.dumps(e, separators=(",", ":")) + "\n" for e in row["events"])
 
 
-def write_events(name, text):
-    os.makedirs(EVENT_DIR, exist_ok=True)
-    with open(os.path.join(EVENT_DIR, name + ".events.jsonl.gz"), "wb") as raw:
+def write_events(name, text, folder=None):
+    folder = folder or EVENT_DIR
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, name + ".events.jsonl.gz"), "wb") as raw:
         with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as z:
             z.write(text.encode())
 
@@ -186,23 +214,47 @@ def main(argv):
     only = argv[argv.index("--only") + 1] if "--only" in argv else ""
     exact = "--exact" in argv   # --only NAME is the whole name, not a prefix
     history_dir = argv[argv.index("--history") + 1] if "--history" in argv else None
+    # --all --out DIR: play EVERY scenario and variant in the zip, listed or not, and write their logs and events into DIR (nothing
+    # in engine/reference is touched): the pool tools/event_coverage.py and tools/choose_reference_set.py choose the list from
+    everything = "--all" in argv
+    out_dir = argv[argv.index("--out") + 1] if "--out" in argv else None
+    if everything and not out_dir:
+        raise SystemExit("--all needs --out DIR (it never rewrites the reference list's saved logs)")
     # --parity: each battle is played once under the bridge's parity check as well (and the wire test is run), standing in
     # for tests/check_bridge_parity.py in run_checks.py (2026-11-17, Daniel: prune the checks)
     with_parity = "--parity" in argv
     build()
+    seconds = {}
     os.makedirs(LOG_DIR, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         with zipfile.ZipFile(SCENARIOS_ZIP) as z:
             z.extractall(tmp)
-        todo = [b for b in battles(tmp) if (b[0] == only if exact else b[0].startswith(only))]
+        todo = [b for b in battles(tmp, everything) if (b[0] == only if exact else b[0].startswith(only))]
         with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
-            played = list(pool.map(lambda b: play(tmp, b[1], b[2], with_parity, history_dir), todo))
+            def timed(b):
+                t0 = time.perf_counter()
+                r = play(tmp, b[1], b[2], with_parity, history_dir)
+                seconds[b[0]] = time.perf_counter() - t0
+                return r
+            played = list(pool.map(timed, todo))
+        if "--times" in argv:   # --times FILE: how long each battle took (seconds, with every core busy), for choosing a lean set
+            with open(argv[argv.index("--times") + 1], "w") as f:
+                f.writelines(f"{n}\t{s:.2f}\n" for n, s in sorted(seconds.items()))
         if history_dir:   # a replay only: the page's log leaves out the engine's bare prints, so it is not compared with the saved one
             print(f"replay page(s) written to {history_dir} (no comparison made)")
             return 0
         texts = [p[0] for p in played]
         problems = [p[1] for p in played] if with_parity else [None] * len(played)
         events = [None if with_parity else p[1] for p in played]
+        if everything:
+            os.makedirs(out_dir, exist_ok=True)
+            for (name, _, _), text, ev in zip(todo, texts, events):
+                with open(os.path.join(out_dir, name + ".txt"), "w", encoding="utf-8", newline="\n") as f:
+                    f.write(text)
+                if ev is not None:
+                    write_events(name, ev, out_dir)
+            print(f"{len(todo)} battles played; logs and events written to {out_dir}")
+            return 0
         wire_result = None
         if with_parity:
             import check_bridge_parity   # noqa: E402 (its wire test: one recording through a real `btsim decide`)
@@ -251,7 +303,42 @@ def main(argv):
             print("\n".join("         " + d for d in diff[2:12]))
     print(f"\n{len(todo) - failed} of {len(todo)} Rust reference battles " + ("saved." if update else "match.")
           + (f" {capped} reached the turn cap." if capped else ""))
+    if not only and not with_parity and all(e is not None for e in events):
+        failed += coverage_report(events)
+        stale = sorted(f[:-4] for f in os.listdir(LOG_DIR) if f.endswith(".txt") and f[:-4] not in {n for n, _, _ in todo})
+        if stale:
+            print(f"NOTE: saved logs of battles no longer on the list (delete them): {', '.join(stale[:6])}" + (" ..." if len(stale) > 6 else ""))
     return 1 if failed else 0
+
+
+def coverage_report(events):
+    """EVENT COVERAGE of the list (Daniel, 2026-11-24): how many of the battles, and how many events, each event type has. A type
+    with no event at all FAILS the check (a rule or a scenario stopped reaching it); fewer than EVENT_MIN_BATTLES is a NOTE.
+    Returns the number of failures (0 or 1)."""
+    texts = [t for t in events]
+    kinds = [k["kind"] for k in json.loads(subprocess.run([BTSIM, "--events-list"], capture_output=True, text=True, check=True).stdout)["kinds"]]
+    battles_with, total = {k: 0 for k in kinds}, {k: 0 for k in kinds}
+    for text in texts:
+        seen = set()
+        for line in text.splitlines()[1:]:
+            k = json.loads(line)["k"]
+            total[k] = total.get(k, 0) + 1
+            seen.add(k)
+        for k in seen:
+            battles_with[k] = battles_with.get(k, 0) + 1
+    thin = [k for k in kinds if 0 < battles_with[k] < EVENT_MIN_BATTLES]
+    zero = [k for k in kinds if battles_with[k] == 0]
+    print(f"\nEVENT COVERAGE ({len(texts)} battles; every type needs {EVENT_MIN_BATTLES}):")
+    width = max(len(k) for k in kinds)
+    for k in kinds:
+        flag = "   <-- NO EVENT: FAIL" if k in zero else ("   <-- fewer than %d battles" % EVENT_MIN_BATTLES if k in thin else "")
+        print(f"  {k:{width}s} {battles_with[k]:4d} battles {total[k]:7d} events{flag}")
+    if zero:
+        print(f"FAIL   event types with no event in any listed battle: {', '.join(zero)}")
+        return 1
+    if thin:
+        print(f"NOTE: event types in fewer than {EVENT_MIN_BATTLES} battles: {', '.join(thin)}")
+    return 0
 
 
 if __name__ == "__main__":

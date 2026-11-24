@@ -15,7 +15,7 @@ Record entry "RUST PORT STAGES 1-9 FIRST CUT". Branch `claude/zen-cerf-ngyndx`, 
 - Where the bots live: `gladiator*.rs`, `move_*.rs`, `legate.rs`, `bot_targets.rs`, `princess*.rs`. The turn loop: `orchestrator.rs`.
 
 ## How to run the evidence
-- Rust alone vs the Python's whole battles (no recorded decisions): `cd engine/core && BOTS=rust cargo test --release --test stage6_battles`
+- (REMOVED 2026-11-24, with `stage6_battles.rs`: the answer key is no longer a standard; the guard is `python tests/check_rust_reference.py`.) Rust alone vs the Python's whole battles (no recorded decisions): `cd engine/core && BOTS=rust cargo test --release --test stage6_battles`
   (about 215 s). With recorded decisions: no env. Per-decision checks against the Python's choices:
   `CHECK=legate,move,declaration,physical,princess cargo test --release --test stage6_battles -- --nocapture`. `FIXTURES=a,b` limits.
 - Function-level taps: `tap_*.rs`; units from .mtf: `stage6_attach`; BV: `bv_check`.

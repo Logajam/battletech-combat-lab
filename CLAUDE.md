@@ -21,8 +21,11 @@ GitHub logistics.
    **The engine is Rust (`engine/`).** The Python engine was removed on
    2026-11-20 (Daniel: "dead code the python"; it is in git history). Its
    answers live on as the frozen answer key, `engine/answer_key.tar.xz`
-   (`tools/unpack_answer_key.py` -> `engine/fixtures/`), which the Rust
-   tests compare against: exact match or not done.
+   (`tools/unpack_answer_key.py` -> `engine/fixtures/`): since 2026-11-24 only
+   INPUT (units, boards, settings) for a few cargo tests, no longer the standard
+   (Daniel: "The answer key is there to prevent unintended changes. Its not
+   there to hold us back."; `stage6_battles.rs` was removed). The guard is the
+   reference list, `engine/reference/battles.txt`.
    `INTEGRATION__RUST_PORT.md` is the translation's story and rules;
    `INTEGRATION__STATE.md` says what a battle's state is.
 3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
@@ -70,7 +73,7 @@ GitHub logistics.
     (`engine/lab/web`, `engine/wasm/web`) -> the website checks
     (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; anything
     else (the engine) -> the Rust checks + the website + the Lab server. The Rust reference
-    battles (91, `tests/check_rust_reference.py`; `--update` for a Rust
+    battles (the 62 of the reference list, `engine/reference/battles.txt`, chosen for event coverage: INTEGRATION__EVENTS.md; `tests/check_rust_reference.py`; `--update` for a Rust
     change meant to alter results) and the MegaMek bridge's parity check
     (`tests/check_bridge_parity.py --quick`) run one after the other
     (`check_rust_reference.py --parity` does both in one run, every battle

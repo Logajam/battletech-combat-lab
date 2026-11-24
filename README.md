@@ -22,7 +22,7 @@ engine/target/release/btsim --setup SETTINGS.json --battles 100   # a batch from
 
 Settings and their defaults: `engine/defaults/config.json` (what each one does: `engine/defaults/config_notes.json`, also
 shown on the Lab's Options tab). The original Python engine was retired in November 2026 and removed on 2026-11-20 (it is
-in this repository's history); its recorded answers are kept as the engine's answer key (`engine/answer_key.tar.xz`).
+in this repository's history); its recorded answers are kept as the frozen answer key (`engine/answer_key.tar.xz`), now only input (units, boards, settings) for a few tests, no longer the standard: the engine's guard is the reference list (`engine/reference/battles.txt`).
 
 ## Layout
 

@@ -10,7 +10,7 @@ Why (INTEGRATION__MEGAMEK_BRIDGE.md, Section 8, B1): in a MegaMek game our bots 
 line by line to `btsim decide`, which keeps its own copy of the battle and the bots' memories. This check proves that
 deciding that way is the same as deciding inside one of our own battles:
 
-1. PARITY. Each reference battle (engine/reference/scenarios.zip, the same 72 scenarios and Hydra variants as
+1. PARITY. Each battle of the reference list (engine/reference/battles.txt; the scenarios and Hydra variants of
    tests/check_rust_reference.py, seed 1) is played with `btsim --bridge-parity`: its bots' every call is recorded with
    the battle's state, then a fresh decision process is fed the recording and must give the same answer to every
    decision (engine/core/src/bridge.rs). One difference fails the check and names the call.

@@ -126,6 +126,19 @@ def main():
     html = open(sync_events_query.VIEWER, encoding="utf-8").read()
     check(sync_events_query.synced(html) == html, "the replay viewer's copy of events_query.js is in sync (python tools/sync_events_query.py)", failures)
 
+    # the reference check's coverage rule: a type with no event fails, a thin one is only a note
+    sys.path.insert(0, os.path.join(ROOT, "tests"))
+    import check_rust_reference as ref
+    header = '{"events_version":1,"teams":{}}\n'
+    some = header + "".join(json.dumps({"k": k, "t": 1, "p": "movement"}) + "\n" for k in sorted(listed))
+    import io, contextlib
+    with contextlib.redirect_stdout(io.StringIO()):
+        full = ref.coverage_report([some] * ref.EVENT_MIN_BATTLES)
+    gap_text = header + "".join(json.dumps({"k": k, "t": 1, "p": "movement"}) + "\n" for k in sorted(listed) if k != "HOMING_HIT")
+    with contextlib.redirect_stdout(io.StringIO()):
+        short = ref.coverage_report([gap_text] * ref.EVENT_MIN_BATTLES)
+    check(full == 0 and short == 1, "the reference check's coverage rule: all types present passes, a type with no event fails", failures)
+
     # 5. the tool on the reference battles' events
     ref = os.path.join(ROOT, "engine", "reference", "events")
     if os.path.isdir(ref) and os.listdir(ref):

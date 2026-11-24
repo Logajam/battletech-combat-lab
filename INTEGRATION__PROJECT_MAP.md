@@ -19,10 +19,9 @@ project's files. Never let one source project's file overwrite the other's same-
 **Daniel plays the BROWSER version (the website), 2026-11-24: "I'm exclusively using the browser based version for now."** A fix reaches him only when the
 website is published (`tools/publish_public.py --push`, then `tools/publish_web_lab.py --push`); test play fixes on the browser build (`check_web_play.py`).
 
-**Pick up here (Daniel, 2026-11-24, closing session 35: "Think we'll call it stable for the moment ... Then I'll start another session on fixing
-the answer key"):** NEXT SESSION = THE ANSWER KEY (Section 4, "The answer key has drifted"): `engine/core/tests/stage6_battles.rs` is not in
-`run_checks.py` and 41 of its 63 battles fail on main (intended changes since the freeze); sort each into "known change" (its `known_changes` list,
-dated) or re-freeze the key from today's engine, then put the test back in the suite. Still open from session 35: Daniel's scope call on ground
+**Pick up here (session 36, 2026-11-24):** THE ANSWER KEY IS RETIRED as a standard (Daniel: "The answer key is there to prevent unintended changes. Its not
+there to hold us back."): `stage6_battles.rs` is gone; the guard is the reference list, `engine/reference/battles.txt` (62 battles, every event type in at least 3;
+INTEGRATION__EVENTS.md; the Section 7 rule on naming changed battles). Event records and their search are built (REVIEW QUEUE `s36-events`, `s36-reference`). Still open from session 35: Daniel's scope call on ground
 targeting (Section 4 engine pass item 4: area-effect weapons only, or minefields and building damage too); the parked fire-screen ideas B6-B8
 (`reference_art/battlerom_ui/parked_fire_screen_B6_B7_B8.patch`); PLAYER_DECISIONS Section 24 items 9, 12, 14, 22, 23, 26-28 and the Section 25 audit
 list; the engine-pass leftovers (quad lateral shifts, Forced Withdrawal, the TO:AR moves); the optional Initiative Die is on the wish list. All of
@@ -45,7 +44,8 @@ and the GitHub logistics (Section 7).
   one from settings (the Hydra mirror set: `tools/hydra_scenarios.py`). The Python engine was REMOVED 2026-11-20 (Daniel:
   "dead code the python"; backlog N11; it is in git history, Change Record "PYTHON ENGINE REMOVED"). Its answers are the
   frozen answer key `engine/answer_key.tar.xz`, unpacked into the git-ignored `engine/fixtures/` by
-  `tools/unpack_answer_key.py` (run_checks does it). Settings: `engine/defaults/config.json`, their words in
+  `tools/unpack_answer_key.py` (run_checks does it); since 2026-11-24 it is only INPUT (units, boards, settings) for `cl1_setup`, `stage6_attach` and
+  `cl2_history`, no longer the standard the engine must match (`stage6_battles.rs` was removed). Settings: `engine/defaults/config.json`, their words in
   `engine/defaults/config_notes.json`.
 - `pip install -r requirements.txt` (the tools and the art code). The rules library is the private repo `logajam/battletech-rules-index`, cloned
   OUTSIDE this repo (Core Rulebook in `base/core-rules/*.md`, a `[p.N]` marker comes before page N's text;
@@ -54,10 +54,10 @@ and the GitHub logistics (Section 7).
   https://github.com/MegaMek/megamek.git` works through the proxy (Section 6, "Princess clone").
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / engine; `--list` says why); `--full` before every merge of code. The engine level: the Rust reference set
-  (`check_rust_reference.py`: 91 battles (86 + 4 CASPAR + 1 placed-zone Princess v CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  (`check_rust_reference.py`: the 62 battles of the reference LIST `engine/reference/battles.txt` (chosen 2026-11-24 for event coverage; every event type in at least 3, the check fails at zero) from the pool in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`, events in `engine/reference/events/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
-  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests (against
-  the answer key), `check_bv_megamek.py`, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
+  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests (some read the
+  frozen answer key's units, boards and settings as inputs; none compares battles with it any more), `check_bv_megamek.py`, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The turn cap is 100
   (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12); 2 battles reach it: the Asymptote mirror (the
   stall, backlog A1) and a first-version Hydra battle.
@@ -466,6 +466,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s36-reference) REFERENCE LIST BY EVENT COVERAGE; ANSWER KEY RETIRED** (2026-11-24): `tools/event_coverage.py`, `tools/choose_reference_set.py`, `tools/make_event_scenarios.py` (the `ev_*` scenarios), `engine/reference/battles.txt`,
+  `check_rust_reference.py` (list, coverage rule, `--all --out`, `--times`, `--history`), `stage6_battles.rs` removed, the docs that called the answer key the standard. Look at: whether the safeguards (every Hydra / CASPAR
+  variant on a small scenario, every weapon fired, every piece of gear fielded) are the right ones or too many (62 battles; the event-only minimum with the long battles is 24); whether N = 3 should count battles or events;
+  the dropped battles' list in the Change Record (Hydra on 12 v 12 and CASPAR on 8 v 8 are no longer played).
 - **(s36-events) EVENT RECORDS AND SEARCH, PART 1** (2026-11-24): `events.rs` and every hook (grep `b.ev(`; orchestrator, attack_resolution, damage_resolution, piloting_rolls, physical, charge, dfa, tag, spotting,
   hazards, heat), `btsim --events / --events-out / --events-list`, `scenario::run_events`, `history.rs` (events in the record), `trial_records.py` sidecars, `check_rust_reference.py` (events compared), `search_events.py`,
   `events_query.js` + the replay viewer's panel and `sync_events_query.py`, `check_events.py`. Look at: whether each hook writes what its kind says in every path that reaches it (HIT's `d` is the
@@ -787,8 +791,8 @@ destroyed; the consciousness check then had no table entry and crashed. Placehol
 out for the battle, no roll. RESOLVED session 25 from the book: six hits = dead (Core p.117, the Consciousness table's 6 column reads
 "Dead"), so no roll; the console's secondary warrior takes over (p.203). Stub removed.
 
-**The Rust has moved away from the Python's frozen answers (found 2026-11-20 while retiring the Python, N11).** These Rust
-tests compare against the answer key and FAIL, identically on `main` before N11 (none is in `run_checks.py`): `stage6_battles`
+**The Rust has moved away from the Python's frozen answers (found 2026-11-20 while retiring the Python, N11; RESOLVED 2026-11-24: `stage6_battles.rs` was removed and
+the reference list is the guard).** These Rust tests compared against the answer key and FAILED, identically on `main` before N11 (none is in `run_checks.py`): `stage6_battles`
 (41 of 63 battles no longer replay: the deployment draws a different dice call at call 4 in every reference and team battle,
 target / foe choices differ, a few hit-location tables differ), `cl2_history` (its Python replay records were left out of the
 key for that reason), `stage2_los` (hex_line and LOS step lists differ on large boards), `stage3_units` (a parse warning the
@@ -864,11 +868,11 @@ Coolant pods. Maybe others. Details later)"; (5) the left / right health bars (i
 and options to make the game playable. And I don't think any of it will conflict with my goals to rework the UI." Event records get simplified in
 another conversation afterwards.
 
-**THE ANSWER KEY HAS DRIFTED (found 2026-11-24, Claude):** `engine/core/tests/stage6_battles.rs` (the Rust v the frozen Python answer key, battle by
+**THE ANSWER KEY HAS DRIFTED (found 2026-11-24, Claude; RESOLVED the same day: the test was removed, see Section 7):** `engine/core/tests/stage6_battles.rs` (the Rust v the frozen Python answer key, battle by
 battle) is NOT in `run_checks.py`, and on main 41 of its 63 battles already fail (the 'ref_' and 'team_' battles at dice call 4-5, many 'cov_'
 battles later): intended engine changes since the key was frozen. Daniel, 2026-11-24: "The answer key is there to prevent unintended changes. Its not
 there to hold us back." Known, deliberate differences are listed in that test's `known_changes`; the failing battles need sorting (re-freeze the
-key from today's engine, or list each change). Until then the 91 Rust reference battles are the working guard.
+key from today's engine, or list each change). RESOLVED: `stage6_battles.rs` was removed; the reference list (62 battles) is the guard.
 
 **Known issues to fix later (Daniel, 2026-11-21):**
 - **Gladiator vs Gladiator ran a deployment step with the Core Rulebook's "walk on" setting active.**
@@ -1697,6 +1701,13 @@ turn's score, so a decision sees what it gives up.
 ---
 
 ## 7. STANDING PROMPTS
+
+- (Daniel, 2026-11-24, on the answer key: "The answer key is there to prevent unintended changes. Its not there to hold us back.") **Every
+  deliberate change that alters a saved battle gets a Change Record line naming the battles and the reason.** A change meant to alter results:
+  run `python tests/check_rust_reference.py --update`, then write the line (which of the reference list's battles changed, and why: a rule, a
+  bot, a scenario). So a reference failure is always either explained by a line in the Change Record or a real bug. The reference list is
+  `engine/reference/battles.txt`, chosen so that every event type (INTEGRATION__EVENTS.md) happens in at least 3 battles (the check fails if
+  one drops to zero); change the list with `tools/choose_reference_set.py` and name every dropped battle in the Change Record.
 
 - (Daniel, 2026-11-04) **Art changes run only the art checks.** "I'd also stop with the 50 checks. We're not messing with the
   core code, we're messing with visual assets that would plug into the program, but are otherwise separate. Run only checks

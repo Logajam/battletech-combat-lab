@@ -133,7 +133,7 @@ fn roll_designation(b: &mut Battle, attacker: UnitId, target: UnitId, aim: &'sta
     let (tn, weapon, note) = if aim == "hex" { at_hex.unwrap() } else { at_mech.unwrap() };
     let roll = b.roll_2d6();
     // the number's parts, as the ranged attack lines show theirs (bug B16, Daniel 2026-11-22: "TAG's to-hit number is not expanded";
-    // a known change from the answer key, stage6_battles.rs `known_changes`); read only, after the roll
+    // a known change from the answer key, whose test `stage6_battles.rs` was removed 2026-11-24); read only, after the roll
     let parts = crate::attack_resolution::weapon_attack_parts(b, attacker, target, weapon, aim == "hex").unwrap_or_default();
     // written as the [Ranged] lines write theirs: "AMM 1 [Walk]" (the label's bracket goes after the number)
     let parts = parts
