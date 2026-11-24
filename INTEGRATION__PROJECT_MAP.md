@@ -824,12 +824,22 @@ and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of
 **ENGINE PASS FOR MISSING OPTIONS (Daniel, 2026-11-24: "With turning on the ground missing, I think were going to have to do an engine pass
 to add in missing options. But lets continue bug fixes. We'll probaby find more holes along the way.")** Holes found so far, to add to as the bug hunt
 goes on: (1) a 'Mech that stays prone may still change facing at 1 MP a hexside (Core p.51); the engine gives a unit that stays prone no move;
-(2) the optional Initiative Die (Core, Initiative Phase section) is not built; (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
+(2) MOVED TO THE WISH LIST (Daniel, 2026-11-24: "Optional initiative die goes on the wish list for when we add more game options"): the optional
+Initiative Die (Core, Initiative Phase section); (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
 item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
 the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
 (only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) Engine bug found with it: `weapon_attack_tns` with
 `at_hex` (TAG at the hex) drops the target's modifiers but never adds the -4, so TAG at a hex is 4 too hard; changing it changes bot TAG choices.
 Also: dropping to the ground, voluntary shutdown, eject (no homes yet, DECISION_HOMES Section 10 item 6).
+
+**SESSION 35 WORK ORDER (Daniel, 2026-11-24), in this order, then publish the website:** (1) the design-record audit only (Section 24 item 25);
+(2) the engine pass above (TAG at a hex, turning while prone, ground targeting, the movement audit, drop / shut down / eject); (3) the reports (items
+17-21, 24a); (4) movement and turn flow (items 3, 4) plus, new: "a clear signal of torso twists made by both sides"; "Attack lines drawn for both
+sides (So you can see what is shooting at you. Long press on the attack line to get details of that attack.)"; "Jump toggle in the movement tracker
+in the lower left of the screen. (That area is slated to become a conditional button and information spot. Switches movement modes, activates RHS or
+Coolant pods. Maybe others. Details later)"; (5) the left / right health bars (item 24). Daniel: "a lot of that is needed for situational awareness
+and options to make the game playable. And I don't think any of it will conflict with my goals to rework the UI." Event records get simplified in
+another conversation afterwards.
 
 **THE ANSWER KEY HAS DRIFTED (found 2026-11-24, Claude):** `engine/core/tests/stage6_battles.rs` (the Rust v the frozen Python answer key, battle by
 battle) is NOT in `run_checks.py`, and on main 41 of its 63 battles already fail (the 'ref_' and 'team_' battles at dice call 4-5, many 'cov_'
