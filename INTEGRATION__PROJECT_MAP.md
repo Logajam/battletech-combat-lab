@@ -146,7 +146,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   mechs need roughly N log N battles, not N squared), battles per pairing with sides swapped (side bias), bot, map,
   seeds; it runs in the background through the existing resumable record path (`btsim --stream`, `trial_records/progress/`,
   the long-set SOP) and shows a live Elo table you can export. Build on `tools/round_robin.py` / `tools/fair_duels.py`.
-  Open: Elo for BV-unequal pairs; huge runs belong on the desktop build (native speed), not the browser build.
+  DECIDED (Daniel, 2026-11-24): every pairing swaps sides; Elo is BV-BLIND (it never sees Battle Value). Purpose: the ratings
+  feed Daniel's valuation system (`battle_value.rs`), e.g. by comparing each mech's Elo with its BV to find over- and
+  under-valued mechs. So keep per-mech records (win / loss / draw, damage, turns) beside the rating, not just the rating.
+  Open: duels (1v1) versus lance fights may rank differently; which pairings to use is a design question for the plan.
+  Huge runs belong on the desktop build (native speed), not the browser build.
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
