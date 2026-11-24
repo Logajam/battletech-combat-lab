@@ -1,0 +1,65 @@
+# THE REFERENCE LIST (tools/choose_reference_set.py, 2026-11-24): the battles tests/check_rust_reference.py plays.
+# One name a line (a scenario folder, or a variant of check_rust_reference.py's VARIANTS); text after # is why it is here.
+# Rule: every event type happens in at least 3 of these battles (the check fails if one drops to zero).
+team_12v12_princess_v_gladiator  # long full-length bot battles (drift guards)
+hy_12v12_valley  # long full-length bot battles (drift guards)
+team_3way_mixed  # long full-length bot battles (drift guards)
+hy_4v4_lance_woods  # long full-length bot battles (drift guards)
+caspar_blue__hy_4v4_heavy_hills  # long full-length bot battles (drift guards)
+team_4v4_princess_v_gladiator  # long full-length bot battles (drift guards)
+ref_Asymptote_vs_Asymptote_seed12345  # long full-length bot battles (drift guards)
+hydra_nowait_red__hy_8v8_valley  # long full-length bot battles (drift guards)
+hydra_red__hy_duel_griffin  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_red__hy_duel_hunchback_woods  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_blue__hy_2v2_grass  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_red__hy_4v4_lance_woods  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_blue__hy_4v4_heavy_hills  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_both__hy_4v4_lance_grass  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_noplayout_red__hy_4v4_lance_woods  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_nocharge_red__hy_duel_griffin  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_noattention_blue__hy_4v4_heavy_hills  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_first_red__hy_4v4_lance_woods  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+hydra_nomoveorder_blue__hy_8v8_valley  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+caspar_red__hy_duel_griffin  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+caspar_red__team_4v4_princess_v_gladiator  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
+zone_4v4_princess_v_caspar_hills  # deployment zones (walk-on zones; Princess v CASPAR)
+cov_mortar_indirect  # covers RESTART, SHUTDOWN
+cov_superheavy  # covers RESTART, SHUTDOWN
+cov_nail_guns  # covers GEAR:Dual Saw, GEAR:Ejection Seat (Industrial Mech), GEAR:Environmental Sealing
+cov_imp_blue_shield  # covers RESTART, SHUTDOWN
+ref_Akuma_AKU-2XK_vs_Highlander_IIC_2_seed1  # covers GEAR:CLAPGaussRifle, GEAR:CLATM6, GEAR:CLGaussRifle
+cov_hvac  # covers GEAR:BeagleActiveProbe, GEAR:Hyper Velocity Auto Cannon/10, GEAR:ISC3BoostedSystemSlaveUnit
+cov_tripod  # covers GEAR:CLArtemisV, GEAR:CLLRM15, GEAR:CLSRM6
+ref_Asymptote_vs_HeatGear_maxheat30_seed2  # covers GEAR:Chameleon Light Polarization Field, GEAR:ISCoolantPod, GEAR:ISLRM10
+ev_building_a  # covers BUILDING_ENTER, BUILDING_LEAVE
+ev_building_b  # covers BUILDING_ENTER, BUILDING_LEAVE
+ev_building_c  # covers BUILDING_ENTER, BUILDING_LEAVE
+ev_tag_homing_a  # covers HOMING_HIT, TAG_DESIGNATE
+cov_fusion_ice  # covers GEAR:Autocannon/2, GEAR:Chainsaw, GEAR:IS Lance
+cov_taser_harjel  # covers GEAR:IS Flail, GEAR:IS HarJel, GEAR:ISUMU
+cov_turrets  # covers GEAR:CLQuadTurret, GEAR:ISHeadTurret, GEAR:armor Heavy Industrial(Clan)
+cov_supercharger_always  # covers GEAR:Blazer Cannon, GEAR:BloodhoundActiveProbe, GEAR:CLERLargeLaser
+cov_melee_mace_sword  # covers GEAR:ISERSmallLaser, GEAR:ISMRM20, GEAR:ISSRM2
+cov_rotary_ultra_streak  # covers GEAR:ISLBXAC2, GEAR:ISRotaryAC2, GEAR:ISStreakSRM2
+ev_tag_homing_b  # covers HOMING_HIT, TAG_DESIGNATE
+ev_tag_homing_c  # covers HOMING_HIT, TAG_DESIGNATE
+cov_shield_raised  # covers GEAR:Hatchet, GEAR:ISLBXAC20, GEAR:ISLargeXPulseLaser
+cov_ice_engines  # covers GEAR:armor Industrial (Inner Sphere), GEAR:armor Standard(IS/Clan)
+ref_Bombardier_BMB-05A_vs_Cataphract_CTF-3LL_seed4  # covers GEAR:ISPlasmaRifle, WEAPON:ISPlasmaRifle
+ref_Bombardier_BMB-14K_vs_Black_Hawk_F_seed4  # covers GEAR:ISMGA, GEAR:ISMachine Gun, WEAPON:ISMGA
+cov_melee_chain_whip  # covers GEAR:Chain Whip, GEAR:ER Flamer, GEAR:IS Impact-Resistant
+cov_masc_always  # covers GEAR:CLLRM10, GEAR:CLMASC, GEAR:myomer MASC
+cov_quad  # covers GEAR:ISImprovedHeavyGaussRifle, GEAR:ISQuadTurret, GEAR:Large Laser
+ref_Asymptote_vs_Synthetic_maxheat8_seed777  # covers GEAR:ISAC5, WEAPON:ISAC5
+hydra_both__ev_dfa_b  # covers PHYS_DFA
+cov_capacitor_charged  # covers GEAR:IS Coolant Pod, GEAR:ISERPPCCapacitor
+cov_apollo_narc_ecm  # covers GEAR:ISSmallPulseLaser, WEAPON:ISSmallPulseLaser
+cov_pool_start  # covers HAZARD
+cov_inferno_mml_atm  # covers GEAR:CLATM3, GEAR:ISMML5, GEAR:engine Light Fusion Engine
+cov_melee_claws_talons  # covers GEAR:CLArtemisIV, GEAR:CLLBXAC20, GEAR:CLLRM20
+hydra_both__ev_dfa_a  # covers PHYS_DFA
+cov_arrow_tag  # covers GEAR:ISFlamer, WEAPON:ISFlamer
+cov_melee_vibro  # covers GEAR:IS Super Charger, GEAR:ISMediumVibroblade, GEAR:ISSmallVibroBlade
+cov_melee_hatchet_jump_dfa  # covers GEAR:IS Ferro-Fibrous, GEAR:ISDoubleHeatSinkPrototype, GEAR:ISPrototypeImprovedJumpJet
+cov_tsemp  # covers GEAR:TSEMP Cannon, WEAPON:TSEMP Cannon
+cov_partial_wing_masc  # covers GEAR:ISPartialWing

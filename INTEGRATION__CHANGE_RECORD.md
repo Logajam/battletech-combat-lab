@@ -6,6 +6,68 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 36), EVENT RECORDS AND SEARCH, PART 2: THE REFERENCE LIST REBUILT BY EVENT COVERAGE; THE ANSWER KEY RETIRED. REVIEW PENDING (higher-level model).**
+  **Measured:** `tools/event_coverage.py` played every one of the 91 reference battles and the 63 answer-key scenarios (`engine/fixtures`, seed 1, own bots) with events on. Before: 5 of the 33
+  event types were in fewer than 3 battles (BUILDING_ENTER / BUILDING_LEAVE 1 battle, PHYS_DFA 1, TAG_DESIGNATE 1, HOMING_HIT none); a long set repeated the common ones thousands of times
+  (INITIATIVE_ROLL 154 battles, MOVE 154, ATTACK 152...). **Chosen:** `tools/choose_reference_set.py` (greedy cover, cost = measured seconds): every event type in at least N = 3 battles (Daniel's start value;
+  counted in BATTLES, not events), plus the long full-length bot battles to guard against stalls and slow drift, plus three safeguards so a leaner list does not quietly stop testing code: every
+  Hydra / CASPAR switch variant on a small scenario stays, every weapon the old set fired is still fired (`WEAPON:` keys), every piece of equipment, engine, gyro, cockpit, armor and myomer it fielded is
+  still fielded (`GEAR:` keys: the `cov_` battles exist for these, and events alone do not show that a Taser, a capacitor, a turret or a partial wing was in the fight). **Purpose-built scenarios**
+  (`tools/make_event_scenarios.py`, added to `scenarios.zip`, 8 battles): `ev_tag_homing_a/b/c` (a Patriot's TAG hits and a Legionnaire's homing Arrow IV lands: TAG_DESIGNATE, SPOT, HOMING_HIT),
+  `hydra_both__ev_dfa_a/b` (Hydra on both teams of jump 'Mechs: a death from above, which only Hydra makes, about 1 battle in 50), `ev_building_a/b/c` (a Cataphract and a Black Hawk across the
+  Military Base: BUILDING_ENTER / BUILDING_LEAVE). **Old count 91, new count 62** (54 of the old ones kept, 8 new). **Run time of `check_rust_reference.py`:** 86 s standalone / 98-120 s inside `run_checks.py --full` before (91 battles, 4 cores), 54 s / 72 s after
+  (about 405 s of battle time before, 255 s after); `check_bridge_parity.py --quick` 128 s after (108-170 s before); `check_bridge_parity.py --quick` plays the same list. **Event types still uncovered: none** (every one is in at least 3 battles; the thinnest are TAG_DESIGNATE 4,
+  BUILDING_ENTER / BUILDING_LEAVE / PHYS_DFA / HOMING_HIT / WATER_ENTER / HAZARD 3-5). Sub-cases never seen in any battle: a TAG aimed at the hex, a homing hit on a hex, a failed restart roll, a shutdown
+  from anything but heat, area-effect as an attack family (and skids: the engine has no skid rule). **The check now reports each event type's count across the list and fails if any type
+  drops to zero** (a NOTE below 3 battles); `check_events.py` tests that rule.
+  **Switch-over:** `engine/reference/battles.txt` is the list (each line says why the battle is there); `check_rust_reference.py` plays only it (`--all --out DIR` plays the whole pool). Every new battle was saved with `--update`
+  and replayed a second time identically (62 of 62; logs AND events). The two battles at the turn cap, `ref_Asymptote_vs_Asymptote_seed12345` and `hydra_nowait_red__hy_8v8_valley`, stay on purpose as stall
+  guards (NOTE: turn cap, "a possible flaw", Daniel). The long battles kept: `team_12v12_princess_v_gladiator`, `hy_12v12_valley` (12 v 12), `team_3way_mixed` (64 turns), `hy_4v4_lance_woods` (46),
+  `caspar_blue__hy_4v4_heavy_hills`, `team_4v4_princess_v_gladiator`, the two cap battles. **Dropped from the old 91 (the event types each had, and which kept battles carry them now):**
+  `caspar_red__hy_8v8_valley` (22 event types) now by hydra_red__hy_4v4_lance_woods (22)
+  `cov_brawl_3` (21 event types) now by cov_supercharger_always (20), team_12v12_princess_v_gladiator (1)
+  `cov_brawl_4` (21 event types) now by cov_supercharger_always (20), team_12v12_princess_v_gladiator (1)
+  `cov_brawl_princess` (21 event types) now by caspar_blue__hy_4v4_heavy_hills (21)
+  `cov_hills_desert` (15 event types) now by cov_supercharger_always (15)
+  `cov_hvac_31` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `cov_hvac_32` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `cov_hvac_33` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `cov_inferno_imp` (20 event types) now by hydra_both__ev_dfa_b (20)
+  `cov_magma_board` (15 event types) now by team_12v12_princess_v_gladiator (15)
+  `cov_magma_start` (14 event types) now by hydra_nowait_red__hy_8v8_valley (14)
+  `cov_melee_spikes_lance` (14 event types) now by team_12v12_princess_v_gladiator (14)
+  `cov_taser_31` (18 event types) now by hy_4v4_lance_woods (18)
+  `cov_taser_32` (18 event types) now by hy_4v4_lance_woods (18)
+  `cov_taser_33` (18 event types) now by hy_4v4_lance_woods (18)
+  `cov_woods_smoke` (20 event types) now by hy_4v4_lance_woods (19), team_4v4_princess_v_gladiator (1)
+  `hy_2v2_grass` (18 event types) now by team_12v12_princess_v_gladiator (18)
+  `hy_4v4_heavy_hills` (18 event types) now by team_12v12_princess_v_gladiator (18)
+  `hy_4v4_lance_grass` (20 event types) now by team_4v4_princess_v_gladiator (20)
+  `hy_8v8_valley` (19 event types) now by team_12v12_princess_v_gladiator (19)
+  `hy_duel_awesome_hills` (15 event types) now by team_12v12_princess_v_gladiator (15)
+  `hy_duel_griffin` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `hy_duel_hunchback_woods` (16 event types) now by hy_4v4_lance_woods (16)
+  `hydra_first_blue__hy_8v8_valley` (21 event types) now by team_12v12_princess_v_gladiator (21)
+  `hydra_red__hy_12v12_valley` (24 event types) now by team_4v4_princess_v_gladiator (23), hydra_nowait_red__hy_8v8_valley (1)
+  `ref_Asymptote_vs_HeatGear_seed5` (15 event types) now by hy_4v4_lance_woods (15)
+  `ref_Asymptote_vs_Synthetic_maxheat30_seed2` (16 event types) now by team_12v12_princess_v_gladiator (16)
+  `ref_Atlas_AS7-K_vs_Archer_ARC-2R_seed2` (15 event types) now by team_12v12_princess_v_gladiator (15)
+  `ref_Atlas_AS7-S2_vs_Kintaro_KTO-19_seed1` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `ref_Black_Hawk_F_vs_Cataphract_CTF-3D_LargeLakes1_seed1` (15 event types) now by hy_4v4_lance_woods (15)
+  `ref_Black_Hawk_F_vs_Cataphract_CTF-3D_MilitaryBase1_seed1` (17 event types) now by ev_building_b (16), team_12v12_princess_v_gladiator (1)
+  `ref_Cataphract_CTF-3D_vs_Emperor_EMP-6D_seed1` (16 event types) now by team_12v12_princess_v_gladiator (16)
+  `ref_Kintaro_KTO-19_vs_Atlas_AS7-K_seed2` (17 event types) now by team_12v12_princess_v_gladiator (17)
+  `ref_Kontio_vs_Hammerhead_seed12345` (16 event types) now by team_12v12_princess_v_gladiator (16)
+  `team_12v12_gladiator_v_gladiator` (19 event types) now by hydra_nowait_red__hy_8v8_valley (19)
+  `team_4v4_gladiator_v_gladiator` (18 event types) now by team_12v12_princess_v_gladiator (18)
+  `team_4v4_princess_v_princess` (19 event types) now by team_12v12_princess_v_gladiator (19)
+  What the dropped ones leave thinner (bot set-ups, not events): Princess v Princess (`team_4v4_princess_v_princess`, `cov_brawl_princess`; Princess still plays `team_12v12_princess_v_gladiator` and `team_4v4_princess_v_gladiator`), Gladiator v Gladiator
+  at 4 v 4 and 12 v 12 as their own battles (`hy_12v12_valley`, `hy_4v4_lance_woods` remain), the 3- and 4-way brawls (`cov_brawl_3`, `cov_brawl_4`; `team_3way_mixed` remains), Hydra on 12 v 12 (`hydra_red__hy_12v12_valley`; `hy_12v12_valley` plays the same
+  map with Gladiator) and CASPAR on 8 v 8 (`caspar_red__hy_8v8_valley`). The weapon and gear coverage is unchanged by construction (the chooser's own check found no weapon or gear that only a dropped battle had).
+  **The answer key is retired as a standard:** `engine/core/tests/stage6_battles.rs` removed (its `known_changes` list is in git history). `engine/answer_key.tar.xz` and `tools/unpack_answer_key.py` STAY: `cl1_setup`, `stage6_attach` and
+  `cl2_history` (all in `run_checks.py`) read the unpacked units, boards and settings. CLAUDE.md, README.md, PROJECT_MAP Section 0 and `INTEGRATION__RUST_PORT.md` no longer call it the "exact match or not done" standard.
+  **New standing rule (PROJECT_MAP Section 7):** every deliberate change that alters a saved battle gets a Change Record line naming the battles and the reason.
+
 - **2026-11-24 (Claude, session 36), EVENT RECORDS AND SEARCH, PART 1. REVIEW PENDING (higher-level model).** Daniel: "a way to search sets of battles for events"
   (a turn where a 'Mech took 4 engine hits in one phase; a 1v1 where both destroyed each other's gyro the same turn; and the replay tab must have it too).
   **The engine now writes EVENTS as data** (`engine/core/src/events.rs`, `Battle::ev(KIND)...emit(b)`; list version 1, 33 kinds, `INTEGRATION__EVENTS.md`): initiative rolls

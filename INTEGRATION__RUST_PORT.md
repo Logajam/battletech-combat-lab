@@ -5,6 +5,12 @@ translate the monte carlo into rust. Just bite the bullet and remove translation
 This file is the plan and the rules of the road. It is written so a smaller model can follow it one stage at a
 time, a fresh session per stage. Read `CLAUDE.md` first, then all of this, then only the stage you are on.
 
+> **2026-11-24: THE ANSWER KEY IS NO LONGER THE STANDARD.** The translation is finished and the Rust has moved on deliberately (Daniel: "The answer key is there to
+> prevent unintended changes. Its not there to hold us back."). `stage6_battles.rs` (the exact-match replay of the 63 fixture battles) was removed; the frozen
+> answer key (`engine/answer_key.tar.xz`) is kept only because `cl1_setup`, `stage6_attach` and `cl2_history` read its units, boards and settings. The guard is the
+> Rust's own reference list (`engine/reference/battles.txt`, `tests/check_rust_reference.py`), and every deliberate change to a saved battle is named in the Change
+> Record (PROJECT_MAP Section 7). Below is the plan as it was written: "exact match or not done" was the rule WHILE translating.
+
 ## The one idea that makes this safe
 
 **The Python stays, untouched, as the answer key.** Every stage ends with the Rust producing EXACTLY what the

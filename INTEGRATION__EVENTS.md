@@ -144,6 +144,23 @@ JSON, documented at the top of `events_query.js`:
 - `group` + `count` (one step) - count the step's events per group of fields; each group that passes `count` is a match.
 - derived fields `u_team`, `o_team`.
 
+## The reference list and its coverage rule
+
+`engine/reference/battles.txt` is the list of battles `tests/check_rust_reference.py` plays (the scenarios are in `engine/reference/scenarios.zip`, the saved
+logs in `engine/reference/logs/`, the saved events in `engine/reference/events/`). It was chosen 2026-11-24 with these tools:
+
+1. `python tests/check_rust_reference.py --all --out POOL` plays EVERY scenario and variant of the zip (nothing in engine/reference is touched).
+2. `python tools/event_coverage.py --reference-dir POOL --answer-key --tsv table.tsv --times ...` tabulates, per battle, how often each event type
+   (and each sub-case: `CRIT:Gyro`, `ATTACK:homing`, the weapons fired `WEAPON:...`, the gear fielded `GEAR:...`) happens.
+3. `python tools/choose_reference_set.py table.tsv --n 3 --keep-file KEEP --write-list engine/reference/battles.txt` picks the cheapest set in which
+   every event type happens in at least N=3 battles, and every sub-case, weapon and piece of gear at least once, after the battles in KEEP
+   (the long full-length bot battles that guard against stalls and slow drift, and each Hydra / CASPAR switch variant).
+4. A type nothing reaches gets a short purpose-built scenario (`tools/make_event_scenarios.py`, the `ev_*` battles).
+
+**The rule the check enforces:** it prints each event type's battles and events across the list and **fails if any type has no event** (a rule or a
+scenario stopped reaching it); fewer than 3 battles is a NOTE. Changing the list: re-run the steps and name every dropped battle in the Change Record
+(PROJECT_MAP Section 7).
+
 ### Prepared searches (`engine/lab/web/events_examples.json`)
 
 - `engine-hits-4` - a 'Mech takes 4 or more engine critical hits in one turn and phase.
