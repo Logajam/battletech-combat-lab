@@ -469,7 +469,7 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
    bar. (Phones might make me change my mind.)"
 
 ### B. Firing
-5. FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";
+5. MOVED TO THE ENGINE PASS 2026-11-24 (PROJECT_MAP Section 4, item 4; the rules found there) FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";
    Daniel means area-effect attacks). Source the rule from the library (CLAUDE.md), cite the page.
 6. PARKED 2026-11-24 FEAT **Fire! with no weapons selected** "should both give a pop up warning, and count as holding fire."
 7. PARKED 2026-11-24 BUG **The Alpha Strike button is missing from underneath the weapons list** (the mockup puts Strike / Alpha Strike under the list on the map; the page has it only in the dock's Plan tab).
