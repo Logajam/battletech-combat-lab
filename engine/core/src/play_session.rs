@@ -18,6 +18,7 @@
 //!   `stand_up` {tn, prone_turns}         -> {"stand": bool} (+ "plan": a movement answer after the stand; or, staying prone, "facing")
 //!   `boost` {systems}                    -> {"use": bool}  (MASC / supercharger this turn)
 //!   `movement` {options, attacks}        -> {"hex","facing","mode"} | {"stay": true} | {"attack": {"kind","target","hex","facing"}}
+//!                                           (+ "prone": true: drop to the ground when the move is done, 1 MP, p.51) | {"eject": true} (TO:AR p.164)
 //!   `spot` {candidates}                  -> {"target": id|null, "fires": bool}
 //!   `tag` {candidates}                   -> {"target": id|null, "aim": "mech"|"hex"}
 //!   `target` {enemies}                   -> {"target": id|null}
@@ -198,7 +199,7 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None };
+    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None, drop: None, eject: None };
     let mut bots = HumanBots::new(screen, human);
     // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
@@ -291,6 +292,8 @@ fn equipment_json(b: &Battle, u: UnitId) -> Value {
         "sinks": {"working": ms::working_heat_sinks(m), "off": ch.and_then(|c| c.sinks_off).unwrap_or(m.deactivated_heat_sinks), "chosen": ch.is_some_and(|c| c.sinks_off.is_some())},
         "ams": ams, "jammed": jammed, "capacitors": ppcs,
         "blue_shield": {"has": equip::has_system(m, "blue_shield"), "on": ch.and_then(|c| c.blue_shield).unwrap_or(false)},
+        // voluntary shutdown (p.105): shut down now (by choice), the request for this End Phase ("off" / "on" / null)
+        "power": {"shutdown": m.shutdown, "by_choice": ch.is_some_and(|c| c.held_off), "request": match ch.and_then(|c| c.power_request) { Some(true) => json!("off"), Some(false) => json!("on"), None => Value::Null }},
         // ejection is not built (a known shortfall); the switch is kept so the screen has a place for it
         "auto_eject": {"built": false},
     })
@@ -313,6 +316,10 @@ fn apply_switches(b: &mut Battle, u: UnitId, sw: &Value) {
     }
     if let Some(v) = sw.get("blue_shield").and_then(|v| v.as_bool()) {
         b.player.unit_mut(&n).blue_shield = Some(v);
+    }
+    // voluntary shutdown / restart, taking effect in this End Phase (p.105): "off" or "on"; anything else clears the request
+    if let Some(v) = sw.get("power") {
+        b.player.unit_mut(&n).power_request = match v.as_str() { Some("off") => Some(true), Some("on") => Some(false), _ => None };
     }
     if let Some(list) = sw.get("ams_off").and_then(|v| v.as_array()) {
         b.units[u].systems_off.retain(|k| !k.starts_with("ams:"));
@@ -361,6 +368,10 @@ struct Screen {
     stand_plan: Option<(UnitId, Value)>,
     /// the facing a person chose for a unit that stays prone (the stand_up answer's "facing"; p.51)
     prone_facing: Option<(UnitId, String)>,
+    /// the unit whose movement answer asked to drop to the ground at the end (the answer's "prone": true; p.51)
+    drop: Option<UnitId>,
+    /// the unit whose movement answer was to eject (TO:AR p.164)
+    eject: Option<UnitId>,
 }
 
 /// Everything the movement question and its queries need about one unit's possible moves.
@@ -875,6 +886,14 @@ impl Controller for Screen {
         stand
     }
 
+    fn eject(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
+        self.eject.take() == Some(mover)
+    }
+
+    fn drop_prone(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
+        self.drop.take() == Some(mover)
+    }
+
     fn prone_turn(&mut self, _b: &mut Battle, mover: UnitId) -> Option<String> {
         match self.prone_facing.take() {
             Some((u, f)) if u == mover => Some(f),
@@ -911,9 +930,16 @@ impl Controller for Screen {
             End(usize),
             Attack(Pick),
         }
+        // "prone": true in the answer: drop to the ground when the move is done (p.51; orchestrator::drop_to_ground)
+        let drop = std::cell::Cell::new(false);
+        let eject = std::cell::Cell::new(false);
+        self.drop = None;
+        self.eject = None;
         let chosen = {
             let best_ref = &best;
             let attacks_ref = &attacks;
+            let drop = &drop;
+            let eject = &eject;
             let view = MoveView { req: Value::Null, opts: opts.clone(), best: best.clone(), attacks: Vec::new() };
             self.ask_with(
                 b,
@@ -929,6 +955,12 @@ impl Controller for Screen {
                     view.route(b, mover, q, standup_mp, entry_edge)
                 },
                 |_, a| {
+                    drop.set(a["prone"].as_bool() == Some(true));
+                    // ejecting is answered instead of a move: the unit stays where it is and the MechWarrior ejects (TO:AR p.164)
+                    eject.set(a["eject"].as_bool() == Some(true) && entry_edge.is_none());
+                    if eject.get() {
+                        return Ok(Chosen::Stay);
+                    }
                     if let Some(at) = a.get("attack").filter(|x| x.is_object()) {
                         return attacks_ref
                             .iter()
@@ -947,6 +979,13 @@ impl Controller for Screen {
                 },
             )
         };
+        if drop.get() {
+            self.drop = Some(mover);
+        }
+        if eject.get() {
+            self.eject = Some(mover);
+            self.drop = None;
+        }
         let pick = match chosen {
             Chosen::End(i) => Some((opts[i].pick(), "chosen by the player")),
             Chosen::Attack(p) => Some((p, "charge / death from above, chosen by the player")),
@@ -1121,7 +1160,9 @@ impl Controller for Screen {
     }
 
     fn end_phase(&mut self, b: &mut Battle, u: UnitId, weapon_heat: i64) -> Option<String> {
-        if b.is_destroyed(u) || b.units[u].shutdown {
+        // shut down by choice: asked every End Phase, so a restart is always on offer (p.105)
+        let held = b.player.unit(&name(b, u)).is_some_and(|c| c.held_off);
+        if b.is_destroyed(u) || (b.units[u].shutdown && !held) {
             return None;
         }
         let m = &b.units[u];
@@ -1131,7 +1172,7 @@ impl Controller for Screen {
         let radical = eq["radical"]["live"].as_bool().unwrap_or(false);
         let jam = eq["jammed"].as_array().is_some_and(|j| !j.is_empty());
         // asked only when there is something to decide: expected heat with coolant pods or radical sinks to answer it, a jam
-        if !((projected > 0 && (pods > 0 || radical)) || jam) {
+        if !((projected > 0 && (pods > 0 || radical)) || jam || held) {
             return None;
         }
         let req = json!({"kind": "end_phase", "unit": u, "name": name(b, u), "equipment": eq,

@@ -303,7 +303,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; S.drop = false; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -431,7 +431,7 @@ function moveIntro(unavailable) {
     sheet(`<h3>Stand up and move ${esc(v.name)}</h3><div class="msg">If the roll (<b>${S.req.tn}</b>+) succeeds it moves on with ${v.run} MP. Tap a tinted hex, or an arrow round the 'Mech to stand facing another way (free). Hold <b>Move!</b> to stand and move; with nothing chosen it stands where it is. &times; goes back.</div>`);
     stayCluster(); return;
   }
-  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}`);
+  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}${dropRow(null)}${v.entry ? "" : '<div class="row"><button class="sm" data-act="eject-ask">Eject...</button></div>'}`);
   stayCluster();
 }
 // WAYPOINTS: each tap inside the lit range adds a waypoint and the range re-lights from there with the points left; the last tap is the
@@ -587,6 +587,7 @@ function moveSheet() {
     <div class="msg">${o.mp} MP (turns included) &middot; ${o.hexes} hex${o.hexes === 1 ? "" : "es"} &middot; target movement modifier +${o.tmm} &middot; movement heat ${o.heat}</div>
     ${warns.length ? `<div class="warnt">&#9888; ${warns.join("; ")}. Moving on accepts the warning.</div>` : ""}
     ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The cost counts the whole way round. The unit ends at the last hex in the mode shown, taking its own best route there (the one that moves the most hexes), which may not pass through the waypoints.</div>` : ""}
+    ${dropRow(o)}
     <div class="msg">Tap another tinted hex to add a waypoint (the lit range is what is left from here). Tap an arrow around the hex to turn. &times; or Esc removes the last waypoint.</div>
     `);
 }
@@ -601,7 +602,11 @@ function undo() {
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); }
 }
 // Send the move: in the move_order question the move is a plan that goes with the unit chosen; later the movement question uses it.
-function commitMove(answer) { if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
+// DROP TO THE GROUND (Core p.51; engine pass 2026-11-24): after a ground move with 1 MP to spare, not a jump; it ends prone, same facing.
+// A toggle in the move sheet (also with nothing chosen: drop where it stands); it goes with the answer as "prone": true.
+function dropOk(o) { const v = S.mv; if (!v || standing() || v.standup_mp != null || v.entry) return false; const mode = o ? o.mode : "Stand Still", mp = o ? o.mp : 0; return mode !== "Jump" && mp + 1 <= v.run; }
+function dropRow(o) { return dropOk(o) ? `<div class="row"><button class="sm ${S.drop ? "on" : ""}" data-act="drop">${S.drop ? "&#10003; " : ""}Drop prone at the end (+1 MP)</button></div>` : ""; }
+function commitMove(answer) { if (S.drop && (answer.stay || answer.hex) && dropOk(answer.stay ? null : optNow())) answer = { ...answer, prone: true }; if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
 // charge / death from above: tap an enemy; the stops go black; pick one; a popup explains and asks
 function onUnitTap(id) {
   const r = S.req; DOCK.unit = null;
@@ -941,8 +946,17 @@ HANDLERS.end_phase = (r) => {
     ${e.coolant.pods ? `<div class="sw"><label>Coolant pods (${e.coolant.pods})</label><button class="sm" data-act="sw-cool" data-v="now">Use a pod now</button><button class="sm" data-act="sw-cool" data-v="hold">Hold them</button><button class="sm" data-act="sw-cool" data-v="auto">Automatic</button><span class="msg">now: ${e.coolant.mode}</span></div>` : ""}
     ${e.radical.live ? `<div class="sw"><label>Radical heat sinks</label><button class="sm ${e.radical.on ? "go" : ""}" data-act="sw-rad" data-v="1">On (needs ${e.radical.tn}+)</button><button class="sm ${e.radical.on ? "" : "go"}" data-act="sw-rad" data-v="0">Off</button></div>` : ""}
     ${jam}
+    ${powerRow(e)}
     <div class="row"><button class="go" data-act="end-go">Continue</button><button data-act="detail">All switches...</button></div>`);
 };
+// VOLUNTARY SHUTDOWN (Core p.105; engine pass 2026-11-24): shut down in this End Phase; a 'Mech shut down by choice stays down until
+// its player asks for a restart in a later End Phase (heat checks apply).
+function powerRow(e) {
+  const p = e.power; if (!p) return "";
+  if (p.shutdown && p.by_choice) return `<div class="sw"><label>Shut down by choice</label><button class="sm ${p.request === "on" ? "go" : ""}" data-act="sw-power" data-v="${p.request === "on" ? "" : "on"}">${p.request === "on" ? "&#10003; Restart this End Phase" : "Restart this End Phase"}</button></div>`;
+  if (p.shutdown) return "";
+  return `<div class="sw"><label>Power plant</label><button class="sm ${p.request === "off" ? "go" : ""}" data-act="sw-power" data-v="${p.request === "off" ? "" : "off"}">${p.request === "off" ? "&#10003; Shut down this End Phase" : "Shut down this End Phase"}</button><span class="msg">it stays down until you restart it</span></div>`;
+}
 
 // ---------------------------------------------------------------- the dock: the bottom sheet with the unit's tabs
 // Header (unit name, smaller / bigger arrows; a flick up or down does the same), a summary line, and the tabs Plan (what the question
@@ -1013,6 +1027,7 @@ function equipBody(u) {
   if (e.radical.has) rows.push(`<div class="sw"><label>Radical heat sinks</label><button class="sm ${e.radical.on ? "on" : ""}" data-act="sw-rad" data-v="${e.radical.on ? 0 : 1}">${e.radical.on ? "On" : "Off"}</button><span class="msg">${e.radical.live ? "works on " + e.radical.tn + "+" : "destroyed"}</span></div>`);
   if (e.boost.has) rows.push(`<div class="sw"><label>MASC / supercharger</label><button class="sm ${e.boost.on ? "on" : ""}" data-act="sw-boost" data-v="${e.boost.on ? 0 : 1}">${e.boost.on ? "On" : "Off"}</button><span class="msg">works on ${e.boost.tn}+; asked at the start of each move</span></div>`);
   for (const a of e.ams || []) rows.push(`<div class="sw"><label>${esc(a.name)}</label><button class="sm ${a.off ? "" : "on"}" data-act="sw-ams" data-id="${a.id}">${a.off ? "Off" : "On"}</button></div>`);
+  { const pr = powerRow(e); if (pr) rows.push(pr); }   // voluntary shutdown: set any time, done in the next End Phase (p.105)
   if (e.blue_shield.has) rows.push(`<div class="sw"><label>Blue Shield</label><button class="sm ${e.blue_shield.on ? "on" : ""}" data-act="sw-blue" data-v="${e.blue_shield.on ? 0 : 1}">${e.blue_shield.on ? "On" : "Off"}</button></div>`);
   for (const j of e.jammed || []) rows.push(`<div class="sw"><label>${esc(j.name)} jammed</label><button class="sm ${j.unjam ? "on" : ""}" data-act="sw-unjam1" data-name="${esc(j.name)}">${j.unjam ? "Clear it next turn" : "Leave it"}</button></div>`);
   for (const c of e.capacitors || []) rows.push(`<div class="sw"><label>${esc(c.name)} capacitor</label><button class="sm ${c.charge ? "on" : ""}" data-act="sw-cap" data-name="${esc(c.name)}">&#9889; ${c.charge ? "Charge" : "Fire normally"}</button></div>`);
@@ -1063,6 +1078,10 @@ function act(t) {
     case "pick-unit": send({ unit: +d.id }); break;
     case "stand": send({ stand: d.v === "1" }); break;
     case "stand-plan": standPlan(); break;
+    // EJECT (TO:AR p.164-165; engine pass 2026-11-24): instead of moving; asked again on a card, as it cannot be undone
+    case "eject-ask": showCard(`<b>Eject?</b><div class="msg">The MechWarrior ejects instead of moving and lands behind the 'Mech (a piloting roll; a hard landing costs hits). The 'Mech is abandoned and out of the battle. This cannot be undone.</div><div class="row"><button class="go" data-act="eject-go">Eject</button><button data-act="card-close">Stay in the cockpit</button></div>`); break;
+    case "eject-go": $("card").style.display = "none"; if (S.req && S.req.kind === "movement") send({ eject: true }); break;
+    case "drop": S.drop = !S.drop; if (S.dest) moveSheet(); else moveIntro(); break;
     case "prone-plan": pronePlan(); break;
     case "prone-go": if (S.prone) send(S.prone.facing ? { stand: false, facing: S.prone.facing } : { stand: false }); break;
     case "boost": send({ use: d.v === "1" }); break;
@@ -1104,6 +1123,7 @@ function act(t) {
     case "sw-rad": setSwitch({ radical: d.v === "1" }); break;
     case "sw-boost": setSwitch({ boost: d.v === "1" }); break;
     case "sw-blue": setSwitch({ blue_shield: d.v === "1" }); break;
+    case "sw-power": setSwitch({ power: d.v || null }); break;
     case "sw-ams": { const u = unit(S.sel), off = (eq(u).ams || []).filter((x) => (x.id === +d.id ? !x.off : x.off)).map((x) => x.id); setSwitch({ ams_off: off }); break; }
     case "sw-unjam1": { const u = unit(S.sel), names = (eq(u).jammed || []).filter((x) => (x.name === d.name ? !x.unjam : x.unjam)).map((x) => x.name); setSwitch({ unjam: names }); break; }
     case "sw-cap": { const u = unit(S.sel), names = (eq(u).capacitors || []).filter((x) => (x.name === d.name ? !x.charge : x.charge)).map((x) => x.name); setSwitch({ charge: names }); break; }

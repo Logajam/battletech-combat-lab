@@ -278,10 +278,28 @@ pub fn apply_heat_effects(b: &mut Battle, u: UnitId) {
 }
 
 fn overheat_checks(b: &mut Battle, u: UnitId, was_shut_down: bool) {
-    if was_shut_down {
+    // VOLUNTARY SHUTDOWN (Core p.105): a person may shut a 'Mech down in any End Phase and restart it in a later one, passing
+    // the heat's shutdown-avoid check if one is due. Only a person's units carry these choices (player_choices.rs).
+    let n = b.units[u].side_name.clone().unwrap_or_default();
+    let request = b.player.units.get_mut(&n).and_then(|c| c.power_request.take());
+    let held = b.player.unit(&n).is_some_and(|c| c.held_off);
+    if was_shut_down && held {
+        if request == Some(false) {
+            b.player.unit_mut(&n).held_off = false;
+            b.log(format!("  [Heat] {}: restart chosen (p.105).", n));
+        } else {
+            b.log(format!("  [Heat] {}: stays shut down (by choice, p.105).", n));
+        }
+    }
+    let held = b.player.unit(&n).is_some_and(|c| c.held_off);
+    if was_shut_down && !held {
         try_restart(b, u);
-    } else {
+    } else if !was_shut_down {
         check_shutdown(b, u);
+    }
+    if request == Some(true) && !b.units[u].shutdown && !b.is_destroyed(u) {
+        shut_down(b, u, "by choice, p.105");
+        b.player.unit_mut(&n).held_off = true;
     }
     let mut done = [threshold_reached(&SHUTDOWN_THRESHOLDS, b.units[u].current_heat), 0, 0]; // shutdown, ammo, inferno
     let mut inferno_blew = ammo_step(b, u, &mut done);

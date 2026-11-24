@@ -834,7 +834,12 @@ charge / DFA and the arm flip are sent as MegaMek's own fallback, not our choice
 the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
 (only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) DONE 2026-11-24: `weapon_attack_tns` with `at_hex`
 (TAG at the hex) now takes the -4 and leaves out the target hex's woods / smoke (p.64-66; not for area-effect weapons, p.180). No reference battle changed.
-Also: dropping to the ground, voluntary shutdown, eject (no homes yet, DECISION_HOMES Section 10 item 6).
+(6) DONE 2026-11-24 for a person's units (bots unchanged): dropping to the ground (Core p.51; the movement answer's "prone": true, a toggle in the move
+sheet), voluntary shutdown and restart (Core p.105; the End Phase / Inspector switch "power"; a unit shut down by choice is asked every End Phase and
+stays down until restarted), ejection (TO:AR p.164-165; the movement answer "eject": true behind a confirm card; the landing roll with the terrain, prone,
+unconscious and head-damage modifiers; the engine has no infantry, so the abandoned 'Mech leaves the battle and the MechWarrior on foot is not played on;
+auto-eject on an ammunition explosion and ejecting from a prone 'Mech's stand question are not built). Still open: quad lateral shifts (p.238), Forced
+Withdrawal by the home edge (p.230), and the TO:AR moves (careful stand, hull down, mechanical jump boosters).
 
 **SESSION 35 WORK ORDER (Daniel, 2026-11-24), in this order, then publish the website:** (1) the design-record audit only (Section 24 item 25);
 (2) the engine pass above (TAG at a hex, turning while prone, ground targeting, the movement audit, drop / shut down / eject); (3) the reports (items

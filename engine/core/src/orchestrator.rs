@@ -63,6 +63,16 @@ pub trait BotSet {
     /// controller records the switches it sets here (player_choices.rs). Default: nothing.
     fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) {}
     /// BattleROM: may a prone unit that can stand try to? A person may leave it prone. Default: yes (the engine always tried).
+    /// Does the MechWarrior eject this Movement Phase instead of moving (TO:AR p.164-165)? Only a person is asked (their movement
+    /// answer); bots never eject. Not a bot decision for the bridge.
+    fn eject(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
+    /// After a completed ground move (not a jump, charge or DFA): does the unit drop to the ground (Core p.51, 1 MP)? Only a
+    /// person is asked (engine pass, 2026-11-24); bots keep standing. Not a bot decision for the bridge.
+    fn drop_prone(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
     /// A unit that chose to stay prone may still change facing, 1 MP a hexside (Core p.51): the facing it turns to (compass), or None
     /// to stay as it lies. Asked only after `wants_stand_up` said no; the bots always try to stand, so only a person is asked
     /// (engine pass, 2026-11-24). Like `wants_stand_up`, not a bot decision: the bridge does not record it.
@@ -201,6 +211,85 @@ pub fn prone_turn_cost(m: &crate::mech_state::Mech, to: &str) -> Option<(i64, &'
         return None;
     }
     Some((sides, if sides <= walk { "Walk" } else { "Run" }))
+}
+
+/// Can `m` drop to the ground now, and in what mode: it has 1 MP left (walking if its move fits, else running) and did not jump.
+pub fn drop_cost(m: &crate::mech_state::Mech) -> Option<&'static str> {
+    if m.prone || m.move_mode == "Jump" {
+        return None;
+    }
+    let (walk, run) = (compute_walk_mp(m), crate::mech_state::compute_running_mp(m));
+    let mp = m.mp_spent + 1;
+    if mp <= walk && m.move_mode != "Run" {
+        Some("Walk")
+    } else if mp <= run {
+        Some("Run")
+    } else {
+        None
+    }
+}
+
+/// EJECTION (TO:AR p.164-165; engine pass 2026-11-24, a person's choice in the Movement Phase instead of moving). The MechWarrior
+/// lands in the hex behind the 'Mech and makes a piloting roll modified by that hex's terrain (clear -2, water -1, rough / rubble
+/// 0, light woods +2, heavy +3, ultra +4, +1 a building level), +5 for a prone 'Mech, +3 for an unconscious pilot and +1 a point of
+/// head internal structure lost; a failure costs hits equal to the margin of failure halved (rounded down). The engine has no
+/// infantry, so the MechWarrior on foot is not played on; the abandoned 'Mech leaves the battle. Planetary conditions are not modelled.
+fn eject_pilot(b: &mut Battle, mover: UnitId) {
+    let nm = name(b, mover);
+    let m = &b.units[mover];
+    let here = m.hex.clone().unwrap_or_default();
+    let behind_dir = (hex_geometry::compass_to_facing(&m.facing).unwrap_or(0) + 3).rem_euclid(6);
+    let landing = crate::movement_attacks::neighbour(&here, behind_dir).filter(|h| b.board.hexes.contains_key(h)).unwrap_or(here.clone());
+    let info = &b.board.hexes[&landing];
+    let woods = crate::los::woods_density(info);
+    let terrain = if info.building {
+        (info.level - info.ground_level.unwrap_or(info.level)).max(1)
+    } else if let Some(d) = woods.as_deref() {
+        match d { "1" => 2, "2" => 3, _ => 4 }
+    } else if info.depth.unwrap_or(0) > 0 {
+        -1
+    } else if info.features.has("rough") || info.features.has("rubble") {
+        0
+    } else {
+        -2
+    };
+    let prone = if m.prone { 5 } else { 0 };
+    let out = if crate::mech_state::pilot_unconscious(m) { 3 } else { 0 };
+    let head_lost = m.locations.get("Head").map_or(0, |v| (m.max_structure.get("Head").copied().unwrap_or(0) - v.structure.as_int()).max(0));
+    let tn = m.piloting + terrain + prone + out + head_lost;
+    let roll = b.roll_2d6();
+    let mut line = format!("  [Movement] {}: the MechWarrior EJECTS (TO:AR p.164) and lands in {}: needs {} (piloting {} + landing {:+} + prone {} + unconscious {} + head damage {}), rolled {}", nm, landing, tn, b.units[mover].piloting, terrain, prone, out, head_lost, roll);
+    if roll < tn {
+        let hits = (tn - roll) / 2;
+        if hits > 0 {
+            crate::mech_state::pilot_hit(&mut b.units[mover], hits, false);
+        }
+        line += &format!(" - a hard landing: {} hit(s).", hits);
+    } else {
+        line += " - lands safely.";
+    }
+    b.log(line);
+    b.units[mover].destroyed = true;
+    b.units[mover].cause_of_death = Some("Abandoned (the MechWarrior ejected)".into());
+    let line = format!("  [Movement] {}: abandoned - out of the battle (the MechWarrior on foot is not played on).", nm);
+    b.log(line);
+}
+
+/// The unit drops to the ground (p.51): 1 MP, no falling damage, the same facing, prone from now on.
+fn drop_to_ground(b: &mut Battle, mover: UnitId) {
+    let Some(mode) = drop_cost(&b.units[mover]) else {
+        let line = format!("  [Movement] {}: no MP left to drop to the ground (1 MP, p.51).", name(b, mover));
+        b.log(line);
+        return;
+    };
+    let m = &mut b.units[mover];
+    m.prone = true;
+    m.mp_spent += 1;
+    m.move_mode = mode.into();
+    let (md, fc) = (m.move_mode.clone(), m.move_fc);
+    m.movement_heat = heat::movement_heat(m, &md, fc);
+    let line = format!("  [Movement] {}: drops to the ground at {} facing {} ({} MP in all, {}; p.51) - prone.", name(b, mover), b.units[mover].hex.clone().unwrap_or_default(), b.units[mover].facing, b.units[mover].mp_spent, mode);
+    b.log(line);
 }
 
 /// A person's unit that stays prone turns to `to` (p.51).
@@ -417,6 +506,16 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
             let (mode, fc) = (b.units[mover].move_mode.clone(), b.units[mover].move_fc);
             b.units[mover].movement_heat = heat::movement_heat(&b.units[mover], &mode, fc);
         }
+    }
+
+    // EJECTION (TO:AR p.164-165): the person chose to eject instead of moving (the unit stood still)
+    if bots.eject(b, mover) {
+        eject_pilot(b, mover);
+        return;
+    }
+    // DROPPING TO THE GROUND (Core p.51): after a finished ground move, if not jumping this turn; 1 MP, no damage, same facing
+    if matches!((&pick, &fell), (Some(p), None) if !p.charge && !p.dfa && p.mode != "Jump") && standup_mp.is_none() && bots.drop_prone(b, mover) {
+        drop_to_ground(b, mover);
     }
 
     if standup_mp.is_some() {
