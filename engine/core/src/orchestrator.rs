@@ -1054,11 +1054,18 @@ pub fn play_on(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, marks: Ma
     finish(b, play);
 }
 
+/// The turn's Initiative line, with the dice (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be
+/// shown"; a known change from the answer key, stage6_battles.rs `known_changes`): each team's 2D6, then any tie re-rolls (p.39).
 fn log_initiative(b: &mut Battle, order: &[String]) {
+    let text = |round: &Vec<(String, i64)>| round.iter().map(|(t, v)| format!("{} {}", t, v)).collect::<Vec<_>>().join(", ");
+    let dice = match b.initiative_throws.split_first() {
+        Some((first, rest)) => format!(" (rolled {}{})", text(first), rest.iter().map(|r| format!("; tie re-rolled {}", text(r))).collect::<String>()),
+        None => String::new(),
+    };
     if order.len() == 2 {
-        b.log(format!("  Initiative: {} lost the roll, moves first.", order[0]));
+        b.log(format!("  Initiative: {} lost the roll, moves first{}.", order[0], dice));
     } else {
-        b.log(format!("  Initiative order (acts first to last): {}.", order.join(", ")));
+        b.log(format!("  Initiative order (acts first to last): {}{}.", order.join(", "), dice));
     }
 }
 

@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 24.829 = dealt 0.43 x1.00 + (HP 59.0 - received 4.61 x1.02 - PSR 0.00) / enemy future 2.23 x my future 1.00 [two-ply, 97 of 256 spots (grid search) x 568 replies (short list); modeled reply Red -> 0308 NE Run]
   [Movement] Blue: 0508 N -> 0407 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: CHARGE (TN 7, P 0.58, 10 dmg) on Blue: score 266.185 = dealt 8.20 x1.00 + (HP 118.0 - received 2.07 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.23 [incl. self-damage] beats 265.729
@@ -72,7 +72,7 @@ FALL (failed Attack Phase PSR): ForestryMech ED-X3 takes 3 falling damage (1D6 3
   -- end of turn 1: Blue @ 0308 NE: HP 29, pilot hits 0, engine 0, gyro 0, heat 1 [PRONE]
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 6).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 4.
   Success - Exo HMX-1 HaulerMech is standing (remaining running MP 4).
   [Movement select] Blue: score 17.316 = dealt 0.00 x0.98 + (HP 42.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.25 x my future 1.75 [two-ply, 24 of 84 spots (grid search) x 1 replies (short list); modeled reply Red -> 0407 SW Run]

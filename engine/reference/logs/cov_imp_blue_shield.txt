@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 286.920 = dealt 8.56 x1.00 + (HP 382.0 - received 14.41 x1.01 - PSR 0.00) / enemy future 17.52 x my future 13.27 [two-ply, 144 of 816 spots (grid search) x 150 replies (short list); modeled reply Red -> 0205 S Run]
   [Movement] Blue: 0509 N -> 0112 NE, Walk (6 MP, 5 hexes, 4 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
   [Movement select] Red: score 786.592 = dealt 16.29 x1.01 + (HP 592.0 - received 8.56 x1.00 - PSR 0.00) / enemy future 13.27 x my future 17.52 [enemy held at 0112; 15 spots with LOS]
@@ -88,7 +88,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   -- end of turn 1: Blue @ 0112 NE: HP 277, pilot hits 1, engine 0, gyro 0, heat 4
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 10).
   [Movement] Red: shut down - skips movement (immobile).
   [Movement select] Blue: score 5751.437 = dealt 36.14 x1.42 + (HP 376.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.50 x my future 22.74 [enemy held at 0206; 98 spots with LOS]
   [Movement] Blue: 0112 NE -> 0205 NE, Run (9 MP, 7 hexes, 6 heat; budget walk 6 / run 9 / jump 0)
@@ -135,7 +135,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 9.
   -- end of turn 2: Blue @ 0205 NE: HP 277, pilot hits 1, engine 0, gyro 0, heat 10
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 12.
   Success - Imp IMP-3E is standing (remaining running MP 3).
   [Movement select] Red: score 162.966 = dealt 7.55 x1.00 + (HP 501.0 - received 41.64 x1.97 - PSR 0.00) / enemy future 28.05 x my future 10.41 [two-ply, 30 of 41 spots (grid search) x 580 replies (short list); modeled reply Blue -> 0206 SE Walk]

@@ -10,7 +10,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red: CASPAR (modern, attack): utility -7.38 = -fall 0.00 + bravery -2.00 [1.00 x 2.00 x 1.5 - taken 5.00] - aggression 9.38 + close range 4.00 - facing 0 + hold 0.00 [745 of 745 spots; enemy still to move]
   [Movement] Red: 1607 SW -> 0909 NW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: CHARGE (TN 10, P 0.17, 44 dmg) on Red: score 336.262 = dealt 7.33 x1.00 + (HP 334.0 - received 5.07 x1.00 - PSR 0.00) / enemy future 3.05 x my future 3.05 [incl. self-damage] beats 334.000
@@ -34,7 +34,7 @@
   -- end of turn 1: Blue @ 0808 SE: HP 231, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 6).
   [Movement select] Red: CASPAR (modern, defend): utility 4.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 9.00 - facing 0 + hold 0.00 [1067 of 1067 spots; enemy still to move]
   [Movement] Red: 0909 NW -> 1107 SW, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 135.119 = dealt 4.07 x1.00 + (HP 322.0 - received 5.45 x0.94 - PSR 0.00) / enemy future 5.54 x my future 2.29 [enemy held at 1107; 281 spots with LOS]
@@ -59,7 +59,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   -- end of turn 2: Blue @ 1007 N: HP 231, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
   [Movement select] Blue: score 218.776 = dealt 1.67 x1.00 + (HP 322.0 - received 5.00 x0.94 - PSR 0.00) / enemy future 4.43 x my future 3.03 [two-ply, 191 of 1070 spots (grid search) x 1046 replies (short list); modeled reply Red -> 1107 SE Stand Still]
   [Movement] Blue: 1007 N -> 1508 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, defend): utility 20.26 = -fall 0.00 + bravery 5.25 [1.00 x 5.45 x 1.5 - taken 2.93] - aggression 0.00 + close range 8.00 - facing 0 + hold 7.02 [1037 of 1037 spots; enemy moved]
@@ -76,7 +76,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   -- end of turn 3: Blue @ 1508 SW: HP 231, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue: score 220.249 = dealt 2.79 x1.00 + (HP 322.0 - received 4.46 x0.94 - PSR 0.00) / enemy future 3.69 x my future 2.53 [two-ply, 137 of 858 spots (grid search) x 1033 replies (short list); modeled reply Red -> 1107 S Stand Still]
   [Movement] Blue: 1508 SW -> 0811 NW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, defend): utility 13.99 = -fall 0.00 + bravery 2.80 [1.00 x 5.12 x 1.5 - taken 4.88] - aggression 0.00 + close range 6.00 - facing 0 + hold 5.19 [1033 of 1033 spots; enemy moved]
@@ -95,7 +95,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   -- end of turn 4: Blue @ 0811 NW: HP 221, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 6).
   [Movement select] Blue: score 149.390 = dealt 4.18 x1.00 + (HP 312.0 - received 8.00 x0.98 - PSR 0.00) / enemy future 4.54 x my future 2.17 [two-ply, 290 of 1187 spots (grid search) x 1062 replies (short list); modeled reply Red -> 1107 S Stand Still]
   [Movement] Blue: 0811 NW -> 1113 NW, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Red: CASPAR (modern, attack): utility 41.97 = -fall 0.00 + bravery 25.22 [1.00 x 21.69 x 1.5 - taken 7.32] - aggression 0.00 + close range 6.00 - facing 0 + hold 10.75 [1059 of 1059 spots; enemy moved]
@@ -131,7 +131,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 5: Blue @ 1113 NW: HP 205, pilot hits 1, engine 0, gyro 0, heat 2
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
   [Movement select] Blue: score 81.935 = dealt 8.55 x1.00 + (HP 293.0 - received 22.62 x1.06 - PSR 0.00) / enemy future 6.94 x my future 1.89 [two-ply, 265 of 1101 spots (grid search) x 760 replies (short list); modeled reply Red -> 1112 S Jump]
   [Movement] Blue: 1113 NW -> 1113 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, attack): utility 29.13 = -fall 0.00 + bravery 15.87 [1.00 x 20.47 x 1.5 - taken 14.83] - aggression 0.00 + close range 6.00 - facing 0 + hold 7.26 [760 of 760 spots; enemy moved]
@@ -164,7 +164,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 6: Blue @ 1113 NW: HP 189, pilot hits 1, engine 0, gyro 0, heat 4
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 8; tie re-rolled Red 11, Blue 8).
   [Movement select] Blue: score 55.459 = dealt 2.63 x1.00 + (HP 272.0 - received 2.17 x1.19 - PSR 0.00) / enemy future 8.59 x my future 1.68 [two-ply, 265 of 1101 spots (grid search) x 760 replies (short list); modeled reply Red -> 1006 S Jump]
   [Movement] Blue: 1113 NW -> 1113 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, attack): utility 38.29 = -fall 0.00 + bravery 22.63 [1.00 x 21.92 x 1.5 - taken 10.25] - aggression 0.00 + close range 6.00 - facing 0 + hold 9.67 [760 of 760 spots; enemy moved]
@@ -190,7 +190,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 7: Blue @ 1113 NW: HP 179, pilot hits 1, engine 0, gyro 0, heat 2
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
   [Movement select] Red: CASPAR (modern, attack): utility 4.00 = -fall 0.00 + bravery -2.00 [1.00 x 0.00 x 1.5 - taken 2.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [760 of 760 spots; enemy still to move]
   [Movement] Red: 1107 S -> 1107 S, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 5) - includes a backward move
   [Movement select] Blue: score 77.926 = dealt 8.48 x1.00 + (HP 254.0 - received 8.19 x0.80 - PSR 0.00) / enemy future 8.92 x my future 2.50 [enemy held at 1107; 255 spots with LOS]
@@ -218,7 +218,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 8: Blue @ 1113 NW: HP 179, pilot hits 1, engine 0, gyro 0, heat 4
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
   [Movement select] Blue: score 122.299 = dealt 3.14 x1.00 + (HP 254.0 - received 3.22 x0.80 - PSR 0.00) / enemy future 8.11 x my future 3.84 [two-ply, 265 of 1101 spots (grid search) x 1062 replies (short list); modeled reply Red -> 1006 S Run]
   [Movement] Blue: 1113 NW -> 1113 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, attack): utility 48.21 = -fall 0.00 + bravery 30.72 [1.00 x 28.94 x 1.5 - taken 12.69] - aggression 0.00 + close range 6.00 - facing 0 + hold 11.50 [1059 of 1059 spots; enemy moved]
@@ -244,7 +244,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 9: Blue @ 1113 NW: HP 169, pilot hits 1, engine 0, gyro 0, heat 2
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red: CASPAR (modern, attack): utility 4.00 = -fall 0.00 + bravery -2.00 [1.00 x 0.00 x 1.5 - taken 2.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [760 of 760 spots; enemy still to move]
   [Movement] Red: 1107 S -> 1107 S, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 5) - includes a backward move
   [Movement select] Blue: score 137.951 = dealt 10.75 x1.00 + (HP 244.0 - received 4.62 x0.81 - PSR 0.00) / enemy future 8.30 x my future 4.40 [enemy held at 1107; 255 spots with LOS]
@@ -272,7 +272,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 10: Blue @ 1113 NW: HP 159, pilot hits 1, engine 0, gyro 0, heat 4
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
   [Movement select] Blue: score 119.773 = dealt 4.47 x1.00 + (HP 233.0 - received 4.86 x1.00 - PSR 0.00) / enemy future 8.62 x my future 4.36 [two-ply, 265 of 1101 spots (grid search) x 760 replies (short list); modeled reply Red -> 0608 SE Jump]
   [Movement] Blue: 1113 NW -> 1113 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, attack): utility 45.43 = -fall 0.00 + bravery 28.67 [1.00 x 28.54 x 1.5 - taken 14.13] - aggression 0.00 + close range 6.00 - facing 0 + hold 10.76 [760 of 760 spots; enemy moved]
@@ -315,7 +315,7 @@ FALL (automatic fall): Griffin GRF-1N takes 6 falling damage (1D6 4: front table
   -- end of turn 11: Blue @ 1113 NW: HP 143, pilot hits 1, engine 0, gyro 0, heat 2 [PRONE]
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 2).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
   Success - Griffin GRF-1N is standing (remaining running MP 0).
   [Movement select] Blue: score 83.084 = dealt 2.13 x1.00 + (HP 206.0 - received 5.29 x1.00 - PSR 0.00) / enemy future 10.03 x my future 4.05 [two-ply, 6 spots x 760 replies (short list); modeled reply Red -> 0608 SE Jump]
@@ -376,7 +376,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
   -- end of turn 12: Blue @ 1113 NW: HP 106, pilot hits 2, engine 0, gyro 0, heat 2 [UNCONSCIOUS]
 
 === TURN 13 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red: CASPAR (modern, attack): utility 44.84 = -fall 0.00 + bravery 33.84 [1.00 x 22.56 x 1.5 - taken 0.00] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [760 of 760 spots; enemy moved]
   [Movement] Red: 1107 S -> 1112 S, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 5)
   [Movement] Blue: all crew unconscious - skips movement (immobile).
@@ -413,7 +413,7 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 11.
   -- end of turn 13: Blue @ 1113 NW: HP 79, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 14 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 4).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 11.
   Success - Griffin GRF-1N is standing (remaining running MP 0).
   [Movement select] Blue: score 21.963 = dealt 0.00 x1.00 + (HP 106.0 - received 2.75 x1.00 - PSR 0.00) / enemy future 15.08 x my future 3.21 [two-ply, 6 spots x 796 replies (short list); modeled reply Red -> 0609 SE Jump]

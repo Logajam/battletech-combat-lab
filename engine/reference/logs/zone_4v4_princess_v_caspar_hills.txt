@@ -14,7 +14,7 @@
   Deployment: Red 4 placed at 1504 facing SW in zone NW+N+NE (21 of 93 hexes scanned, 21 in the safest group, room-to-move score 3.00).
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
   [Movement select] Blue 2: CASPAR (modern, attack): utility -80.60 = -fall 0.00 + bravery -43.10 [1.00 x 3.10 x 1.5 - taken 47.75] - aggression 37.50 + close range 0.00 - facing 0 + hold 0.00 [149 of 149 spots; 4 enemies, nearest still to move]
   [Movement] Blue 2: 0415 N -> 0411 N, Run (5 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 4: Princess (modern, attack): utility -47.42 = -fall 0.00 + bravery -23.87 [1.00 x 24.01 x 1.5 - taken 59.88] - aggression 25.00 + close range 3.45 - mutual support 2.00 - facing 0 + hold 0.00 [108 of 108 spots; 4 enemies, nearest still to move]
@@ -166,7 +166,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   -- end of turn 1: Blue 4 @ 0314 N: HP 315, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
   [Movement select] Red 4: Princess (modern, defend): utility -30.48 = -fall 0.00 + bravery -42.30 [1.00 x 3.30 x 1.5 - taken 47.25] - aggression 0.00 + close range 13.82 - mutual support 2.00 - facing 0 + hold 0.00 [77 of 77 spots; 4 enemies, nearest still to move]
   [Movement] Red 4: 1205 SW -> 0908 S, Run (5 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 4: CASPAR (modern, defend): utility -0.24 = -fall 0.00 + bravery -6.60 [1.00 x 26.86 x 1.5 - taken 46.89] - aggression 0.00 + close range 6.36 - facing 0 + hold 0.00 [206 of 206 spots; 4 enemies, nearest moved]
@@ -346,7 +346,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 11.
   -- end of turn 2: Blue 4 @ 0211 NE: HP 286, pilot hits 1, engine 0, gyro 0, heat 8 [PRONE]
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 3, Blue 5).
   [Movement select] Red 2: Princess (modern, defend): utility -0.74 = -fall 0.00 + bravery -12.38 [1.00 x 12.75 x 1.5 - taken 31.50] - aggression 0.00 + close range 11.64 - facing 0 + hold 0.00 [79 of 79 spots; 4 enemies, nearest still to move]
   [Movement] Red 2: 0907 SW -> 0907 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
@@ -444,7 +444,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 3: Blue 4 @ 0211 NE: HP 286, pilot hits 1, engine 0, gyro 0, heat 6
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 4: CASPAR (modern, defend): utility -20.09 = -fall 0.00 + bravery -29.00 [1.00 x 15.00 x 1.5 - taken 51.50] - aggression 0.00 + close range 8.91 - facing 0 + hold 0.00 [105 of 105 spots; 4 enemies, nearest still to move]
   [Movement] Blue 4: 0211 NE -> 0211 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 2: Princess (modern, defend): utility 75.29 = -fall 0.00 + bravery 44.99 [1.00 x 50.82 x 1.5 - taken 31.25] - aggression 0.00 + close range 11.64 - mutual support 2.00 - facing 0 + hold 20.66 [86 of 86 spots; 4 enemies, nearest still to move]
@@ -597,7 +597,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
   -- end of turn 4: Blue 4 @ 0211 NE: HP 286, pilot hits 1, engine 0, gyro 0, heat 8
 
 === TURN 5 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 4: Princess (modern, defend): utility -13.89 = -fall 0.00 + bravery -21.25 [1.00 x 5.50 x 1.5 - taken 29.50] - aggression 0.00 + close range 10.36 - mutual support 3.00 - facing 0 + hold 0.00 [26 of 26 spots; 4 enemies, nearest still to move]
   [Movement] Red 4: 0808 S -> 0808 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 2 / run 3 / jump 0)
   [Movement select] Blue 2: CASPAR (modern, defend): utility 26.18 = -fall 0.00 + bravery 8.00 [1.00 x 61.11 x 1.5 - taken 83.67] - aggression 0.00 + close range 18.18 - facing 0 + hold 0.00 [12 of 12 spots; 4 enemies, nearest still to move]
@@ -789,7 +789,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 5: Blue 4 @ 0212 NE: HP 286, pilot hits 1, engine 0, gyro 0, heat 5
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue 1: CASPAR (modern, defend): utility -32.64 = -fall 0.00 + bravery -39.00 [1.00 x 5.83 x 1.5 - taken 47.75] - aggression 0.00 + close range 6.36 - facing 0 + hold 0.00 [487 of 487 spots; 4 enemies, nearest still to move]
   [Movement] Blue 1: 1215 N -> 1215 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
   [Movement select] Red 2: Princess (modern, attack): utility 49.75 = -fall 0.00 + bravery 54.71 [1.00 x 60.35 x 1.5 - taken 35.82] - aggression 17.50 + close range 14.55 - mutual support 2.00 - facing 0 + hold 0.00 [85 of 85 spots; 3 enemies, nearest still to move]
@@ -967,7 +967,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 6: Blue 4 @ 0113 NE: HP 281, pilot hits 1, engine 0, gyro 0, heat 8
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue 4: CASPAR (modern, defend): utility -39.77 = -fall 0.00 + bravery -42.50 [1.00 x 6.00 x 1.5 - taken 51.50] - aggression 0.00 + close range 12.73 - formation 10.00 - facing 0 + hold 0.00 [111 of 111 spots; 4 enemies, nearest still to move]
   [Movement] Blue 4: 0113 NE -> 0411 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 2: Princess (modern, defend): utility 120.16 = -fall 0.00 + bravery 72.44 [1.00 x 53.00 x 1.5 - taken 7.06] - aggression 0.00 + close range 12.73 - facing 0 + hold 35.00 [64 of 64 spots; 2 enemies, nearest still to move]
@@ -1056,7 +1056,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
   -- end of turn 7: Blue 4 @ 0411 NE: HP 259, pilot hits 2, engine 0, gyro 0, heat 6
 
 === TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 4).
   [Movement select] Blue 4: CASPAR (modern, defend): utility -24.77 = -fall 0.00 + bravery -32.50 [1.00 x 15.00 x 1.5 - taken 55.00] - aggression 0.00 + close range 12.73 - formation 5.00 - facing 0 + hold 0.00 [116 of 116 spots; 4 enemies, nearest still to move]
   [Movement] Blue 4: 0411 NE -> 0411 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 4: Princess (modern, defend): utility 83.38 = -fall 0.00 + bravery 49.70 [1.00 x 57.26 x 1.5 - taken 36.19] - aggression 0.00 + close range 13.82 - mutual support 2.00 - facing 0 + hold 21.86 [21 of 21 spots; 2 enemies, nearest still to move]
@@ -1244,7 +1244,7 @@ Attack Phase PSR 2/2: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 8: Blue 4 @ 0411 NE: HP 167, pilot hits 2, engine 0, gyro 0, heat 8 [PRONE]
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 10).
   [Movement select] Red 3: Princess (modern, defend): utility 7.89 = -fall 0.00 + bravery -0.75 [1.00 x 8.33 x 1.5 - taken 13.25] - aggression 0.00 + close range 10.64 - mutual support 2.00 - facing 0 + hold 0.00 [491 of 491 spots; 2 enemies, nearest still to move]
   [Movement] Red 3: 1008 SW -> 0908 S, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
   [Movement select] Red 1: Princess (modern, defend): utility 15.73 = -fall 0.00 + bravery 6.00 [1.00 x 15.00 x 1.5 - taken 16.50] - aggression 0.00 + close range 12.73 - mutual support 3.00 - facing 0 + hold 0.00 [180 of 180 spots; 2 enemies, nearest still to move]
@@ -1473,7 +1473,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 9: Blue 4 @ 0412 NE: HP 93, pilot hits 2, engine 6, gyro 4, heat 8 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 11).
   [Movement select] Red 3: Princess (modern, defend): utility 17.02 = -fall 0.00 + bravery 11.75 [1.00 x 8.33 x 1.5 - taken 0.75] - aggression 0.00 + close range 8.27 - mutual support 3.00 - facing 0 + hold 0.00 [429 of 429 spots; enemy still to move]
   [Movement] Red 3: 0908 S -> 0907 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 4) - includes a backward move
   [Movement select] Red 1: Princess (modern, defend): utility 7.73 = -fall 0.00 + bravery -4.00 [1.00 x 0.00 x 1.5 - taken 4.00] - aggression 0.00 + close range 12.73 - mutual support 1.00 - facing 0 + hold 0.00 [188 of 188 spots; enemy still to move]
@@ -1514,7 +1514,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 10: Blue 4 @ 0412 NE: HP 93, pilot hits 2, engine 6, gyro 4, heat 8 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 11 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 11, Blue 11; tie re-rolled Red 6, Blue 10).
   [Movement select] Red 3: Princess (modern, attack): utility 12.11 = -fall 0.00 + bravery 18.00 [1.00 x 12.50 x 1.5 - taken 0.75] - aggression 17.50 + close range 5.91 - mutual support 4.00 - facing 0 + hold 9.70 [525 of 525 spots; enemy still to move]
   [Movement] Red 3: 0907 S -> 0907 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red 4: Princess (modern, attack): utility 4.55 = -fall 0.00 + bravery -4.00 [1.00 x 0.00 x 1.5 - taken 4.00] - aggression 5.00 + close range 14.55 - mutual support 1.00 - facing 0 + hold 0.00 [18 of 18 spots; enemy still to move]
@@ -1553,7 +1553,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 11: Blue 4 @ 0412 NE: HP 93, pilot hits 2, engine 6, gyro 4, heat 8 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
   [Movement select] Blue 3: CASPAR (modern, attack): utility -42.50 = -fall 0.00 + bravery -55.50 [1.00 x 0.00 x 1.5 - taken 55.50] - aggression 0.00 + close range 13.00 - facing 0 + hold 0.00 [309 of 309 spots; 4 enemies, nearest still to move]
   [Movement] Blue 3: 1013 N -> 0812 NE, Run (7 MP, 2 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Movement select] Red 3: Princess (modern, attack): utility 41.38 = -fall 0.00 + bravery 38.91 [1.00 x 25.94 x 1.5 - taken 0.00] - aggression 15.00 + close range 7.09 - mutual support 5.00 - facing 0 + hold 15.38 [541 of 541 spots; enemy moved]
@@ -1673,7 +1673,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 12: Blue 4 @ 0412 NE: HP 93, pilot hits 2, engine 6, gyro 4, heat 8 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 3: CASPAR (modern, attack): utility -41.75 = -fall 0.00 + bravery -54.75 [1.00 x 0.50 x 1.5 - taken 55.50] - aggression 0.00 + close range 13.00 - facing 0 + hold 0.00 [317 of 317 spots; 4 enemies, nearest still to move]
   [Movement] Blue 3: 0812 NE -> 0711 NE, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
   [Movement select] Red 2: Princess (modern, attack): utility 92.51 = -fall 0.00 + bravery 64.65 [1.00 x 44.35 x 1.5 - taken 1.88] - aggression 7.50 + close range 16.36 - mutual support 1.00 - facing 0 + hold 20.00 [16 of 16 spots; enemy moved]

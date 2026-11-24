@@ -14,7 +14,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
   [Movement select] Red 2: score 419.086 = dealt 0.00 x1.00 + (HP 326.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 9.83 x my best future 12.64 [two-ply, 50 of 177 spots (grid search) x 223 replies (short list); modeled reply: none with LOS]
   [Movement] Red 2: 1613 NW -> 1415 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 1: Hydra: rate 1.033 = (team 12.3 + gain 4.20 on Red 1) / (team 12.3 + cost 3.67 + risk 0.00) (2 of 2 enemies weighed, 684 spots; play-out of 32 spots, responders Red 1, Blue 2)
@@ -51,7 +51,7 @@
   -- end of turn 1: Blue 2 @ 0616 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 6).
   [Movement select] Red 2: score 423.772 = dealt 18.20 x1.00 + (HP 326.0 - received 10.51 x1.00 - PSR 0.00) / enemies' future on me 9.83 x my best future 12.64 [two-ply, 90 of 215 spots (grid search) x 221 replies (short list); modeled reply Blue 2 -> 0817 NE Walk]
   [Movement] Red 2: 1415 SW -> 1415 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 1: Hydra: rate 1.060 = (team 12.3 + gain 1.62 on Red 1) / (team 12.3 + cost 0.83 + risk 0.00) (2 of 2 enemies weighed, 1093 spots; play-out of 32 spots, responders Red 1, Blue 2)
@@ -77,7 +77,7 @@
   -- end of turn 2: Blue 2 @ 0714 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 5).
   [Movement select] Blue 1: Hydra: rate 1.033 = (team 12.3 + gain 3.23 on Red 1) / (team 12.3 + cost 2.73 + risk 0.00) (2 of 2 enemies weighed, 764 spots; play-out of 21 spots, responders Red 1, Blue 2, Red 2)
   [Movement] Blue 1: 0206 SE -> 0208 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Red 1: score 281.956 = dealt 5.93 x1.00 + (HP 334.0 - received 3.78 x1.00 - PSR 0.00) / enemies' future on me 5.17 x my best future 4.32 [two-ply, 297 of 930 spots (grid search) x 278 replies (short list); modeled reply Blue 2 -> 0809 NE Run]
@@ -134,7 +134,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 3: Blue 2 @ 0813 NE: HP 237, pilot hits 0, engine 0, gyro 0, heat 1
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 6).
   [Movement select] Red 2: score 867.830 = dealt 18.93 x1.00 + (HP 326.0 - received 7.62 x1.00 - PSR 0.00) / enemies' future on me 4.16 x my best future 11.10 [two-ply, 73 of 85 spots (grid search) x 271 replies (short list); modeled reply Blue 2 -> 1215 SE Run]
   [Movement] Red 2: 1617 S -> 1516 NW, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 1: Hydra: rate 2.205 = (team 21.2 + gain 4.96 on Red 2) / (team 11.2 + cost 0.69 + risk 0.00) (2 of 2 enemies weighed, 782 spots; play-out of 32 spots, responders Red 1, Blue 2)
@@ -205,7 +205,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 4: Blue 2 @ 1211 NE: HP 227, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
   [Movement select] Blue 1: Hydra: rate 1.772 = (team 19.6 + gain 1.29 on Red 2) / (team 11.7 + cost 0.08 + risk 0.00) (2 of 2 enemies weighed, 618 spots; play-out of 21 spots, responders Red 1, Blue 2, Red 2)
   [Movement] Blue 1: 0215 S -> 0217 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Red 1: score 57.195 = dealt 0.00 x1.00 + (HP 267.0 - received 1.77 x1.00 - PSR 0.00) / enemies' future on me 27.16 x my best future 5.86 [two-ply, 108 of 611 spots (grid search) x 286 replies (short list); modeled reply Blue 2 -> 1207 N Run]
@@ -273,7 +273,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 5: Blue 2 @ 1512 SE: HP 214, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 6 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 1: score 114.610 = dealt 4.19 x1.00 + (HP 267.0 - received 4.05 x1.00 - PSR 0.00) / enemies' future on me 17.41 x my best future 7.31 [two-ply, 170 of 541 spots (grid search) x 197 replies (short list); modeled reply Blue 2 -> 1508 NW Run]
   [Movement] Red 1: 1402 NW -> 1104 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
   [Movement select] Blue 1: Hydra: rate 1.917 = (team 17.1 + gain 4.95 on Red 2) / (team 11.4 + cost 0.05 + risk 0.00) (2 of 2 enemies weighed, 396 spots; play-out of 32 spots, responders Red 2, Blue 2)
@@ -347,7 +347,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 5: 
   -- end of turn 6: Blue 2 @ 1414 SW: HP 189, pilot hits 0, engine 0, gyro 0, heat 4 [PRONE]
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
   [Movement select] Red 1: score 284.761 = dealt 1.51 x1.00 + (HP 267.0 - received 0.08 x1.00 - PSR 0.00) / enemies' future on me 10.18 x my best future 10.80 [two-ply, 283 of 1077 spots (grid search) x 864 replies (short list); modeled reply Blue 1 -> 1013 N Jump]
   [Movement] Red 1: 1104 SW -> 1303 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue 1: Hydra: rate 1.390 = (team 12.3 + gain 6.78 on Red 2) / (team 10.9 + cost 2.80 + risk 0.00) (2 of 2 enemies weighed, 864 spots; play-out of 64 spots, responders Red 2)
@@ -390,7 +390,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 6.
   -- end of turn 7: Blue 2 @ 1614 NE: HP 184, pilot hits 0, engine 0, gyro 0, heat 1
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 3).
   [Movement select] Red 1: score 277.231 = dealt 5.69 x1.00 + (HP 267.0 - received 1.51 x1.00 - PSR 0.00) / enemies' future on me 10.15 x my best future 10.38 [two-ply, 235 of 905 spots (grid search) x 83 replies (short list); modeled reply Blue 2 -> 1610 N Run]
   [Movement] Red 1: 1303 SW -> 1305 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue 1: Hydra: rate 2.479 = (team 17.0 + gain 7.82 on Red 2) / (team 10.0 + cost 0.00 + risk 0.00) (2 of 2 enemies weighed, 820 spots; play-out of 32 spots, responders Red 2, Blue 2)
@@ -415,7 +415,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 6.
   -- end of turn 8: Blue 2 @ 1316 NE: HP 184, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 8).
   [Movement select] Red 1: score 282.285 = dealt 0.84 x1.00 + (HP 267.0 - received 0.36 x1.00 - PSR 0.00) / enemies' future on me 9.06 x my best future 9.56 [two-ply, 276 of 1009 spots (grid search) x 820 replies (short list); modeled reply Blue 1 -> 0111 NE Jump]
   [Movement] Red 1: 1305 S -> 1308 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 1: Hydra: rate 1.874 = (team 17.0 + gain 4.43 on Red 1) / (team 10.0 + cost 1.42 + risk 0.00) (2 of 2 enemies weighed, 820 spots; play-out of 32 spots, responders Red 2, Blue 2)
@@ -494,7 +494,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   -- end of turn 9: Blue 2 @ 1315 N: HP 184, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 6).
   [Movement select] Red 1: score 273.596 = dealt 4.74 x1.00 + (HP 259.0 - received 1.47 x1.00 - PSR 0.00) / enemies' future on me 7.95 x my best future 8.30 [two-ply, 166 of 708 spots (grid search) x 1057 replies (short list); modeled reply Blue 1 -> 1314 N Jump]
   [Movement] Red 1: 1308 NW -> 1608 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 5) - includes a backward move
   [Movement select] Blue 1: Hydra: rate 2.122 = (team 15.7 + gain 5.07 on Red 1) / (team 9.6 + cost 0.13 + risk 0.00) (2 of 2 enemies weighed, 1050 spots; play-out of 32 spots, responders Red 2, Blue 2)
@@ -606,7 +606,7 @@ FALL (automatic fall): Hunchback HBK-4G takes 5 falling damage (1D6 5: front tab
   -- end of turn 10: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 11 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 10, Blue 10; tie re-rolled Red 4, Blue 8).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 9.
   Success - Hunchback HBK-4G is standing (remaining running MP 0).
   [Movement select] Red 2: no spot deals damage even before the reply (two-ply, 6 spots) - closing fallback found nothing; nearest reachable spot to the enemy
@@ -636,7 +636,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 9.
   -- end of turn 11: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 12 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 11, Blue 11; tie re-rolled Red 7, Blue 11).
   [Movement select] Red 2: score 20.061 = dealt 0.00 x1.00 + (HP 180.0 - received 1.80 x1.11 - PSR 0.00) / enemy future 15.06 x my future 1.70 [two-ply, 9 spots x 1177 replies (short list); modeled reply Blue 1 -> 1016 NE Run]
   [Movement] Red 2: 1314 SE -> 1314 N, Run (2 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Red 1: score 64.291 = dealt 1.75 x1.00 + (HP 259.0 - received 5.19 x1.11 - PSR 0.00) / enemy future 7.46 x my future 1.84 [two-ply, 264 of 1138 spots (grid search) x 1177 replies (short list); modeled reply Blue 1 -> 0807 SE Run]
@@ -680,7 +680,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 12: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 13 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 12).
   [Movement select] Red 2: score 24.875 = dealt 0.00 x1.00 + (HP 174.0 - received 0.47 x1.00 - PSR 0.00) / enemy future 14.34 x my future 2.06 [two-ply, 9 spots x 863 replies (short list); modeled reply Blue 1 -> 1603 S Run]
   [Movement] Red 2: 1314 N -> 1314 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Red 1: score 80.965 = dealt 0.53 x1.00 + (HP 259.0 - received 2.76 x1.00 - PSR 0.00) / enemy future 6.88 x my future 2.16 [two-ply, 197 of 912 spots (grid search) x 863 replies (short list); modeled reply Blue 1 -> 1607 NW Walk]
@@ -728,7 +728,7 @@ FALL (automatic fall): Griffin GRF-1N takes 6 falling damage (1D6 2: front table
   -- end of turn 13: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 14 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 8; tie re-rolled Red 9, Blue 7).
   [Movement select] Blue 1: Hydra: rate 2.575 = (team 3.2 + gain 17.04 on Red 1) / (team 7.4 + cost 0.49 + risk 0.00) (2 of 2 enemies weighed, 1097 spots; play-out of 64 spots, responders Red 2)
   [Movement] Blue 1: 1007 NW -> 1007 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: score 25.353 = dealt 0.42 x0.99 + (HP 174.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 13.24 x my future 1.90 [enemy held at 1007; 9 spots with LOS]
@@ -770,7 +770,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 14: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 15 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 5).
   [Movement select] Blue 1: Hydra: rate 3.157 = (team 3.3 + gain 20.71 on Red 1) / (team 7.1 + cost 0.48 + risk 0.00) (2 of 2 enemies weighed, 1097 spots; play-out of 64 spots, responders Red 2)
   [Movement] Blue 1: 1007 NW -> 1007 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: score 25.526 = dealt 0.42 x0.99 + (HP 174.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 12.21 x my future 1.76 [enemy held at 1007; 9 spots with LOS]
@@ -813,7 +813,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
   -- end of turn 15: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 16 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 5).
   [Movement select] Red 2: score 30.661 = dealt 0.00 x1.00 + (HP 174.0 - received 2.94 x1.00 - PSR 0.00) / enemy future 11.39 x my future 2.04 [two-ply, 9 spots x 1130 replies (short list); modeled reply Blue 1 -> 0605 SE Walk]
   [Movement] Red 2: 1314 N -> 1314 NW, Walk (1 MP, 0 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Red 1: score 46.536 = dealt 3.68 x1.00 + (HP 195.0 - received 5.07 x1.00 - PSR 0.00) / enemy future 9.42 x my future 2.13 [two-ply, 118 of 551 spots (grid search) x 1130 replies (short list); modeled reply Blue 1 -> 0310 NE Run]
@@ -839,7 +839,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
   -- end of turn 16: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 17 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
   [Movement select] Red 2: score 30.472 = dealt 0.00 x1.00 + (HP 174.0 - received 2.81 x1.00 - PSR 0.00) / enemy future 10.75 x my future 1.91 [two-ply, 9 of 10 spots (grid search) x 1117 replies (short list); modeled reply Blue 1 -> 0605 SE Run]
   [Movement] Red 2: 1314 NW -> 1314 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Red 1: score 42.792 = dealt 0.18 x1.00 + (HP 195.0 - received 0.00 x1.00 - PSR 4.33) / enemy future 8.95 x my future 2.00 [two-ply, 108 of 551 spots (grid search) x 1117 replies (short list); modeled reply Blue 1 -> 1107 NW Jump]
@@ -901,7 +901,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 17: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 18 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 4).
   [Movement select] Blue 1: Hydra: rate 2.975 = (team 3.3 + gain 17.62 on Red 1) / (team 7.0 + cost 0.00 + risk 0.00) (2 of 2 enemies weighed, 1065 spots; play-out of 64 spots, responders Red 2)
   [Movement] Blue 1: 0605 SW -> 0605 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
@@ -958,7 +958,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
   -- end of turn 18: Blue 2 @ 1315 NE: HP 153, pilot hits 1, engine 6, gyro 4, heat 3 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 8, Blue 6).
   [Movement select] Blue 1: Hydra: rate 3.462 = (team 3.8 + gain 19.80 on Red 1) / (team 6.8 + cost 0.00 + risk 0.00) (2 of 2 enemies weighed, 1065 spots)
   [Movement] Blue 1: 0605 SW -> 0605 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.

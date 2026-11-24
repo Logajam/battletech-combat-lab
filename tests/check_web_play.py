@@ -264,7 +264,7 @@ const POLICY = (r) => {
       // the fire screen: weapons first, then any number of targets, then Fire! (the page plays the engine's questions from the plan)
       await page.waitForFunction(() => window.__bm.fire && window.__bm.decl, null, { timeout: 20000 }).catch(() => {});
       if (!out.target && await page.evaluate(() => !!window.__bm.decl)) {
-        if (out.leak === undefined) out.leak = await page.evaluate(() => { const i = __bm.shown.map((l) => /=== TURN/.test(l)).lastIndexOf(true); return __bm.shown.slice(i + 1).filter((l) => /\[Ranged\]|\[Heat\]|rolled|Firing order|Movement select/.test(l)); });
+        if (out.leak === undefined) out.leak = await page.evaluate(() => { const i = __bm.shown.map((l) => /=== TURN/.test(l)).lastIndexOf(true); return __bm.shown.slice(i + 1).filter((l) => /\[Ranged\]|\[Heat\]|rolled|Firing order|Movement select/.test(l) && !/^\s*Initiative/.test(l) && !/\[TAG\]/.test(l)); });   // the Initiative roll opens the turn and TAG is resolved before the ranged phase (p.200): no spoilers
         const before = await page.evaluate(() => __bm.fire.tcur);
         await tap('tgt-next'); await page.waitForTimeout(200);
         const base = await page.evaluate((b) => ({ rows: document.querySelectorAll('#wpanel .wrow').length, tn: document.querySelectorAll('#wpanel .tnp').length, pills: document.querySelectorAll('#map [data-tn-pill]').length, moved: __bm.fire.tcur !== b || __bm.req.enemies.length === 1, hold: !!document.querySelector('[data-act="hold"]') }), before);
@@ -321,8 +321,15 @@ const POLICY = (r) => {
     if (st.over) { solo.over = true; break; }
     last = st.seq;
     if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
-    if (st.kind === 'tag') { solo.tags++; await tapSel('[data-act="tag"][data-id=""]'); }
+    if (st.kind === 'tag') {
+      // the second time: designate (bug B16: the TAG line, with its number's parts, is in the report before the ranged phase); then skip
+      solo.tags++;
+      if (solo.tags === 2 && await page.locator('[data-act="tag"][data-aim]').count()) { solo.designated = true; await tapSel('[data-act="tag"][data-aim]'); }
+      else await tapSel('[data-act="tag"][data-id=""]');
+    }
     else if (st.kind === 'target') {
+      if (solo.designated && solo.tagShown === undefined) solo.tagShown = await page.evaluate(() => ({ line: __bm.shown.some((l) => /\[TAG\].*gunnery \d/.test(l)), html: /TAG: .*needs \d+/.test(document.getElementById('rbody') ? document.getElementById('rbody').innerText : "") }));
+      if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
       await page.waitForFunction(() => !__bm.req || __bm.req.kind !== 'target' || (__bm.fire && __bm.fire.pvt.size), null, { timeout: 20000 }).catch(() => {});
       const ok = await page.evaluate(() => { const F = __bm.fire; if (!F) return false; for (const [id, t] of F.pvt) { const w = t.req && t.req.weapons.find((x) => x.in_range); if (w) { setTcur(id); __bm.decl.sel.add(w.id); syncAssign(); return true; } } return false; });
       if (ok) { solo.fired++; await tapSel('[data-act="fire-go"]'); } else if (await page.evaluate(() => !!(__bm.req && __bm.req.kind === 'target'))) await tapSel('[data-act="hold"]');
@@ -340,6 +347,8 @@ const POLICY = (r) => {
       else if (k === "declaration") send({ weapons: [] });
       else send({ target: null, use: false }); });
   }
+  // Initiative shown (Daniel, 2026-11-24): the title-bar chip with the throws, and the report's Initiative lines carry the dice
+  solo.init = await page.evaluate(() => ({ lines: __bm.log.filter((l) => /Initiative/.test(l)).length, rolled: __bm.log.filter((l) => /Initiative.*\(rolled [^)]*\d/.test(l)).length }));
   const sent = await page.evaluate(() => __sent);
   // a target answer nobody tapped is right only as the plan's "no more targets" straight after its own declaration
   solo.auto = sent.filter((x, i) => x.kind === 'target' && !x.tap && !(i > 0 && sent[i - 1].kind === 'declaration' && sent[i - 1].unit === x.unit)).length;
@@ -430,6 +439,10 @@ def main():
         report(wy.get("n") == 2 and wy.get("marks", 0) >= 2 and wy.get("afterUndo") == 1, f"two waypoints can be planned and undone one by one ({wy})")
         so = out.get("solo") or {}
         report(so.get("over") and so.get("fired", 0) >= 2 and so.get("tags", 0) >= 2 and so.get("auto") == 0, f"after Skip TAG and Fire! the page never answers a later fire question by itself (B10 / B15; {so})")
+        ts = so.get("tagShown") or {}
+        report(not so.get("designated") or (ts.get("line") and ts.get("html")), f"a TAG attack is in the report, its number's parts spelled out, before the ranged phase (B16; {ts})")
+        ini = so.get("init") or {}
+        report(ini.get("lines", 0) > 0 and ini.get("rolled") == ini.get("lines"), f"every turn's Initiative dice are shown: each report line carries the dice ({ini})")
         pg = out["page"]
         report(pg["over"] and {"deploy", "movement", "target"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))

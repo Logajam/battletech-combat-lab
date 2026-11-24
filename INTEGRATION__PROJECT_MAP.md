@@ -462,6 +462,9 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s35-bugs2) INITIATIVE DICE AND TAG REPORT** (2026-11-24): `forces::initiative_order` (`Battle::initiative_throws`), `orchestrator::log_initiative`, `attack_resolution::weapon_attack_parts`
+  (the parts must sum to the TAG number: the leftover goes to "other"), tag.rs `roll_designation`'s line, `stage6_battles.rs` `known_changes`, play.js report section "tag". Reference logs updated
+  (only those two kinds of line changed, checked line by line).
 - **(s35-bugs) PLAY BUG HUNT** (2026-11-24): bugs B10 / B15, A2, B11, B13 of PLAYER_DECISIONS Section 24. `play.js`: the Fire! plan's `at` / `scriptLive` (answers only the
   question after its own), `standPlan` and the stand_up handler (stand planned with the move), turning in place (`onUnitTap` on the mover, the ring in `drawTurnArrows` with nothing chosen),
   `inspect` / `DOCK.unit` and `HOLD_SLOP` (long press opens the Inspector). `play_session.rs`: `Screen::stand_plan`, the stand_up question's reach / path queries and "plan" answer,
@@ -817,6 +820,22 @@ moved-unit signal, initiative in the title bar; firing: ground target with the -
 would bring a target into sight, one shot per weapon per turn, long-press on an enemy; TAG: commit button, two reports of TAG ending the person's whole ranged phase, TN in the report; reports: hit-by-hit
 effects, who / who, critical slots highlighted, opens at the latest phase, Get Results; physical attacks: the ranged weapons table, best limbs only, their damage in the results' per-weapon stats; left / right health bars; REC as the replay bar; Play
 and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of the whole conversation for missed details).
+
+**ENGINE PASS FOR MISSING OPTIONS (Daniel, 2026-11-24: "With turning on the ground missing, I think were going to have to do an engine pass
+to add in missing options. But lets continue bug fixes. We'll probaby find more holes along the way.")** Holes found so far, to add to as the bug hunt
+goes on: (1) a 'Mech that stays prone may still change facing at 1 MP a hexside (Core p.51); the engine gives a unit that stays prone no move;
+(2) the optional Initiative Die (Core, Initiative Phase section) is not built; (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
+item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
+the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
+(only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) Engine bug found with it: `weapon_attack_tns` with
+`at_hex` (TAG at the hex) drops the target's modifiers but never adds the -4, so TAG at a hex is 4 too hard; changing it changes bot TAG choices.
+Also: dropping to the ground, voluntary shutdown, eject (no homes yet, DECISION_HOMES Section 10 item 6).
+
+**THE ANSWER KEY HAS DRIFTED (found 2026-11-24, Claude):** `engine/core/tests/stage6_battles.rs` (the Rust v the frozen Python answer key, battle by
+battle) is NOT in `run_checks.py`, and on main 41 of its 63 battles already fail (the 'ref_' and 'team_' battles at dice call 4-5, many 'cov_'
+battles later): intended engine changes since the key was frozen. Daniel, 2026-11-24: "The answer key is there to prevent unintended changes. Its not
+there to hold us back." Known, deliberate differences are listed in that test's `known_changes`; the failing battles need sorting (re-freeze the
+key from today's engine, or list each change). Until then the 91 Rust reference battles are the working guard.
 
 **Known issues to fix later (Daniel, 2026-11-21):**
 - **Gladiator vs Gladiator ran a deployment step with the Core Rulebook's "walk on" setting active.**

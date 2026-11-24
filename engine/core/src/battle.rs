@@ -172,6 +172,9 @@ pub struct Battle {
     pub player: crate::player_choices::PlayerChoices,
     /// each team's own settings (TEAM_SETTINGS; team_settings.rs): (team, settings; None while they stand in `cfg`)
     pub team_cfgs: Vec<(String, Option<Config>)>,
+    /// the last Initiative roll's throws, round by round (a tie re-rolls among the tied teams, p.39): the turn's Initiative log
+    /// line shows them (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be shown")
+    pub initiative_throws: Vec<Vec<(String, i64)>>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -250,6 +253,7 @@ impl Battle {
             distant_aims: Vec::new(),
             player: Default::default(),
             team_cfgs,
+            initiative_throws: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

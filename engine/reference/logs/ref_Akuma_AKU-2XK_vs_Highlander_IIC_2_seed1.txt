@@ -10,7 +10,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 3).
   [Movement select] Blue: score 640.206 = dealt 2.26 x1.00 + (HP 540.0 - received 0.57 x1.01 - PSR 0.00) / enemy future 21.76 x my future 25.73 [two-ply, 92 of 258 spots (grid search) x 134 replies (short list); modeled reply Red -> 1513 NW Run]
   [Movement] Blue: 0105 SE -> 0307 S, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 3)
   [Movement select] Red: score 467.491 = dealt 2.38 x1.01 + (HP 555.0 - received 4.90 x1.01 - PSR 0.00) / enemy future 25.73 x my future 21.76 [enemy held at 0307; 54 spots with LOS]
@@ -36,7 +36,7 @@
   -- end of turn 1: Blue @ 0307 S: HP 402, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 9; tie re-rolled Red 10, Blue 4).
   [Movement select] Blue: score 624.039 = dealt 9.11 x1.00 + (HP 540.0 - received 1.71 x1.01 - PSR 0.00) / enemy future 21.76 x my future 24.86 [two-ply, 137 of 304 spots (grid search) x 134 replies (short list); modeled reply Red -> 1513 NW Run]
   [Movement] Blue: 0307 S -> 0307 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
   [Movement select] Red: score 478.483 = dealt 4.71 x1.01 + (HP 555.0 - received 13.62 x1.01 - PSR 0.00) / enemy future 24.86 x my future 21.76 [enemy held at 0307; 54 spots with LOS]
@@ -78,7 +78,7 @@
   -- end of turn 2: Blue @ 0307 S: HP 397, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
   [Movement select] Red: score 443.636 = dealt 0.97 x1.02 + (HP 541.0 - received 1.28 x1.00 - PSR 0.00) / enemy future 21.36 x my future 17.52 [two-ply, 35 of 134 spots (grid search) x 304 replies (short list); modeled reply Blue -> 0408 N Jump]
   [Movement] Red: 1609 SW -> 1407 N, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 654.230 = dealt 5.59 x1.00 + (HP 535.0 - received 3.00 x1.01 - PSR 0.00) / enemy future 17.52 x my future 21.36 [enemy held at 1407; 41 spots with LOS]
@@ -115,7 +115,7 @@
   -- end of turn 3: Blue @ 0608 SE: HP 392, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 10).
   [Movement select] Red: score 421.698 = dealt 2.92 x1.02 + (HP 537.0 - received 5.76 x1.00 - PSR 0.00) / enemy future 19.01 x my future 14.99 [two-ply, 32 of 135 spots (grid search) x 388 replies (short list); modeled reply Blue -> 0605 N Run]
   [Movement] Red: 1407 N -> 1505 N, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -142,7 +142,7 @@
   -- end of turn 4: Blue @ 0605 N: HP 392, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 8).
   [Movement select] Blue: score 678.399 = dealt 37.14 x1.00 + (HP 530.0 - received 19.95 x1.00 - PSR 0.00) / enemy future 12.25 x my future 15.41 [two-ply, 176 of 350 spots (grid search) x 133 replies (short list); modeled reply Red -> 1304 SW Run]
   [Movement] Blue: 0605 N -> 0706 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
   [Movement select] Red: score 428.748 = dealt 20.97 x1.00 + (HP 537.0 - received 24.20 x1.00 - PSR 0.00) / enemy future 15.41 x my future 12.25 [enemy held at 0706; 36 spots with LOS]
@@ -206,7 +206,7 @@ FALL (failed Attack Phase PSR): Highlander IIC 2 takes 9 falling damage (1D6 3: 
   -- end of turn 5: Blue @ 0706 NE: HP 358, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 6 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 10).
   [Movement select] Red: score 962.576 = dealt 27.18 x1.00 + (HP 524.0 - received 7.42 x1.01 - PSR 0.00) / enemy future 8.42 x my future 15.24 [two-ply, 77 of 101 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0706 NE Run]
   [Movement] Red: 1502 N -> 1502 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 3.
@@ -282,7 +282,7 @@ FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 2: fro
   -- end of turn 6: Blue @ 0806 SE: HP 334, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 12).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   Success - Akuma AKU-2XK is standing (remaining running MP 3).
   [Movement select] Red: score 440.220 = dealt 14.97 x1.00 + (HP 488.0 - received 40.84 x1.00 - PSR 0.00) / enemy future 17.47 x my future 16.62 [two-ply, 36 of 53 spots (grid search) x 371 replies (short list); modeled reply Blue -> 0806 NE Stand Still]
@@ -362,7 +362,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 7: Blue @ 0806 SE: HP 334, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 10).
   [Movement select] Red: score 279.745 = dealt 11.44 x1.00 + (HP 437.0 - received 20.81 x1.00 - PSR 0.00) / enemy future 21.88 x my future 14.11 [two-ply, 50 of 95 spots (grid search) x 371 replies (short list); modeled reply Blue -> 1106 NE Jump]
   [Movement] Red: 1601 S -> 1601 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 738.703 = dealt 15.51 x1.00 + (HP 472.0 - received 5.71 x1.00 - PSR 0.00) / enemy future 14.11 x my future 21.88 [enemy held at 1601; 106 spots with LOS]
@@ -445,7 +445,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 8: Blue @ 1107 NW: HP 314, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red: score 238.830 = dealt 5.53 x1.00 + (HP 423.0 - received 37.89 x1.00 - PSR 0.00) / enemy future 22.30 x my future 13.51 [two-ply, 48 of 95 spots (grid search) x 318 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
   [Movement] Red: 1601 S -> 1604 S, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 774.505 = dealt 37.89 x1.00 + (HP 452.0 - received 5.56 x1.03 - PSR 0.00) / enemy future 13.51 x my future 22.30 [enemy held at 1604; 81 spots with LOS]
@@ -516,7 +516,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 9: Blue @ 1107 NW: HP 314, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
   [Movement select] Red: score 190.539 = dealt 2.92 x1.00 + (HP 396.0 - received 43.13 x0.86 - PSR 0.00) / enemy future 23.49 x my future 12.28 [two-ply, 73 of 106 spots (grid search) x 318 replies (short list); modeled reply Blue -> 1208 NE Run]
   [Movement] Red: 1604 S -> 1605 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 905.692 = dealt 57.36 x0.86 + (HP 452.0 - received 4.17 x1.03 - PSR 0.00) / enemy future 12.28 x my future 23.49 [enemy held at 1605; 99 spots with LOS]
@@ -575,7 +575,7 @@ FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 4: fro
   -- end of turn 10: Blue @ 1308 NW: HP 309, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 4).
   [Movement select] Blue: score 1337.711 = dealt 84.47 x1.21 + (HP 447.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 9.05 x my future 25.00 [two-ply, 130 of 347 spots (grid search) x 1 replies (short list); modeled reply Red -> 1605 NE Run]
   [Movement] Blue: 1308 NW -> 1508 SE, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 3)
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 4.
@@ -725,7 +725,7 @@ FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 1: rea
   -- end of turn 11: Blue @ 1508 SE: HP 292, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue: score 1458.344 = dealt 98.85 x1.09 + (HP 428.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 9.92 x my future 31.29 [two-ply, 153 of 281 spots (grid search) x 1 replies (short list); modeled reply Red -> 1307 SW Run]
   [Movement] Blue: 1508 SE -> 1607 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
 Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 11.
@@ -955,7 +955,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 7.
   -- end of turn 12: Blue @ 1607 SW: HP 272, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 13 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 6.
   Failed to stand.
 FALL (failed to stand): Akuma AKU-2XK takes 9 falling damage (1D6 4: front table, 5-pt clusters).

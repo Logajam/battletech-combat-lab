@@ -14,7 +14,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
   [Movement select] Red 2: score 419.086 = dealt 0.00 x1.00 + (HP 326.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 9.83 x my best future 12.64 [two-ply, 50 of 177 spots (grid search) x 223 replies (short list); modeled reply: none with LOS]
   [Movement] Red 2: 1613 NW -> 1415 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: score 417.575 = dealt 2.60 x1.00 + (HP 326.0 - received 3.20 x1.00 - PSR 0.00) / enemies' future on me 9.83 x my best future 12.64 [two-ply, 40 of 223 spots (grid search) x 739 replies (short list); modeled reply Red 1 -> 1609 SW Stand Still]
@@ -56,7 +56,7 @@
   -- end of turn 1: Blue 2 @ 0616 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 6).
   [Movement select] Blue 2: score 447.442 = dealt 8.67 x1.00 + (HP 326.0 - received 6.66 x1.00 - PSR 0.00) / enemies' future on me 9.20 x my best future 12.64 [two-ply, 60 of 221 spots (grid search) x 215 replies (short list); modeled reply Red 2 -> 0917 NW Run]
   [Movement] Blue 2: 0616 SE -> 0315 SE, Walk (3 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red 2: score 405.344 = dealt 5.42 x1.00 + (HP 326.0 - received 4.13 x1.00 - PSR 0.00) / enemies' future on me 10.18 x my best future 12.64 [two-ply, 123 of 215 spots (grid search) x 1138 replies (short list); modeled reply Blue 1 -> 0716 NE Run]
@@ -91,7 +91,7 @@
   -- end of turn 2: Blue 2 @ 0315 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 10).
   [Movement select] Red 2: score 464.977 = dealt 18.20 x1.00 + (HP 326.0 - received 11.06 x1.00 - PSR 0.00) / enemies' future on me 8.91 x my best future 12.64 [two-ply, 91 of 212 spots (grid search) x 283 replies (short list); modeled reply Blue 2 -> 0717 NE Walk]
   [Movement] Red 2: 1316 NW -> 1316 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: score 500.670 = dealt 14.62 x1.00 + (HP 326.0 - received 7.29 x1.00 - PSR 0.00) / enemies' future on me 8.29 x my best future 12.64 [two-ply, 62 of 283 spots (grid search) x 1185 replies (short list); modeled reply Red 1 -> 0512 SW Run (CHARGE)]
@@ -149,7 +149,7 @@ FALL (automatic fall): Griffin GRF-1N takes 6 falling damage (1D6 6: front table
   -- end of turn 3: Blue 2 @ 0412 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 6).
   [Movement select] Blue 2: score 597.774 = dealt 14.26 x1.00 + (HP 326.0 - received 1.25 x1.00 - PSR 0.00) / enemies' future on me 8.11 x my best future 14.57 [two-ply, 78 of 289 spots (grid search) x 1 replies (short list); modeled reply Red 1 -> 1109 NW Run]
   [Movement] Blue 2: 0412 NE -> 0510 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red 2: score 655.804 = dealt 9.14 x1.00 + (HP 326.0 - received 1.32 x1.00 - PSR 0.00) / enemies' future on me 6.35 x my best future 12.64 [two-ply, 91 of 212 spots (grid search) x 1156 replies (short list); modeled reply Blue 1 -> 0715 SE Run]
@@ -206,7 +206,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 4: fr
   -- end of turn 4: Blue 2 @ 0510 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 3).
   [Movement select] Blue 2: score 737.161 = dealt 19.12 x1.00 + (HP 326.0 - received 2.18 x1.00 - PSR 0.00) / enemies' future on me 8.61 x my best future 19.09 [two-ply, 68 of 302 spots (grid search) x 212 replies (short list); modeled reply Red 2 -> 1114 N Run]
   [Movement] Blue 2: 0510 N -> 0808 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red 2: score 876.803 = dealt 8.71 x1.00 + (HP 326.0 - received 0.83 x1.00 - PSR 0.00) / enemies' future on me 4.74 x my best future 12.64 [two-ply, 91 of 212 spots (grid search) x 1150 replies (short list); modeled reply Blue 1 -> 0916 NE Run]
@@ -301,7 +301,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 3: fr
   -- end of turn 5: Blue 2 @ 0808 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 2: score 289.124 = dealt 0.73 x1.00 + (HP 326.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 12.64 x my future 11.18 [two-ply, 59 of 272 spots (grid search) x 212 replies (short list); modeled reply Red 2 -> 0914 NW Run]
   [Movement] Blue 2: 0808 NE -> 0509 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue 1: score 118.647 = dealt 9.53 x1.01 + (HP 324.0 - received 9.07 x0.96 - PSR 0.00) / enemy future 5.36 x my future 1.85 [two-ply, 277 of 1141 spots (grid search) x 212 replies (short list); modeled reply Red 2 -> 1014 NW Walk]
@@ -330,7 +330,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 3: fr
   -- end of turn 6: Blue 2 @ 0509 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
   [Movement select] Red 2: score 288.076 = dealt 5.20 x1.00 + (HP 326.0 - received 6.86 x1.00 - PSR 0.00) / enemies' future on me 14.26 x my best future 12.64 [two-ply, 99 of 248 spots (grid search) x 294 replies (short list); modeled reply Blue 2 -> 0713 SE Run]
   [Movement] Red 2: 1114 N -> 1114 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: score 326.000 = dealt 0.00 x1.01 + (HP 326.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 12.64 x my future 12.64 [enemy held at 1114; 63 spots with LOS]
@@ -352,7 +352,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 3: fr
   -- end of turn 7: Blue 2 @ 0507 S: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
   [Movement select] Red 2: score 296.180 = dealt 5.83 x1.00 + (HP 326.0 - received 2.57 x1.00 - PSR 0.00) / enemies' future on me 14.08 x my best future 12.64 [two-ply, 55 of 248 spots (grid search) x 269 replies (short list); modeled reply Blue 2 -> 1009 S Run]
   [Movement] Red 2: 1114 N -> 0814 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: score 326.010 = dealt 0.87 x1.01 + (HP 326.0 - received 0.87 x1.00 - PSR 0.00) / enemy future 12.64 x my future 12.64 [enemy held at 0814; 81 spots with LOS]
@@ -380,7 +380,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 3: fr
   -- end of turn 8: Blue 2 @ 0611 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 7).
   [Movement select] Red 2: score 291.970 = dealt 13.00 x1.00 + (HP 326.0 - received 18.42 x1.00 - PSR 0.00) / enemies' future on me 13.94 x my best future 12.64 [two-ply, 95 of 267 spots (grid search) x 311 replies (short list); modeled reply Blue 2 -> 0714 S Run]
   [Movement] Red 2: 0814 SW -> 0616 NE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 1: score 114.801 = dealt 2.79 x1.00 + (HP 324.0 - received 0.00 x1.22 - PSR 0.00) / enemy future 3.75 x my future 1.30 [enemy held at 0616; 123 spots with LOS]
@@ -435,7 +435,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 3: 
   -- end of turn 9: Blue 2 @ 0611 SE: HP 213, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 11).
   [Movement select] Red 2: score 450.610 = dealt 37.65 x1.00 + (HP 301.0 - received 18.57 x1.00 - PSR 0.00) / enemies' future on me 13.06 x my best future 19.09 [two-ply, 71 of 254 spots (grid search) x 884 replies (short list); modeled reply Blue 1 -> 1410 SW Stand Still]
   [Movement] Red 2: 0616 NE -> 0612 NE, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 1: score 358.217 = dealt 4.55 x0.99 + (HP 324.0 - received 0.78 x1.05 - PSR 0.00) / enemy future 3.12 x my future 3.41 [enemy held at 0612; 191 spots with LOS]
@@ -549,7 +549,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
   -- end of turn 10: Blue 2 @ 0513 SE: HP 208, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
   [Movement select] Blue 1: score 2708.294 = dealt 2.84 x1.00 + (HP 324.0 - received 0.00 x0.96 - PSR 0.00) / enemy future 1.68 x my future 14.03 [two-ply, 188 of 984 spots (grid search) x 300 replies (short list); modeled reply Red 2 -> 0214 SE Walk]
   [Movement] Blue 1: 1313 N -> 1517 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 2: score 909.752 = dealt 23.67 x1.00 + (HP 291.0 - received 11.58 x0.96 - PSR 0.00) / enemy future 12.06 x my future 38.19 [two-ply, 65 of 238 spots (grid search) x 300 replies (short list); modeled reply Red 2 -> 0515 SW Walk]

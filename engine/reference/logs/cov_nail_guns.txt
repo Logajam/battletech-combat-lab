@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 69.626 = dealt 0.00 x1.00 + (HP 222.0 - received 2.93 x1.00 - PSR 0.00) / enemy future 13.85 x my future 4.40 [two-ply, 113 of 457 spots (grid search) x 34 replies (short list); modeled reply Red -> 0505 S Stand Still]
   [Movement] Blue: 0507 N -> 0409 N, Jump (3 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 3)
   [Movement select] Red: score 1915.964 = dealt 2.93 x1.00 + (HP 608.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.40 x my future 13.85 [enemy held at 0409; 25 spots with LOS]
@@ -29,7 +29,7 @@
   -- end of turn 1: Blue @ 0409 N: HP 135, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 4).
   [Movement select] Blue: score 64.603 = dealt 0.00 x1.00 + (HP 218.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.14 x my future 3.30 [two-ply, 150 of 475 spots (grid search) x 33 replies (short list); modeled reply: none with LOS]
   [Movement] Blue: 0409 N -> 0208 NW, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 3)
   [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
@@ -42,7 +42,7 @@
   -- end of turn 2: Blue @ 0208 NW: HP 135, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red: score 2064.355 = dealt 12.68 x1.00 + (HP 608.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.64 x my future 8.91 [two-ply, 30 of 32 spots (grid search) x 350 replies (short list); modeled reply Blue -> 0406 NE Run]
   [Movement] Red: 0506 NE -> 0605 N, Walk (2 MP, 1 hexes, 1 heat; budget walk 2 / run 3 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
@@ -57,7 +57,7 @@
   -- end of turn 3: Blue @ 0507 N: HP 135, pilot hits 0, engine 0, gyro 0, heat 7
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 9; tie re-rolled Red 9, Blue 10).
   [Movement select] Red: score 2041.283 = dealt 19.32 x1.00 + (HP 608.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 2.20 x my future 7.43 [two-ply, 27 of 29 spots (grid search) x 356 replies (short list); modeled reply Blue -> 0505 NE Run]
   [Movement] Red: 0605 N -> 0604 SW, Run (3 MP, 1 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
   [Movement select] Blue: score 67.683 = dealt 8.80 x1.00 + (HP 218.0 - received 19.32 x1.00 - PSR 0.00) / enemy future 7.43 x my future 2.20 [enemy held at 0604; 121 spots with LOS]
@@ -103,7 +103,7 @@ FALL (automatic fall): Jabberwocky JAW-66D ConstructionMech takes 5 falling dama
   -- end of turn 4: Blue @ 0505 NE: HP 110, pilot hits 0, engine 0, gyro 0, heat 8 [PRONE]
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 3).
 No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.
   [Movement] Blue: still prone at 0505.
   [Movement select] Red: score 7098.044 = dealt 45.12 x1.00 + (HP 603.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 11.70 [enemy held at 0505; 18 spots with LOS]
@@ -246,7 +246,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
   -- end of turn 5: Blue @ 0505 NE: HP 85, pilot hits 0, engine 0, gyro 0, heat 7 [PRONE]
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
 No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.
   [Movement] Blue: still prone at 0505.
   [Movement select] Red: score 9746.986 = dealt 45.68 x1.00 + (HP 603.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 16.09 [enemy held at 0505; 18 spots with LOS]

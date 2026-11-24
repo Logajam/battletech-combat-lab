@@ -22,7 +22,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
   [Movement select] Blue 3: score 298.566 = dealt 2.54 x1.00 + (HP 484.0 - received 4.32 x1.00 - PSR 0.00) / enemies' future on me 14.22 x my best future 8.77 [two-ply, 38 of 131 spots (grid search) x 423 replies (short list); modeled reply Red 4 -> 1509 SW Walk]
   [Movement] Blue 3: 0115 NE -> 0517 SE, Run (5 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: Princess (modern, attack): utility -20.56 = -fall 0.00 + bravery -8.19 [1.00 x 12.39 x 1.5 - taken 26.78] - aggression 20.00 + close range 11.64 - mutual support 4.00 - facing 0 + hold 0.00 [111 of 111 spots; 4 enemies, nearest moved]
@@ -209,7 +209,7 @@ FALL (failed Attack Phase PSR): Kontio  takes 4 falling damage (1D6 3: front tab
   -- end of turn 1: Blue 4 @ 1305 SE: HP 161, pilot hits 0, engine 1, gyro 1, heat 14 [PRONE]
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 4, Blue 9).
   [Movement select] Red 1: Princess (modern, defend): utility 12.01 = -fall 0.00 + bravery 0.38 [1.00 x 15.75 x 1.5 - taken 23.25] - aggression 0.00 + close range 11.64 - facing 0 + hold 0.00 [140 of 140 spots; 4 enemies, nearest still to move]
   [Movement] Red 1: 1212 SW -> 1212 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 1: score 871.065 = dealt 1.32 x1.00 + (HP 361.0 - received 0.40 x1.00 - PSR 0.00) / enemies' future on me 3.83 x my best future 9.24 [two-ply, 122 of 209 spots (grid search) x 195 replies (short list); modeled reply Red 2 -> 0914 N Run]
@@ -312,7 +312,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 12.
   -- end of turn 2: Blue 4 @ 1312 NW: HP 151, pilot hits 0, engine 1, gyro 1, heat 11
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
   [Movement select] Blue 2: score 1319.011 = dealt 19.84 x1.00 + (HP 326.0 - received 2.09 x1.00 - PSR 0.00) / enemies' future on me 3.14 x my best future 12.59 [two-ply, 109 of 544 spots (grid search) x 140 replies (short list); modeled reply Red 1 -> 1011 NW Walk]
   [Movement] Blue 2: 0103 SE -> 0407 S, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: Princess (modern, defend): utility 6.16 = -fall 0.00 + bravery -0.75 [1.00 x 15.00 x 1.5 - taken 23.25] - aggression 0.00 + close range 8.91 - mutual support 2.00 - facing 0 + hold 0.00 [110 of 110 spots; 4 enemies, nearest still to move]
@@ -518,7 +518,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   -- end of turn 3: Blue 4 @ 1016 S: HP 151, pilot hits 0, engine 1, gyro 1, heat 9
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 5).
 Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 8.
   Success - Awesome AWS-8Q is standing (remaining running MP 0).
   [Movement select] Blue 3: score 95.945 = dealt 22.41 x1.00 + (HP 393.0 - received 67.21 x1.00 - PSR 0.00) / enemies' future on me 51.16 x my best future 11.55 [two-ply, 6 spots x 514 replies (short list); modeled reply Red 3 -> 0714 S Run]
@@ -860,7 +860,7 @@ FALL (failed Attack Phase PSR): Hammerhead  takes 5 falling damage (1D6 1: rear 
   -- end of turn 4: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 5 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 8).
   [Movement select] Red 3: Princess (modern, defend): utility 14.53 = -fall 0.00 + bravery 5.93 [1.00 x 8.75 x 1.5 - taken 7.20] - aggression 0.00 + close range 6.36 - mutual support 4.00 - facing 0 + hold 6.24 [499 of 499 spots; 3 enemies, nearest still to move]
   [Movement] Red 3: 1315 SW -> 1315 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red 1: Princess (modern, defend): utility 33.09 = -fall 0.00 + bravery 11.12 [1.00 x 15.75 x 1.5 - taken 12.50] - aggression 0.00 + close range 16.36 - mutual support 2.00 - facing 0 + hold 7.60 [136 of 136 spots; 3 enemies, nearest still to move]
@@ -1006,7 +1006,7 @@ Stand attempt 1: needs 3 (Piloting 5 + -2, incl. -1 for standing). Rolled 5.
   -- end of turn 5: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 4, Blue 3).
   [Movement select] Blue 2: score 225.715 = dealt 13.74 x1.00 + (HP 294.0 - received 9.34 x1.00 - PSR 0.00) / enemies' future on me 15.93 x my best future 11.86 [two-ply, 220 of 787 spots (grid search) x 672 replies (short list); modeled reply Red 4 -> 0909 NW Walk]
   [Movement] Blue 2: 0205 NE -> 0306 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: Princess (modern, attack): utility -0.94 = -fall 0.00 + bravery 8.00 [1.00 x 10.00 x 1.5 - taken 7.00] - aggression 17.50 + close range 6.36 - mutual support 4.00 - facing 0 + hold 6.20 [118 of 118 spots; 2 enemies, nearest still to move]
@@ -1109,7 +1109,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
   -- end of turn 6: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
   [Movement select] Blue 2: score 332.225 = dealt 14.35 x1.00 + (HP 294.0 - received 2.20 x1.00 - PSR 0.00) / enemies' future on me 9.68 x my best future 10.55 [two-ply, 181 of 839 spots (grid search) x 617 replies (short list); modeled reply Red 3 -> 0811 NW Jump]
   [Movement] Blue 2: 0306 S -> 0104 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Red 1: Princess (modern, attack): utility 28.62 = -fall 0.00 + bravery 18.96 [1.00 x 15.75 x 1.5 - taken 4.67] - aggression 12.50 + close range 12.73 - facing 0 + hold 9.43 [19 of 19 spots; 2 enemies, nearest still to move]
@@ -1297,7 +1297,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 7: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue 2: score 123.663 = dealt 9.51 x1.00 + (HP 294.0 - received 12.90 x1.00 - PSR 0.00) / enemies' future on me 23.37 x my best future 9.49 [two-ply, 128 of 607 spots (grid search) x 617 replies (short list); modeled reply Red 3 -> 1111 N Jump]
   [Movement] Blue 2: 0104 NE -> 0702 SE, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 2: Princess (modern, attack): utility -38.35 = -fall 0.00 + bravery -1.85 [1.00 x 0.67 x 1.5 - taken 2.86] - aggression 32.50 + close range 0.00 - mutual support 4.00 - facing 0 + hold 0.00 [105 of 105 spots; enemy moved]
@@ -1373,7 +1373,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 8: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 10).
   [Movement select] Red 1: Princess (modern, attack): utility 1.43 = -fall 0.00 + bravery 23.62 [1.00 x 15.75 x 1.5 - taken 0.00] - aggression 32.50 + close range 0.00 - mutual support 1.00 - facing 0 + hold 11.30 [112 of 112 spots; enemy still to move]
   [Movement] Red 1: 0814 N -> 0814 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 2: Princess (modern, attack): utility -2.00 = -fall 0.00 + bravery 22.50 [1.00 x 15.00 x 1.5 - taken 0.00] - aggression 32.50 + close range 0.00 - mutual support 3.00 - facing 0 + hold 11.00 [270 of 270 spots; enemy still to move]
@@ -1439,7 +1439,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 9: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 6).
   [Movement select] Blue 2: score 82.335 = dealt 10.51 x1.00 + (HP 272.0 - received 8.35 x1.00 - PSR 0.00) / enemies' future on me 27.09 x my best future 7.38 [two-ply, 193 of 1076 spots (grid search) x 113 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 2: 0904 S -> 1301 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: Princess (modern, attack): utility -38.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 32.50 + close range 0.00 - mutual support 6.00 - facing 0 + hold 0.00 [112 of 112 spots; enemy moved]
@@ -1504,7 +1504,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 10: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 11 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 5).
   [Movement select] Red 1: Princess (modern, defend): utility 28.33 = -fall 0.00 + bravery 19.12 [1.00 x 12.75 x 1.5 - taken 0.00] - aggression 0.00 + close range 0.00 - mutual support 6.00 - facing 0 + hold 15.20 [168 of 168 spots; enemy still to move]
   [Movement] Red 1: 0811 N -> 0811 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 2: Princess (modern, defend): utility 41.86 = -fall 0.00 + bravery 22.50 [1.00 x 15.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 6.36 - mutual support 4.00 - facing 0 + hold 17.00 [138 of 138 spots; enemy still to move]
@@ -1570,7 +1570,7 @@ FALL (failed Attack Phase PSR): Black Hawk F takes 5 falling damage (1D6 2: fron
   -- end of turn 11: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 12 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
   [Movement select] Red 1: Princess (modern, defend): utility 37.96 = -fall 0.00 + bravery 19.12 [1.00 x 12.75 x 1.5 - taken 0.00] - aggression 0.00 + close range 11.64 - mutual support 8.00 - facing 0 + hold 15.20 [168 of 168 spots; enemy still to move]
   [Movement] Red 1: 0811 N -> 0811 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 2: Princess (modern, defend): utility 29.64 = -fall 0.00 + bravery 15.00 [1.00 x 10.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 7.64 - mutual support 6.00 - facing 0 + hold 13.00 [262 of 262 spots; enemy still to move]
@@ -1721,7 +1721,7 @@ FALL (failed Attack Phase PSR): Black Hawk F takes 5 falling damage (1D6 5: fron
   -- end of turn 12: Blue 4 @ 1016 S: HP 92, pilot hits 0, engine 3, gyro 1, heat 9 [DESTROYED (Engine Destroyed)]
 
 === TURN 13 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 8).
   [Movement select] Red 1: Princess (modern, defend): utility 25.28 = -fall 0.00 + bravery 12.75 [1.00 x 8.50 x 1.5 - taken 0.00] - aggression 0.00 + close range 8.73 - mutual support 8.00 - facing 0 + hold 11.80 [168 of 168 spots; enemy still to move]
   [Movement] Red 1: 0811 N -> 0811 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: Princess (modern, defend): utility 24.14 = -fall 0.00 + bravery 7.50 [1.00 x 5.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 7.64 - facing 0 + hold 9.00 [604 of 604 spots; enemy still to move]

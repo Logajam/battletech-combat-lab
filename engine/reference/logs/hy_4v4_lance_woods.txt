@@ -22,7 +22,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 9).
   [Movement select] Blue 1: score 600.520 = dealt 0.82 x1.00 + (HP 608.0 - received 0.77 x1.00 - PSR 0.00) / enemies' future on me 11.20 x my best future 11.06 [two-ply, 44 of 104 spots (grid search) x 98 replies (short list); modeled reply Red 1 -> 1409 NW Run]
   [Movement] Blue 1: 0105 SE -> 0304 SE, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 607.589 = dealt 7.38 x1.00 + (HP 608.0 - received 0.26 x1.00 - PSR 0.00) / enemies' future on me 11.20 x my best future 11.06 [two-ply, 49 of 97 spots (grid search) x 605 replies (short list); modeled reply Blue 3 -> 0605 SE Jump]
@@ -113,7 +113,7 @@
   -- end of turn 1: Blue 4 @ 0801 SE: HP 122, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 7).
   [Movement select] Blue 1: score 677.056 = dealt 7.37 x1.00 + (HP 608.0 - received 2.55 x1.00 - PSR 0.00) / enemies' future on me 10.00 x my best future 11.06 [two-ply, 62 of 117 spots (grid search) x 104 replies (short list); modeled reply Red 1 -> 1409 NW Stand Still]
   [Movement] Blue 1: 0304 SE -> 0304 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 710.978 = dealt 31.28 x1.00 + (HP 608.0 - received 2.90 x1.00 - PSR 0.00) / enemies' future on me 9.85 x my best future 11.06 [two-ply, 32 of 103 spots (grid search) x 846 replies (short list); modeled reply Blue 3 -> 1004 S Jump]
@@ -236,7 +236,7 @@ FALL (automatic fall): Jenner JR7-D takes 4 falling damage (1D6 6: front table, 
   -- end of turn 2: Blue 4 @ 1303 S: HP 93, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
   [Movement select] Blue 1: score 1122.909 = dealt 12.50 x1.00 + (HP 608.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 6.06 x my best future 11.06 [two-ply, 62 of 117 spots (grid search) x 1152 replies (short list); modeled reply Red 4 -> 1208 S Walk]
   [Movement] Blue 1: 0304 SE -> 0304 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 1716.156 = dealt 12.41 x1.00 + (HP 608.0 - received 0.18 x1.00 - PSR 0.00) / enemies' future on me 7.62 x my best future 21.35 [two-ply, 77 of 99 spots (grid search) x 846 replies (short list); modeled reply Blue 3 -> 0511 NE Jump]
@@ -373,7 +373,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 2: fr
   -- end of turn 3: Blue 4 @ 1303 N: HP 80, pilot hits 0, engine 0, gyro 0, heat 3
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 8).
   [Movement select] Red 1: score 2290.613 = dealt 32.39 x1.00 + (HP 608.0 - received 1.50 x1.00 - PSR 0.00) / enemies' future on me 6.30 x my best future 23.45 [two-ply, 64 of 100 spots (grid search) x 93 replies (short list); modeled reply Blue 2 -> 0412 NE Run]
   [Movement] Red 1: 1111 N -> 1010 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 1: score 2283.448 = dealt 22.81 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 4.05 x my best future 15.07 [two-ply, 73 of 117 spots (grid search) x 1 replies (short list); modeled reply Red 3 -> 1202 SE Run]
@@ -568,7 +568,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 4: Blue 4 @ 1102 NE: HP 76, pilot hits 0, engine 2, gyro 0, heat 6 [PRONE]
 
 === TURN 5 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
   [Movement select] Red 1: score 2430.434 = dealt 40.31 x1.00 + (HP 608.0 - received 2.24 x1.00 - PSR 0.00) / enemies' future on me 5.23 x my best future 20.64 [two-ply, 63 of 99 spots (grid search) x 99 replies (short list); modeled reply Blue 2 -> 0413 NE Walk]
   [Movement] Red 1: 1010 NW -> 1010 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 1: score 2660.769 = dealt 21.81 x1.00 + (HP 608.0 - received 0.86 x1.00 - PSR 0.00) / enemies' future on me 3.49 x my best future 15.18 [two-ply, 77 of 120 spots (grid search) x 654 replies (short list); modeled reply Red 3 -> 0505 SW Jump]
@@ -697,7 +697,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
   -- end of turn 5: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 3).
   [Movement select] Blue 1: score 1379.591 = dealt 19.73 x1.00 + (HP 608.0 - received 0.40 x1.00 - PSR 0.00) / enemies' future on me 5.65 x my best future 12.65 [two-ply, 70 of 99 spots (grid search) x 792 replies (short list); modeled reply Red 4 -> 0603 SW Run]
   [Movement] Blue 1: 0405 NE -> 0405 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 1527.956 = dealt 40.31 x1.00 + (HP 608.0 - received 2.24 x1.00 - PSR 0.00) / enemies' future on me 5.66 x my best future 13.90 [two-ply, 63 of 99 spots (grid search) x 99 replies (short list); modeled reply Blue 2 -> 0413 NE Walk]
@@ -815,7 +815,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 2 falling damage (halved:
   -- end of turn 6: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 6).
   [Movement select] Red 1: score 2469.863 = dealt 67.83 x1.00 + (HP 608.0 - received 1.58 x1.00 - PSR 0.00) / enemies' future on me 4.22 x my best future 16.72 [two-ply, 63 of 99 spots (grid search) x 99 replies (short list); modeled reply Blue 2 -> 0413 NE Walk]
   [Movement] Red 1: 1010 NW -> 1010 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 4397.886 = dealt 4.30 x1.00 + (HP 324.0 - received 0.18 x1.00 - PSR 0.00) / enemies' future on me 1.01 x my best future 13.74 [two-ply, 201 of 639 spots (grid search) x 508 replies (short list); modeled reply Blue 3 -> 0302 SE Run]
@@ -897,7 +897,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   -- end of turn 7: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
   [Movement select] Red 1: score 2315.305 = dealt 36.67 x1.00 + (HP 608.0 - received 0.29 x1.00 - PSR 0.00) / enemies' future on me 4.01 x my best future 15.05 [two-ply, 66 of 99 spots (grid search) x 516 replies (short list); modeled reply Blue 3 -> 0703 S Walk]
   [Movement] Red 1: 1010 NW -> 0910 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 4: score 946.929 = dealt 0.00 x1.00 + (HP 154.0 - received 0.55 x1.00 - PSR 0.00) / enemies' future on me 1.98 x my best future 12.20 [two-ply, 175 of 756 spots (grid search) x 99 replies (short list); modeled reply Blue 1 -> 0604 NE Run]
@@ -1042,7 +1042,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   -- end of turn 8: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 3, Blue 2).
   [Movement select] Blue 1: score 1528.472 = dealt 12.29 x1.00 + (HP 608.0 - received 5.50 x1.00 - PSR 0.00) / enemies' future on me 8.44 x my best future 21.24 [two-ply, 65 of 95 spots (grid search) x 79 replies (short list); modeled reply Red 1 -> 0912 N Walk]
   [Movement] Blue 1: 0506 N -> 0606 SE, Run (5 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 1957.067 = dealt 13.23 x1.00 + (HP 608.0 - received 0.61 x1.00 - PSR 0.00) / enemies' future on me 3.46 x my best future 11.06 [two-ply, 61 of 79 spots (grid search) x 702 replies (short list); modeled reply Blue 3 -> 0507 SE Run]
@@ -1101,7 +1101,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   -- end of turn 9: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 8).
   [Movement select] Red 2: score 20.263 = dealt 0.00 x1.00 + (HP 185.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 20.51 x my best future 2.25 [two-ply, 53 of 111 spots (grid search) x 95 replies (short list); modeled reply: none with LOS]
   [Movement] Red 2: 0414 S -> 0213 SW, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red 1: score 1918.385 = dealt 31.96 x1.00 + (HP 608.0 - received 3.66 x1.00 - PSR 0.00) / enemies' future on me 3.54 x my best future 11.06 [two-ply, 60 of 85 spots (grid search) x 95 replies (short list); modeled reply Blue 1 -> 0705 S Run]
@@ -1142,7 +1142,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   -- end of turn 10: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 11 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 2: score 20.246 = dealt 1.08 x1.00 + (HP 185.0 - received 12.16 x1.00 - PSR 0.00) / enemies' future on me 18.41 x my best future 2.04 [two-ply, 35 of 143 spots (grid search) x 91 replies (short list); modeled reply Blue 1 -> 0705 N Run]
   [Movement] Red 2: 0213 SW -> 0311 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red 1: score 1836.008 = dealt 31.96 x1.00 + (HP 608.0 - received 3.91 x1.00 - PSR 0.00) / enemies' future on me 3.70 x my best future 11.06 [two-ply, 60 of 85 spots (grid search) x 91 replies (short list); modeled reply Blue 1 -> 0705 S Run]
@@ -1206,7 +1206,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 11: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 12 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 9).
   [Movement select] Red 1: score 2287.347 = dealt 0.00 x1.00 + (HP 600.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 3.63 x my best future 13.82 [two-ply, 61 of 85 spots (grid search) x 63 replies (short list); modeled reply: none with LOS]
   [Movement] Red 1: 0911 NW -> 1010 NE, Run (4 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 875.679 = dealt 6.02 x1.00 + (HP 318.0 - received 0.52 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 2.74 [two-ply, 237 of 676 spots (grid search) x 63 replies (short list); modeled reply: none with LOS]
@@ -1274,7 +1274,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 2: 
   -- end of turn 12: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
   [Movement select] Blue 1: score 751.590 = dealt 18.06 x1.00 + (HP 585.0 - received 0.18 x1.00 - PSR 0.00) / enemies' future on me 12.74 x my best future 15.99 [two-ply, 63 of 95 spots (grid search) x 552 replies (short list); modeled reply Red 3 -> 1501 SW Jump]
   [Movement] Blue 1: 0507 S -> 0508 SE, Run (4 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 818.881 = dealt 7.53 x1.00 + (HP 318.0 - received 0.65 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 2.56 [two-ply, 156 of 552 spots (grid search) x 740 replies (short list); modeled reply Blue 3 -> 0910 N Jump]
@@ -1391,7 +1391,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 13: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 14 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
   [Movement select] Red 1: score 3676.526 = dealt 13.23 x1.00 + (HP 600.0 - received 0.31 x1.00 - PSR 0.00) / enemies' future on me 1.77 x my best future 10.83 [two-ply, 67 of 105 spots (grid search) x 665 replies (short list); modeled reply Blue 3 -> 0409 SE Run]
   [Movement] Red 1: 1011 N -> 1011 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 960.591 = dealt 7.23 x1.00 + (HP 318.0 - received 1.41 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 3.01 [two-ply, 147 of 796 spots (grid search) x 73 replies (short list); modeled reply Blue 1 -> 0507 NW Walk]
@@ -1521,7 +1521,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
   -- end of turn 14: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 15 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 9; tie re-rolled Red 9, Blue 7).
   [Movement select] Blue 1: score 872.106 = dealt 13.76 x1.00 + (HP 575.0 - received 4.40 x1.00 - PSR 0.00) / enemies' future on me 9.83 x my best future 14.79 [two-ply, 65 of 72 spots (grid search) x 810 replies (short list); modeled reply Red 3 -> 0304 SE Walk]
   [Movement] Blue 1: 0508 SE -> 0708 NW, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: score 3192.162 = dealt 25.39 x1.00 + (HP 600.0 - received 1.39 x1.00 - PSR 0.00) / enemies' future on me 1.76 x my best future 9.29 [two-ply, 70 of 105 spots (grid search) x 612 replies (short list); modeled reply Blue 3 -> 0508 SE Jump]
@@ -1638,7 +1638,7 @@ Attack Phase PSR 2/2: needs 7 (Piloting 5 + +2). Rolled 9.
   -- end of turn 15: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 16 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 10).
   [Movement select] Red 1: score 3801.167 = dealt 21.69 x1.00 + (HP 600.0 - received 1.21 x1.00 - PSR 0.00) / enemies' future on me 1.44 x my best future 9.11 [two-ply, 56 of 73 spots (grid search) x 68 replies (short list); modeled reply Blue 1 -> 0607 NW Walk]
   [Movement] Red 1: 0912 SW -> 0911 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
   [Movement select] Red 3: score 995.648 = dealt 12.55 x1.00 + (HP 318.0 - received 2.55 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 3.12 [two-ply, 239 of 764 spots (grid search) x 68 replies (short list); modeled reply Blue 1 -> 0706 NW Run]
@@ -1716,7 +1716,7 @@ FALL (failed Movement Phase PSR (running)): Hunchback HBK-4G takes 5 falling dam
   -- end of turn 16: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 17 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 12, Blue 7).
   [Movement select] Blue 3: score 225.966 = dealt 4.24 x1.00 + (HP 298.0 - received 3.56 x1.00 - PSR 2.50) / enemies' future on me 3.38 x my best future 2.57 [two-ply, 87 of 366 spots (grid search) x 93 replies (short list); modeled reply Red 1 -> 0810 NW Walk]
   [Movement] Blue 3: 0113 NW -> 0615 SE, Jump (5 MP, 5 hexes, 5 heat; budget walk 3 / run 5 / jump 5)
 Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 7 (Piloting 5 + +2). Rolled 8.
@@ -1766,7 +1766,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   -- end of turn 17: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 18 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 5).
   [Movement select] Red 1: score 628.768 = dealt 11.30 x1.00 + (HP 580.0 - received 17.50 x1.00 - PSR 0.00) / enemies' future on me 6.64 x my best future 7.29 [two-ply, 55 of 77 spots (grid search) x 44 replies (short list); modeled reply Blue 1 -> 0709 S Stand Still]
   [Movement] Red 1: 0612 SE -> 0612 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 3: score 283.305 = dealt 0.00 x1.00 + (HP 298.0 - received 0.14 x1.00 - PSR 2.50) / enemies' future on me 3.20 x my best future 3.07 [two-ply, 98 of 461 spots (grid search) x 757 replies (short list); modeled reply Red 3 -> 0509 SE Jump]
@@ -1828,7 +1828,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   -- end of turn 18: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 3: score 565.999 = dealt 0.84 x1.00 + (HP 298.0 - received 0.00 x1.00 - PSR 2.50) / enemies' future on me 2.56 x my best future 4.89 [two-ply, 120 of 636 spots (grid search) x 757 replies (short list); modeled reply Red 3 -> 1005 SE Jump]
   [Movement] Blue 3: 1012 N -> 1409 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 3 / run 5 / jump 5)
 Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 7 (Piloting 5 + +2). Rolled 7.
@@ -1899,7 +1899,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 19: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 2).
   [Movement select] Blue 3: score 770.340 = dealt 0.00 x1.00 + (HP 298.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 2.33 x my best future 6.02 [two-ply, 122 of 527 spots (grid search) x 56 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 3: 1409 SW -> 1108 NW, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 1: score 348.916 = dealt 17.46 x1.00 + (HP 526.0 - received 14.75 x1.00 - PSR 0.00) / enemies' future on me 13.04 x my best future 8.45 [two-ply, 41 of 56 spots (grid search) x 39 replies (short list); modeled reply Blue 1 -> 0609 S Stand Still]
@@ -1951,7 +1951,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 20: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 21 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
   [Movement select] Blue 3: score 815.688 = dealt 4.58 x1.00 + (HP 298.0 - received 3.71 x1.00 - PSR 0.00) / enemies' future on me 2.06 x my best future 5.67 [two-ply, 174 of 614 spots (grid search) x 737 replies (short list); modeled reply Red 3 -> 1208 NW Jump]
   [Movement] Blue 3: 1108 NW -> 1108 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 1: score 383.177 = dealt 13.80 x1.00 + (HP 526.0 - received 14.67 x1.00 - PSR 0.00) / enemies' future on me 12.07 x my best future 8.72 [two-ply, 41 of 56 spots (grid search) x 39 replies (short list); modeled reply Blue 1 -> 0609 S Stand Still]
@@ -2003,7 +2003,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 21: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 22 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 11).
   [Movement select] Red 1: score 359.725 = dealt 26.76 x1.00 + (HP 511.0 - received 27.47 x1.00 - PSR 0.00) / enemies' future on me 13.23 x my best future 9.11 [two-ply, 41 of 56 spots (grid search) x 39 replies (short list); modeled reply Blue 1 -> 0611 SW Run]
   [Movement] Red 1: 0512 SE -> 0512 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 3: score 1018.620 = dealt 4.58 x1.00 + (HP 298.0 - received 3.39 x1.00 - PSR 0.00) / enemies' future on me 1.81 x my best future 6.22 [two-ply, 174 of 614 spots (grid search) x 737 replies (short list); modeled reply Red 3 -> 1208 NW Jump]
@@ -2071,7 +2071,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 22: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 23 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 3: score 1654.185 = dealt 0.00 x1.00 + (HP 298.0 - received 2.39 x1.00 - PSR 0.00) / enemies' future on me 1.45 x my best future 8.12 [two-ply, 174 of 620 spots (grid search) x 913 replies (short list); modeled reply Red 3 -> 1512 NW Walk]
   [Movement] Blue 3: 1108 NW -> 1108 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 3: score 1787.688 = dealt 1.69 x1.00 + (HP 318.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 5.62 [two-ply, 157 of 903 spots (grid search) x 76 replies (short list); modeled reply: none with LOS]
@@ -2148,7 +2148,7 @@ FALL (failed Attack Phase PSR): Atlas AS7-K takes 10 falling damage (1D6 3: fron
   -- end of turn 23: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 24 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 5).
   [Movement select] Red 3: score 2708.394 = dealt 2.92 x1.00 + (HP 318.0 - received 0.29 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 8.52 [two-ply, 165 of 560 spots (grid search) x 626 replies (short list); modeled reply Blue 3 -> 1111 S Run]
   [Movement] Red 3: 1515 S -> 1317 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 3: score 2298.298 = dealt 4.55 x1.00 + (HP 298.0 - received 0.53 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 7.71 [two-ply, 194 of 626 spots (grid search) x 50 replies (short list); modeled reply: none with LOS]
@@ -2271,7 +2271,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   -- end of turn 24: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 25 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue 3: score 2488.213 = dealt 0.92 x1.00 + (HP 298.0 - received 0.12 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 8.35 [two-ply, 173 of 599 spots (grid search) x 542 replies (short list); modeled reply Red 3 -> 1313 NW Jump]
   [Movement] Blue 3: 1008 SW -> 0909 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 3: score 3583.445 = dealt 4.68 x1.00 + (HP 318.0 - received 0.34 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 11.27 [two-ply, 117 of 542 spots (grid search) x 1 replies (short list); modeled reply Blue 1 -> 0611 S Run]
@@ -2329,7 +2329,7 @@ Attack Phase PSR 2/2: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 25: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 6).
   [Movement select] Blue 3: score 2640.935 = dealt 0.00 x1.00 + (HP 298.0 - received 0.58 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 8.88 [two-ply, 153 of 576 spots (grid search) x 993 replies (short list); modeled reply Red 3 -> 1511 NW Walk]
   [Movement] Blue 3: 0909 SW -> 0909 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 3: score 3694.123 = dealt 16.83 x1.00 + (HP 318.0 - received 0.59 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 11.59 [two-ply, 178 of 986 spots (grid search) x 18 replies (short list); modeled reply Blue 1 -> 0711 N Walk]
@@ -2419,7 +2419,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 26: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 27 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 8).
   [Movement select] Red 3: score 4426.721 = dealt 31.47 x1.00 + (HP 318.0 - received 0.27 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 13.83 [two-ply, 223 of 752 spots (grid search) x 594 replies (short list); modeled reply Blue 3 -> 0909 S Stand Still]
   [Movement] Red 3: 0710 SE -> 0812 SW, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 3: score 3007.306 = dealt 13.36 x1.00 + (HP 298.0 - received 1.27 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.09 [two-ply, 153 of 576 spots (grid search) x 98 replies (short list); modeled reply Red 1 -> 0910 N Run]
@@ -2503,7 +2503,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 27: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 28 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 10).
   [Movement select] Red 1: score 97.682 = dealt 3.70 x1.00 + (HP 374.0 - received 8.17 x0.72 - PSR 0.00) / enemy future 10.48 x my future 2.68 [two-ply, 76 of 82 spots (grid search) x 594 replies (short list); modeled reply Blue 3 -> 1210 SW Run]
   [Movement] Red 1: 0811 S -> 0611 N, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 547.964 = dealt 1.95 x1.00 + (HP 318.0 - received 0.00 x0.96 - PSR 0.00) / enemy future 1.00 x my future 1.72 [two-ply, 139 of 788 spots (grid search) x 594 replies (short list); modeled reply Blue 3 -> 0810 SW Run]
@@ -2532,7 +2532,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 28: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 29 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
   [Movement select] Red 3: score 529.491 = dealt 1.95 x1.00 + (HP 318.0 - received 0.54 x0.96 - PSR 0.00) / enemy future 1.00 x my future 1.66 [two-ply, 110 of 606 spots (grid search) x 658 replies (short list); modeled reply Blue 3 -> 0705 S Run]
   [Movement] Red 3: 0415 NW -> 0917 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: score 98.519 = dealt 5.19 x1.00 + (HP 374.0 - received 11.67 x0.72 - PSR 0.00) / enemy future 10.06 x my future 2.57 [two-ply, 60 of 73 spots (grid search) x 658 replies (short list); modeled reply Blue 3 -> 0606 S Stand Still]
@@ -2559,7 +2559,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 29: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 30 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 3).
   [Movement select] Red 3: score 513.832 = dealt 2.89 x1.00 + (HP 318.0 - received 0.56 x1.05 - PSR 0.00) / enemy future 1.00 x my future 1.61 [two-ply, 125 of 572 spots (grid search) x 658 replies (short list); modeled reply Blue 3 -> 0604 SE Run]
   [Movement] Red 3: 0917 NW -> 1314 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: score 98.178 = dealt 5.19 x1.00 + (HP 374.0 - received 13.52 x0.72 - PSR 0.00) / enemy future 9.67 x my future 2.47 [two-ply, 48 of 60 spots (grid search) x 658 replies (short list); modeled reply Blue 3 -> 0606 S Stand Still]
@@ -2592,7 +2592,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 30: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 31 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 7).
   [Movement select] Blue 3: score 609.380 = dealt 0.00 x1.00 + (HP 290.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 4.43 x my best future 9.31 [two-ply, 147 of 652 spots (grid search) x 858 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 3: 0606 NW -> 0407 NW, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 5)
   [Movement select] Red 3: no spot deals damage - closing fallback
@@ -2618,7 +2618,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 31: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 32 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 8).
   [Movement select] Red 3: score 553.181 = dealt 1.17 x1.00 + (HP 318.0 - received 0.00 x0.96 - PSR 0.00) / enemy future 1.00 x my future 1.74 [two-ply, 154 of 892 spots (grid search) x 575 replies (short list); modeled reply Blue 3 -> 0109 SE Run]
   [Movement] Red 3: 1209 N -> 0812 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: score 108.078 = dealt 2.47 x1.00 + (HP 374.0 - received 1.52 x1.29 - PSR 0.00) / enemy future 8.98 x my future 2.55 [two-ply, 31 of 36 spots (grid search) x 575 replies (short list); modeled reply Blue 3 -> 0604 S Jump]
@@ -2647,7 +2647,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 32: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 33 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 10; tie re-rolled Red 7, Blue 5).
   [Movement select] Blue 3: score 601.729 = dealt 1.15 x1.00 + (HP 290.0 - received 0.22 x1.00 - PSR 2.50) / enemies' future on me 4.15 x my best future 8.67 [two-ply, 116 of 603 spots (grid search) x 814 replies (short list); modeled reply Red 3 -> 0711 SE Walk]
   [Movement] Blue 3: 0508 NW -> 0403 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 3 / run 5 / jump 5)
 Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 7 (Piloting 5 + +2). Rolled 7.
@@ -2675,7 +2675,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
   -- end of turn 33: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 34 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 11).
   [Movement select] Red 1: score 109.565 = dealt 3.70 x1.00 + (HP 374.0 - received 1.08 x1.00 - PSR 0.00) / enemy future 8.38 x my future 2.38 [two-ply, 35 of 48 spots (grid search) x 482 replies (short list); modeled reply Blue 3 -> 0704 S Jump]
   [Movement] Red 1: 0509 N -> 0509 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: score 522.736 = dealt 1.66 x1.14 + (HP 318.0 - received 0.31 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.64 [two-ply, 192 of 824 spots (grid search) x 482 replies (short list); modeled reply Blue 3 -> 0603 N Jump]
@@ -2718,7 +2718,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 8.
   -- end of turn 34: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 35 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
   [Movement select] Blue 3: score 406.081 = dealt 0.54 x1.00 + (HP 274.0 - received 0.00 x1.00 - PSR 3.50) / enemies' future on me 5.41 x my best future 8.11 [two-ply, 105 of 380 spots (grid search) x 948 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 3: 0205 S -> 0503 NW, Jump (5 MP, 4 hexes, 4 heat; budget walk 2 / run 3 / jump 5)
 Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 8 (Piloting 5 + +3). Rolled 5.
@@ -2762,7 +2762,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 5.
   -- end of turn 35: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 36 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 5).
   [Movement select] Red 3: score 750.294 = dealt 0.32 x0.75 + (HP 318.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.00 x my future 2.36 [two-ply, 132 of 762 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0503 NW Run]
   [Movement] Red 3: 0611 SW -> 0209 NE, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: score 176.578 = dealt 5.42 x0.75 + (HP 374.0 - received 0.00 x0.72 - PSR 0.00) / enemy future 7.55 x my future 3.48 [two-ply, 60 of 113 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0503 NW Run]
@@ -2838,7 +2838,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
   -- end of turn 36: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 37 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
   [Movement select] Red 3: score 730.824 = dealt 0.00 x1.05 + (HP 318.0 - received 0.00 x1.21 - PSR 0.00) / enemy future 1.00 x my future 2.30 [two-ply, 131 of 661 spots (grid search) x 398 replies (short list); modeled reply Blue 3 -> 0603 N Jump]
   [Movement] Red 3: 0209 NE -> 0413 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 3: no spot deals damage - closing fallback
@@ -2869,7 +2869,7 @@ FALL (failed Movement Phase PSR (jump)): Griffin GRF-1N takes 6 falling damage (
   -- end of turn 37: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 38 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red 3: score 768.278 = dealt 5.21 x1.02 + (HP 318.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.00 x my future 2.40 [two-ply, 162 of 710 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0603 N Run]
   [Movement] Red 3: 0413 S -> 0211 SE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 3.
@@ -2900,7 +2900,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
   -- end of turn 38: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 39 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 3: score 797.235 = dealt 7.83 x1.01 + (HP 318.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.00 x my future 2.48 [two-ply, 203 of 629 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0603 N Run]
   [Movement] Red 3: 0211 SE -> 0211 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
@@ -2931,7 +2931,7 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 10.
   -- end of turn 39: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 40 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 5).
   [Movement select] Red 3: score 821.208 = dealt 8.14 x1.01 + (HP 318.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.00 x my future 2.56 [two-ply, 203 of 629 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0603 N Run]
   [Movement] Red 3: 0211 SE -> 0211 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
@@ -2993,7 +2993,7 @@ FALL (automatic fall): Griffin GRF-1N takes 6 falling damage (1D6 1: rear table,
   -- end of turn 40: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 41 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 11).
   [Movement select] Red 3: score 884.571 = dealt 8.75 x1.00 + (HP 310.0 - received 0.00 x1.04 - PSR 0.00) / enemy future 1.00 x my future 2.83 [two-ply, 203 of 629 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0603 NW Run]
   [Movement] Red 3: 0211 SE -> 0211 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
@@ -3022,7 +3022,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 41: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 42 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 2.
   Failed to stand.
 FALL (failed to stand): Griffin GRF-1N takes 6 falling damage (1D6 1: rear table, 5-pt clusters).
@@ -3057,7 +3057,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 42: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 43 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 7).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
   Failed to stand.
 FALL (failed to stand): Griffin GRF-1N takes 6 falling damage (1D6 4: front table, 5-pt clusters).
@@ -3100,7 +3100,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 43: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 44 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 10).
   [Movement select] Red 3: score 1087.813 = dealt 8.80 x0.85 + (HP 310.0 - received 0.00 x0.95 - PSR 0.00) / enemy future 1.00 x my future 3.48 [two-ply, 149 of 763 spots (grid search) x 1 replies (short list); modeled reply Blue 3 -> 0603 NW Run]
   [Movement] Red 3: 0604 SW -> 0206 N, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
@@ -3150,7 +3150,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
   -- end of turn 44: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 45 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 7, Blue 8).
   [Movement select] Red 3: score 1015.738 = dealt 1.12 x0.50 + (HP 299.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.15 x my future 3.90 [two-ply, 158 of 721 spots (grid search) x 463 replies (short list); modeled reply Blue 3 -> 0604 N Jump]
   [Movement] Red 3: 0206 N -> 0409 N, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 3: no spot deals damage - closing fallback
@@ -3203,7 +3203,7 @@ FALL (failed Movement Phase PSR (jump)): Griffin GRF-1N takes 6 falling damage (
   -- end of turn 45: Blue 4 @ 1102 NE: HP 55, pilot hits 0, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 === TURN 46 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 6).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 5.
   Failed to stand.
 FALL (failed to stand): Griffin GRF-1N takes 6 falling damage (1D6 6: front table, 5-pt clusters).
