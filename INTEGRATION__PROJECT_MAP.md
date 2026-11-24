@@ -140,6 +140,13 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   number. Main payoff: more of the board visible at once. Part 2: free camera (rotate/tilt/zoom) by gesture (two-finger on touch,
   right-drag and wheel on desktop), one corner reset-to-top-down button, presets in the P3 long-press menu. Pairs with P8's beveled
   hexes. Build after P3.
+- P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
+  tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
+  the pool (all mechs, or filters: weight, era, BV band), format (round robin, or Swiss / adaptive pairing so thousands of
+  mechs need roughly N log N battles, not N squared), battles per pairing with sides swapped (side bias), bot, map,
+  seeds; it runs in the background through the existing resumable record path (`btsim --stream`, `trial_records/progress/`,
+  the long-set SOP) and shows a live Elo table you can export. Build on `tools/round_robin.py` / `tools/fair_duels.py`.
+  Open: Elo for BV-unequal pairs; huge runs belong on the desktop build (native speed), not the browser build.
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
