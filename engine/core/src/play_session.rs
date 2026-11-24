@@ -640,7 +640,10 @@ fn target_preview(b: &mut Battle, attacker: UnitId, enemies: &[UnitId], primary:
 
 fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId) -> (Vec<Value>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) {
     planner.forget();
-    let weapons = crate::damage_resolution::get_weapons(&b.units[attacker]);
+    // TAG is not a weapon of the Ranged Attack Phase: its attack is its own step before that phase, and designating is all it
+    // does (Core p.200; bug B11, Daniel 2026-11-22). The person is asked about it in the TAG question, never in the weapon list.
+    // (The bots never pick it here either: it does no damage.)
+    let weapons: Vec<ItemId> = crate::damage_resolution::get_weapons(&b.units[attacker]).into_iter().filter(|w| !crate::tag::is_tag(b, attacker, *w)).collect();
     let cands = crate::weapon_selection::fire_candidates(b, attacker, ctx.distance, ctx.sel_pre_tn, Some(&ctx.adjust), &ctx.unavailable, None, &weapons, Some(&mut *planner));
     // each arc action's unavailable weapons; the first is "no change" (the engine's tie order)
     let per_action: Vec<HashSet<usize>> = ctx

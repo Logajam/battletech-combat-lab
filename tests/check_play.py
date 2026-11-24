@@ -217,6 +217,8 @@ def kit_game(lab, kinds):
         elif k == "target":
             ans = {"target": None if r.get("secondary") else r["enemies"][0]["id"]}
         elif k == "declaration":
+            # TAG is used in its own step before the Ranged Attack Phase (Core p.200; bug B11): never a row of the weapon list
+            assert not any(w["name"].endswith("TAG") for w in r["weapons"]), "TAG offered as a ranged weapon: " + str([w["name"] for w in r["weapons"]])
             modes = {str(w["id"]): w["modes"][-1]["label"] for w in r["weapons"] if w["modes"]}
             shots = {str(w["id"]): w["rates"][-1]["shots"] for w in r["weapons"] if w["rates"]}
             rows = lab.api("play_query", {"game": gid, "query": {"q": "set", "unit": r["unit"], "modes": modes, "shots": shots}})["weapons"] if (modes or shots) else r["weapons"]
