@@ -810,3 +810,13 @@ then the grid-search default: ~3.5 s (HP 495 / 495); the short-list
 look-ahead default (2026-10-24): ~2 s (HP 501 / 495). Scratch for map work: unzip
 `data/maps.zip` outside the repo; `tests/survey_maps.py` reads the zip
 directly.
+
+## Session 26's pick-up note (moved from PROJECT_MAP Section 0 on 2026-11-24, session 35, word for word)
+
+**Pick up here (Daniel, 2026-11-14, closing session 26):** "I'll start that list tomorrow" - he will play with Combat Lab
+alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`) and bring a change list; then it goes to Opus for review before
+anything goes to the public repo (E6). Session 26 built Daniel's round-2 list, all of it merged to `main` (pull requests 224,
+225): CL11-CL17, CL19-CL21 (Princess) and the standard parts of CL18; every entry is in the Change Record and the REVIEW QUEUE
+below. OPEN: (1) CL18's live user-built conditions, saved for Opus to design (the sheet in `INTEGRATION__COMBAT_LAB_V2_TASKS.md`);
+(2) CL21's Gladiator and Hydra heat maps (need CL6 saved state / CL7 overlays); (3) the Windows `CombatLab.exe` of alpha-2 was not
+run (no Wine here): if it misbehaves on Daniel's PC, start there.
