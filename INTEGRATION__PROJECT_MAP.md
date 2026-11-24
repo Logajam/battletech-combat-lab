@@ -109,9 +109,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
     concern yet.
   - P7. Bridge connection to MegaMek from the website (the bridge exists for the desktop, `INTEGRATION__MEGAMEK_BRIDGE.md`).
   - P8. BTTT raid ("go through BTTT's pockets for loose change"): look at what BTTT does that we don't; study its bot ("kidnap
-    their bot") and decide whether it is worth adding to the bot collection; borrow its beveled hexes for level changes. Open:
-    which project "BTTT" is (no repo or doc in this project names it; ask Daniel for the link), and licence terms before any
-    borrowing (`CREDITS.md`, GPL v3 or later; never copy code or art without checking its licence).
+    their bot") and decide whether it is worth adding to the bot collection; borrow its beveled hexes for level changes. Source:
+    https://github.com/Raptor007/BTTT (Daniel: keep what we take; he warned the author; BTTT's bot defends the hexes in a
+    head-to-head "trial of possession"). First step: read its licence, then credit it in `CREDITS.md` (GPL v3 or later).
   - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
     plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
