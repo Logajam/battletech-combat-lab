@@ -116,6 +116,12 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
     before copying code or art, or re-implement the ideas ourselves. Credit it in `CREDITS.md` either way.
   - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
     plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
+- P10. ISOMETRIC (tilted) 2D MAP VIEW, a toggle beside top-down (Daniel, 2026-11-24). Flat board, squashed hexes, NOTHING stands up:
+  everything fits inside its own hex, token size follows hex size, 'Mechs stay flat top-down tokens (no 3D until models are worth
+  it), buildings may be drawn face-on to look upright. No height for hills: a level shows by shade, contour edge lines and a small
+  number. Main payoff: more of the board visible at once. Part 2: free camera (rotate/tilt/zoom) by gesture (two-finger on touch,
+  right-drag and wheel on desktop), one corner reset-to-top-down button, presets in the P3 long-press menu. Pairs with P8's beveled
+  hexes. Build after P3.
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
