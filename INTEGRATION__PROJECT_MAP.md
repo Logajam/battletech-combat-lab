@@ -95,6 +95,15 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**P. Daniel's primary goal list (2026-11-24, for the week of 2026-11-30; his words, not yet specced or built)**
+- P1. Load custom units (own `.mtf` files) when the Lab runs from the website (browser build).
+- P2. Save the starting conditions of a run to a file, probably with the units in use bundled inside it, so a run can be
+  shared easily (and loaded back).
+- P3. Play UI: when playing, rely on long presses to open extra options (touch-first; see O1 / `INTEGRATION__BATTLEROM_UI.md`).
+- P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
+  history on a separate branch" note in Section 0 and the saved-state work, CL6).
+- Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
+
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
 - O1. THE FRONT END FOR PLAYER-CONTROLLED FORCES: designed as an interactive phone-first mockup, saved at
   `reference_art/battlerom_ui/battlerom_play_mockup.html`; the words for each part of the screen, Daniel's decisions and the
