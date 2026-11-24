@@ -307,9 +307,23 @@ const errLine = (r) => (r.error ? `<div class="err">${esc(r.error)}</div>` : "")
 const eq = (u) => (u && u.equipment) || {};
 
 // ---------------------------------------------------------------- the questions
+// STANDING UP IS PART OF THE MOVE (bug A2, Daniel 2026-11-22: "I should be able to undo a plan of stand"; "I can not turn after a stand").
+// "Stand up" sends nothing: it opens the move as it would be after standing at the first try (2 MP spent; any facing is free, p.51), with
+// the turn arrows round the 'Mech itself. Undo goes back to this choice. Holding Move! sends the stand and the planned move together, and
+// only then is the piloting roll made. A failed roll leaves the 'Mech prone and the plan is dropped.
 HANDLERS.stand_up = (r) => {
-  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. You then move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="row"><button class="go" data-act="stand" data-v="1">Stand up</button><button data-act="stand" data-v="0">Stay prone</button></div>`);
+  S.mv = null; clearCluster();
+  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. It may then face any way at no cost and move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="msg">Stand up lets you plan the move first; nothing is rolled until you hold <b>Move!</b>, and &times; brings you back here.</div><div class="row"><button class="go" data-act="stand-plan">Stand up</button><button data-act="stand" data-v="0">Stay prone</button></div>`);
 };
+async function standPlan() {
+  const r = S.req, seq = S.seq; if (!r || r.kind !== "stand_up") return;
+  sheet('<div class="msg">Working out the moves after standing...</div>');
+  const v = await query({ q: "reach", unit: r.unit });
+  if (seq !== S.seq || !S.req || S.req.kind !== "stand_up") return;
+  if (v.error || !v.view) { sheet(`<div class="err">${esc(v.error || "No move can be shown.")}</div><div class="row"><button class="go" data-act="stand" data-v="1">Stand up (no plan)</button><button data-act="stand" data-v="0">Stay prone</button></div>`); return; }
+  S.mv = v.view; S.reachIdx = null; S.way = []; S.wrIdx = null; S.dest = null; S.path = null;
+  moveIntro(); redraw();
+}
 HANDLERS.boost = (r) => {
   const u = unit(r.unit), e = eq(u), b = (e.boost || {});
   sheet(`<h3>${esc(r.name)}: ${e.masc && e.supercharger ? "MASC and supercharger" : e.masc ? "MASC" : "supercharger"}</h3>${errLine(r)}<div class="msg">Using it this turn raises the running speed; each use needs a roll of <b>${b.tn}</b> or more, and a failure costs criticals and may force a fall. The roll gets harder each turn in a row. Your choice stays until you change it.</div><div class="row"><button class="${b.on ? "go" : ""}" data-act="boost" data-v="1">Use it</button><button class="${b.on ? "" : "go"}" data-act="boost" data-v="0">Not this turn</button></div>`);
@@ -328,7 +342,8 @@ function drawPickTargets(layer) {
 // S.mv is the movement view being shown: the movement question itself, or, in the move_order question, the view of whichever
 // candidate is selected (fetched with the "reach" query), so the player can look over every unit before moving one.
 function reachIndex(r) { const byHex = {}; for (const o of r.options) (byHex[o.hex] = byHex[o.hex] || []).push(o); return byHex; }
-const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.kind === "move_order");
+const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.kind === "move_order" || S.req.kind === "stand_up");
+const standing = () => !!S.req && S.req.kind === "stand_up";
 function drawReach(layer) {
   S.reachIdx = S.reachIdx || reachIndex(S.mv);
   const idx = S.way.length ? S.wrIdx : S.reachIdx;
@@ -386,6 +401,10 @@ function moveIntro(unavailable) {
       <div class="row"><button data-act="pick-unit" data-id="${S.sel}">${v ? "Choose it, and plan the move in the next step" : "Move this unit"}</button></div>`);
     if (v) stayCluster();
     return;
+  }
+  if (standing()) {
+    sheet(`<h3>Stand up and move ${esc(v.name)}</h3><div class="msg">If the roll (<b>${S.req.tn}</b>+) succeeds it moves on with ${v.run} MP. Tap a tinted hex, or an arrow round the 'Mech to stand facing another way (free). Hold <b>Move!</b> to stand and move; with nothing chosen it stands where it is. &times; goes back.</div>`);
+    stayCluster(); return;
   }
   sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}`);
   stayCluster();
@@ -467,7 +486,19 @@ function arrowRing(layer, cx, cy, facings, current, colourOf, onPick) {
   }
 }
 function drawTurnArrows(layer) {
-  if (!S.dest) return;
+  if (!S.dest) {                                          // nothing chosen: the facings it can end in without leaving its hex
+    const u = unit(S.mv.unit); if (!u || !u.hex || S.attackTarget) return;
+    S.reachIdx = S.reachIdx || reachIndex(S.mv);
+    const here = S.reachIdx[u.hex] || [], cheap = {};
+    for (const o of here) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
+    const [x, y] = centre(u.hex);
+    arrowRing(layer, x, y, Object.keys(cheap), u.facing, (f) => modeCol(cheap[f].mode), async (f) => {
+      await pickDest(u.hex);
+      const os = destOpts(), o = os.find((x) => x.facing === f && x.mode === S.mode) || os.filter((x) => x.facing === f).sort((a, b) => a.mp - b.mp)[0];
+      if (o) { S.facing = f; S.mode = o.mode; moveSheet(); redraw(); loadPath(); }
+    });
+    return;
+  }
   const os = destOpts(), [x, y] = centre(S.dest), cheap = {};
   for (const o of os) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
   arrowRing(layer, x, y, Object.keys(cheap), S.facing, (f) => modeCol((os.find((o) => o.facing === f && o.mode === S.mode) || cheap[f]).mode), (f) => {
@@ -490,7 +521,7 @@ function drawAttackStops(layer) {
 function stayCluster() {
   const v = S.mv; if (!v || v.entry || S.dest) return;
   const c = $("cluster"); c.style.display = "flex";
-  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; stays here<br><span>no destination chosen</span></div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>`;
+  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; ${standing() ? "stands here" : "stays here"}<br><span>no destination chosen</span></div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>${standing() ? '<button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>' : ""}`;
 }
 let HOLD = null;
 const holdEnd = () => { if (HOLD) { clearTimeout(HOLD.t); HOLD.b.classList.remove("holding"); HOLD = null; } };
@@ -537,18 +568,23 @@ function moveSheet() {
 function undo() {
   if (!S.req) return;
   if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
+  if (moving() && standing() && !S.dest && !S.attackTarget) { HANDLERS.stand_up(S.req); redraw(); return; }
   if (moving()) { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
   if (S.decl && S.req.kind === "declaration") { S.decl.sel.clear(); declSheet(); redraw(); return; }
   if (S.fire && S.req.kind === "target") { S.fire.assign.clear(); S.fire.order = []; S.fire.lastPrimary = null; if (S.decl) S.decl.sel.clear(); fireRebuild(); return; }
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); }
 }
 // Send the move: in the move_order question the move is a plan that goes with the unit chosen; later the movement question uses it.
-function commitMove(answer) { if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
+function commitMove(answer) { if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
 // charge / death from above: tap an enemy; the stops go black; pick one; a popup explains and asks
 function onUnitTap(id) {
   const r = S.req;
   if (r && r.kind === "move_order" && r.candidates.includes(id)) { if (id !== S.sel) selectMover(id); else { S.sel = id; redraw(); } return; }
   S.sel = id;
+  if (moving() && id === S.mv.unit) {                      // its own hex (the token covers it): turn in place
+    const u = unit(id); S.reachIdx = S.reachIdx || reachIndex(S.mv);
+    if (u && u.hex && !S.way.length && S.reachIdx[u.hex]) { pickDest(u.hex); return; }
+  }
   if (moving()) {
     const list = S.mv.attacks.filter((a) => a.target === id);
     if (list.length) { S.attackTarget = id; S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackConfirm = false; clearCluster(); attackSheet(list); redraw(); return; }
@@ -986,6 +1022,7 @@ function act(t) {
     case "card-close": $("card").style.display = "none"; break;
     case "pick-unit": send({ unit: +d.id }); break;
     case "stand": send({ stand: d.v === "1" }); break;
+    case "stand-plan": standPlan(); break;
     case "boost": send({ use: d.v === "1" }); break;
     case "spot": send({ target: d.id === "" ? null : +d.id, fires: true }); break;
     case "tag": send(d.id === "" ? { target: null } : { target: +d.id, aim: d.aim }); break;
