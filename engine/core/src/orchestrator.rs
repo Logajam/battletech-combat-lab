@@ -1079,6 +1079,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let alive_teams = forces::team_names(b, &alive);
     let order = forces::initiative_order(b, &alive_teams, None);
     log_initiative(b, &order);
+    b.initiative = serde_json::json!({"turn": turn, "rounds": b.initiative_throws, "order": order});
     let in_order: Vec<UnitId> = order.iter().flat_map(|t| alive.iter().copied().filter(|m| b.units[*m].team.as_deref() == Some(t.as_str())).collect::<Vec<_>>()).collect();
 
     for u in 0..b.units.len() {

@@ -81,6 +81,7 @@ pub fn initiative_order(b: &mut Battle, teams: &[String], mut rolls: Option<&mut
             let r = b.roll_2d6();
             thrown.push((t.clone(), r));
         }
+        b.initiative_throws.push(thrown.clone());
         if let Some(r) = rolls.as_deref_mut() {
             for (t, v) in &thrown {
                 r.insert(t.clone(), *v);
@@ -100,6 +101,7 @@ pub fn initiative_order(b: &mut Battle, teams: &[String], mut rolls: Option<&mut
         }
         ordered
     }
+    b.initiative_throws.clear();
     settle(b, teams, &mut rolls)
 }
 

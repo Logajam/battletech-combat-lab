@@ -297,7 +297,8 @@ function take(r) {
     if (u.weapons) S.wlist[u.id] = u.weapons;
   }
   if (r.board && !S.board) { S.board = r.board; buildMap(); S.needFocus = true; }
-  if (r.log && r.log.length) feedLog(r.log);
+  if (r.initiative && r.initiative.turn) S.init = r.initiative;
+  if (r.log && r.log.length) feedLog(r.log.map(initLine));
   releaseLog(r.kind);
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
@@ -309,6 +310,15 @@ function take(r) {
   HANDLERS[r.kind](r);
   redraw();
   if (S.needFocus && r.kind !== "deploy") { S.needFocus = false; const mine = S.units.filter((u) => u.team === S.myTeam && u.hex).map((u) => u.hex); if (mine.length) focusOn(mine, 3); }
+}
+// INITIATIVE (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be shown"; "The roll needs to be in the
+// report"). The engine sends each turn's throws (2D6 a team, p.39; tied teams re-roll among themselves) with every question, and the
+// report's Initiative line carries them. (The title bar is for whose turn it is, Daniel: not the roll.)
+const initText = (round) => round.map(([t, v]) => `${t} ${v}`).join(", ");
+function initLine(l) {
+  const I = S.init; if (!I || !/^\s*Initiative/.test(l)) return l;
+  const rounds = I.rounds || []; if (!rounds.length) return l;
+  return `${l.replace(/\.$/, "")} (rolled ${initText(rounds[0])}${rounds.slice(1).map((r) => `; tie re-rolled ${initText(r)}`).join("")}).`;
 }
 const errLine = (r) => (r.error ? `<div class="err">${esc(r.error)}</div>` : "");
 const eq = (u) => (u && u.equipment) || {};
