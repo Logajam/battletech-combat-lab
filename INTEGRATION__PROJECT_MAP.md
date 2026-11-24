@@ -100,6 +100,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - P2. Save the starting conditions of a run to a file, probably with the units in use bundled inside it, so a run can be
   shared easily (and loaded back).
 - P3. Play UI: when playing, rely on long presses to open extra options (touch-first; see O1 / `INTEGRATION__BATTLEROM_UI.md`). Daniel's fuller design discussion (second-hand summary): `INTEGRATION__UI_DESIGN_NOTES.md`; reconcile with the BattleROM mockup first.
+- P3a. BEFORE ANY UI GRAPHICS: write the play UI's interaction/state diagram (every decision, transition, context action and
+  confirm path), then audit it against the Core Rulebook (library, pages cited) so every legal action has a discoverable
+  control. Source: `INTEGRATION__UI_DESIGN_NOTES.md` section 6.
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
 - P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
