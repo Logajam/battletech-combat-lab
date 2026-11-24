@@ -1,4 +1,4 @@
-# Play UI: every player action and its home (DRAFT 1, 2026-11-24, Claude's proposals)
+# Play UI: every player action and its home (DRAFT 2, 2026-11-24, Claude's proposals; Daniel's rulings of that day folded in)
 
 Goal (Daniel, 2026-11-24): list every action a player can take and say where it lives on screen, on paper, before any more
 UI is built ("moving the mockup to the active game was less than successful"). This is P3a in PROJECT_MAP Section 0.
@@ -138,6 +138,11 @@ gets a map button or a confirm popup (it appears only when relevant); a rare act
 | F23 | Heat budget: see projected heat and shutdown / explosion thresholds | Every turn | Placard heat bar, Weapons panel header | |
 | F24 | Narc pod type | Rare | part of F9 | |
 | F25 | Defender's choice of line of sight on a hex edge | Rare | Automatic now; Confirm popup when declarations take turns | Daniel: Q5 |
+| F26 | Select a target (enemy chip, enemy token on the map, next / previous arrows) | Every turn | Map (tap token), enemy strip | Camera glides to it and pins it in the centre column; to-hit numbers and greyed weapons update |
+| F27 | Pan the map freely (to find a second target) | Sometimes | Map (drag on empty terrain or in the overlay's gaps) | Gaps between weapon buttons pass touches through |
+| F28 | Assign weapons to a second target | Sometimes | Map: drag a painted group out of the overlay and drop on the enemy token; or select that enemy first, then tap | Camera scrolls to the enemy that was just assigned |
+| F29 | Weapon card: detail, to-hit breakdown, mode, ammo | Sometimes | Inspector-style card on long press of a weapon | A dot on the button marks a non-default mode or ammo |
+| F30 | See where my own 'Mech is when the camera is on the target | Every turn | Map: dashed line to the shooter; edge chip with bearing and range if off-screen | |
 
 ## 7. Physical attack phase
 
@@ -176,14 +181,25 @@ gets a map button or a confirm popup (it appears only when relevant); a rare act
 1. **Expanded placard under the selected unit: keep it?** With the data sheet gone to the Inspector, the question is what a
    selected unit shows on screen. My proposal: the placard grows a little (Gunnery / Piloting, movement, heat, the
    context buttons), nothing else; all else is in the Inspector.
-2. **Weapons panel: stays on screen in the fire phase?** I assumed yes (the weapons list is the heart of that phase and has
-   grouping, sort, per-weapon TN). The summaries' "weapons arranged around the target by body location" would replace it.
-   My view: keep the list for assigning, and show body location as a column in the Inspector's Weapons card.
-   UPDATE 2026-11-24: Daniel is working out how his location-based weapon layout would work. Worst case to fit: **5 columns
-   by 14 rows** of weapons, plus the target 'Mech and the extra buttons, on a phone. Questions to settle on paper first:
-   what the 5 columns are (body locations: arms, side torsos, centre torso / head, legs?), how a weapon in a crowded
-   location shows its mode and ammo buttons, whether the grouping rule (same name, arc, bin, mode, TN) still applies per
-   location, how sort works, and how the drag-to-paint gesture (F5) runs in a grid (row-wise, column-wise, or both).
+2. **RULED by Daniel, 2026-11-24 (the fire-phase weapon layout; replaces the left-hand weapons list).** The weapons are a CLEAR
+   OVERLAY on the map, laid out like the unit's critical table: five location columns (LA, LT, CT / head, RT, RA) by 12 slot
+   rows, each weapon button as tall as its critical slots (an AC/20 is ten rows, a medium laser one). Legs go in the arm columns
+   (my reading: onto the arm's four actuator rows, which are never weapons; CHECK with the unit files). Only the names and the
+   to-hit number are solid; fills are see-through. No per-weapon fire icon: colour is the state (glowing green = ready, red =
+   selected to fire, grey = out of range; fired = struck through, my proposal). The number on each button is that weapon's
+   total to-hit number against the target. Mode and ammo live in a long press (a small dot marks a non-default setting).
+   The selected target is PINNED in the empty centre column (the centre torso's engine and gyro slots leave it nearly empty),
+   a dashed line runs to the shooter, and the expanded placard already shows range, band, line of sight and target movement.
+   Gestures: tap = assign or clear; press and drag along weapons = paint a group; keep dragging out of the overlay and drop on an
+   enemy token = assign the group to that enemy (split fire); press and hold = weapon card. Camera: selecting a target (chip,
+   token, or the enemy bar) GLIDES to it (a fast scroll, never a snap); full pan is always allowed so a second target can be
+   picked; the camera scrolls to whichever enemy just had an attack assigned (Daniel: "Camera scrolls to whichever enemy
+   just had an attack assigned to it"); an edge chip shows the shooter's bearing and range when the shooter is off-screen.
+   With the overlay hidden, the target is centred in the whole map (Daniel: yes). Live sketch: `reference_art/battlerom_ui/
+   weapon_grid_sketch.html` (published as an Artifact during the session; version 3). Worst case: 1-slot buttons are 26 px
+   tall upright, 22 px sideways (under the 32 px tap size; Daniel has not ruled). Open: head weapons (one free head slot: put
+   them in the centre column?); what a fired weapon looks like; whether twin weapons ever group (the old grouping rule is
+   gone with the list).
 3. **Long press:** unit -> Inspector, empty hex -> hex card, weapon row -> that weapon's card, placard warning mark ->
    Inspector. Any conflict with drag-to-move: a long press needs to be still, a drag cancels it (summary's rule).
 4. **T4:** is "stand still" a Move! with no path, or its own Done button?
