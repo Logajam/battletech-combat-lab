@@ -25,14 +25,17 @@
     ISERMediumLaser: needs 8 (range mod +0), rolled 10 -> HIT
     ISERMediumLaser: needs 8 (range mod +0), rolled 9 -> HIT
     ISMML5: needs 8 (range mod +0), rolled 4 -> miss [ISMML5 SRM Ammo: 19 shots left]
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 2 +2 (ATM Artemis, ATM HE) on the 3-column table -> 1 connect (3 dmg).
       Group 1/1: Hit location roll 8 (right table): Center Torso.
 3 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 3 armor pts destroyed at armor (16 -> 13 remaining).
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -59,10 +62,12 @@
     CLERLargeLaser: needs 10 (range mod +0), rolled 5 -> miss
     CLATM3: needs 10 (range mod +0), rolled 8 -> miss [Clan Ammo ATM-3 ER: 19 shots left]
     CLATM3: needs 10 (range mod +0), rolled 10 -> HIT [Clan Ammo ATM-3 ER: 18 shots left]
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 11 (right table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 10 +2 (ATM Artemis, ATM ER) on the 3-column table -> 3 connect (3 dmg).
       Group 1/1: Hit location roll 4 (right table): Right Arm.
 3 damage (MISSILE) incoming to Right Arm (armor).
@@ -106,6 +111,7 @@
   [Ranged] Red -> Blue: range 12, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISMML5'] (weapon heat 3 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.26)
     [Red fire control] ISMML5: MML LRM rounds
     ISMML5: needs 11 (range mod +2), rolled 12 -> HIT [ISMML5 LRM Ammo: 21 shots left]
+  [Resolve] Red -> Blue: ISMML5
     ISMML5 hit: cluster roll 8 (MML LRM rounds) on the 5-column table -> 3 connect (3 dmg).
       Group 1/1: Hit location roll 4 (front table): Right Arm.
 3 damage (MISSILE) incoming to Right Arm (armor).
@@ -132,6 +138,7 @@
     CLERLargeLaser: needs 11 (range mod +0), rolled 8 -> miss
     CLATM3: needs 11 (range mod +0), rolled 11 -> HIT [Clan Ammo ATM-3 ER: 15 shots left]
     CLATM3: needs 11 (range mod +0), rolled 2 -> miss [Clan Ammo ATM-3 ER: 14 shots left]
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 6 +2 (ATM Artemis, ATM ER) on the 3-column table -> 2 connect (2 dmg).
       Group 1/1: Hit location roll 6 (left table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
@@ -184,6 +191,7 @@
     CLERLargeLaser: needs 11 (range mod +0), rolled 12 -> HIT
     CLATM3: needs 11 (range mod +0), rolled 3 -> miss [Clan Ammo ATM-3 ER: 13 shots left]
     CLATM3: needs 11 (range mod +0), rolled 10 -> miss [Clan Ammo ATM-3 ER: 12 shots left]
+  [Resolve] Blue -> Red: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 10 (left table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -221,6 +229,7 @@
   [Ranged] Red fires in order: ['ISERMediumLaser', 'ISMML5'].
     ISERMediumLaser: needs 8 (range mod +0), rolled 11 -> HIT
     ISMML5: needs 10 (range mod +2), rolled 6 -> miss [ISMML5 SRM Ammo: 18 shots left]
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -283,6 +292,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [Ranged] Red fires in order: ['ISERMediumLaser', 'ISMML5'].
     ISERMediumLaser: needs 6 (range mod +0), rolled 5 -> miss
     ISMML5: needs 6 (range mod +0), rolled 6 -> HIT [ISMML5 SRM Ammo: 16 shots left]
+  [Resolve] Red -> Blue: ISMML5
     ISMML5 hit: cluster roll 6 (MML SRM rounds) on the 5-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 6 (rear table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (rear_armor).
@@ -326,6 +336,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
   [Ranged] Red fires in order: ['ISERMediumLaser', 'ISMML5'].
     ISERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
     ISMML5: needs 10 (range mod +0), rolled 10 -> HIT [ISMML5 SRM Ammo: 15 shots left]
+  [Resolve] Red -> Blue: ISMML5
     ISMML5 hit: cluster roll 5 (MML SRM rounds) on the 5-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 5 (rear table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (rear_armor).
@@ -366,6 +377,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
     CLATM3: needs 10 (range mod +0), rolled 12 -> HIT [Clan Ammo ATM-3 HE: 15 shots left]
     CLATM3: needs 10 (range mod +0), rolled 8 -> miss [Clan Ammo ATM-3 HE: 14 shots left]
     CLERSmallLaser: needs 10 (range mod +0), rolled 7 -> miss
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 9 +2 (ATM Artemis, ATM HE) on the 3-column table -> 3 connect (9 dmg).
       Group 1/2: Hit location roll 10 (right table): Left Arm.
 6 damage (MISSILE) incoming to Left Arm (armor).
@@ -438,6 +450,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     CLERLargeLaser: needs 11 (range mod +0), rolled 11 -> HIT
     CLATM3: needs 11 (range mod +0), rolled 11 -> HIT [Clan Ammo ATM-3: 15 shots left]
     CLATM3: needs 11 (range mod +0), rolled 6 -> miss [Clan Ammo ATM-3: 14 shots left]
+  [Resolve] Blue -> Red: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 4 (rear table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -445,6 +458,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (8 -> 3/8 remaining).
   Check for possible critical. Roll a 4.
     No critical hit.
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 10 +2 (ATM Artemis) on the 3-column table -> 3 connect (6 dmg).
       Group 1/1: Hit location roll 5 (rear table): Right Leg.
 6 damage (MISSILE) incoming to Right Leg (rear_armor).
@@ -490,6 +504,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     CLATM3: needs 9 (range mod +0), rolled 9 -> HIT [Clan Ammo ATM-3 HE: 11 shots left]
     CLATM3: needs 9 (range mod +0), rolled 11 -> HIT [Clan Ammo ATM-3 HE: 10 shots left]
     CLERSmallLaser: needs 9 (range mod +0), rolled 8 -> miss
+  [Resolve] Red -> Blue: ISMML5
     ISMML5 hit: cluster roll 8 (MML SRM rounds) on the 5-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
@@ -500,6 +515,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
       Group 3/3: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (15 -> 13 remaining).
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 5 +2 (ATM Artemis, ATM HE) on the 3-column table -> 2 connect (6 dmg).
       Group 1/1: Hit location roll 3 (front table): Right Arm.
 6 damage (MISSILE) incoming to Right Arm (armor).
@@ -515,6 +531,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   All critical slots in Right Arm marked DESTROYED.
   3 damage remains, transfers to Center Torso.
   [STANDARD/MISSILE] 3 armor pts destroyed at armor (13 -> 10 remaining).
+  [Resolve] Blue -> Red: CLATM3
     CLATM3 hit: cluster roll 9 +2 (ATM Artemis, ATM HE) on the 3-column table -> 3 connect (9 dmg).
       Group 1/2: Hit location roll 6 (front table): Right Torso.
 6 damage (MISSILE) incoming to Right Torso (armor).
@@ -631,6 +648,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     CLERSmallLaser: needs 9 (range mod +0), rolled 4 -> miss
   [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 0 + heat 0); firing ['ISERMediumLaser'] (aimed at Center Torso) (weapon heat 5 of budget 38 = max 30 + sink 20 - current 0 - movement 2 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs 2 (range mod +0) aimed at Center Torso, rolled 4 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5: aimed at Center Torso, 1D6 5 - on target.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (7 -> 2 remaining).
@@ -712,6 +730,7 @@ FALL (automatic fall): Griffin IIC 4 takes 4 falling damage (1D6 5: front table,
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red -> Blue: range 1, base TN -1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser'] (aimed at Center Torso) (weapon heat 5 of budget 39 = max 30 + sink 20 - current 0 - movement 1 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs -1 (range mod +0) aimed at Center Torso, rolled 12 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5: aimed at Center Torso, 1D6 5 - on target.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (10 -> 9/12 remaining).
@@ -738,6 +757,7 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 4.
   [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser'] (aimed at Center Torso) (weapon heat 5 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs -2 (range mod +0) aimed at Center Torso, rolled 8 -> HIT
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
@@ -765,6 +785,7 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 6.
   [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser'] (aimed at Center Torso) (weapon heat 5 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs -2 (range mod +0) aimed at Center Torso, rolled 10 -> HIT
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
@@ -789,6 +810,7 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 5.
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser'] (aimed at Center Torso) (weapon heat 5 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs -2 (range mod +0) aimed at Center Torso, rolled 6 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 4 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -831,6 +853,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser'] (weapon heat 5 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 5.00)
     ISERMediumLaser: needs 2 (range mod +0), rolled 6 -> HIT
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.

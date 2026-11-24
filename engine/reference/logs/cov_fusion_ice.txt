@@ -22,12 +22,14 @@
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['Autocannon/2'] (weapon heat 1 of budget 30 = max 30 + sink 1 - current 0 - movement 1 - other 0; expected dmg 0.83)
     Autocannon/2: needs 8 (range mod +0), rolled 6 -> miss [IS Ammo AC/2: 44 shots left]
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 3 (right table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (8 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/7 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -37,10 +39,12 @@
     Hip specifically destroyed at Right Leg from Right Leg destruction.
   All critical slots in Right Leg marked DESTROYED.
   0 damage remains, transfers to Right Torso.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).

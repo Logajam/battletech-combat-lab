@@ -72,6 +72,7 @@
   [Ranged] Red 3 fires in order: ['ISUltraAC5', 'ISLBXAC10'].
     ISUltraAC5 x2: needs 10 (range mod +2), rolled 10 -> HIT [ISUltraAC5 Ammo: 18 shots left]
     ISLBXAC10: needs 9 (range mod +2, modifiers -1), rolled 8 -> miss [ISLBXAC10 CL Ammo: 9 shots left]
+  [Resolve] Red 2 -> Blue 1: LRM 20
     LRM 20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -82,6 +83,7 @@
       Group 3/3: Hit location roll 3 (front table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
+  [Resolve] Red 2 -> Blue 1: LRM 20
     LRM 20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -92,6 +94,7 @@
       Group 3/3: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (24 -> 22 remaining).
+  [Resolve] Red 4 -> Blue 1: LRM 15
     LRM 15 hit: cluster roll 8 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 7 (front table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
@@ -99,6 +102,7 @@
       Group 2/2: Hit location roll 10 (front table): Left Arm.
 4 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (22 -> 18 remaining).
+  [Resolve] Red 4 -> Blue 1: LRM 15
     LRM 15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -106,10 +110,12 @@
       Group 2/2: Hit location roll 6 (front table): Right Torso.
 4 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (24 -> 20 remaining).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 6 (right table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (33 -> 23 remaining).
+  [Resolve] Red 3 -> Blue 3: ISUltraAC5
     ISUltraAC5 hit: cluster roll 8 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 3 (right table): Right Leg.
 5 damage (BALLISTIC) incoming to Right Leg (armor).
@@ -187,6 +193,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     Medium Laser: needs 11 (range mod +4), rolled 3 -> miss
     Medium Laser: needs 11 (range mod +4), rolled 7 -> miss
   [Ranged] Red 3: no LOS to Blue 3 - holds fire.
+  [Resolve] Blue 3 -> Red 1: ISLBXAC10
     ISLBXAC10 hit: cluster roll 8 (LB-X cluster rounds) on the 10-column table -> 6 connect (6 dmg).
       Group 1/6: Hit location roll 7 (left table): Left Torso.
 1 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -206,6 +213,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
       Group 6/6: Hit location roll 6 (left table): Left Leg.
 1 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (31 -> 30 remaining).
+  [Resolve] Blue 4 -> Red 4: LRM 15
     LRM 15 hit: cluster roll 6 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 6 (front table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -281,14 +289,17 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   [Ranged] Blue 4 -> Red 3: range 7, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['LRM 15', 'LRM 15'] (weapon heat 10 of budget 11 = max 4 + sink 15 - current 4 - movement 4 - other 0; Princess plan utility 15.61, about 7.92 expected dmg)
     LRM 15: needs 8 (range mod +0), rolled 5 -> miss [IS Ammo LRM-15: 3 shots left]
     LRM 15: needs 8 (range mod +0), rolled 8 -> HIT [IS Ammo LRM-15: 2 shots left]
+  [Resolve] Red 3 -> Blue 3: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (11 -> 6 remaining).
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 5 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (22 -> 12 remaining).
+  [Resolve] Blue 2 -> Red 1: LRM 20
     LRM 20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
@@ -300,6 +311,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
       Group 3/3: Hit location roll 7 (left table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
+  [Resolve] Blue 3 -> Red 3: ISUltraAC5
     ISUltraAC5 hit: cluster roll 9 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -307,10 +319,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
       Group 2/2: Hit location roll 7 (front table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (26 -> 21 remaining).
+  [Resolve] Blue 3 -> Red 3: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 8 (front table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+  [Resolve] Blue 4 -> Red 3: LRM 15
     LRM 15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 11 (front table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -405,10 +419,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   [Ranged] Red 1 -> Blue 2: range 14, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 29 = max 4 + sink 28 - current 2 - movement 1 - other 0; expected dmg 5.56)
     PPC: needs 9 (range mod +4), rolled 8 -> miss
     PPC: needs 9 (range mod +4), rolled 6 -> miss
+  [Resolve] Red 3 -> Blue 3: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 5 (front table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (14 -> 4 remaining).
+  [Resolve] Red 3 -> Blue 3: ISUltraAC5
     ISUltraAC5 hit: cluster roll 11 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -416,10 +432,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 2/2: Hit location roll 9 (front table): Left Leg.
 5 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  [Resolve] Red 3 -> Blue 3: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (26 -> 21 remaining).
+  [Resolve] Blue 2 -> Red 2: LRM 20
     LRM 20 hit: cluster roll 8 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 11 (front table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -435,6 +453,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue 2 -> Red 2: LRM 20
     LRM 20 hit: cluster roll 8 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 6 (front table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -445,6 +464,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 3/3: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (24 -> 22 remaining).
+  [Resolve] Red 4 -> Blue 4: LRM 15
     LRM 15 hit: cluster roll 10 on the 15-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 6 (right table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -455,6 +475,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 3/3: Hit location roll 9 (right table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
+  [Resolve] Red 4 -> Blue 4: LRM 15
     LRM 15 hit: cluster roll 5 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 8 (right table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
@@ -462,14 +483,17 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 2/2: Hit location roll 7 (right table): Right Torso.
 4 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (19 -> 15 remaining).
+  [Resolve] Blue 3 -> Red 3: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (14 -> 4 remaining).
+  [Resolve] Blue 3 -> Red 3: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+  [Resolve] Blue 3 -> Red 3: ISUltraAC5
     ISUltraAC5 hit: cluster roll 11 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 8 (right table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (armor).
@@ -477,6 +501,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 2/2: Hit location roll 9 (right table): Left Torso.
 5 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (7 -> 2 remaining).
+  [Resolve] Red 2 -> Blue 2: LRM 20
     LRM 20 hit: cluster roll 8 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 5 (front table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -487,6 +512,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 3/3: Hit location roll 5 (front table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (21 -> 19 remaining).
+  [Resolve] Blue 4 -> Red 3: LRM 15
     LRM 15 hit: cluster roll 5 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 3 (right table): Right Leg.
       Group 1/2: Leg hit strikes the partial cover - no damage (p.66).
@@ -577,6 +603,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     LRM 15: needs 8 (range mod +0), rolled 7 -> miss [IS Ammo LRM-15: 7 shots left]
     LRM 15: needs 8 (range mod +0), rolled 12 -> HIT [IS Ammo LRM-15: 6 shots left]
   [Ranged] Red 3: no LOS to Blue 4 - holds fire.
+  [Resolve] Blue 2 -> Red 2: LRM 20
     LRM 20 hit: cluster roll 4 on the 20-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -584,10 +611,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
       Group 2/2: Hit location roll 4 (front table): Right Arm.
 4 damage (MISSILE) incoming to Right Arm (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (22 -> 18 remaining).
+  [Resolve] Blue 3 -> Red 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 11 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (17 -> 12 remaining).
+  [Resolve] Red 4 -> Blue 3: LRM 15
     LRM 15 hit: cluster roll 11 on the 15-column table -> 15 connect (15 dmg).
       Group 1/3: Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -626,6 +655,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     1/1 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'DESTROYED', 'Jump Jet', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 2.
+  [Resolve] Red 4 -> Blue 3: LRM 15
     LRM 15 hit: cluster roll 6 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 6 (right table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -635,6 +665,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
       Group 2/2: Hit location roll 9 (right table): Left Torso.
 4 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (16 -> 12 remaining).
+  [Resolve] Blue 4 -> Red 1: LRM 15
     LRM 15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 5 (right table): Right Arm.
 5 damage (MISSILE) incoming to Right Arm (armor).
@@ -739,6 +770,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Ranged] Red 1 -> Blue 4: range 8, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 3 - movement 1 - other 0; expected dmg 5.56)
     PPC: needs 9 (range mod +2), rolled 9 -> HIT
     PPC: needs 9 (range mod +2), rolled 9 -> HIT
+  [Resolve] Red 2 -> Blue 4: LRM 20
     LRM 20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (left table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
@@ -749,6 +781,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
       Group 3/3: Hit location roll 8 (left table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+  [Resolve] Red 3 -> Blue 4: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -781,10 +814,12 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     3: LRM 15 (slot 4)
     1/1 Criticals: LRM 15 slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'LRM 15', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red 3 -> Blue 4: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+  [Resolve] Red 4 -> Blue 3: LRM 15
     LRM 15 hit: cluster roll 5 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 11 (right table): Left Leg.
 5 damage (MISSILE) incoming to Left Leg (armor).
@@ -792,6 +827,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
       Group 2/2: Hit location roll 10 (right table): Left Arm.
 4 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (12 -> 8 remaining).
+  [Resolve] Blue 4 -> Red 2: LRM 15
     LRM 15 hit: cluster roll 4 on the 15-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 5 (left table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -800,18 +836,22 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 1 damage (MISSILE) incoming to Head (armor).
   [STANDARD/MISSILE] 1 armor pts destroyed at armor (9 -> 8 remaining).
+  [Resolve] Blue 4 -> Red 2: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (26 -> 21 remaining).
+  [Resolve] Blue 4 -> Red 2: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (17 -> 12 remaining).
+  [Resolve] Red 1 -> Blue 4: PPC
     PPC hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (17 -> 7 remaining).
+  [Resolve] Red 1 -> Blue 4: PPC
     PPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -918,6 +958,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     LRM 15: needs 7 (range mod +0), rolled 9 -> HIT [IS Ammo LRM-15: 4 shots left]
     Medium Laser: needs 11 (range mod +4), rolled 4 -> miss
     Medium Laser: needs 11 (range mod +4), rolled 6 -> miss
+  [Resolve] Red 2 -> Blue 4: LRM 20
     LRM 20 hit: cluster roll 11 on the 20-column table -> 20 connect (20 dmg).
       Group 1/4: Hit location roll 4 (left table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -951,6 +992,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'Medium Laser', 'Medium Laser']
       Engine hit (1/3).
+  [Resolve] Red 2 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -970,6 +1012,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     3: Medium Laser (slot 3)
     2/2 Criticals: Medium Laser slot hit.
       Current crit slots in Left Torso: ['Jump Jet', 'Jump Jet', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red 4 -> Blue 3: LRM 15
     LRM 15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 5 (front table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -980,6 +1023,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
       Group 2/2: Hit location roll 9 (front table): Left Leg.
 4 damage (MISSILE) incoming to Left Leg (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (9 -> 5 remaining).
+  [Resolve] Red 4 -> Blue 3: LRM 15
     LRM 15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -987,18 +1031,22 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
       Group 2/2: Hit location roll 8 (front table): Left Torso.
 4 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 4 armor pts destroyed at armor (12 -> 8 remaining).
+  [Resolve] Red 3 -> Blue 2: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (24 -> 14 remaining).
+  [Resolve] Red 3 -> Blue 2: ISUltraAC5
     ISUltraAC5 hit: cluster roll 4 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
       Group 1/1: Hit location roll 10 (right table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (22 -> 17 remaining).
+  [Resolve] Blue 3 -> Red 2: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (19 -> 9 remaining).
+  [Resolve] Blue 3 -> Red 2: ISUltraAC5
     ISUltraAC5 hit: cluster roll 10 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 10 (right table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -1006,10 +1054,12 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
       Group 2/2: Hit location roll 5 (right table): Right Arm.
 5 damage (BALLISTIC) incoming to Right Arm (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (18 -> 13 remaining).
+  [Resolve] Blue 3 -> Red 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 5 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1034,10 +1084,12 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     12: Medium Laser (slot 12)
     1/1 Criticals: Medium Laser slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', 'Medium Laser']
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Resolve] Blue 4 -> Red 3: LRM 15
     LRM 15 hit: cluster roll 6 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 9 (rear table): Left Leg.
 5 damage (MISSILE) incoming to Left Leg (rear_armor).
@@ -1137,6 +1189,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [Ranged] Blue 4 -> Red 2: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 1); firing ['Medium Laser'] (weapon heat 3 of budget 2 = max 4 + sink 15 - current 8 - movement 4 - other 5; Princess plan utility 5.60, about 2.08 expected dmg)
     Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
   [Ranged] Red 4 -> Blue 4: range 11, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 15 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Red 3 -> Blue 2: ISUltraAC5
     ISUltraAC5 hit: cluster roll 9 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 7 (right table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
@@ -1144,6 +1197,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
       Group 2/2: Hit location roll 10 (right table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (12 -> 7 remaining).
+  [Resolve] Red 3 -> Blue 2: ISLBXAC10
     ISLBXAC10 hit: cluster roll 6 (LB-X cluster rounds) on the 10-column table -> 6 connect (6 dmg).
       Group 1/6: Hit location roll 7 (right table): Right Torso.
 1 damage (BALLISTIC) incoming to Right Torso (armor).
@@ -1163,6 +1217,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
       Group 6/6: Hit location roll 7 (right table): Right Torso.
 1 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (6 -> 5 remaining).
+  [Resolve] Blue 3 -> Red 2: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.
@@ -1170,16 +1225,19 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [STANDARD/BALLISTIC] 8 armor pts destroyed at armor (8 -> 0 remaining). 2 damage applied to structure [STANDARD] (3 -> 1/3 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue 3 -> Red 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (11 -> 8/11 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue 3 -> Red 2: ISUltraAC5
     ISUltraAC5 hit: cluster roll 5 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
       Group 1/1: Hit location roll 7 (right table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Resolve] Blue 3 -> Red 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1292,6 +1350,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
   [Ranged] Blue 4 -> Red 2: range 3, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 5 = max 4 + sink 15 - current 5 - movement 4 - other 5; Princess plan utility 9.02, about 2.78 expected dmg)
     Medium Laser: needs 9 (range mod +0), rolled 6 -> miss
     Medium Laser: needs 9 (range mod +0), rolled 6 -> miss
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1301,6 +1360,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue 1 -> Red 2: PPC
     PPC hit for 10:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1318,10 +1378,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
     1/1 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
+  [Resolve] Blue 1 -> Red 2: PPC
     PPC hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (16 -> 6 remaining).
+  [Resolve] Red 4 -> Blue 1: LRM 15
     LRM 15 hit: cluster roll 3 on the 15-column table -> 5 connect (5 dmg).
       Group 1/1: Hit location roll 5 (right table): Right Arm.
 5 damage (MISSILE) incoming to Right Arm (armor).
@@ -1411,11 +1473,13 @@ Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 4.
     Medium Laser: needs 10 (range mod +4), rolled 4 -> miss
     Medium Laser: needs 10 (range mod +4), rolled 11 -> HIT
     Medium Laser: needs 10 (range mod +4), rolled 5 -> miss
+  [Resolve] Blue 1 -> Red 2: PPC
     PPC hit for 10: aimed at Right Torso, 1D6 6 - on target.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (15 -> 9/15 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue 1 -> Red 2: PPC
     PPC hit for 10: aimed at Right Torso, 1D6 5 - on target.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 9 damage applied to structure [STANDARD] (9 -> 0/15 remaining).
@@ -1460,6 +1524,7 @@ Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 4.
   All critical slots in Right Arm marked DESTROYED.
   1 damage remains, transfers to Center Torso.
   [STANDARD/ENERGY] 1 armor pts destroyed at armor (6 -> 5 remaining).
+  [Resolve] Blue 1 -> Red 2: PPC
     PPC hit for 10: aimed at Right Torso, 1D6 4 - on target.
 10 damage (ENERGY) incoming to Right Torso (armor).
   Right Torso already destroyed - damage transfers to Center Torso.
@@ -1478,18 +1543,22 @@ Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 4.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
   3 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Red 3 -> Blue 1: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 9 (front table): Left Leg.
 10 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (33 -> 23 remaining).
+  [Resolve] Red 3 -> Blue 1: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 8 (front table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
+  [Resolve] Blue 4 -> Red 2: LRM 15
     LRM 15 hit: cluster roll 6 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 5 (rear table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (rear_armor).
@@ -1499,18 +1568,22 @@ Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 4.
   [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (8 -> 4/11 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue 4 -> Red 2: Medium Laser
     Medium Laser hit for 5: aimed at Right Torso, 1D6 6 - on target.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   Right Torso already destroyed - damage transfers to Center Torso.
   Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  [Resolve] Blue 4 -> Red 2: Medium Laser
     Medium Laser hit for 5: aimed at Right Torso, 1D6 2 - rolls for location.
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  [Resolve] Blue 4 -> Red 2: Medium Laser
     Medium Laser hit for 5: aimed at Right Torso, 1D6 4 - on target.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   Right Torso already destroyed - damage transfers to Center Torso.
   Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -1642,6 +1715,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [Ranged] Red 1: no LOS to Blue 1 - holds fire.
   [Ranged] Blue 4: spots Red 4 for indirect fire - holds its own fire.
   [Ranged] Red 4 -> Blue 4: range 9, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 15 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Blue 1 -> Red 3: PPC
     PPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
@@ -1662,14 +1736,17 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     11: ISUltraAC5 Ammo (slot 11)
     1/1 Criticals: ISMediumLaser slot hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'Engine', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'DESTROYED', 'ISUltraAC5 Ammo', 'ISCASE']
+  [Resolve] Red 3 -> Blue 2: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 9 (front table): Left Leg.
 10 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (26 -> 16 remaining).
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1679,6 +1756,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue 2 -> Red 3: LRM 20
     LRM 20 hit: cluster roll 6 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 7 (front table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
@@ -1756,28 +1834,34 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     Medium Laser: needs 10 (range mod +2), rolled 9 -> miss
     Medium Laser: needs 10 (range mod +2), rolled 4 -> miss
   [Ranged] Red 4 -> Blue 4: range 12, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 15 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Blue 1 -> Red 3: PPC
     PPC hit for 10:
       Hit location roll 6 (rear table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (9 -> 4/15 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red 3 -> Blue 2: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 3 (front table): Right Arm.
 10 damage (BALLISTIC) incoming to Right Arm (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (11 -> 1 remaining).
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
+  [Resolve] Blue 2 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (17 -> 12 remaining).
+  [Resolve] Blue 2 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (right table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (14 -> 9 remaining).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 10 (left table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -1851,6 +1935,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   [Ranged] Blue 4 twists its torso 1 hexside left (Red 4 is in its torso's left side arc after that).
   [Ranged] Blue 4 -> Red 4: range 7, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['LRM 15'] (weapon heat 5 of budget 6 = max 4 + sink 15 - current 5 - movement 3 - other 5; Princess plan utility 4.88, about 2.64 expected dmg)
     LRM 15: needs 9 (range mod +0), rolled 11 -> HIT [IS Ammo LRM-15: 1 shots left]
+  [Resolve] Red 3 -> Blue 1: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1860,14 +1945,17 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red 3 -> Blue 1: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (22 -> 17 remaining).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 9 (left table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Resolve] Blue 4 -> Red 4: LRM 15
     LRM 15 hit: cluster roll 2 on the 15-column table -> 5 connect (5 dmg).
       Group 1/1: Hit location roll 7 (left table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -1935,6 +2023,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
   [Ranged] Red 4: no LOS to Blue 4 - holds fire.
   [Ranged] Blue 4 -> Red 3: range 7, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['LRM 15'] (weapon heat 5 of budget 7 = max 4 + sink 15 - current 3 - movement 4 - other 5; Princess plan utility 7.00, about 2.64 expected dmg)
     LRM 15: needs 9 (range mod +0), rolled 5 -> miss [IS Ammo LRM-15: 0 shots left]
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1956,16 +2045,19 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     2 critical hit(s).
     1/2 Criticals: Right Arm critical slots exhausted during this round - discarded (no transfer).
     2/2 Criticals: Right Arm critical slots exhausted during this round - discarded (no transfer).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 10 (front table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (11 -> 1/13 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue 1 -> Red 1: PPC
     PPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
+  [Resolve] Blue 2 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -2041,10 +2133,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     PPC: needs 10 (range mod +2), rolled 10 -> HIT
   [Ranged] Blue 4: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Red 4: no LOS to Blue 1 - holds fire.
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  [Resolve] Red 3 -> Blue 2: ISLBXAC10
     ISLBXAC10 hit: cluster roll 9 (LB-X cluster rounds) on the 10-column table -> 8 connect (8 dmg).
       Group 1/8: Hit location roll 8 (right table): Center Torso.
 1 damage (BALLISTIC) incoming to Center Torso (armor).
@@ -2074,6 +2168,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
       Group 8/8: Hit location roll 11 (right table): Left Leg.
 1 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (15 -> 14 remaining).
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 3 (right table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
@@ -2161,10 +2256,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     Medium Laser: needs 8 (range mod +0), rolled 9 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (22 -> 17 remaining).
+  [Resolve] Red 3 -> Blue 2: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 3 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -2179,11 +2276,13 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     1/1 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
+  [Resolve] Blue 4 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 5 damage (ENERGY) incoming to Head (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Resolve] Blue 4 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 2 (left table): Left Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -2263,14 +2362,17 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 5 (range mod +0), rolled 3 -> miss
+  [Resolve] Red 3 -> Blue 4: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (10 -> 5 remaining).
+  [Resolve] Red 3 -> Blue 4: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 10 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Resolve] Red 3 -> Blue 4: ISLBXAC10
     ISLBXAC10 hit: cluster roll 11 (LB-X cluster rounds) on the 10-column table -> 10 connect (10 dmg).
       Group 1/10: Hit location roll 8 (front table): Left Torso.
 1 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -2340,6 +2442,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
       Group 10/10: Hit location roll 10 (front table): Left Arm.
 1 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (3 -> 2 remaining).
+  [Resolve] Blue 2 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -2353,6 +2456,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
   1 damage remains, transfers to Center Torso.
+  [Resolve] Blue 4 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -2368,6 +2472,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
   0 damage remains, transfers to Center Torso.
+  [Resolve] Blue 4 -> Red 3: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 3 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -2428,6 +2533,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
   [Ranged] Blue 2: spots Red 4 for indirect fire - holds its own fire.
   [Ranged] Red 1: no weapon can bear on Blue 2 (rear arc) - can't fire.
   [Ranged] Blue 4: no LOS to Red 1 - holds fire.
+  [Resolve] Red 4 -> Blue 2: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (front table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -2514,6 +2620,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
     Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
   [Ranged] Blue 4: spots Red 4 for indirect fire - holds its own fire.
   [Ranged] Red 1: no LOS to Blue 2 - holds fire.
+  [Resolve] Blue 1 -> Red 4: PPC
     PPC hit for 10:
       Hit location roll 10 (left table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -2605,11 +2712,13 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
     Medium Laser: needs 9 (range mod +2), rolled 11 -> HIT
     Medium Laser: needs 9 (range mod +2), rolled 9 -> HIT
   [Ranged] Red 1: no LOS to Blue 2 - holds fire.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
   Right Arm already destroyed - damage transfers to Right Torso.
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -2619,6 +2728,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
   All critical slots in Left Arm marked DESTROYED.
   4 damage remains, transfers to Left Torso.
   [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (left table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -2633,6 +2743,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
     5: LRM 15 (slot 5)
     1/1 Criticals: Upper Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'LRM 15', 'LRM 15', 'LRM 15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (left table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -2685,14 +2796,17 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
     Medium Laser: needs 6 (range mod +0), rolled 7 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 5 -> miss
     Medium Laser: needs 6 (range mod +0), rolled 9 -> HIT
+  [Resolve] Blue 1 -> Red 4: PPC
     PPC hit for 10:
       Hit location roll 7 (left table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 6 (left table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+  [Resolve] Red 1 -> Blue 2: PPC
     PPC hit for 10:
       Hit location roll 9 (left table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
@@ -2700,10 +2814,12 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (19 -> 9/22 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (17 -> 12 remaining).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -2711,6 +2827,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (17 -> 12/17 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (front table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -2827,10 +2944,12 @@ FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 4: front table
     PPC: needs 8 (range mod +0), rolled 5 -> miss
     PPC: needs 8 (range mod +0), rolled 9 -> HIT
     PPC: needs 8 (range mod +0), rolled 5 -> miss
+  [Resolve] Blue 1 -> Red 1: PPC
     PPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (23 -> 13 remaining).
+  [Resolve] Blue 1 -> Red 1: PPC
     PPC hit for 10:
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.
@@ -2841,6 +2960,7 @@ FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 4: front table
     Cockpit destroyed from Head destruction.
   All critical slots in Head marked DESTROYED.
   3 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -2859,20 +2979,24 @@ FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 4: front table
     8: PPC (slot 8)
     1/1 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (17 -> 12/17 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (front table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (14 -> 9 remaining).
+  [Resolve] Red 1 -> Blue 1: PPC
     PPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -2950,6 +3074,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
     Medium Laser: needs 8 (range mod +2), rolled 11 -> HIT
     Medium Laser: needs 8 (range mod +2), rolled 2 -> miss
     Medium Laser: needs 8 (range mod +2), rolled 7 -> miss
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 3 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -2957,10 +3082,12 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (7 -> 2/17 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue 1 -> Red 4: Small Laser
     Small Laser hit for 3:
       Hit location roll 9 (left table): Right Torso.
 3 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (9 -> 6 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3006,14 +3133,17 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
     Medium Laser: needs 6 (range mod +0), rolled 11 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 7 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue 1 -> Red 4: PPC
     PPC hit for 10:
       Hit location roll 3 (left table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Resolve] Blue 1 -> Red 4: Small Laser
     Small Laser hit for 3:
       Hit location roll 6 (left table): Left Leg.
 3 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (8 -> 5 remaining).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3031,6 +3161,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 1 damage applied to structure [STANDARD] (25 -> 24/25 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (front table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3049,6 +3180,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (24 -> 23/25 remaining).
   Check for possible critical. Roll a 3.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -3091,14 +3223,17 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 5 (range mod +0), rolled 9 -> HIT
     Medium Laser: needs 5 (range mod +0), rolled 9 -> HIT
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3152,6 +3287,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     3/3 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink']
       Gyro hit (2/2).
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -3159,6 +3295,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (13 -> 8/25 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red 4 -> Blue 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3233,10 +3370,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 9 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 10 -> HIT
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3250,6 +3389,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     2/2 Criticals: Shoulder hit.
       Current crit slots in Right Arm: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 3 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3289,6 +3429,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
     Medium Laser: needs 9 (range mod +2), rolled 9 -> HIT
     Medium Laser: needs 9 (range mod +2), rolled 8 -> miss
     Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (left table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -3338,10 +3479,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
     Medium Laser: needs 7 (range mod +0), rolled 6 -> miss
     Medium Laser: needs 7 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 12 -> HIT
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (front table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (7 -> 2 remaining).
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (front table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -3434,6 +3577,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     Medium Laser: needs 2 (range mod +0), rolled 5 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 3 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 5 -> HIT
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3448,12 +3592,14 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     4: IS Ammo LRM-15 (slot 4)
     1/1 Criticals: Medium Laser slot hit.
       Current crit slots in Right Torso: ['Jump Jet', 'Jump Jet', 'DESTROYED', 'IS Ammo LRM-15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (12 -> 7/21 remaining).
   Check for possible critical. Roll a 4.
     No critical hit.
+  [Resolve] Red 4 -> Blue 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -3461,10 +3607,12 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (6 -> 1/15 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3483,6 +3631,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     2/2 Criticals: Jump Jet slot hit.
       Current crit slots in Left Torso: ['Jump Jet', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 2).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -3531,12 +3680,14 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     Medium Laser: needs 2 (range mod +0), rolled 7 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 11 -> HIT
   [Ranged] Red 4: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   Left Leg already destroyed - damage transfers to Left Torso.
   Left Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3563,12 +3714,14 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     Medium Laser: needs 2 (range mod +0), rolled 6 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 5 -> HIT
   [Ranged] Red 4: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   Left Leg already destroyed - damage transfers to Left Torso.
   Left Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -3607,6 +3760,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   [Ranged] Blue 4 -> Red 4: range 1, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 15 - current 0 - movement 0 - other 5; Princess plan utility 31.82, about 10.00 expected dmg)
     Medium Laser: needs 2 (range mod +0), rolled 4 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -3615,6 +3769,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (21 -> 17/21 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -3643,6 +3798,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     Medium Laser: needs 2 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 12 -> HIT
   [Ranged] Red 4: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (left table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -3680,6 +3836,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     2/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Medium Laser', 'Medium Laser']
       Engine hit (2/3).
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (left table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3708,6 +3865,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   [Ranged] Blue 4 -> Red 4: range 1, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 15 - current 0 - movement 0 - other 5; Princess plan utility 34.06, about 10.00 expected dmg)
     Medium Laser: needs 2 (range mod +0), rolled 7 -> HIT
     Medium Laser: needs 2 (range mod +0), rolled 4 -> HIT
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (left table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -3723,6 +3881,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/21 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue 4 -> Red 4: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).

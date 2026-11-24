@@ -1809,6 +1809,14 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
             // the Lab's tallies: what this shot did to the target (read-only: nothing here touches the dice or the rules)
             let hp_num = |n: Num| match n { Num::I(i) => i as f64, Num::F(f) => f };
             let (hp0, dead0) = (hp_num(total_hp(&b.units[target])), b.is_destroyed(target));
+            // whose attack the lines below resolve (bug B17, Daniel 2026-11-22: report each hit where it happens): the play report
+            // puts them under that attack's roll. A known change from the answer key (stage6_battles.rs `known_changes`).
+            let homing_miss = !attack.hit && attack.fire.as_ref().is_some_and(|f| f.kind == "homing");
+            let area_miss = !attack.hit && (attack.fire.as_ref().is_some_and(|f| f.kind == "artillery") || wp::is_art_cannon(b, attacker, w));
+            if attack.hit || homing_miss || area_miss {
+                let a_name = b.units[attacker].side_name.clone().unwrap_or_default();
+                b.log(format!("  [Resolve] {} -> {}: {}", a_name, tname, wname));
+            }
             if attack.hit {
                 reports[idx(attacker)].hits += 1;
                 if adv::is_tsemp(b, attacker, w) {

@@ -31,10 +31,12 @@
     ISMediumPulseLaser: needs 7 (range mod +0, modifiers -3), rolled 6 -> miss
     ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 3 -> miss
     ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 7 -> miss
+  [Resolve] Blue -> Red 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (12 -> 7 remaining).
+  [Resolve] Blue -> Red 1: ISStreakSRM2
     ISStreakSRM2 hit: Streak - all 2 missiles hit (4 dmg).
       Group 1/2: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
@@ -69,10 +71,12 @@
     ISMediumPulseLaser: needs 9 (range mod +2, modifiers -3), rolled 4 -> miss
     ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 11 -> HIT
     ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 9 -> HIT
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 5 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -104,6 +108,7 @@
     Medium Laser: needs 6 (range mod +0), rolled 10 -> HIT
     ISStreakSRM2: needs 6 (range mod +0), rolled 5 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Blue -> Red 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 3 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -136,6 +141,7 @@
     Medium Laser: needs 7 (range mod +0), rolled 6 -> miss
     ISStreakSRM2: needs 7 (range mod +0), rolled 8 -> HIT
       [IS Streak SRM 2 Ammo: 48 shots left]
+  [Resolve] Blue -> Red 1: ISStreakSRM2
     ISStreakSRM2 hit: Streak - all 2 missiles hit (4 dmg).
       Group 1/2: Hit location roll 6 (rear table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (rear_armor).
@@ -187,6 +193,7 @@
     Medium Laser: needs 6 (range mod +0), rolled 11 -> HIT
     ISStreakSRM2: needs 6 (range mod +0), rolled 2 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Blue -> Red 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
@@ -238,14 +245,17 @@
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -3), rolled 9 -> HIT
     ISERMediumLaser: needs 8 (range mod +0, modifiers -1), rolled 10 -> HIT
     ISERMediumLaser: needs 8 (range mod +0, modifiers -1), rolled 12 -> HIT
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 3 (right table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -280,12 +290,14 @@
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
     ISStreakSRM2: needs 6 (range mod +0), rolled 6 -> HIT
       [IS Streak SRM 2 Ammo: 47 shots left]
+  [Resolve] Blue -> Red 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 2 armor pts destroyed at rear_armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (10 -> 7/10 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red 1: ISStreakSRM2
     ISStreakSRM2 hit: Streak - all 2 missiles hit (4 dmg).
       Group 1/2: Hit location roll 7 (rear table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (rear_armor).
@@ -345,6 +357,7 @@
   [Ranged] Red 2 -> Blue: range 10, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 42 = max 30 + sink 12 - current 0 - movement 0 - other 0; expected dmg 2.78)
     ISERMediumLaser: needs 9 (range mod +4, modifiers -1), rolled 7 -> miss
     ISERMediumLaser: needs 9 (range mod +4, modifiers -1), rolled 10 -> HIT
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -418,10 +431,12 @@
       [IS Streak SRM 2 Ammo: 46 shots left]
   [Ranged] Red 1: spots Blue for indirect fire - holds its own fire.
   [Ranged] Red 2 -> Blue: range 9, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 40 = max 30 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red 1: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (12 -> 7 remaining).
+  [Resolve] Blue -> Red 1: ISStreakSRM2
     ISStreakSRM2 hit: Streak - all 2 missiles hit (4 dmg).
       Group 1/2: Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -530,6 +545,7 @@
     Medium Laser: needs 11 (range mod +0), rolled 7 -> miss
     ISStreakSRM2: needs 11 (range mod +0), rolled 5 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -667,6 +683,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 11.
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -3), rolled 5 -> miss
     ISERMediumLaser: needs 8 (range mod +0, modifiers -1), rolled 11 -> HIT
     ISERMediumLaser: needs 8 (range mod +0, modifiers -1), rolled 6 -> miss
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -723,6 +740,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 11.
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -3), rolled 10 -> HIT
     ISERMediumLaser: needs 6 (range mod +0, modifiers -1), rolled 5 -> miss
     ISERMediumLaser: needs 6 (range mod +0, modifiers -1), rolled 6 -> HIT
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -738,6 +756,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 11.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
   2 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Red 2 -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).

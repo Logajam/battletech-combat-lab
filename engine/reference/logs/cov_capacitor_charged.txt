@@ -20,6 +20,7 @@
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 0); firing ['ISERPPC'] (weapon heat 20 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.50)
     ISERPPC: needs 10 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 15:
       Hit location roll 9 (rear table): Left Leg.
 15 damage (ENERGY) incoming to Left Leg (rear_armor).
@@ -49,6 +50,7 @@
     PPC: needs 10 (range mod +0), rolled 9 -> miss
     ISERMediumLaser: needs 10 (range mod +0), rolled 10 -> HIT
     ISERMediumLaser: needs 10 (range mod +0), rolled 4 -> miss
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -90,6 +92,7 @@
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 13, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISERPPC'] (weapon heat 20 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 1.25)
     ISERPPC: needs 11 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 3 (left table): Left Leg.
 15 damage (BALLISTIC) incoming to Left Leg (armor).
@@ -159,6 +162,7 @@
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 0); firing ['ISERPPC'] (weapon heat 15 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 1.67)
     ISERPPC: needs 10 (range mod +0), rolled 11 -> HIT
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 5 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -185,6 +189,7 @@
     ISERMediumLaser: needs 7 (range mod +0), rolled 3 -> miss
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISERPPC'] (weapon heat 15 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 4.17)
     ISERPPC: needs 8 (range mod +0), rolled 10 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 15:
       Hit location roll 10 (left table): Right Arm.
 15 damage (ENERGY) incoming to Right Arm (armor).
@@ -193,10 +198,12 @@
   Right Arm DESTROYED!
   All critical slots in Right Arm marked DESTROYED.
   0 damage remains, transfers to Right Torso.
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 8 (left table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 9 (rear table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (rear_armor).
@@ -306,12 +313,14 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 2, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISERPPC'] (weapon heat 20 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 10.83)
     ISERPPC: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 15:
       Hit location roll 7 (right table): Right Torso.
 15 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining). 5 damage applied to structure [STANDARD] (7 -> 2/7 remaining).
   Check for possible critical. Roll a 2.
     No critical hit.
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 15:
       Hit location roll 3 (right table): Right Leg.
 15 damage (ENERGY) incoming to Right Leg (armor).
@@ -394,6 +403,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
     ISERMediumLaser: needs 7 (range mod +0), rolled 12 -> HIT
   [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISERPPC'] (weapon heat 15 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 7.22)
     ISERPPC: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -407,10 +417,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
   3 damage remains, transfers to Center Torso.
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (10 -> 5 remaining).
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 10 (right table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).

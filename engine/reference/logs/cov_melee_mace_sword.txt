@@ -17,6 +17,7 @@
   [Ranged] Red -> Blue: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERSmallLaser'] (weapon heat 7 of budget 32 = max 30 + sink 4 - current 0 - movement 2 - other 0; expected dmg 2.22)
     ISERMediumLaser: needs 9 (range mod +0), rolled 7 -> miss
     ISERSmallLaser: needs 9 (range mod +0), rolled 3 -> miss
+  [Resolve] Blue -> Red: ISSRM2
     ISSRM2 hit: cluster roll 10 on the 2-column table -> 2 connect (4 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -143,6 +144,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERSmallLaser'] (weapon heat 7 of budget 32 = max 30 + sink 4 - current 0 - movement 2 - other 0; expected dmg 3.33)
     ISERMediumLaser: needs 8 (range mod +0), rolled 7 -> miss
     ISERSmallLaser: needs 8 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: ISMRM20
     ISMRM20 hit: cluster roll 8 -1 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -158,6 +160,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue -> Red: ISSRM2
     ISSRM2 hit: cluster roll 8 on the 2-column table -> 2 connect (4 dmg).
       Group 1/2: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -167,6 +170,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
       Group 2/2: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
+  [Resolve] Red -> Blue: ISERSmallLaser
     ISERSmallLaser hit for 3:
       Hit location roll 3 (front table): Right Arm.
 3 damage (ENERGY) incoming to Right Arm (armor).
@@ -198,10 +202,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
   [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['ISERMediumLaser', 'ISERSmallLaser'] (weapon heat 7 of budget 33 = max 30 + sink 9 - current 5 - movement 1 - other 0; expected dmg 3.33)
     ISERMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT
     ISERSmallLaser: needs 8 (range mod +0), rolled 9 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (8 -> 3 remaining).
+  [Resolve] Red -> Blue: ISERSmallLaser
     ISERSmallLaser hit for 3:
       Hit location roll 6 (rear table): Right Torso.
 3 damage (ENERGY) incoming to Right Torso (rear_armor).
@@ -227,6 +233,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
   [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['ISERMediumLaser', 'ISERSmallLaser'] (weapon heat 7 of budget 33 = max 30 + sink 8 - current 4 - movement 1 - other 0; expected dmg 2.58)
     ISERMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
     ISERSmallLaser: needs 10 (range mod +2), rolled 7 -> miss
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 5 (front table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
@@ -271,6 +278,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     ISMediumLaser: needs 11 (range mod +2), rolled 7 -> miss
     ISSRM4: needs 11 (range mod +2), rolled 4 -> miss [ISSRM4 Ammo: 22 shots left]
     ISSRM2: needs 11 (range mod +2), rolled 9 -> miss [ISSRM2 Ammo: 45 shots left]
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
@@ -471,6 +479,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     ISSRM4: needs 6 (range mod +0), rolled 9 -> HIT [ISSRM4 Ammo: 20 shots left]
     ISSRM2: needs 6 (range mod +0), rolled 10 -> HIT [ISSRM2 Ammo: 44 shots left]
   [Ranged] Red: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).
+  [Resolve] Blue -> Red: ISMRM20
     ISMRM20 hit: cluster roll 8 -1 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 11 (right table): Left Leg.
 5 damage (MISSILE) incoming to Left Leg (armor).
@@ -486,6 +495,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   Right Leg already destroyed - damage transfers to Right Torso.
   Right Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (11 -> 9 remaining).
+  [Resolve] Blue -> Red: ISMRM20
     ISMRM20 hit: cluster roll 5 -1 on the 20-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 7 (right table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -496,6 +506,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (5 -> 1/6 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue -> Red: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 2 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -545,6 +556,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     9: ISERMediumLaser (slot 11)
     3/3 Criticals: ISERMediumLaser slot hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', '-Empty-']
+  [Resolve] Blue -> Red: ISSRM4
     ISSRM4 hit: cluster roll 8 on the 4-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 6 (right table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
@@ -596,6 +608,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
   1 damage remains, transfers to Center Torso.
+  [Resolve] Blue -> Red: ISSRM2
     ISSRM2 hit: cluster roll 11 on the 2-column table -> 2 connect (4 dmg).
       Group 1/2: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).

@@ -205,7 +205,9 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
     play_on(&mut b, &mut bots, &mut play, &mut marks);
     let r = &play.result;
-    json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()})
+    // "line": the battle as the Lab's run files keep it, so Get Results can open it in the Results tab (bug B21)
+    let line = crate::results::battle_line(1, seed, r, 0.0, &Value::Null, &Value::Null);
+    json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len(), "line": line, "seed": seed.to_string()})
 }
 
 fn name(b: &Battle, u: UnitId) -> String {

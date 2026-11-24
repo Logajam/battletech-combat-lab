@@ -54,6 +54,7 @@
     ISMediumPulseLaser: needs 7 (range mod +0, modifiers -3), rolled 10 -> HIT
     ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 4 -> miss
   [Ranged] Blue: charging Red - no ranged attacks this turn (pp.78-79).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (front table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
@@ -171,6 +172,7 @@ FALL (failed Attack Phase PSR): Snow Fox 2 takes 2 falling damage (1D6 1: rear t
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue -> Red: range 4, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 2.63)
     CLLRM10: needs 8 (range mod +0), rolled 10 -> HIT [Clan Ammo LRM-10: 9 shots left]
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 12 on the 10-column table -> 10 connect (10 dmg).
       Group 1/2: Hit location roll 3 (rear table): Right Arm.
 5 damage (MISSILE) incoming to Right Arm (rear_armor).
@@ -210,6 +212,7 @@ FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 3: f
   [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 2.63)
     CLLRM10: needs 8 (range mod +0), rolled 11 -> HIT [Clan Ammo LRM-10: 8 shots left]
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 6 (rear table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (rear_armor).
@@ -246,6 +249,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 40 = max 30 + sink 10 - current 0 - movement 0 - other 0; expected dmg 4.55)
     CLLRM10: needs 6 (range mod +0), rolled 8 -> HIT [Clan Ammo LRM-10: 7 shots left]
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 7 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 6 (rear table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (rear_armor).

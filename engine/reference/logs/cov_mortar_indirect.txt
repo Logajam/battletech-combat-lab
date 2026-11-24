@@ -47,6 +47,7 @@
     CLStreakSRM6: needs 11 (range mod +2), rolled 9 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
     Clan Mech Mortar-4: needs 14 (range mod +2, modifiers +3), rolled 10 -> miss [Clan Ammo SC Mortar-4: 4 shots left]
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
       Hit location roll 4 (right table): Right Arm.
 15 damage (ENERGY) incoming to Right Arm (armor).
@@ -69,6 +70,7 @@
     CLERPPC: needs 6 (range mod +0), rolled 6 -> HIT
   [Ranged] Blue holds ['Clan Mech Mortar-8'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 8.17).
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
       Hit location roll 7 (right table): Right Torso.
 15 damage (ENERGY) incoming to Right Torso (armor).
@@ -109,10 +111,12 @@
     CLStreakSRM6: needs 9 (range mod +2), rolled 6 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
     Clan Mech Mortar-4: needs 11 (range mod +1, modifiers +3), rolled 8 -> miss [Clan Ammo SC Mortar-4: 3 shots left]
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
       Hit location roll 6 (left table): Left Leg.
 15 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (26 -> 11 remaining).
+  [Resolve] Red -> Blue: CLStreakSRM6
     CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
       Group 1/6: Hit location roll 4 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -247,6 +251,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
     CLERPPC: needs 8 (range mod +2), rolled 5 -> miss
     CLERPPC: needs 8 (range mod +2), rolled 7 -> miss
     Clan Mech Mortar-4: needs 11 (range mod +2, modifiers +3), rolled 5 -> miss [Clan Ammo SC Mortar-4: 5 shots left]
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 8 on the 8-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 4 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
@@ -324,6 +329,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   [Ranged] Blue -> Red: range 13, base TN 0 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (aimed at Center Torso) (weapon heat 20 of budget 43 = max 30 + sink 20 - current 7 - movement 0 - other 0; expected dmg 16.94)
     Clan Mech Mortar-8: needs 5 (range mod +2, modifiers +3), rolled 6 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
     Clan Mech Mortar-8: needs 5 (range mod +2, modifiers +3), rolled 7 -> HIT [Clan Ammo SC Mortar-8: 3 shots left]
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 2 on the 8-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 3 (right table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
@@ -336,6 +342,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   Right Arm already destroyed - damage transfers to Right Torso.
   Right Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (31 -> 29 remaining).
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 7 on the 8-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 5 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
@@ -378,6 +385,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   [Ranged] Red fires in order: ['CLERPPC', 'Clan Mech Mortar-4'].
     CLERPPC: needs 11 (range mod +4), rolled 12 -> HIT
     Clan Mech Mortar-4: needs 14 (range mod +4, modifiers +3), rolled 5 -> miss [Clan Ammo SC Mortar-4: 4 shots left]
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
       Hit location roll 8 (left table): Center Torso.
 15 damage (ENERGY) incoming to Center Torso (armor).
@@ -404,6 +412,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
       Streak missed - launcher doesn't fire: no heat, no ammo.
     Clan Mech Mortar-4: needs 15 (range mod +2, modifiers +3), rolled 7 -> miss [Clan Ammo SC Mortar-4: 3 shots left]
   [Ranged] Blue -> Red: range 12, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 1); firing nothing (weapon heat 0 of budget 40 = max 30 + sink 20 - current 8 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
       Hit location roll 9 (front table): Left Leg.
 15 damage (ENERGY) incoming to Left Leg (armor).
@@ -447,6 +456,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
   [Ranged] Blue -> Red: range 11, base TN 1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8'] (weapon heat 10 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.34)
     Clan Mech Mortar-8: needs 6 (range mod +2, modifiers +3), rolled 7 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
   [Ranged] Red: shut down - no attacks.
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 6 on the 8-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
@@ -490,6 +500,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
     CLStreakSRM6: needs 12 (range mod +4), rolled 9 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
     Clan Mech Mortar-4: needs 13 (range mod +2, modifiers +3), rolled 10 -> miss [Clan Ammo SC Mortar-4: 2 shots left]
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 8 on the 8-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 11 (right table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
@@ -531,6 +542,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
   [Ranged] Blue -> Red: range 9, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (weapon heat 20 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 1.69)
     Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 3 -> miss [Clan Ammo SC Mortar-8: 1 shots left]
     Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 12 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
+  [Resolve] Red -> Blue: Clan Mech Mortar-4
     Clan Mech Mortar-4 hit: cluster roll 5 on the 4-column table -> 2 connect (4 dmg).
       Group 1/2: Hit location roll 6 (left table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
@@ -546,6 +558,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
       Group 2/2: Hit location roll 11 (left table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 3 on the 8-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 9 (right table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
@@ -654,16 +667,19 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     CLSmallPulseLaser: needs 6 (range mod +4, modifiers -2) aimed at Center Torso, rolled 6 -> HIT
     CLStreakSRM6: needs 6 (range mod +2), rolled 7 -> HIT
       [Clan Streak SRM 6 Ammo: 13 shots left]
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 10 (front table): Left Arm.
 15 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (16 -> 1 remaining).
+  [Resolve] Red -> Blue: CLSmallPulseLaser
     CLSmallPulseLaser hit for 3: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 4 (front table): Right Arm.
 3 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 2 damage applied to structure [STANDARD] (10 -> 8/10 remaining).
   Check for possible critical. Roll a 3.
     No critical hit.
+  [Resolve] Red -> Blue: CLStreakSRM6
     CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
       Group 1/6: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -729,6 +745,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     CLSmallPulseLaser: needs 6 (range mod +4, modifiers -2) aimed at Center Torso, rolled 6 -> HIT
     CLStreakSRM6: needs 6 (range mod +2), rolled 8 -> HIT
       [Clan Streak SRM 6 Ammo: 12 shots left]
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15: aimed at Center Torso, 1D6 6 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 11 damage applied to structure [STANDARD] (21 -> 10/21 remaining).
@@ -761,12 +778,14 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     2/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
       Engine hit (2/3).
+  [Resolve] Red -> Blue: CLSmallPulseLaser
     CLSmallPulseLaser hit for 3: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 10 (front table): Left Arm.
 3 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (7 -> 4/10 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: CLStreakSRM6
     CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
       Group 1/6: Hit location roll 5 (front table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
@@ -826,6 +845,7 @@ End Phase wake-up check (pilot, 2 pilot hits): needs 5. Rolled 3.
     CLStreakSRM6: needs 7 (range mod +2), rolled 5 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
   [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 0.00)
+  [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15: aimed at Center Torso, 1D6 4 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/21 remaining).

@@ -82,6 +82,7 @@
     ISLRM10: needs 7 (range mod +2), rolled 10 -> HIT [ISLRM10 Ammo: 8 shots left]
     ISSRM6: needs 9 (range mod +4), rolled 5 -> miss [ISSRM6 Ammo: 12 shots left]
   [Ranged] Red -> Blue: range 9, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISLRM10
     ISLRM10 hit: cluster roll 3 on the 10-column table -> 3 connect (3 dmg).
       Group 1/1: Hit location roll 7 (front table): Center Torso.
 3 damage (MISSILE) incoming to Center Torso (armor).
@@ -189,14 +190,17 @@
     ISLRM10: needs 16 (range mod +6), rolled 9 -> miss [ISLRM10 Ammo: 4 shots left]
     ISMediumLaser: needs 10 (range mod +0), rolled 6 -> miss
     ISSRM6: needs 10 (range mod +0), rolled 6 -> miss [ISSRM6 Ammo: 10 shots left]
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (front table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (26 -> 20 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -229,10 +233,12 @@
     ISMediumPulseLaser: needs 8 (range mod +0, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 8 (range mod +0, modifiers -2), rolled 8 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +0, modifiers -2), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (rear table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (22 -> 16 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (rear table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -270,6 +276,7 @@
     ISLRM10: needs 12 (range mod +4), rolled 2 -> miss [ISLRM10 Ammo: 3 shots left]
     ISMediumLaser: needs 8 (range mod +0), rolled 3 -> miss
     ISSRM6: needs 8 (range mod +0), rolled 10 -> HIT [ISSRM6 Ammo: 9 shots left]
+  [Resolve] Blue -> Red: ISSRM6
     ISSRM6 hit: cluster roll 4 on the 6-column table -> 3 connect (6 dmg).
       Group 1/3: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
@@ -305,10 +312,12 @@
   [Ranged] Blue fires in order: ['ISMediumLaser', 'ISSRM6'].
     ISMediumLaser: needs 10 (range mod +0), rolled 9 -> miss
     ISSRM6: needs 10 (range mod +0), rolled 12 -> HIT [ISSRM6 Ammo: 8 shots left]
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (front table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
+  [Resolve] Blue -> Red: ISSRM6
     ISSRM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
@@ -348,6 +357,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 7.
     ISPPC: needs 9 (range mod +0), rolled 11 -> HIT
     ISLRM10: needs 10 (range mod +1), rolled 8 -> miss [ISLRM10 Ammo: 2 shots left]
     ISSRM6: needs 11 (range mod +2), rolled 4 -> miss [ISSRM6 Ammo: 7 shots left]
+  [Resolve] Blue -> Red: ISPPC
     ISPPC hit for 10:
       Hit location roll 11 (rear table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -392,10 +402,12 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 7.
     ISMediumLaser: needs 11 (range mod +4), rolled 11 -> HIT
     ISSRM6: needs 11 (range mod +4), rolled 11 -> HIT [ISSRM6 Ammo: 6 shots left]
   [Ranged] Red -> Blue: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (44.5 -> 42 remaining).
+  [Resolve] Blue -> Red: ISSRM6
     ISSRM6 hit: cluster roll 11 on the 6-column table -> 6 connect (12 dmg).
       Group 1/6: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).

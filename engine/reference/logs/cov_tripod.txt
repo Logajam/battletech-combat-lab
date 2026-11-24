@@ -25,19 +25,23 @@
     CLERMediumLaser: needs 8 (range mod +2, modifiers -1), rolled 3 -> miss
     CLLRM15: needs 7 (range mod +0), rolled 7 -> HIT [Clan Ammo LRM-15 (Clan) Artemis V-capable: 7 shots left]
     CLLRM15: needs 7 (range mod +0), rolled 6 -> miss [Clan Ammo LRM-15 (Clan) Artemis V-capable: 6 shots left]
+  [Resolve] Blue -> Red: ISRISCHyperLaser
     ISRISCHyperLaser hit for 20:
       Hit location roll 7 (left table): Left Torso.
 20 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 20 armor pts destroyed at armor (24 -> 4 remaining).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 7 (rear table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (rear_armor).
   [FERRO_LAMELLOR/ENERGY] (pre-armor damage reduced 7 -> 5) 5 armor pts destroyed at rear_armor (15 -> 10 remaining).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 12 (rear table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 7 damage (ENERGY) incoming to Head (rear_armor).
   [FERRO_LAMELLOR/ENERGY] (pre-armor damage reduced 7 -> 5) 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Resolve] Red -> Blue: CLLRM15
     CLLRM15 hit: cluster roll 9 on the 15-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (rear table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (rear_armor).
@@ -78,19 +82,23 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
     CLERMediumLaser: needs 1 (range mod +0, modifiers -1) aimed at Center Torso, rolled 5 -> HIT
     CLLRM15: needs 1 (range mod +0, modifiers -1), rolled 8 -> HIT [Clan Ammo LRM-15 (Clan) Artemis V-capable: 5 shots left]
     CLLRM15: needs 1 (range mod +0, modifiers -1), rolled 5 -> HIT [Clan Ammo LRM-15 (Clan) Artemis V-capable: 4 shots left]
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 6 (rear table): Right Torso.
 7 damage (ENERGY) incoming to Right Torso (rear_armor).
   [FERRO_LAMELLOR/ENERGY] (pre-armor damage reduced 7 -> 5) 5 armor pts destroyed at rear_armor (6 -> 1 remaining).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 6 - on target.
 7 damage (ENERGY) incoming to Center Torso (rear_armor).
   [FERRO_LAMELLOR/ENERGY] (pre-armor damage reduced 7 -> 5) 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 10 (rear table): Left Arm.
 7 damage (ENERGY) incoming to Left Arm (rear_armor).
   [FERRO_LAMELLOR/ENERGY] (pre-armor damage reduced 7 -> 5) 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (10 -> 9/10 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 4 (rear table): Right Arm.
 7 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -131,6 +139,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
       Current crit slots in Right Torso: ['DESTROYED', 'Engine', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', '-Empty-']
       Engine hit (1/3).
     base damage over 20 (p.96): Right Torso loses 1 rear armor (0 left).
+  [Resolve] Red -> Blue: CLLRM15
     CLLRM15 hit: cluster roll 7 +3 (Artemis V) on the 15-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 8 (rear table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (rear_armor).
@@ -152,6 +161,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
   0 damage remains, transfers to Center Torso.
+  [Resolve] Red -> Blue: CLLRM15
     CLLRM15 hit: cluster roll 7 +3 (Artemis V) on the 15-column table -> 12 connect (12 dmg).
   Tripod leg sub-roll (rear): base 3 -> 3 -> Center Leg
       Group 1/3: Hit location roll 9 (rear table): Center Leg.

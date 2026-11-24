@@ -16,6 +16,7 @@
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.50)
     Mek Taser: needs 8 (range mod +0, modifiers +1), rolled 9 -> HIT [Taser Ammo: 4 shots left]
+  [Resolve] Red -> Blue: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 7 (rear table): Center Torso.
 1 damage (BALLISTIC) incoming to Center Torso (rear_armor).
@@ -182,6 +183,7 @@
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 5, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['SRM 2'] (weapon heat 2 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.24)
     SRM 2: needs 11 (range mod +2), rolled 12 -> HIT [IS Ammo SRM-2: 43 shots left]
+  [Resolve] Blue -> Red: SRM 2
     SRM 2 hit: cluster roll 6 on the 2-column table -> 1 connect (2 dmg).
       Group 1/1: Hit location roll 7 (left table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
@@ -299,6 +301,7 @@
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 1.67)
     Mek Taser: needs 9 (range mod +0, modifiers +1), rolled 9 -> HIT [Taser Ammo: 2 shots left]
+  [Resolve] Red -> Blue: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 7 (rear table): Center Torso.
 1 damage (BALLISTIC) incoming to Center Torso (rear_armor).
@@ -470,6 +473,7 @@
     Mek Taser: needs 8 (range mod +0, modifiers +1), rolled 11 -> HIT [Taser Ammo: 0 shots left]
   [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 2.50)
     Mek Taser: needs 8 (range mod +0, modifiers +1), rolled 4 -> miss [Taser Ammo: 4 shots left]
+  [Resolve] Blue -> Red: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 8 (left table): Center Torso.
 1 damage (BALLISTIC) incoming to Center Torso (armor).
@@ -539,6 +543,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0 + stealth 2 + prone target -2); firing ['Mek Taser'] (weapon heat 6 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 4.33)
     Mek Taser: needs 6 (range mod +0, modifiers +1), rolled 7 -> HIT [Taser Ammo: 2 shots left]
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Resolve] Red -> Blue: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 7 (rear table): Center Torso.
 1 damage (BALLISTIC) incoming to Center Torso (rear_armor).
@@ -596,6 +601,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0 + stealth 2 + prone target -2); firing ['Mek Taser'] (weapon heat 6 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 4.33)
     Mek Taser: needs 6 (range mod +0, modifiers +1), rolled 11 -> HIT [Taser Ammo: 1 shots left]
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Resolve] Red -> Blue: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 11 (rear table): Left Arm.
 1 damage (BALLISTIC) incoming to Left Arm (rear_armor).
@@ -634,6 +640,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 12.
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red -> Blue: range 1, base TN 3 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0 + prone target -2); firing ['Mek Taser'] (weapon heat 6 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 5.50)
     Mek Taser: needs 4 (range mod +0, modifiers +1), rolled 5 -> HIT [Taser Ammo: 0 shots left]
+  [Resolve] Red -> Blue: Mek Taser
     Mek Taser hit for 1:
       Hit location roll 6 (rear table): Right Torso.
 1 damage (BALLISTIC) incoming to Right Torso (rear_armor).

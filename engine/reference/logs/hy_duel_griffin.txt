@@ -200,6 +200,7 @@
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 19, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; expected dmg 0.53)
     LRM 10: needs 11 (range mod +4), rolled 5 -> miss [IS Ammo LRM-10: 7 shots left]
+  [Resolve] Red -> Blue: LRM 10
     LRM 10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 3 (right table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -221,6 +222,7 @@
   [Ranged] Red -> Blue: range 14, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; expected dmg 0.00)
   [Ranged] Blue -> Red: range 14, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 0.18)
     LRM 10: needs 12 (range mod +2), rolled 12 -> HIT [IS Ammo LRM-10: 6 shots left]
+  [Resolve] Blue -> Red: LRM 10
     LRM 10 hit: cluster roll 3 on the 10-column table -> 3 connect (3 dmg).
       Group 1/1: Hit location roll 10 (right table): Left Arm.
 3 damage (MISSILE) incoming to Left Arm (armor).
@@ -392,10 +394,12 @@
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 3 - movement 0 - other 0; expected dmg 5.83)
     PPC: needs 7 (range mod +0), rolled 9 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 3 (left table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
@@ -432,6 +436,7 @@
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 10 (range mod +0), rolled 12 -> HIT
     LRM 10: needs 13 (range mod +3), rolled 5 -> miss [IS Ammo LRM-10: 2 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -483,6 +488,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 8 (range mod +0), rolled 11 -> HIT
     LRM 10: needs 11 (range mod +3), rolled 8 -> miss [IS Ammo LRM-10: 1 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 4 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -502,6 +508,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     LRM 10: needs 12 (range mod +3), rolled 8 -> miss [IS Ammo LRM-10: 0 shots left]
   [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 2.78)
     PPC: needs 9 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -526,6 +533,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     LRM 10: needs 9 (range mod +2), rolled 11 -> HIT [IS Ammo LRM-10: 11 shots left]
   [Ranged] Red -> Blue: range 5, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 2 - movement 1 - other 0; expected dmg 7.22)
     PPC: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red: LRM 10
     LRM 10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 9 (right table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -533,6 +541,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
       Group 2/2: Hit location roll 10 (right table): Left Arm.
 1 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 1 armor pts destroyed at armor (11 -> 10 remaining).
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 8 (left table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -599,6 +608,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   [Ranged] Red fires in order: ['PPC', 'LRM 10'].
     PPC: needs 10 (range mod +0), rolled 3 -> miss
     LRM 10: needs 11 (range mod +1), rolled 9 -> miss [IS Ammo LRM-10: 2 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 11 (right table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
@@ -770,6 +780,7 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 12.
   [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0 + prone target -2); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 4 - movement 1 - other 0; expected dmg 4.17)
     PPC: needs 8 (range mod +3), rolled 8 -> HIT
   [Ranged] Red: no weapon can bear on Blue (left side arc) - can't fire.
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -798,6 +809,7 @@ Physical Attack Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolle
   [Ranged] Blue -> Red: range 1, base TN 0 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 2 + heat 0 + prone target -2); firing ['PPC'] (aimed at Center Torso) (weapon heat 10 of budget 13 = max 4 + sink 12 - current 3 - movement 0 - other 0; expected dmg 9.72)
     PPC: needs 3 (range mod +3) aimed at Center Torso, rolled 5 -> HIT
   [Ranged] Red: no weapon can bear on Blue (left side arc) - can't fire.
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 7 (left table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -836,6 +848,7 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 7.
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 3 (range mod +3) aimed at Center Torso, rolled 7 -> HIT
     LRM 10: needs 6 (range mod +6), rolled 6 -> HIT [IS Ammo LRM-10: 9 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 2 (left table): Left Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -851,6 +864,7 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 7.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue -> Red: LRM 10
     LRM 10 hit: cluster roll 5 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 10 (left table): Right Arm.
 5 damage (MISSILE) incoming to Right Arm (armor).
@@ -896,6 +910,7 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 8.
   [Ranged] Blue -> Red: range 1, base TN 0 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 2 + heat 0 + prone target -2); firing ['PPC'] (aimed at Center Torso) (weapon heat 10 of budget 13 = max 4 + sink 12 - current 3 - movement 0 - other 0; expected dmg 9.72)
     PPC: needs 3 (range mod +3) aimed at Center Torso, rolled 9 -> HIT
   [Ranged] Red: no weapon can bear on Blue (left side arc) - can't fire.
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (5/6), regardless of armor.

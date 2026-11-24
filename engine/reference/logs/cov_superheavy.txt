@@ -26,23 +26,29 @@
     Heavy PPC: needs 3 (range mod +0), rolled 7 -> HIT
     ISLBXAC10: needs 3 (range mod +0), rolled 7 -> HIT [IS LB 10-X AC Ammo: 9 shots left]
     ISLBXAC10: needs 3 (range mod +0), rolled 12 -> HIT [IS LB 10-X AC Ammo: 8 shots left]
+  [Resolve] Blue -> Red: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 9 (front table): Left Leg.
 15 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (62 -> 47 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (45 -> 35 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 6 (front table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (45 -> 35 remaining).
+  [Resolve] Blue -> Red: ISSniperCannon
     ISSniperCannon missed - the shell lands 1 hex away from Red (no splash).
+  [Resolve] Blue -> Red: ISERLargeLaser
     ISERLargeLaser hit for 8:
       Hit location roll 6 (front table): Right Torso.
 8 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (35 -> 27 remaining).
+  [Resolve] Blue -> Red: LRM 20
     LRM 20 hit: cluster roll 10 on the 20-column table -> 16 connect (16 dmg).
       Group 1/4: Hit location roll 6 (front table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -56,26 +62,32 @@
       Group 4/4: Hit location roll 10 (front table): Left Arm.
 1 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 1 armor pts destroyed at armor (39 -> 38 remaining).
+  [Resolve] Blue -> Red: ISSmallXPulseLaser
     ISSmallXPulseLaser hit for 3:
       Hit location roll 10 (front table): Left Arm.
 3 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (38 -> 35 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 8 (front table): Left Torso.
 15 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (61 -> 46 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 5 (front table): Right Leg.
 15 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (80 -> 65 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 8 (front table): Left Torso.
 15 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (46 -> 31 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 4 (front table): Right Arm.
 10 damage (BALLISTIC) incoming to Right Arm (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (61 -> 51 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 5 (front table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).
@@ -155,21 +167,26 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
     ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 7 -> HIT [IS LB 10-X AC Ammo: 7 shots left]
     ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 3 -> HIT [IS LB 10-X AC Ammo: 6 shots left]
   [Ranged] Blue: shut down - no attacks.
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 4 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (90 -> 75 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 10 (front table): Left Arm.
 15 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (61 -> 46 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 11 (front table): Left Arm.
 15 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (46 -> 31 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 8 (front table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (31 -> 21 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 3 (front table): Right Arm.
 10 damage (BALLISTIC) incoming to Right Arm (armor).
@@ -222,39 +239,48 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     ISERLargeLaser: needs 7 (range mod +0), rolled 11 -> HIT
     ISSmallXPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 6 -> miss
     SRM 6: needs 7 (range mod +0), rolled 6 -> miss [IS Ammo SRM-6: 13 shots left]
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 5 (front table): Right Leg.
 15 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (55 -> 40 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 8 (front table): Left Torso.
 15 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 11 armor pts destroyed at armor (11 -> 0 remaining). 4 damage applied to structure [STANDARD] (41 -> 37/42 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15:
       Hit location roll 5 (front table): Right Leg.
 15 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (40 -> 25 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (37 -> 27/42 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue -> Red: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 6 (front table): Right Torso.
 15 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (17 -> 2 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (55 -> 45 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 10 (front table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (30 -> 20 remaining).
+  [Resolve] Blue -> Red: ISSniperCannon
     ISSniperCannon missed - the shell lands 1 hex away from Red (no splash).
+  [Resolve] Blue -> Red: ISERLargeLaser
     ISERLargeLaser hit for 8:
       Hit location roll 6 (front table): Right Torso.
 8 damage (ENERGY) incoming to Right Torso (armor).
@@ -339,16 +365,20 @@ Heat Phase (ammo explosion) consciousness check (pilot, 3 pilot hits): needs 7. 
     Heavy PPC: needs 2 (range mod +1) aimed at Center Torso, rolled 7 -> HIT
     ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 8 -> HIT [IS LB 10-X AC Ammo: 3 shots left]
     ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 2 -> HIT [IS LB 10-X AC Ammo: 2 shots left]
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 4 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (70 -> 55 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 6 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (55 -> 40 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 9 (front table): Left Leg.
 10 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (80 -> 70 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 5 (front table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).
@@ -395,13 +425,16 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 4.
     ISSniperCannon: needs 7 (range mod +0), rolled 12 -> HIT [ISSniperCannonAmmo: 7 shots left]
     ISSmallXPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 8 -> HIT
     SRM 6: needs 7 (range mod +0), rolled 7 -> HIT [IS Ammo SRM-6: 12 shots left]
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 6 - on target.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (40 -> 25 remaining).
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 10 (front table): Left Arm.
 15 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (16 -> 1 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 8 (front table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -440,14 +473,17 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 4.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'LRM 20', 'LRM 20', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'IS Gauss Ammo', 'ISCASEII', 'DESTROYED', 'DESTROYED', 'IS Gauss Ammo']
     CASE II vents the excess: Left Torso loses 0 rear armor (0 left).
     CASE II contains the explosion. No further transfer.
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 7 (front table): Center Torso.
 10 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (25 -> 15 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (45 -> 35 remaining).
+  [Resolve] Blue -> Red: ISSniperCannon
     ISSniperCannon hits Red's hex: 10 area-effect damage (pp.182-183).
       AE Group 1/2: Hit location roll 6 (front table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -471,10 +507,12 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 4.
       AE Group 2/2: Hit location roll 10 (front table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Resolve] Blue -> Red: ISSmallXPulseLaser
     ISSmallXPulseLaser hit for 3:
       Hit location roll 4 (front table): Right Arm.
 3 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (44 -> 41 remaining).
+  [Resolve] Blue -> Red: SRM 6
     SRM 6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 9 (front table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
@@ -526,6 +564,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     Heavy PPC: needs 3 (range mod +1) aimed at Center Torso, rolled 6 -> HIT
     ISLBXAC10: needs 2 (range mod +0) aimed at Center Torso, rolled 7 -> HIT [IS LB 10-X AC Ammo: 9 shots left]
     ISLBXAC10: needs 2 (range mod +0) aimed at Center Torso, rolled 7 -> HIT [IS LB 10-X AC Ammo: 8 shots left]
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (6/6), regardless of armor.
@@ -533,10 +572,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [STANDARD/ENERGY] 12 armor pts destroyed at armor (12 -> 0 remaining). 3 damage applied to structure [STANDARD] (4 -> 1/4 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: Heavy PPC
     Heavy PPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 7 (front table): Center Torso.
 15 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 15 armor pts destroyed at armor (15 -> 0 remaining).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 4 - on target.
 10 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (60 -> 50/60 remaining).
@@ -557,6 +598,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     1/1 Criticals: ISDoubleHeatSink slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'DESTROYED', 'SRM 6', 'ISSmallXPulseLaser', '-Empty-']
       Heat sink destroyed (ISDoubleHeatSink) - heat dissipation reduced (now 36).
+  [Resolve] Red -> Blue: ISLBXAC10
     ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 5 (front table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).

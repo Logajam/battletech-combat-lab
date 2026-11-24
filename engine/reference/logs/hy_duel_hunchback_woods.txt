@@ -42,9 +42,11 @@
   [Ranged] Red fires in order: ['Autocannon/20', 'Small Laser'].
     Autocannon/20: needs 8 (range mod +0), rolled 9 -> HIT [IS Ammo AC/20: 4 shots left]
     Small Laser: needs 8 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: Small Laser
     Small Laser hit for 3:
       Hit location roll 6 (right table): Right Leg.
       Leg hit strikes the partial cover - no damage (p.66).
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 4 (right table): Right Arm.
 20 damage (BALLISTIC) incoming to Right Arm (armor).
@@ -66,6 +68,7 @@
     4: Medium Laser (slot 5)
     2/2 Criticals: Hand Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'DESTROYED', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: Small Laser
     Small Laser hit for 3:
       Hit location roll 5 (right table): Right Arm.
 3 damage (ENERGY) incoming to Right Arm (armor).
@@ -111,12 +114,14 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   [Ranged] Red fires in order: ['Autocannon/20', 'Small Laser'].
     Autocannon/20: needs 6 (range mod +0), rolled 6 -> HIT [IS Ammo AC/20: 3 shots left]
     Small Laser: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 10 (right table): Left Arm.
 20 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 16 armor pts destroyed at armor (16 -> 0 remaining). 4 damage applied to structure [STANDARD] (8 -> 4/8 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red: Small Laser
     Small Laser hit for 3:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -137,10 +142,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     6: Life Support (slot 6)
     1/1 Criticals: Life Support hit.
       Current crit slots in Head: ['DESTROYED', 'Sensors', 'Cockpit', 'Small Laser', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 7 (left table): Left Torso.
 20 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 20 armor pts destroyed at armor (20 -> 0 remaining).
+  [Resolve] Red -> Blue: Small Laser
     Small Laser hit for 3:
       Hit location roll 8 (left table): Center Torso.
 3 damage (ENERGY) incoming to Center Torso (armor).
@@ -183,10 +190,12 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     Autocannon/20: needs 6 (range mod +0), rolled 3 -> miss [IS Ammo AC/20: 2 shots left]
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
     Small Laser: needs 8 (range mod +2), rolled 5 -> miss
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 9 (left table): Right Torso.
 20 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 20 armor pts destroyed at armor (20 -> 0 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (left table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -234,6 +243,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     8: Autocannon/20 (slot 10)
     3/3 Criticals: Autocannon/20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'Autocannon/20', 'Autocannon/20', 'DESTROYED', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'DESTROYED', '-Empty-', '-Empty-']
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (front table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -279,6 +289,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
   [Ranged] Blue -> Red: range 5, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 1.39)
     Medium Laser: needs 9 (range mod +2), rolled 11 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -299,6 +310,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Autocannon/20', 'Medium Laser'] (weapon heat 10 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 6.94)
     Autocannon/20: needs 9 (range mod +2), rolled 4 -> miss [IS Ammo AC/20: 4 shots left]
     Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (left table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -321,12 +333,14 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     Autocannon/20: needs 9 (range mod +0), rolled 10 -> HIT [IS Ammo AC/20: 3 shots left]
     Medium Laser: needs 9 (range mod +0), rolled 9 -> HIT
     Small Laser: needs 13 (range mod +4), rolled 6 -> miss
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 10 (right table): Left Arm.
 20 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 16 armor pts destroyed at armor (16 -> 0 remaining). 4 damage applied to structure [STANDARD] (8 -> 4/8 remaining).
   Check for possible critical. Roll a 3.
     No critical hit.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -367,6 +381,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   [Ranged] Blue fires in order: ['Medium Laser', 'Small Laser'].
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
     Small Laser: needs 8 (range mod +2), rolled 7 -> miss
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -397,6 +412,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (front table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -428,10 +444,12 @@ Attack Phase PSR 2/2: needs 8 (Piloting 5 + +3). Rolled 9.
   [Ranged] Blue fires in order: ['Medium Laser', 'Small Laser'].
     Medium Laser: needs 7 (range mod +0), rolled 11 -> HIT
     Small Laser: needs 9 (range mod +2), rolled 4 -> miss
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 8 (left table): Center Torso.
 20 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 20 armor pts destroyed at armor (23 -> 3 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (front table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -460,6 +478,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 12.
   [Ranged] Blue fires in order: ['Medium Laser', 'Small Laser'].
     Medium Laser: needs 6 (range mod +0), rolled 12 -> HIT
     Small Laser: needs 8 (range mod +2), rolled 8 -> HIT
+  [Resolve] Red -> Blue: Autocannon/20
     Autocannon/20 hit for 20:
       Hit location roll 7 (left table): Left Torso.
 20 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -500,10 +519,12 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 12.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
   8 damage remains, transfers to Center Torso.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (21 -> 16 remaining).
+  [Resolve] Blue -> Red: Small Laser
     Small Laser hit for 3:
       Hit location roll 8 (front table): Left Torso.
 3 damage (ENERGY) incoming to Left Torso (armor).

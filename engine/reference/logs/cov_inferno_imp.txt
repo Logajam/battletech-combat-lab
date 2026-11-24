@@ -19,14 +19,17 @@
     ISERPPC: needs 7 (range mod +0), rolled 3 -> miss
     ISMediumXPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
     ISMediumXPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 10 -> HIT
+  [Resolve] Blue -> Red: ISLargePulseLaser
     ISLargePulseLaser hit for 9:
       Hit location roll 9 (right table): Left Torso.
 9 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 9 armor pts destroyed at armor (25 -> 16 remaining).
+  [Resolve] Red -> Blue: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 4 (rear table): Right Arm.
 15 damage (BALLISTIC) incoming to Right Arm (rear_armor).
   [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (25 -> 10 remaining).
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -51,6 +54,7 @@
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'ISERPPC', 'ISERPPC', 'ISERPPC', 'ISLRM15 Ammo', 'ISLRM15 Ammo', 'ISCASE']
       Engine hit (1/3).
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -95,10 +99,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 12.
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 4 -> HIT
     ISMediumLaser: needs 6 (range mod +0), rolled 5 -> miss
     ISMediumLaser: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Red -> Blue: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 5 (left table): Left Arm.
 15 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (17 -> 2 remaining).
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -115,12 +121,14 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 12.
     7: ISLargePulseLaser (slot 7)
     1/1 Criticals: Upper Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'ISLargePulseLaser', 'ISLargePulseLaser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 10 (left table): Right Arm.
 6 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 4 damage applied to structure [STANDARD] (17 -> 13/17 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 2 (left table): Left Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -134,26 +142,32 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 12.
     Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 29).
     Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 28).
   All critical slots in Left Leg marked DESTROYED.
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (33 -> 23 remaining).
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 4 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (22 -> 12 remaining).
+  [Resolve] Blue -> Red: ISLargePulseLaser
     ISLargePulseLaser hit for 9:
       Hit location roll 7 (right table): Right Torso.
 9 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 9 armor pts destroyed at armor (25 -> 16 remaining).
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 11 (right table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (28 -> 22 remaining).
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (right table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
+  [Resolve] Blue -> Red: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -196,16 +210,20 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
     ISERPPC: needs 0 (range mod +0) aimed at Center Torso, rolled 3 -> HIT
     ISMediumXPulseLaser: needs -2 (range mod +0, modifiers -2) aimed at Center Torso, rolled 3 -> HIT
     ISMediumXPulseLaser: needs -2 (range mod +0, modifiers -2) aimed at Center Torso, rolled 7 -> HIT
+  [Resolve] Red -> Blue: ISGaussRifle
     ISGaussRifle hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 9 (left table): Right Torso.
 15 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (30 -> 15 remaining).
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10: aimed at Center Torso, 1D6 5 - on target.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (35 -> 25 remaining).
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6: aimed at Center Torso, 1D6 5 - on target.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (25 -> 19 remaining).
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6: aimed at Center Torso, 1D6 6 - on target.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (19 -> 13 remaining).
@@ -251,6 +269,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 5 -> miss
     ISMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT
     ISMediumLaser: needs 8 (range mod +0), rolled 4 -> miss
+  [Resolve] Red -> Blue: ISGaussRifle
     ISGaussRifle hit for 15:
       Hit location roll 5 (left table): Left Arm.
 15 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -263,10 +282,12 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   All critical slots in Left Arm marked DESTROYED.
   6 damage remains, transfers to Left Torso.
   [STANDARD/BALLISTIC] 6 armor pts destroyed at armor (10 -> 4 remaining).
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 8 (left table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 6 (left table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
@@ -274,6 +295,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (21 -> 19/21 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 10 (left table): Right Arm.
 6 damage (ENERGY) incoming to Right Arm (armor).
@@ -292,14 +314,17 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     9: ISLRM15 (slot 9)
     1/1 Criticals: Lower Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'ISLRM15', 'ISLRM15', 'ISLRM15', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Blue -> Red: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 9 (right table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (16 -> 6 remaining).
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (right table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (10 -> 4 remaining).
+  [Resolve] Blue -> Red: ISMediumLaser
     ISMediumLaser hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).

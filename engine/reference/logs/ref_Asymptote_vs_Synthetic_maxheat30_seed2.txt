@@ -21,10 +21,12 @@
     ISAC5: needs 10 (range mod +2), rolled 10 -> HIT [ISAC5 Ammo: 19 shots left]
     ISSRM6: needs 12 (range mod +4), rolled 6 -> miss [ISSRM6 Ammo: 14 shots left]
   [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISLRM15
     ISLRM15 hit: cluster roll 3 on the 15-column table -> 5 connect (5 dmg).
       Group 1/1: Hit location roll 7 (front table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
   [HARDENED/MISSILE] 2.5 armor pts destroyed at armor (47 -> 44.5 remaining).
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
@@ -81,6 +83,7 @@
     ISMediumPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 8 -> miss
     ISMediumPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISLRM15
     ISLRM15 hit: cluster roll 5 on the 15-column table -> 9 connect (9 dmg).
   Tripod leg sub-roll (front): base 2 -> 2 -> Right Leg
       Group 1/2: Hit location roll 9 (front table): Right Leg.
@@ -111,6 +114,7 @@
     ISMediumPulseLaser: needs 10 (range mod +2, modifiers -2), rolled 8 -> miss
     ISMediumPulseLaser: needs 10 (range mod +2, modifiers -2), rolled 12 -> HIT
     ISMediumPulseLaser: needs 10 (range mod +2, modifiers -2), rolled 6 -> miss
+  [Resolve] Blue -> Red: ISSRM6
     ISSRM6 hit: cluster roll 7 on the 6-column table -> 4 connect (8 dmg).
   Tripod leg sub-roll (front): base 3 -> 3 -> Center Leg
       Group 1/4: Hit location roll 9 (front table): Center Leg.
@@ -130,6 +134,7 @@
       Group 4/4: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 11 (left table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
@@ -180,6 +185,7 @@
     ISLRM15: needs 10 (range mod +2), rolled 7 -> miss [ISLRM15 Ammo: 2 shots left]
     ISAC5: needs 10 (range mod +2), rolled 10 -> HIT [ISAC5 Ammo: 14 shots left]
     ISSRM6: needs 12 (range mod +4), rolled 7 -> miss [ISSRM6 Ammo: 11 shots left]
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -236,10 +242,12 @@
     ISMediumPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 10 -> HIT
     ISMediumPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 9 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (rear table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (6 -> 0 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (rear table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -318,6 +326,7 @@
     ISLRM15: needs 7 (range mod +0), rolled 3 -> miss [ISLRM15 Ammo: 4 shots left]
     ISAC5: needs 9 (range mod +2), rolled 9 -> HIT [ISAC5 Ammo: 8 shots left]
     ISSRM6: needs 11 (range mod +4), rolled 6 -> miss [ISSRM6 Ammo: 6 shots left]
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
@@ -355,6 +364,7 @@
     ISAC5: needs 12 (range mod +2), rolled 12 -> HIT [ISAC5 Ammo: 6 shots left]
     ISSRM6: needs 14 (range mod +4), rolled 4 -> miss [ISSRM6 Ammo: 5 shots left]
   [Ranged] Red -> Blue: range 9, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 11 (front table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -404,6 +414,7 @@
     ISLRM15: needs 8 (range mod +0), rolled 9 -> HIT [ISLRM15 Ammo: 0 shots left]
     ISAC5: needs 10 (range mod +2), rolled 10 -> HIT [ISAC5 Ammo: 4 shots left]
     ISSRM6: needs 12 (range mod +4), rolled 4 -> miss [ISSRM6 Ammo: 4 shots left]
+  [Resolve] Blue -> Red: ISLRM15
     ISLRM15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
       Group 1/2: Hit location roll 11 (rear table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (rear_armor).
@@ -411,6 +422,7 @@
       Group 2/2: Hit location roll 11 (rear table): Left Arm.
 4 damage (MISSILE) incoming to Left Arm (rear_armor).
   [HARDENED/MISSILE] 2 armor pts destroyed at armor (23.5 -> 21.5 remaining).
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (rear_armor).
@@ -470,6 +482,7 @@
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 8 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 11 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISAC5
     ISAC5 hit for 5:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -479,6 +492,7 @@
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 4 (6 -2).
     No critical hit.
+  [Resolve] Blue -> Red: ISSRM6
     ISSRM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
@@ -492,14 +506,17 @@
       Group 4/4: Hit location roll 10 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (21.5 -> 20.5 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (front table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (front table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 9 (front table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
@@ -625,10 +642,12 @@
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 8 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 12 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 3 (right table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (right table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (armor).
@@ -652,11 +671,13 @@
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 9 -> HIT
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 7 -> HIT
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
   Tripod leg sub-roll (front): base 2 -> 2 -> Right Leg
       Hit location roll 5 (front table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [HARDENED/ENERGY] 3 armor pts destroyed at armor (32.5 -> 29.5 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -689,16 +710,19 @@
     8: ISAC5 Ammo (slot 9)
     2/2 Criticals: Hand Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'DESTROYED', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5 Ammo', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (rear table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (rear_armor).
   [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 4 damage applied to structure [STANDARD] (12 -> 8/12 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (8 -> 2 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (rear table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -742,12 +766,14 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     ISMediumPulseLaser: needs 2 (range mod +0, modifiers -2), rolled 7 -> HIT
     ISMediumPulseLaser: needs 2 (range mod +0, modifiers -2), rolled 2 -> HIT
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (front table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (8 -> 2/12 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 9 (front table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
@@ -757,10 +783,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     Hip specifically destroyed at Left Leg from Left Leg destruction.
   All critical slots in Left Leg marked DESTROYED.
   0 damage remains, transfers to Left Torso.
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (front table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (front table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
@@ -770,6 +798,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     Hip specifically destroyed at Right Leg from Right Leg destruction.
   All critical slots in Right Leg marked DESTROYED.
   4 damage remains, transfers to Right Torso.
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 9 (front table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).

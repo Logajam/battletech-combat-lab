@@ -47,14 +47,17 @@
     Medium Laser: needs 10 (range mod +2), rolled 11 -> HIT
     Medium Laser: needs 10 (range mod +2), rolled 9 -> miss
     Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 10 (front table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (left table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -84,6 +87,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 0 + heat 0); firing ['CLERLargeLaser', 'CLERLargeLaser'] (aimed at Center Torso) (weapon heat 24 of budget 45 = max 30 + sink 24 - current 2 - movement 2 - other 5; expected dmg 20.00)
     CLERLargeLaser: needs 1 (range mod +0, modifiers -1) aimed at Center Torso, rolled 5 -> HIT
     CLERLargeLaser: needs 1 (range mod +0, modifiers -1) aimed at Center Torso, rolled 5 -> HIT
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 8 (rear table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -106,6 +110,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     4: Medium Laser (slot 5)
     2/2 Criticals: Medium Laser slot hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'Jump Jet', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 4 (rear table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -149,6 +154,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
     Medium Laser: needs 6 (range mod +0), rolled 2 -> miss
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
     Small Laser: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red: Blazer Cannon
     Blazer Cannon hit for 12:
       Hit location roll 8 (rear table): Left Torso.
 12 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -182,14 +188,17 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
     2/2 Criticals: ISDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'DESTROYED', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'DESTROYED', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'CLERLargeLaser', 'DESTROYED', 'IS Heavy Ferro-Fibrous']
       Heat sink destroyed (ISDoubleHeatSink) - heat dissipation reduced (now 22).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 3 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (11 -> 6 remaining).
+  [Resolve] Blue -> Red: Small Laser
     Small Laser hit for 3:
       Hit location roll 6 (rear table): Right Torso.
 3 damage (ENERGY) incoming to Right Torso (rear_armor).
@@ -253,6 +262,7 @@ Attack Phase PSR 2/2: needs 7 (Piloting 5 + +2). Rolled 9.
     Medium Laser: needs 10 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 10 (range mod +0), rolled 8 -> miss
     Small Laser: needs 12 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -273,12 +283,14 @@ Attack Phase PSR 2/2: needs 7 (Piloting 5 + +2). Rolled 9.
   [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 1 + heat 0); firing ['CLERLargeLaser', 'CLERLargeLaser'] (aimed at Center Torso) (weapon heat 24 of budget 41 = max 30 + sink 22 - current 0 - movement 1 - other 10; expected dmg 20.00)
     CLERLargeLaser: needs 1 (range mod +0, modifiers -1) aimed at Center Torso, rolled 5 -> HIT
     CLERLargeLaser: needs 1 (range mod +0, modifiers -1) aimed at Center Torso, rolled 8 -> HIT
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 6 (rear table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (6 -> 0 remaining). 4 damage applied to structure [STANDARD] (13 -> 9/13 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10: aimed at Center Torso, 1D6 5 - on target.
 10 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 9 armor pts destroyed at rear_armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (18 -> 17/18 remaining).
@@ -348,6 +360,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 2); firing ['CLERLargeLaser', 'CLERLargeLaser'] (weapon heat 24 of budget 28 = max 30 + sink 22 - current 13 - movement 1 - other 10; expected dmg 11.67)
     CLERLargeLaser: needs 7 (range mod +0, modifiers -1), rolled 7 -> HIT
     CLERLargeLaser: needs 7 (range mod +0, modifiers -1), rolled 8 -> HIT
+  [Resolve] Blue -> Red: Blazer Cannon
     Blazer Cannon hit for 12:
       Hit location roll 2 (left table): Left Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -361,14 +374,17 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (14 -> 9 remaining).
+  [Resolve] Blue -> Red: Small Laser
     Small Laser hit for 3:
       Hit location roll 5 (left table): Left Arm.
 3 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (11 -> 8 remaining).
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -382,6 +398,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'Engine', 'Jump Jet', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (3/3).
+  [Resolve] Red -> Blue: CLERLargeLaser
     CLERLargeLaser hit for 10:
       Hit location roll 5 (front table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).

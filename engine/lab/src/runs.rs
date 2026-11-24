@@ -337,23 +337,9 @@ impl Plan {
     }
 }
 
-/// One battle's line in the battle list.
+/// One battle's line in the battle list (shared with a played game's end record: btsim_core::results::battle_line).
 fn battle_line(sim: u64, seed: u64, r: &BattleResult, seconds: f64, variant: &Value) -> Value {
-    let teams: serde_json::Map<String, Value> = r
-        .teams
-        .iter()
-        .map(|(k, s)| (k.clone(), json!({"units": s.units, "units_lost": s.units_lost, "damage_dealt": s.damage_dealt, "max_hp": s.max_hp, "final_hp": s.final_hp, "attacks": s.attacks, "hits": s.hits,
-            "armor": [s.final_armor, s.max_armor], "structure": [s.final_structure, s.max_structure]})))
-        .collect();
-    // the seed as text: seeds pass JavaScript's exact-integer limit
-    // each unit: destroyed or not, and how (what the results filter asks about)
-    let units: serde_json::Map<String, Value> = r.units.iter().map(|(k, s)| (k.clone(), json!({"name": s.name, "destroyed": s.destroyed, "cause": s.cause_of_death,
-        "armor": [s.final_armor, s.max_armor], "structure": [s.final_structure, s.max_structure], "kills": s.kills, "alive": s.turns_alive,
-        "locs": s.locations, "weapons": s.weapons, "track": s.track,
-        // every critical slot: its name, and 1 / 0 for working / lost at the end (one text per location, the slot order of the unit file)
-        "crits": s.crit_names.iter().map(|(l, n)| (l.clone(), json!({"names": n.join("|"),
-            "alive": s.crit_alive.get(l).map(|a| a.iter().map(|x| if *x { '1' } else { '0' }).collect::<String>()).unwrap_or_default()}))).collect::<serde_json::Map<String, Value>>()}))).collect();
-    json!({"sim": sim, "seed": seed.to_string(), "winner": r.winner, "turns": r.turns_taken, "seconds": seconds, "capped": r.turn_cap.is_some_and(|c| r.turns_taken >= c && r.winner == "Draw"), "teams": teams, "units": units, "board": variant["board"], "zones": variant["zones"]})
+    btsim_core::results::battle_line(sim, seed, r, seconds, &variant["board"], &variant["zones"])
 }
 
 /// A battle line without its per-unit detail (what the battle list needs).

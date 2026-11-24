@@ -55,6 +55,7 @@
     ISERMediumLaser: needs 10 (range mod +0), rolled 4 -> miss
     ISERMediumLaser: needs 10 (range mod +0), rolled 6 -> miss
     ISERMediumLaser: needs 10 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -74,12 +75,14 @@
   [Ranged] Blue -> Red: range 2, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.78)
     ISERMediumLaser: needs 9 (range mod +0), rolled 10 -> HIT
     ISERMediumLaser: needs 9 (range mod +0), rolled 10 -> HIT
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
   [STANDARD/ENERGY] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (7 -> 6/7 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -256,6 +259,7 @@
   [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 32 = max 30 + sink 14 - current 0 - movement 2 - other 10; expected dmg 1.67)
     ISERMediumLaser: needs 10 (range mod +0), rolled 11 -> HIT
     ISERMediumLaser: needs 10 (range mod +0), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).

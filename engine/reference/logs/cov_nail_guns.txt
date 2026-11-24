@@ -16,6 +16,7 @@
     [Red fire control] ISMML7: MML SRM rounds
     ISMML7: needs 10 (range mod +2), rolled 6 -> miss [IS Ammo MML-7 SRM: 13 shots left]
     ISMML7: needs 10 (range mod +2), rolled 10 -> HIT [IS Ammo MML-7 SRM: 12 shots left]
+  [Resolve] Red -> Blue: ISMML7
     ISMML7 hit: cluster roll 3 (MML SRM rounds) on the 7-column table -> 2 connect (4 dmg).
       Group 1/2: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
@@ -115,6 +116,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     ISMML7: needs 4 (range mod +0), rolled 5 -> HIT [IS Ammo MML-7 SRM: 8 shots left]
     Nail Gun: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo Nail/Rivet - Full: 299 shots left]
     Nail Gun: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo Nail/Rivet - Full: 298 shots left]
+  [Resolve] Red -> Blue: ISMML7
     ISMML7 hit: cluster roll 8 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 10 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -162,6 +164,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
       Group 4/4: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (3 -> 1 remaining).
+  [Resolve] Red -> Blue: ISMML7
     ISMML7 hit: cluster roll 12 (MML SRM rounds) on the 7-column table -> 7 connect (14 dmg).
       Group 1/7: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
@@ -211,8 +214,10 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
       Group 7/7: Hit location roll 3 (front table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
+  [Resolve] Red -> Blue: Nail Gun
     Nail Gun hit - hit location roll 7 (front table): Center Torso.
       Center Torso still has armor - the nails do nothing (MegaMek: armor BAR 5+).
+  [Resolve] Red -> Blue: Nail Gun
     Nail Gun hit - hit location roll 8 (front table): Left Torso.
       1D6 = 3 damage to the bare Left Torso.
 3 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -258,6 +263,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     ISMML7: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo MML-7 SRM: 6 shots left]
     Nail Gun: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo Nail/Rivet - Full: 297 shots left]
     Nail Gun: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo Nail/Rivet - Full: 296 shots left]
+  [Resolve] Red -> Blue: ISMML7
     ISMML7 hit: cluster roll 7 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
@@ -286,6 +292,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
   [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/12 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: ISMML7
     ISMML7 hit: cluster roll 8 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
       Group 1/4: Hit location roll 5 (front table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
@@ -303,6 +310,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
   [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/12 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: Nail Gun
     Nail Gun hit - hit location roll 10 (front table): Left Arm.
       1D6 = 4 damage to the bare Left Arm.
 4 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -314,6 +322,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (4 -> 3/12 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Red -> Blue: Nail Gun
     Nail Gun hit - hit location roll 10 (front table): Left Arm.
       1D6 = 2 damage to the bare Left Torso.
 2 damage (BALLISTIC) incoming to Left Torso (armor).

@@ -1135,6 +1135,7 @@ function act(t) {
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
     case "report": toggleReport(); $("menu").style.display = "none"; break;
     case "lab": location.href = "index.html"; break;
+    case "get-results": getResults(); break;
   }
 }
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("report").style.display === "block") { closeReport(); return; } if ($("card").style.display === "block") { $("card").style.display = "none"; return; } undo(); } });
@@ -1147,6 +1148,19 @@ function finish(end) {
   setPhase("Battle over");
   redraw();
   sheet(`<h3>Battle over</h3><div class="msg">${end.winner === "Draw" ? "A draw" : esc(end.winner) + " wins"} after ${end.turns} turns. ${end.decisions} decisions recorded.</div><div class="row"><button data-act="report">Show the report</button><button data-act="lab">Back to the Lab</button></div>`);
+  // GET RESULTS (bug B21): the commit button becomes Get Results, which opens the Lab's Results tab with this battle's statistics
+  S.end = end;
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>Battle over</b><br><span>${end.winner === "Draw" ? "a draw" : esc(end.winner) + " wins"}</span></div><button class="go big" data-act="get-results">Get Results</button>`;
+}
+// the finished game as a one-battle run file for the Lab (lab.js openPlayedGame); the setup is the one the Lab handed over
+function getResults() {
+  const end = S.end; if (!end || !end.line) return;
+  let setup = null; try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); } catch (e) { setup = null; }
+  if (!setup) { showCard('<b>Get Results</b><div class="msg">This game was not started from this browser\'s Lab, so its setup is not here to open the results with.</div>'); return; }
+  const file = { combatlab_run: 1, setup: { ...setup, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
+  try { localStorage.setItem("bm_play_result", JSON.stringify(file)); } catch (e) { showCard('<b>Get Results</b><div class="msg">This browser will not let the page hand the results over (storage is off).</div>'); return; }
+  location.href = "index.html";
 }
 // ---------------------------------------------------------------- the report (Daniel, 2026-11-22)
 // It must not give anything away early: bot reasoning is never shown; a movement line appears once that unit has moved; everything about the
@@ -1163,6 +1177,7 @@ function secOf(l) {
   if (/\[Physical\]/.test(l)) return "phys";
   if (/\[Heat\]|-- end of turn/.test(l)) return "heat";
   if (/\[TAG\]/.test(l)) return "tag";
+  if (/\[Resolve\]/.test(l)) return "ranged";
   if (/\[Ranged\]|\[Spot|\bAMS\b/i.test(l)) return "ranged";
   return S.lastSec;                                         // an indented result line belongs to the line above it
 }
@@ -1201,12 +1216,69 @@ function fmtLine(l) {
   if (/^\s{4}/.test(l)) return `<div class="rs">${esc(l.trim())}</div>`;
   return `<div class="rd">${esc(l.trim().replace(/^\[[^\]]+\]\s*/, ""))}</div>`;
 }
+// THE REPORT, ATTACK BY ATTACK (bugs B17-B20, Daniel 2026-11-22). The engine rolls every attack as it is declared and applies the damage
+// later (declaration and resolution are separate in the game); each resolved attack's lines start with "[Resolve] A -> T: weapon". The
+// report puts those lines straight under that attack's roll, so a hit shows where it landed and what it did before the next attack (B17);
+// the damage lines are boiled down to "-> Blue 3 Right Torso: armour 11 -> 6" (B18); a critical hit shows only the slot hit, highlighted,
+// without the pool or the slot lists (B19); each phase gets a heading and the report opens at the start of the latest one (B20).
+const PHASE_NAME = { move: "Movement", tag: "TAG", ranged: "Weapon attacks", phys: "Physical attacks", heat: "Heat and End Phase" };
+const RESOLVE_END = /^\s*\[(Ranged|Heat|Physical|Movement|End|TAG|Spot|Resolve)\]|^\s*-- end of turn|=== TURN|^PSR trigger|^Attack Phase PSR|^\s*Initiative/;
+function reportHtml(lines) {
+  // 1. take each resolution block out, queued by (attacker, target, weapon)
+  const blocks = new Map(), keep = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^\s*\[Resolve\] (.+?) -> (.+?): (.+)$/.exec(lines[i]);
+    if (!m) { keep.push(lines[i]); continue; }
+    const body = [];
+    while (i + 1 < lines.length && !RESOLVE_END.test(lines[i + 1])) body.push(lines[++i]);
+    const k = `${m[1]}|${m[2]}|${m[3]}`;
+    (blocks.get(k) || blocks.set(k, []).get(k)).push({ target: m[2], body });
+  }
+  // 2. the lines in order, each attack's roll followed by what it did
+  let out = "", who = null, sec = null;
+  for (const l of keep) {
+    // a heading where a line names its phase itself (an indented result line belongs to the phase above it)
+    const s = /\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|^\s*Initiative|\bAMS\b|-- end of turn/.test(l) ? secOf(l) : null;
+    if (s && s !== "hide" && s !== sec && PHASE_NAME[s]) { out += `<div class="rp" data-ph="${s}">${PHASE_NAME[s]}</div>`; sec = s; }
+    if (/=== TURN/.test(l)) sec = null;
+    const h = /\[Ranged\] (.+?) -> (.+?): range/.exec(l); if (h) who = [h[1], h[2]];
+    out += fmtLine(l);
+    const roll = /^\s{4}(.+?)(?: x\d+)?: needs \d+/.exec(l);
+    if (roll && who) {
+      // a hit takes the next block for that weapon; a miss only one that tells of the miss (a homing or artillery round striking the hex)
+      const q = blocks.get(`${who[0]}|${who[1]}|${roll[1]}`), hit = /-> HIT/.test(l);
+      const blk = q && q.length && (hit || /miss/i.test(q[0].body.join(" "))) ? q.shift() : null;
+      if (blk) out += `<div class="rr">${((st) => blk.body.map((b) => fmtDamage(b, blk.target, st)).join(""))({})}</div>`;
+    }
+  }
+  // resolution blocks no roll claimed (should not happen): shown at the end rather than lost
+  for (const [k, q] of blocks) for (const blk of q) out += `<div class="rh">${esc(k.replace(/\|/g, " &rarr; "))}</div><div class="rr">${((st) => blk.body.map((b) => fmtDamage(b, blk.target, st)).join(""))({})}</div>`;
+  return out;
+}
+// one line of a hit's resolution, boiled down (B18, B19): '' = not shown
+function fmtDamage(l, target, st) {
+  const t = l.trim(); let m;
+  if ((m = /^Critical hit pool at (.+):$/.exec(t))) { if (st) st.loc = m[1]; return ""; }
+  if (/^(Check for possible critical|No critical hit\.|\d+ critical hit\(s\)\.|Critical hit pool at|Current crit slots in)/.test(t) || /^\d+: .+ \(slot \d+\)$/.test(t)) return "";
+  if (/^\d+ damage \(\w+\) incoming to /.test(t) || /hit for \d+:$/.test(t)) return "";
+  if ((m = /^(?:Group (\d+)\/(\d+): )?Hit location roll (\d+) \((\w+) table\): (.+)\.$/.exec(t)))
+    return `<div class="rl">${m[1] ? `<small>${m[1]}/${m[2]}</small> ` : ""}&rarr; <b>${esc(target)}</b> ${esc(m[5])} <small>(roll ${m[3]}, ${esc(m[4])})</small></div>`;
+  if ((m = /^\[[^\]]+\] (\d+) armor pts destroyed at (.+?) \((\d+) -> (\d+) remaining\)\.(?: (\d+) damage applied to structure \[[^\]]+\] \((\d+) -> (\d+)\/\d+ remaining\)\.)?/.exec(t)))
+    return `<div class="rl dm">${/rear/.test(m[2]) ? "rear " : ""}armour ${m[3]} &rarr; ${m[4]}${m[5] ? `, <b>structure ${m[6]} &rarr; ${m[7]}</b>` : ""}</div>`;
+  if ((m = /^\d+\/\d+ Criticals: (.+) hit\.$/.exec(t))) return `<div class="rl crit">CRITICAL HIT: ${st && st.loc ? esc(target) + " " + esc(st.loc) + " &mdash; " : ""}${esc(m[1])}</div>`;
+  if ((m = /^(.+?) hit: cluster roll (\d+)(?: \((.+?)\))? on the (\d+)-column table -> (\d+) connect \((\d+) dmg\)\.$/.exec(t)))
+    return `<div class="rl"><b>${m[5]}</b> of ${m[4]} hit${m[3] ? ` (${esc(m[3])})` : ""}, ${m[6]} damage <small>(cluster roll ${m[2]})</small></div>`;
+  const big = /destroy|DESTROYED|explo|pilot|Head hit|engine hit|gyro|critical|falls|Through-Armor|cockpit|unconscious/i.test(t);
+  return `<div class="rl${big ? " big" : ""}">${esc(t)}</div>`;
+}
 function renderReport() {
   const r = $("report"); if (!r.firstChild) r.innerHTML = '<div id="rbox"><div id="rhead"><b id="rtitle">Report</b><button data-act="report-close">Close</button></div><div id="rbody"></div></div>';
   const fresh = r.dataset.mode === "fire";
   $("rtitle").textContent = fresh ? "Combat report" : "Report";
-  $("rbody").innerHTML = (fresh ? S.fresh : S.shown).map(fmtLine).join("") || '<div class="rd">Nothing to report yet.</div>';
-  $("rbody").scrollTop = fresh ? 0 : $("rbody").scrollHeight;
+  $("rbody").innerHTML = reportHtml(fresh ? S.fresh : S.shown) || '<div class="rd">Nothing to report yet.</div>';
+  // the report opens at the start of the latest phase it has (B20)
+  const heads = $("rbody").querySelectorAll(".rp, .rt"), last = heads[heads.length - 1];
+  $("rbody").scrollTop = fresh || !last ? 0 : last.offsetTop - $("rbody").offsetTop;
 }
 function openReport(fire) {
   const r = $("report"); r.dataset.mode = fire ? "fire" : "all"; renderReport(); r.style.display = "block";

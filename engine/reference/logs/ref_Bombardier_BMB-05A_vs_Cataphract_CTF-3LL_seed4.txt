@@ -21,6 +21,7 @@
   [Ranged] Red -> Blue: range 14, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISArrowIVSystem'] (weapon heat 10 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 1.94)
     [Red fire control] ISArrowIVSystem: artillery at the hex
     ISArrowIVSystem: needs 12 (range mod +0, modifiers +4), rolled 10 -> miss [ISArrowIV Ammo: 4 shots left]
+  [Resolve] Red -> Blue: ISArrowIVSystem
     ISArrowIVSystem missed by 2: scatters 1 hex (direction 4) to 0106.
       Blue is next to the impact: 10 area-effect damage.
       AE Group 1/2: Hit location roll 4 (right table): Right Arm.
@@ -69,6 +70,7 @@
     ISLBXAC10: needs 11 (range mod +2), rolled 10 -> miss [IS LB 10-X AC Ammo: 9 shots left]
     ISPlasmaRifle: needs 11 (range mod +2), rolled 4 -> miss [ISPlasmaRifleAmmo: 9 shots left]
     ISERMediumLaser: needs 13 (range mod +4), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISArrowIVSystem
     ISArrowIVSystem missed by 2: scatters 1 hex (direction 6) to 0109.
       Blue is next to the impact: 10 area-effect damage.
       AE Group 1/2: Hit location roll 9 (right table): Left Torso.
@@ -96,6 +98,7 @@
     ISPlasmaRifle: needs 11 (range mod +2), rolled 4 -> miss [ISPlasmaRifleAmmo: 8 shots left]
     ISERMediumLaser: needs 11 (range mod +2), rolled 10 -> miss
     ISERMediumLaser: needs 11 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 3 (rear table): Right Arm.
 10 damage (BALLISTIC) incoming to Right Arm (rear_armor).
@@ -124,14 +127,17 @@
     ISRocketLauncher20: needs 9 (range mod +0, modifiers +1), rolled 2 -> miss [one-shot: now spent]
     ISRocketLauncher20: needs 9 (range mod +0, modifiers +1), rolled 6 -> miss [one-shot: now spent]
     ISSmallLaser: needs 12 (range mod +4), rolled 12 -> HIT
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 8 (left table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (24 -> 19 remaining).
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 4 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Resolve] Red -> Blue: ISSmallLaser
     ISSmallLaser hit for 3:
       Hit location roll 7 (right table): Right Torso.
 3 damage (ENERGY) incoming to Right Torso (armor).
@@ -156,6 +162,7 @@
     ISERMediumLaser: needs 9 (range mod +0), rolled 11 -> HIT
     ISERMediumLaser: needs 9 (range mod +0), rolled 2 -> miss
   [Ranged] Red -> Blue: range 3, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -211,10 +218,12 @@
     ISERMediumLaser: needs 10 (range mod +2), rolled 8 -> miss
     ISERMediumLaser: needs 10 (range mod +2), rolled 9 -> miss
   [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 6 (front table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Resolve] Blue -> Red: ISPlasmaRifle
       ISPlasmaRifle: +2 heat to Red (outside heat, p.102).
     ISPlasmaRifle hit for 10:
       Hit location roll 8 (front table): Left Torso.
@@ -255,10 +264,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     ISERMediumLaser: needs 6 (range mod +0), rolled 5 -> miss
     ISERMediumLaser: needs 6 (range mod +0), rolled 8 -> HIT
   [Ranged] Red: charging Blue - no ranged attacks this turn (pp.78-79).
+  [Resolve] Blue -> Red: ISLBXAC10
     ISLBXAC10 hit for 10:
       Hit location roll 6 (front table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (10 -> 0 remaining).
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 5 (front table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
@@ -351,10 +362,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   [Ranged] Red holds ['ISArrowIVSystem'] back for the Physical phase (plans push, expected 154.56).
   [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISSmallLaser'] (weapon heat 1 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.17)
     ISSmallLaser: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 9 (front table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+  [Resolve] Red -> Blue: ISSmallLaser
     ISSmallLaser hit for 3:
       Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.

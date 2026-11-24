@@ -98,10 +98,12 @@
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 2 -> miss
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 6 -> miss
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 12 -> HIT
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (front table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (22 -> 17 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -213,6 +215,7 @@
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 5 -> miss
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 10 -> HIT
     Medium Laser: needs 10 (range mod +4, modifiers -1), rolled 9 -> miss
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -295,6 +298,7 @@
     Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 5 -> miss
     Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 12 -> HIT
     Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 10 -> miss
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (front table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -414,6 +418,7 @@
     Medium Laser: needs 9 (range mod +0, modifiers -1), rolled 7 -> miss
     Medium Laser: needs 9 (range mod +0, modifiers -1), rolled 9 -> HIT
     Medium Laser: needs 9 (range mod +0, modifiers -1), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 2 (front table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -424,6 +429,7 @@
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 3.
     No critical hit.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.
@@ -591,6 +597,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
   [Ranged] Blue -> Red: range 10, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 43 = max 30 + sink 15 - current 0 - movement 2 - other 0; expected dmg 0.83)
     PPC: needs 11 (range mod +2), rolled 11 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 11 (right table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
@@ -628,6 +635,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
     Medium Laser: needs 12 (range mod +4, modifiers -1), rolled 7 -> miss
     Medium Laser: needs 12 (range mod +4, modifiers -1), rolled 4 -> miss
   [Ranged] Blue -> Red: range 9, base TN 12 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 7 (right table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
@@ -741,14 +749,17 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
     Medium Laser: needs 8 (range mod +0, modifiers -1), rolled 3 -> miss
     Medium Laser: needs 8 (range mod +0, modifiers -1), rolled 6 -> miss
     Medium Laser: needs 8 (range mod +0, modifiers -1), rolled 12 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (11 -> 6 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -775,28 +786,34 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
     Medium Laser: needs 2 (range mod +0, modifiers -1) aimed at Center Torso, rolled 8 -> HIT
     Medium Laser: needs 2 (range mod +0, modifiers -1) aimed at Center Torso, rolled 8 -> HIT
     Medium Laser: needs 2 (range mod +0, modifiers -1) aimed at Center Torso, rolled 6 -> HIT
+  [Resolve] Red -> Blue: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 5 (rear table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (18 -> 12 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 4 - on target.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (7 -> 2 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 2 armor pts destroyed at rear_armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (20 -> 17/20 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 3 - rolls for location.
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (6 -> 1 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 4 - on target.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (17 -> 12/20 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 5 - on target.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (12 -> 7/20 remaining).
@@ -817,6 +834,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Small Laser', '-Empty-']
       Engine hit (1/3).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
