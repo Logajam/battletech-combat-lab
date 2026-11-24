@@ -458,8 +458,12 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
 
 ### A. Movement
 1. FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
-2. BUG **Stand-up.** "I should be able to undo a plan of stand." And: "I can not turn after a stand, which should be a free action." Also: "Should probably run an audit of Megamek and the
+2. FIXED 2026-11-24 (except the audit) BUG **Stand-up.** "I should be able to undo a plan of stand." And: "I can not turn after a stand, which should be a free action." Also: "Should probably run an audit of Megamek and the
    Bridge for missing movement options." (An audit task of its own: MegaMek's movement choices against the engine's and the bridge's.)
+   DONE: "Stand up" now opens the move as it would be after a first-try stand; nothing is rolled until Move! is held (x goes back to the prone choice), and the stand and move go in
+   one answer (`stand_up` answer "plan"). Turning in place: the 'Mech's own token covered its hex; a tap on the 'Mech, or the arrows that now ring it, turns it (any move, not only a
+   stand). STILL OPEN: the MegaMek / bridge movement audit. FOUND, NOT BUILT: a 'Mech that chooses to stay prone may still change facing at 1 MP a hexside (Core p.51), but the engine
+   gives a unit that stays prone no move at all.
 3. FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
 4. FEAT **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
    bar. (Phones might make me change my mind.)"
@@ -471,17 +475,23 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
 7. BUG **The Alpha Strike button is missing from underneath the weapons list** (the mockup puts Strike / Alpha Strike under the list on the map; the page has it only in the dock's Plan tab).
 8. FEAT **The Fire button should turn red.**
 9. FEAT **Stacked weapons:** the target symbol "should fill up from left to right in partial increments" (n of m assigned).
-10. BUG **My Attack phase was skipped despite being able to torso twist to bring a target into sight.** (Probably the engine's "no line of sight / out of arc" test runs before the twist
-    is considered. Not traced.)
-11. FEAT/RULE **A weapon fires once a turn:** "Weapons may only be fired once per turn. (So a TAG in the TAG phase is not available in the weapon attack phase.)" (Check what the engine does.)
+10. FIXED 2026-11-24 BUG **My Attack phase was skipped despite being able to torso twist to bring a target into sight.** (Probably the engine's "no line of sight / out of arc" test runs before the twist
+    is considered. Not traced.) TRACED: the same page bug as 15 (the engine does count torso twists when it decides a target can be shot; `prepare_declaration`).
+11. FIXED 2026-11-24 (the TAG part) FEAT/RULE **A weapon fires once a turn:** "Weapons may only be fired once per turn. (So a TAG in the TAG phase is not available in the weapon attack phase.)" (Check what the engine does.) DONE for TAG: Core p.200 puts TAG in its own step
+    before the Ranged Attack Phase, so a person's weapon list no longer offers it at all (the bots never fired it there). A weapon firing twice in one phase was not seen otherwise.
 12. FEAT **A help-text pop-up when an attack the player tries is impossible** (e.g. "enemy missing an arm and prone"), and NOT an unprompted pop-up telling the player the enemy cannot attack:
     "I don't need a pop up warning that the enemy can't make attacks because its missing an arm and prone. I might need a help text popup if I try to attack in such a condition and I can't."
-13. BUG **Long click to view detailed information on the enemy is not working.**
+13. FIXED 2026-11-24 BUG **Long click to view detailed information on the enemy is not working.** Two causes: a hold on a unit opened only the hex card (terrain), and any
+    movement over 2 px cancelled the hold (a fingertip always moves more). Now a hold on a unit (map token or strip chip) opens that unit's Inspector, friend or enemy, and the finger
+    may move up to 10 px.
 
 ### C. TAG
 14. FEAT **TAG should use the same commit button** (the big hold/tap button in the action cluster) instead of the sheet's own buttons.
-15. BUG **"Somehow pushing skip tag ended my firing phase..."** and **"Now TAGing the enemy skipped the rest of my attack phase. WTF."** (Two reports of the same kind: the TAG question's answer
-    ends the person's whole ranged phase. Possibly the page's `tag` answer or the engine's TAG-then-fire sequence; not traced. Likely a regression-test gap: `check_web_play.py` answers TAG with no target.)
+15. FIXED 2026-11-24 BUG **"Somehow pushing skip tag ended my firing phase..."** and **"Now TAGing the enemy skipped the rest of my attack phase. WTF."** (Two reports of the same kind: the TAG question's answer
+    ends the person's whole ranged phase. Possibly the page's `tag` answer or the engine's TAG-then-fire sequence; not traced. Likely a regression-test gap: `check_web_play.py` answers TAG with no target.) CAUSE: not TAG. After Fire!, the page plays the engine's
+    questions from the plan; the engine asks "another target?" only while another enemy could be a secondary target, so with one enemy left (or the other outside the forward arc)
+    the plan was never closed and answered that 'Mech's NEXT target question, a turn later, with "hold fire" on its own. TAG was just the last thing seen before it. The plan now
+    answers only the question straight after its own last answer. `check_web_play.py` part 5 reproduces Daniel's game (one Raven, Skip TAG, Fire!) and fails on the old page.
 16. BUG **TAG's to-hit number is not expanded in the round report.** And: "since TAG is used in its own sub phase it would be reported before the ranged attack phase begins."
 
 ### D. Reports (round report, combat report)
