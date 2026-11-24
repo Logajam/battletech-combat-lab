@@ -109,7 +109,7 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   and the vocabulary in `INTEGRATION__BATTLEROM_UI.md` Section 2. Daniel's warning: moving the mockup into the live game was
   "less than successful", so settle homes on paper first, then build. Output: one table file; Daniel rules on the conflicts.
   DRAFT 1 WRITTEN 2026-11-24: `INTEGRATION__UI_DECISION_HOMES.md` (about 110 rows, Section 10 lists the rulings needed). The
-  on-screen data sheet is going away: its job moves to the Inspector (long press), Daniel 2026-11-24. REVIEW PENDING.
+  on-screen data sheet is going away: its job moves to the Inspector (long press), Daniel 2026-11-24. Section 12 adds what the MegaMek bridge expects to be sent. REVIEW PENDING.
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
 - P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`

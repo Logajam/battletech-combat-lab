@@ -192,3 +192,56 @@ Frequency: **T** every turn, **S** sometimes, **R** rare. Rule used to pick a ho
 legal action this list missed (the rules audit; from the library, never memory). 3. Turn the table into the interaction /
 state diagram (states: Idle, Unit selected, Planning move, Confirming, Fire assigning, ...; one arrow per row here).
 4. Only then change `play.html` / `play.js`, one home at a time, checked on a phone.
+
+## 12. The MegaMek bridge: what MegaMek expects a player to send (added 2026-11-24, Daniel: "any action that megamek would
+## expect to be sent to it needs to be listed too")
+
+Why it matters: the Lab as a player in a live MegaMek game (P7; bridge spec `INTEGRATION__MEGAMEK_BRIDGE.md`, stage B7)
+means a person's taps must become the same packets MegaMek's own GUI sends. So every row above that a MegaMek game would
+need must end as one of these messages. I checked this draft against the bridge's own docs and `bridge.rs`, **not against
+MegaMek's source**. Items marked **verify** are from my general knowledge of MegaMek and must be confirmed in its source
+(`MovePath.MoveStepType`, `WeaponAttackAction`, `PhysicalOption`, the server's packet handlers) in step 2.
+
+**How the bridge talks today.** MegaMek asks the bridge bot, and our engine answers through these calls (`bridge.rs`
+`call`): `move_pick`, `choose_foe`, `choose_movement`, `path_steps`, `choose_target`, `choose_declaration`,
+`fire_pick` / `fire_pick_active`, `choose_physical`, `choose_spot`, `manage_heat_equipment`, plus signals `start_movement`,
+`unit_moved`, `end_movement`, `reset_assigned`, `end_of_turn`, `assign_damage`. **For a human these are exactly the
+decisions the UI must supply**, so each maps to a row above (right-hand column). The answer shapes are Section 5 of the
+bridge spec (move with steps, fire with twist and shots, physical, move_order, fallback).
+
+| MegaMek phase | What MegaMek expects | Our row(s) | Bridge today |
+|---|---|---|---|
+| Lobby | add / remove units, set pilot skills, team, deployment edge, board, game options, "ready" | S1-S8 | Not built (B7c forces). Games start from an `.mms` file today. |
+| Deployment | place each unit: hex and facing | S5, M13 | Not built (B7d). Scenarios use fixed hexes. |
+| Initiative | the server rolls; a player only acknowledges (**verify**) | T1, T2 | Nothing to send. |
+| Movement: order | which unit to move next (`move_order`) | T3 | Wired (`move_pick`). |
+| Movement: path | `MovePath` steps: forward, backward, turn left / right, get up | M1, M2, M19 | Wired (`path_steps`). MegaMek's own path finder is the fallback. |
+| Movement: jump | start jump, then hexes, final facing | M3 | Wired, via the path finder. |
+| Movement: charge, death from above | final step is a charge / DFA step on a target | M11, M12 | **Not wired** (FALLBACK). |
+| Movement: MASC / supercharger, radical heat sinks | activation carried on the path or as a step (**verify**) | M5, M6 | Not wired as a choice. |
+| Movement: go prone, hull down | steps (**verify**) | M10 | Not wired; hull-down not modelled in the engine. |
+| Movement: shut down / start up, eject | steps or commands (**verify**) | M16, H3 | Not wired; not built in the engine. |
+| Movement: "Done" | end the unit's turn | T4 | Implied by sending the move. |
+| Firing: torso twist | a `TorsoTwistAction` first | F13 | Wired. |
+| Firing: arm flip | a flip action | F13 | **Not wired** (FALLBACK). |
+| Firing: weapon at a target | one `WeaponAttackAction` per weapon: weapon, target unit, **ammo bin**, weapon **mode** (rate of fire, LRM direct / indirect, capacitor, TAG, etc.) | F1-F11 | Weapons wired by (location, slot). Ammo bin: MegaMek's default unless our engine chose one. Modes: not wired (**verify** how MegaMek sets them). |
+| Firing: aimed shot | attack carries aimed location and mode (**verify**) | F12 | Not wired. |
+| Firing: spot, TAG | spotting is a consequence of attacking or not; TAG is a weapon attack (**verify**) | F15, F16 | `choose_spot` exists on our side; sending it is not wired. |
+| Firing: indirect, artillery | attack on a hex; MegaMek has a separate offboard / targeting phase for artillery (**verify**) | F17 | Not wired; our engine has no separate targeting phase. |
+| Firing: unjam, club pick-up, raise shield, AMS mode, capacitor charge, clear minefield | each its own action (**verify**) | F11, F18, F20, F21 | Not wired. |
+| Firing: friends' declared damage | not sent to MegaMek; a signal into our bot | F3 | `assign_damage` signal not sent yet. |
+| Physical: punch, kick | `PhysicalOption` (one punch, both, one kick) | P2 | Wired for those only. |
+| Physical: club, push, hatchet / sword, trip, brush off | `PhysicalOption` kinds | P2 | **Not wired** (FALLBACK). Anything with a twist also falls back. |
+| Physical: charge / DFA resolution | resolved by the server from the declaration | P3 | Follows the movement gap. |
+| End / Heat | heat sinks, eject confirmation, ammo explosion choices are server rules with prompts (**verify**) | H1-H6 | `manage_heat_equipment` call exists (AMS and similar); nothing human-facing. |
+| Every phase | "Done" / end turn; chat; resign or vote (**verify**) | G6, G16 | Implied by the answers. |
+
+**What this adds to the table above.** Rows that matter for the bridge and must stay in the list even if the Lab UI never
+shows them: arm flip (F13 is AUTO in the Lab, but MegaMek wants it sent), weapon mode per attack (F8), ammo bin per attack
+(F10), aimed location (F12), the artillery target phase (F17), and the lobby and deployment steps (S1-S5). Charge, DFA,
+clubs, pushes and flips are the known wiring gaps, and they are the same rows the Lab's own physical phase has not built
+(P1-P6, M11, M12), so one build serves both. Non-'Mech units, hull-down, minefields, searchlights and swarm attacks are
+outside the engine today (PLAYER_DECISIONS Section 9) and stay Daniel scope calls.
+
+**Step 2 (rules audit) gets a MegaMek column**: for each row, the MegaMek class or packet that carries it, read from its
+source (attach it as the bridge work does; MegaMek is never edited, Daniel).
