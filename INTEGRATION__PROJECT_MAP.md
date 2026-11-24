@@ -143,6 +143,24 @@ moving the mockup into the live game "was less than successful", so settle homes
     head-to-head "trial of possession"). Licence: none found (per GPT, to be confirmed by
     reading the repo); with no licence the author keeps all rights, so get the author's written OK (a repo issue or message)
     before copying code or art, or re-implement the ideas ourselves. Credit it in `CREDITS.md` either way.
+    READ 2026-11-24 (session 36; the clone is at `/home/user/raptor007/bttt`, OUTSIDE this repo, never copy from it). **Licence: confirmed none** (no LICENSE file, nothing in `ReadMe.txt`;
+    the project is GPL-incompatible to copy from). **Its bot** (`Sources/BotAI.cpp`, 654 lines, original, not MegaMek-derived): a one-turn greedy expected-damage bot. Movement walks a path toward
+    each enemy one step at a time (turn when the enemy leaves the front arc, step forward, walk round obstructions; never backward; all six jump facings) and scores EVERY position along it:
+    damage x to-hit `(11 - max(0, TN-2))/11` x cluster factor, divided by `1 + 0.25 x the enemy's movement` while that enemy has not moved, x1.5 behind the target, plus small bonuses (closer 0.1/hex,
+    height 0.01, trees +1, partial cover +0.5 / +1.25 once the enemy has moved, defence-movement bonus, a PSR-risk penalty for running or jumping damaged, MASC / supercharger streak penalty) doubled into
+    the score. Firing drops the lowest damage-per-heat weapon until predicted heat stays under net heat + 5 (always at least one shot; spots for indirect fire when nothing else shoots); torso twist
+    by trying centre / left / right. Mech to move is picked AT RANDOM (its own FIXME); no team coordination, no look-ahead. **Verdict:** a weak baseline opponent, not a strong bot; its ideas worth
+    testing inside our bots are the "enemy has not moved yet" discount and damage-per-heat weapon dropping (cover is already in ours, Daniel). Its sounds (`Sounds/*.wav`) are MechWarrior-like: do NOT use.
+    Other BTTT ideas filed in C7 (optional rules to check, 3+ teams, biome maps, UI ideas). See P15 (the step walker, built) and P16 (the bot, not built).
+  - P15. STEP WALKER (BUILT 2026-11-24, session 36; REVIEW QUEUE `s36-stepwalk`): `engine/core/src/step_walk.rs`, one ground step at a time (forward, backward, turn left / right) with the
+    DP's own rules; `tests/step_walk.rs` proves it agrees with `pathfinder.rs` on 41,952 routes and the whole step graph. It is the `walk_path` layer Section 4 asked for. NOT yet wired
+    into the play page: **Daniel's call needed**, whether a waypoint route is walked as drawn (exact hexes) or stays "destination and mode are what matter, the engine picks the route" (his
+    2026-11-22 ruling, kept as is). The engine also writes the route into a new event, MOVE_PATH (events list v2), for replays. Next uses: exact-route orders, the BTTT-style bot (P16), a
+    replay that shows a unit's actual path. Not covered: jumps, stand-ups, charges (their own code).
+  - P16. BTTT-STYLE BASELINE BOT (not built; Daniel 2026-11-24 "interested in items 1 and 2"): re-implemented from the description in P8, never from their code. Cheap version (about half a day):
+    our reachable-path generation + their scoring + their weapon-dropping, bot name `bttt` (scenario.rs, bridge.rs line ~969, `btsim --bttt TEAM`, Lab / website lists, `is_*family` checks stay
+    false). Faithful version (about a session): a step-by-step path builder on `step_walk.rs`. No new `BotSet` method, so the bridge parity check is untouched. Needs reference battles
+    (`bttt_*`), a Section 6 row per decision point, a `CREDITS.md` line, a 20-battle-per-setting A/B against Princess / Gladiator / Hydra / Caspar. Expect it to lose: its use is a baseline.
   - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
     plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
 - P10. ISOMETRIC (tilted) 2D MAP VIEW, a toggle beside top-down (Daniel, 2026-11-24). Flat board, squashed hexes, NOTHING stands up:
@@ -358,6 +376,15 @@ the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots c
   and the website leaves such maps out); a board whose hexes change during the battle. (b) WATER MOVEMENT: some maps should
   have units moving through / on water in ways the sim does not play yet; Daniel worked out how in another conversation (about
   improving MegaMek), to be brought over when this is picked up.
+  (c) DYNAMIC REPLAY (Daniel, 2026-11-24; after "3D models worth a damn"): replay the last turn or game with units shooting while they move, shots timed to the step where a hit is
+  possible (a unit popping out between two stands of trees), misses scorching the terrain. Needs the actual route of every move (MOVE_PATH, built) and a step at which each shot becomes
+  possible (line of sight opening along the route: a per-step query, not built). (d) SOUNDS, original only (never BTTT's: MechWarrior-like; a generic synthesized laser exists as a prototype,
+  `pew.py`, session scratch only): lasers, PPCs, autocannon, missiles, impacts, explosions, footsteps, heat warning. (e) JOKE SOUNDS as an opt-in switch ("Authentic 1987 Sound Mode" or similar,
+  `config.json` + `config_notes.json` + the Options tab) with the good set as the default: the joke only works if the good set is good and the terrible one is a matching swap. (f) BTTT's optional
+  rules to check against our switches: snake-eyes always fails, floating criticals, enhanced missile defence (AMS-reduced clusters stay at 2 or more hits), engine explosions on 10+, one-armed prone
+  fire, enhanced flamers; also 3+ teams with turn interleaving, procedural biome maps from an integer seed, step-by-step damage narration. (g) LINE-OF-SIGHT HIGHLIGHT (the shot line, the hexes that
+  hurt or block it) goes with the quick-and-easy shooting screen work. (h) TMM beside the moved checkbox on the unit list, and a warning symbol for units that have not moved (their TMM is not
+  known yet: show no number for them, as BTTT marks such shots with an asterisk); to settle with Daniel when it is built.
 
 **D. Engine, speed, state**
 - D1. THE RUST TRANSLATION - DONE and reviewed (sessions 22-24; Change Record "RUST ENGINE REVIEWED"). The Python engine was
@@ -466,6 +493,11 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s36-stepwalk) STEP WALKER AND MOVE_PATH** (2026-11-24): `engine/core/src/step_walk.rs`, `engine/core/tests/step_walk.rs`, `orchestrator.rs` (`move_route`, `emit_move_path`; the route is found BEFORE the unit
+  moves, only with events on, and cut where a move stopped early), `events.rs` (MOVE_PATH, `EVENT_VERSION` 2), `INTEGRATION__EVENTS.md`, `check_events.py` (MOVE_PATH follows its MOVE), the 62 reference event
+  files re-saved (logs unchanged; the only change is the added MOVE_PATH lines). Look at: whether `step_walk`'s backward-step rule (the DP's PSR builder's, a superset of its plain builder's) is the one
+  to keep; MOVE_PATH shows the engine's best route, not a route a unit "walked" (the rules check only a move's two ends, and plain-ground moves are never walked); charges and jumps have none;
+  the `Err` kinds are coarse (a finer "why not" for the UI would need reasons from `terrain_rules::step_cost`).
 - **(s36-reference) REFERENCE LIST BY EVENT COVERAGE; ANSWER KEY RETIRED** (2026-11-24): `tools/event_coverage.py`, `tools/choose_reference_set.py`, `tools/make_event_scenarios.py` (the `ev_*` scenarios), `engine/reference/battles.txt`,
   `check_rust_reference.py` (list, coverage rule, `--all --out`, `--times`, `--history`), `stage6_battles.rs` removed, the docs that called the answer key the standard. Look at: whether the safeguards (every Hydra / CASPAR
   variant on a small scenario, every weapon fired, every piece of gear fielded) are the right ones or too many (62 battles; the event-only minimum with the long battles is 24); whether N = 3 should count battles or events;
@@ -881,7 +913,7 @@ key from today's engine, or list each change). RESOLVED: `stage6_battles.rs` was
   deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
   When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
   Gladiator decision loop before changing anything.
-- **Waypoint routes are not walked as drawn** (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same, letting the auto route figure out how to get there while maximizing TMM is fine. It becomes a known issue rather than a bug"). The play page plans a move through numbered waypoints (the cost, and so the mode, is that of going through all of them, `play_session.rs` `way_query`), but the unit takes the engine's own best route to the last hex (most hexes moved, so the best TMM; `pathfinder.rs`), which may not pass through the waypoints, and the heat, TMM and hexes shown come from that engine route while the MP shown is the waypoint route's. A route that must avoid a hazard or a hex needs the engine to walk a chosen route (`walk_path` from a list of hexes). Jumps and stand-up / entry moves take no waypoints.
+- **Waypoint routes are not walked as drawn** (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same, letting the auto route figure out how to get there while maximizing TMM is fine. It becomes a known issue rather than a bug"). The play page plans a move through numbered waypoints (the cost, and so the mode, is that of going through all of them, `play_session.rs` `way_query`), but the unit takes the engine's own best route to the last hex (most hexes moved, so the best TMM; `pathfinder.rs`), which may not pass through the waypoints, and the heat, TMM and hexes shown come from that engine route while the MP shown is the waypoint route's. A route that must avoid a hazard or a hex needs the engine to walk a chosen route (`walk_path` from a list of hexes). UPDATE 2026-11-24: the step layer exists now (`step_walk.rs`, P15); wiring a drawn route into a move is Daniel's call (exact route or not). Jumps and stand-up / entry moves take no waypoints.
 - **Ejection and voluntary shutdown are not modelled** (Daniel, 2026-11-21: "leave out for the moment ... make sure they're a known short fall"). UI plan: Shut down on the engine's critical-stats page, Eject on the cockpit (`INTEGRATION__PLAYER_DECISIONS.md` Section 12). Other unit types (vehicles, infantry) also later.
 
 **Known issues to fix later (found session 13, Claude):**

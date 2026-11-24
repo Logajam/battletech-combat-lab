@@ -12,7 +12,7 @@ use crate::hex_geometry;
 use crate::mech_state::*;
 use crate::physical::{PhysOption, PhysicalBot};
 use crate::piloting_rolls as pr;
-use crate::ranged_combat::{path_to, Pick};
+use crate::ranged_combat::{path_to, path_to_with_start, Pick};
 use crate::results::{team_totals, BattleResult, SideStats};
 use crate::terrain_rules;
 use crate::{arcs, clubs, deployment, fire_modes, hazards, heat, smoke, tag, water};
@@ -445,6 +445,8 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
         b.ev("MOVE_CHOSEN").unit(mover).sub(&p.mode.to_lowercase()).what(&p.hex).n(p.mp_spent).emit(b);
     }
     let from_hex = b.units[mover].hex.clone();
+    // the route, for the MOVE_PATH event: found BEFORE the unit moves (the search starts from where it stands) and only when events are on
+    let route = if b.ev("MOVE_PATH").live() { move_route(b, mover, pick.as_ref(), standup_mp, entry_edge.as_deref()) } else { None };
 
     let mut fell: Option<(String, String, i64, i64, &'static str)> = None;
     let mut start = String::new();
@@ -466,6 +468,7 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
             b.units[mover].movement_heat = heat::movement_heat(&b.units[mover], &mode, fc);
             b.log(format!("  [Movement] {}: {} -> {} {}, {} after {} MP ({} hexes) of a planned {} to {} {}.", nm, start, label, facing, why, used, moved, p.mode, p.hex, p.facing));
             b.ev("MOVE").unit(mover).sub(&p.mode.to_lowercase()).what(&label).n(used).emit(b);
+            emit_move_path(b, mover, &p.mode, route, Some((&label, used)));
         }
         (Some(p), Some(f)) => {
             let budget = standup_mp.unwrap_or(if p.mode == "Run" { run } else { walk });
@@ -509,6 +512,7 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
             b.log(line);
             let (hexl, mp) = (b.units[mover].hex.clone().unwrap_or_default(), b.units[mover].mp_spent);
             b.ev("MOVE").unit(mover).sub(&p.mode.to_lowercase()).what(&hexl).n(mp).emit(b);
+            emit_move_path(b, mover, &p.mode, route, None);
         }
         (None, _) => {
             let (mode, fc) = (b.units[mover].move_mode.clone(), b.units[mover].move_fc);
@@ -615,6 +619,40 @@ fn landing_psr(b: &mut Battle, mover: UnitId) {
 type Fell = (String, String, i64, i64, &'static str);
 
 /// The movement subphase: walk the ground path to the pick hex by hex, making each terrain PSR where it happens.
+/// The route of a picked ground move as MOVE_PATH text (`step_walk::route_text`), or None: no pick, a jump (no route: it goes to its
+/// end hex), a charge (its pick counts the target's hex too), no route found, or no step to take. Reads only.
+fn move_route(b: &Battle, mover: UnitId, pick: Option<&Pick>, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> Option<String> {
+    let p = pick?;
+    if p.mode == "Jump" || p.charge || p.dfa {
+        return None;
+    }
+    let text = if entry_edge.is_some() {
+        crate::step_walk::route_text(&path_to(b, mover, p, standup_mp, entry_edge)?, 0)
+    } else {
+        let (start_facing, path) = path_to_with_start(b, mover, p, standup_mp)?;
+        crate::step_walk::route_text(&path, start_facing)
+    };
+    (!text.is_empty()).then_some(text)
+}
+
+/// MOVE_PATH, written right after the MOVE it belongs to. `stopped`: the hex and MP where the unit actually ended when it did not
+/// finish the planned route (bogged down, destroyed by a hazard): the route is cut there, and left out if it never passes through that
+/// hex at that cost (never a wrong route).
+fn emit_move_path(b: &mut Battle, mover: UnitId, mode: &str, route: Option<String>, stopped: Option<(&str, i64)>) {
+    let Some(text) = route else { return };
+    let mut steps: Vec<&str> = text.split(' ').collect();
+    if let Some((hex, mp)) = stopped {
+        let Some(at) = steps.iter().position(|s| {
+            let mut f = s.split('/');
+            f.next() == Some(hex) && f.nth(1).and_then(|m| m.parse::<i64>().ok()) == Some(mp)
+        }) else {
+            return;
+        };
+        steps.truncate(at + 1);
+    }
+    b.ev("MOVE_PATH").unit(mover).sub(&mode.to_lowercase()).what(&steps.join(" ")).n(steps.len() as i64).emit(b);
+}
+
 /// WATER_ENTER / BUILDING_ENTER / BUILDING_LEAVE, from where the move began and where it ended (events.rs; a hex passed through
 /// is not seen: only the two ends of the move are compared).
 fn move_terrain_events(b: &mut Battle, mover: UnitId, from: Option<&str>) {

@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 36), STEP WALKER AND THE MOVE_PATH EVENT (BTTT raid, P8 -> P15 / P16). REVIEW PENDING (higher-level model).**
+  **Why:** Daniel asked what BTTT (github.com/Raptor007/BTTT) holds that is useful and what its bot is based on, then chose items 1 (step-by-step movement) and 2 (a BTTT-style bot). Reading showed
+  the bot is original and weak (a one-turn greedy expected-damage bot; findings in PROJECT_MAP P8) and that BTTT has no licence, so the bot is to be re-implemented, never copied (P16, not built).
+  **Built (item 1):** `engine/core/src/step_walk.rs`: `Walker` steps a ground move one step at a time (forward, backward, turn left, turn right) with the DP's own cost, PSR, hazard and budget rules
+  (`terrain_rules::step_cost / step_psrs / turn_psrs / step_hazard`), `legal_steps`, `walk`, `route_text`. `engine/core/tests/step_walk.rs` holds it to `pathfinder.rs`: on 6 boards (hills, rough
+  ground, water, lava) from 4 starts each and 4 budgets, EVERY route the DP can rebuild (41,952; 1,525 with a backward step, 503 with PSRs, 2,629 through hazards) replays to the same hex, facing, MP, forward
+  count, PSR counts and hazard, and walking the whole step graph reaches exactly the DP's (hex, facing, MP) set. Refusals say why (blocked, not allowed, out of MP, no backward budget).
+  **The route in the events (item 1b):** main already had the event records (session 36 part 1: destination only). New kind `MOVE_PATH` (list version 1 -> 2): the route of the MOVE before it as "HEX/S/MP"
+  steps. The engine never derives a route for a plain-ground move (`walk_path` runs only when the route has terrain PSRs or hazards), so `orchestrator::move_route` finds it with the read-only `path_to`
+  BEFORE the unit moves and only when events are on (a dry run never does). **Found by checking all 62 reference battles, not one:** a move that stopped early (bogged down in a hazard) wrote the whole
+  planned route; fixed by cutting the route where the move stopped (and writing none if the stop does not lie on it). **Proof nothing else changed:** all 62 reference LOGS identical; the 62 event files
+  differ only by the added MOVE_PATH lines (3,542) and the version header (checked line by line against git); every MOVE_PATH ends at its MOVE's hex and MP (`check_events.py`, and over all 62 battles).
+  Reference events re-saved with `check_rust_reference.py --update` (events only). **Not done:** wiring a drawn route into the play page (Daniel's call, Section 4 waypoint known issue: his 2026-11-22
+  ruling stands), jumps / stand-ups / charges (no route), the bot (P16).
+
 - **2026-11-24 (Claude, session 36), EVENT RECORDS AND SEARCH, PART 2: THE REFERENCE LIST REBUILT BY EVENT COVERAGE; THE ANSWER KEY RETIRED. REVIEW PENDING (higher-level model).**
   **Measured:** `tools/event_coverage.py` played every one of the 91 reference battles and the 63 answer-key scenarios (`engine/fixtures`, seed 1, own bots) with events on. Before: 5 of the 33
   event types were in fewer than 3 battles (BUILDING_ENTER / BUILDING_LEAVE 1 battle, PHYS_DFA 1, TAG_DESIGNATE 1, HOMING_HIT none); a long set repeated the common ones thousands of times
