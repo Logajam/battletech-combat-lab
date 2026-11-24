@@ -15,7 +15,7 @@
 //!
 //! Requests ("kind") and their answers:
 //!   `move_order` {candidates}            -> {"unit": id}
-//!   `stand_up` {tn}                      -> {"stand": bool}
+//!   `stand_up` {tn}                      -> {"stand": bool} (+ "plan": a movement answer for after the stand)
 //!   `boost` {systems}                    -> {"use": bool}  (MASC / supercharger this turn)
 //!   `movement` {options, attacks}        -> {"hex","facing","mode"} | {"stay": true} | {"attack": {"kind","target","hex","facing"}}
 //!   `spot` {candidates}                  -> {"target": id|null, "fires": bool}
@@ -198,7 +198,7 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let screen = Screen { link, sent_log: 0, first: true, plan: None };
+    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None };
     let mut bots = HumanBots::new(screen, human);
     // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
@@ -356,6 +356,9 @@ struct Screen {
     /// a move the person planned while choosing the unit to move (`move_order`'s "plan"): the unit and the movement answer, used
     /// when that unit's movement question comes
     plan: Option<(UnitId, Value)>,
+    /// a move the person planned together with standing up (`stand_up`'s "plan", bug A2): used by that unit's movement question
+    /// right after a successful stand; dropped if the stand fails (no movement question follows) or anything else moves first
+    stand_plan: Option<(UnitId, Value)>,
 }
 
 /// Everything the movement question and its queries need about one unit's possible moves.
@@ -637,7 +640,10 @@ fn target_preview(b: &mut Battle, attacker: UnitId, enemies: &[UnitId], primary:
 
 fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId) -> (Vec<Value>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) {
     planner.forget();
-    let weapons = crate::damage_resolution::get_weapons(&b.units[attacker]);
+    // TAG is not a weapon of the Ranged Attack Phase: its attack is its own step before that phase, and designating is all it
+    // does (Core p.200; bug B11, Daniel 2026-11-22). The person is asked about it in the TAG question, never in the weapon list.
+    // (The bots never pick it here either: it does no damage.)
+    let weapons: Vec<ItemId> = crate::damage_resolution::get_weapons(&b.units[attacker]).into_iter().filter(|w| !crate::tag::is_tag(b, attacker, *w)).collect();
     let cands = crate::weapon_selection::fire_candidates(b, attacker, ctx.distance, ctx.sel_pre_tn, Some(&ctx.adjust), &ctx.unavailable, None, &weapons, Some(&mut *planner));
     // each arc action's unavailable weapons; the first is "no change" (the engine's tie order)
     let per_action: Vec<HashSet<usize>> = ctx
@@ -824,8 +830,30 @@ impl Controller for Screen {
             b.piloting + crate::piloting_rolls::preexisting_modifier(m) + crate::piloting_rolls::special_case_modifier(m) + crate::piloting_rolls::STAND_UP_MODIFIER
         });
         let m = &b.units[mover];
-        let req = json!({"kind": "stand_up", "unit": mover, "name": name(b, mover), "tn": tn, "run": ms::compute_running_mp(m), "pilot_hits": m.pilot_hits, "hex": m.hex});
-        self.ask(b, req, |_, _| None, |_, a| a["stand"].as_bool().ok_or_else(|| "stand up, or stay prone?".to_string()))
+        let run = ms::compute_running_mp(m);
+        let req = json!({"kind": "stand_up", "unit": mover, "name": name(b, mover), "tn": tn, "run": run, "pilot_hits": m.pilot_hits, "hex": m.hex});
+        // Standing is part of the move (bug A2, Daniel 2026-11-22: "I should be able to undo a plan of stand"): while this question
+        // waits the page may ask "reach" / "path" for the moves the unit would have after standing at the first attempt (2 MP spent,
+        // p.51; any facing free, the engine's start facings), and answer with the stand and the move together ("plan"). Nothing is
+        // rolled until that answer comes, so the plan can be undone freely. If the stand takes more attempts the plan may no longer
+        // fit the MP left: the movement question then says so and asks again (ask_with's preset).
+        let view = move_view(b, mover, Some((run - 2).max(0)), None);
+        self.stand_plan = None;
+        let (stand, plan) = self.ask(
+            b,
+            req,
+            |b, q| match q["q"].as_str() {
+                Some("reach") if q["unit"].as_u64().is_none_or(|u| u as usize == mover) => Some(json!({"view": view.req})),
+                Some("path") => Some(view.route(b, mover, q, Some((run - 2).max(0)), None).unwrap_or_else(|| json!({"error": "no route"}))),
+                _ => None,
+            },
+            |_, a| {
+                let stand = a["stand"].as_bool().ok_or_else(|| "stand up, or stay prone?".to_string())?;
+                Ok((stand, a.get("plan").filter(|p| stand && p.is_object()).cloned()))
+            },
+        );
+        self.stand_plan = plan.map(|p| (mover, p));
+        stand
     }
 
     fn before_move(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
@@ -846,9 +874,11 @@ impl Controller for Screen {
         let _ = (moves_first, other, &inner);
         let MoveView { req, opts, best, attacks } = move_view(b, mover, standup_mp, entry_edge);
         // a move planned while the unit was being chosen
+        let stand_plan = self.stand_plan.take();
         let preset = match self.plan.take() {
             Some((u, p)) if u == mover => Some(p),
-            _ => None,
+            // the move planned with the stand (only right after this unit stood up)
+            _ => stand_plan.filter(|(u, _)| *u == mover && standup_mp.is_some()).map(|(_, p)| p),
         };
         enum Chosen {
             Stay,

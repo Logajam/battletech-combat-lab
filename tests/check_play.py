@@ -10,7 +10,9 @@ Starts engine/target/release/combatlab on a free port, then:
   3. play_start without a Human team is refused in words;
   4. a 2 v 2 with Red human plays to its end: every kind of question (move_order, movement, target, declaration, physical)
      comes up and is answered, an illegal answer is asked again with an error, and the battle ends with a winner or a draw;
-  5. the same seed with the same answers gives the same battle.
+  5. the same seed with the same answers gives the same battle;
+  6. a stand planned together with its move (bug A2): the moves after standing are shown before the roll, turning in place is free,
+     and the stand and the move go in one answer.
 Exit code 0 = every check passed.
 """
 import json
@@ -137,6 +139,36 @@ def play(lab, seed, kinds, wrong_once):
     raise SystemExit("the battle did not end")
 
 
+def stand_with_plan(lab, gid, r, kinds, pending):
+    """The answer to a stand_up question (bug A2): the first time, the stand is planned with its move. The moves after a first-try
+    stand are shown before anything is rolled; the unit turns in place (any facing is free after standing, p.51) and the stand and
+    the move go in one answer."""
+    if any(x.startswith("stand_plan") for x in kinds):
+        return {"stand": True}
+    v = lab.api("play_query", {"game": gid, "query": {"q": "reach", "unit": r["unit"]}})["view"]
+    me = next(x for x in r["units"] if x["id"] == r["unit"])
+    turn = [o for o in v["options"] if o["hex"] == me["hex"] and o["facing"] != me["facing"] and o["mp"] == 0]
+    assert v["standup_mp"] == r["run"] - 2 and len(turn) == 5, "after standing every other facing is free: " + json.dumps(turn)[:200]
+    o = turn[0]
+    pending.append((r["unit"], o["facing"]))
+    kinds.add("stand_plan_sent")
+    return {"stand": True, "plan": {"hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}}
+
+
+def after_stand(r, k, kinds, pending):
+    """The question after a planned stand: stood -> the planned facing and NO movement question for it."""
+    if not pending:
+        return
+    u, facing = pending.pop()
+    me = next(x for x in r["units"] if x["id"] == u)
+    if me.get("prone"):
+        kinds.add("stand_plan_roll_failed")
+    elif not (k == "movement" and r["unit"] == u) and me["facing"] == facing:
+        kinds.add("stand_plan_ok")
+    else:
+        kinds.add(f"stand_plan_bad: next {k} for {r.get('unit')}, facing {me['facing']} (planned {facing})")
+
+
 KIT = {"teams": [
     {"name": "Red", "colour": "#4b8fd8", "bot": "human", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("meks/3050U/Caesar CES-4R.mtf", "meks/3055U/Stealth STH-2D2.mtf", "meks/Golden Century/Minsk 2.mtf", "meks/3058Uu/Spartan SPT-N1.mtf")]},
     {"name": "Blue", "colour": "#d86a4b", "bot": "gladiator", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("Atlas AS7-K.mtf", "Awesome AWS-8Q.mtf")]}],
@@ -146,6 +178,7 @@ KIT = {"teams": [
 def kit_game(lab, kinds):
     """A game with MASC, TAG, coolant pods and AMS on the person's side: the rarer questions, every mode and switch answered."""
     gid = lab.api("play_start", {"setup": KIT, "seed": 7})["game"]
+    pending = []
     for _ in range(20000):
         p = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
         if p["state"] == "waiting":
@@ -157,12 +190,13 @@ def kit_game(lab, kinds):
         r, seq = p["request"], p["seq"]
         k = r["kind"]
         kinds.add(k)
+        after_stand(r, k, kinds, pending)
         if k == "deploy":
             ans = {"hex": r["hexes"][0], "facing": "N"}
         elif k == "move_order":
             ans = {"unit": r["candidates"][0]}
         elif k == "stand_up":
-            ans = {"stand": True}
+            ans = stand_with_plan(lab, gid, r, kinds, pending)
         elif k == "boost":
             ans = {"use": True}
         elif k == "movement":
@@ -183,6 +217,8 @@ def kit_game(lab, kinds):
         elif k == "target":
             ans = {"target": None if r.get("secondary") else r["enemies"][0]["id"]}
         elif k == "declaration":
+            # TAG is used in its own step before the Ranged Attack Phase (Core p.200; bug B11): never a row of the weapon list
+            assert not any(w["name"].endswith("TAG") for w in r["weapons"]), "TAG offered as a ranged weapon: " + str([w["name"] for w in r["weapons"]])
             modes = {str(w["id"]): w["modes"][-1]["label"] for w in r["weapons"] if w["modes"]}
             shots = {str(w["id"]): w["rates"][-1]["shots"] for w in r["weapons"] if w["rates"]}
             rows = lab.api("play_query", {"game": gid, "query": {"q": "set", "unit": r["unit"], "modes": modes, "shots": shots}})["weapons"] if (modes or shots) else r["weapons"]
@@ -226,6 +262,8 @@ def main():
         end3 = kit_game(lab, kk)
         check({"boost", "declaration", "end_phase", "spot"} <= kk, f"a game with MASC, TAG, coolant pods and AMS on the person's side: questions {sorted(kk)}", failures)
         check(end3["winner"] in ("Red", "Blue", "Draw"), f"... and it ends: {end3['winner']} after {end3['turns']} turns", failures)
+        sp = sorted(x for x in kk if x.startswith("stand_plan"))
+        check("stand_plan_ok" in kk or "stand_plan_roll_failed" in kk, f"a stand planned together with its move (turning in place) stands and moves with no second question (A2; {sp})", failures)
     finally:
         proc.kill()
     if failures:

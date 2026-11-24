@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 35), BATTLEROM BUG HUNT: five of Daniel's play bugs fixed (Section 24 items 2, 10, 11 for TAG, 13, 15). REVIEW PENDING (higher-level model).** Daniel: "Start the
+  bug hunt. Nuke them from orbit authorized." (1) B15 + B10, "skip TAG ended my firing phase": a page bug, not TAG. After Fire! the page answers the engine's questions from the plan; the engine
+  asks "another target?" only while another enemy can be a secondary target (`Screen::secondary` returns at once when none can), so with one enemy left the plan stayed open and answered that
+  'Mech's next target question, a turn later, with "hold fire" by itself. The plan now records the number of the last question it answered and acts only on the next one; any other kind of
+  question ends it (`play.js` `scriptLive`). Reproduced with Daniel's case (one Raven RVN-3L v one Atlas, seed 5: Skip TAG on turn 4, then the page held fire on its own) and kept as
+  `check_web_play.py` part 5 (fails on the old page: 1 auto-answer; passes now). (2) A2: standing up is planned with the move. While the stand_up question waits the page can ask
+  "reach" / "path" for the moves after a first-try stand (2 MP, any facing free, Core p.51) and answers {stand, plan}; nothing is rolled until Move! is held, and x goes back to the
+  prone choice (`play_session.rs` `Screen::stand_plan`, used as the movement question's preset only right after that unit stood). Turning in place: the 'Mech's own token covered its
+  hex, so it could never be picked; a tap on the 'Mech now picks it, and with nothing chosen the turn arrows ring the 'Mech (any move). (3) B11: TAG left the person's ranged weapon list
+  (Core p.200: its attack is its own step before the Ranged Attack Phase; the bots never fired it there, so no battle result changes). (4) B13: a long press on a unit opens its
+  Inspector (friend or enemy; Daniel's ruling of 2026-11-24) instead of the hex card, on the map and on the strip chips, and a press may wobble 10 px (it was cancelled at 2 px, so on a
+  phone it never fired). Tests: `check_play.py` (a stand planned with a turn in place, no TAG row), `check_web_play.py` part 5. Found, not built: a 'Mech that stays prone may still turn
+  at 1 MP a hexside (p.51); the engine gives it no move. Reference battles unchanged.
+
 - **2026-11-24 (Claude), BATTLEROM PLAY UI: design session, docs and a sketch only (no engine or page code changed). REVIEW PENDING (higher-level model).** Daniel's goal list recorded as PROJECT_MAP
   Section 0 items P1-P14 (custom units on the website, saved starting conditions, long-press play UI, alternate timelines, download upkeep and button, peer to peer, MegaMek bridge from the website,
   the BTTT raid with licence note, Elo tournaments with BV-blind ratings, one order format, tournament setup in the Lab, a joke "Pay Your Bills" button, community cross-links, isometric map view).

@@ -211,7 +211,11 @@ const POLICY = (r) => {
     };
     if (st.kind === 'deploy') { await page.locator('[data-deploy]').first().dispatchEvent('click'); await page.waitForSelector('[data-act="place"]'); await holdBtn(page, 'place'); }
     else if (st.kind === 'move_order') await tap('pick-unit');
-    else if (st.kind === 'stand_up') await tap('stand', '[data-v="1"]');
+    else if (st.kind === 'stand_up') {
+      // standing is planned with the move (bug A2): Stand up opens the plan, nothing is rolled until Move! is held
+      await tap('stand-plan'); await page.waitForFunction(() => !!window.__bm.mv, null, { timeout: 20000 });
+      await holdBtn(page, 'commit');
+    }
     else if (st.kind === 'boost') await tap('boost', '[data-v="0"]');
     else if (st.kind === 'movement') {
       const hex = await page.evaluate(() => { const r = window.__bm.req; const o = r.options.filter((x) => x.mode === 'Walk').sort((a, b) => b.mp - a.mp)[0] || r.options[0]; return o && o.hex; });
@@ -292,6 +296,54 @@ const POLICY = (r) => {
     await page.waitForTimeout(60);
   }
   out.page = { pop: out.pop, leak: out.leak, over, kinds: [...kinds], arrow: out.arrow, panel: out.panel, way: out.way, target: out.target, tapIgnored: out.tapIgnored };
+  // ---- 5: a Fire! plan never answers a LATER question by itself (Daniel's bugs B10 / B15, 2026-11-22: "skip TAG ended my firing
+  // phase"). One Raven (it carries TAG) against one Atlas: each turn the real "Skip TAG" button, then a weapon and the real Fire!
+  // button. With one enemy the engine never asks "another target?", so the old page kept the plan and answered the Raven's NEXT
+  // target question with "hold fire" by itself. Every answer the page sends is logged with whether a tap made it.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  const SOLO = { teams: [
+    { name: "Red", colour: "#4b8fd8", bot: "human", units: [{ unit: "meks/3050U/Raven RVN-3L.mtf", gunnery: 4, piloting: 5 }] },
+    { name: "Blue", colour: "#d86a4b", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf", gunnery: 4, piloting: 5 }] }],
+    board: "16x17_Grassland_1.board", battles: 1, seed: 5, max_turns: 10 };
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  await page.evaluate(() => { const o = window.send; window.__sent = []; window.__tap = false; window.send = (a) => { __sent.push({ kind: __bm.req && __bm.req.kind, unit: __bm.req && __bm.req.unit, tap: window.__tap }); window.__tap = false; return o(a); }; });
+  const tapSel = async (sel) => { await page.evaluate(() => { window.__tap = true; }); await page.locator(sel).first().click(); };
+  const solo = { fired: 0, tags: 0, over: false };
+  let last = -1;
+  for (let step = 0; step < 400; step++) {
+    await page.waitForFunction((l) => window.__bm && ((window.__bm.req && window.__bm.seq !== l) || window.__bm.over), last, { timeout: 120000 });
+    const st = await page.evaluate(() => ({ kind: __bm.req && __bm.req.kind, over: __bm.over, seq: __bm.seq }));
+    if (st.over) { solo.over = true; break; }
+    last = st.seq;
+    if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+    if (st.kind === 'tag') { solo.tags++; await tapSel('[data-act="tag"][data-id=""]'); }
+    else if (st.kind === 'target') {
+      await page.waitForFunction(() => !__bm.req || __bm.req.kind !== 'target' || (__bm.fire && __bm.fire.pvt.size), null, { timeout: 20000 }).catch(() => {});
+      const ok = await page.evaluate(() => { const F = __bm.fire; if (!F) return false; for (const [id, t] of F.pvt) { const w = t.req && t.req.weapons.find((x) => x.in_range); if (w) { setTcur(id); __bm.decl.sel.add(w.id); syncAssign(); return true; } } return false; });
+      if (ok) { solo.fired++; await tapSel('[data-act="fire-go"]'); } else if (await page.evaluate(() => !!(__bm.req && __bm.req.kind === 'target'))) await tapSel('[data-act="hold"]');
+    }
+    else await page.evaluate(() => { window.__tap = true; const r = __bm.req, k = r.kind;
+      if (k === "deploy") send({ hex: r.hexes[0], facing: "N" });
+      else if (k === "move_order") send({ unit: r.candidates[0] });
+      else if (k === "movement") {   // close in on the Atlas (the Raven's own guns reach 9 hexes)
+        const foe = __bm.units.find((u) => u.team !== __bm.myTeam && u.hex && !u.destroyed);
+        const o = r.options.slice().sort((a, b) => (foe ? dist(a.hex, foe.hex) - dist(b.hex, foe.hex) : 0) || b.mp - a.mp)[0];
+        send(o ? { hex: o.hex, facing: o.facing, mode: o.mode } : { stay: true }); }
+      else if (k === "stand_up") send({ stand: true });
+      else if (k === "physical") send({ kind: null });
+      else if (k === "end_phase") send({});
+      else if (k === "declaration") send({ weapons: [] });
+      else send({ target: null, use: false }); });
+  }
+  const sent = await page.evaluate(() => __sent);
+  // a target answer nobody tapped is right only as the plan's "no more targets" straight after its own declaration
+  solo.auto = sent.filter((x, i) => x.kind === 'target' && !x.tap && !(i > 0 && sent[i - 1].kind === 'declaration' && sent[i - 1].unit === x.unit)).length;
+  out.solo = solo;
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
 })();
@@ -376,6 +428,8 @@ def main():
         report(pn.get("rear", 0) > 0 and pn.get("report") and pn.get("line", 0) > 0, f"the Armor tab shows rear-armour pips, Report sits on the detail header with REC in the title bar, and the fire step draws the range line ({pn})")
         wy = out["page"].get("way") or {}
         report(wy.get("n") == 2 and wy.get("marks", 0) >= 2 and wy.get("afterUndo") == 1, f"two waypoints can be planned and undone one by one ({wy})")
+        so = out.get("solo") or {}
+        report(so.get("over") and so.get("fired", 0) >= 2 and so.get("tags", 0) >= 2 and so.get("auto") == 0, f"after Skip TAG and Fire! the page never answers a later fire question by itself (B10 / B15; {so})")
         pg = out["page"]
         report(pg["over"] and {"deploy", "movement", "target"} <= set(pg["kinds"]), f"the real play page played a whole battle by taps (questions seen: {sorted(pg['kinds'])})")
         report(not out["errors"], "no page error" + (": " + "; ".join(out["errors"][:3]) if out["errors"] else ""))

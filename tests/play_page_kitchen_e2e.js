@@ -24,7 +24,8 @@ const U = (n) => ({ unit: n, gunnery: 4, piloting: 5 });
     seen[st.kind] = (seen[st.kind] || 0) + 1;
     switch (st.kind) {
       case 'move_order': await click('[data-act=pick-unit]'); break;
-      case 'stand_up': await shot('stand_up'); await click('[data-act=stand][data-v="1"]'); break;
+      case 'stand_up': { await shot('stand_up'); await click('[data-act=stand-plan]'); await page.waitForFunction(() => !!window.__bm.mv); await shot('stand_plan');
+        const bb = await page.locator('[data-act=commit]').first().boundingBox(); await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await page.mouse.down(); await page.waitForTimeout(800); await page.mouse.up(); break; }
       case 'boost': await shot('boost'); await click('[data-act=boost][data-v="1"]'); break;
       case 'movement': {
         if (st.nat && !seen._atk) {
