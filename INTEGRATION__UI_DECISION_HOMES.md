@@ -117,8 +117,8 @@ gets a map button or a confirm popup (it appears only when relevant); a rare act
 | F2 | Cycle targets in range | Every turn | Weapons panel header arrows | |
 | F3 | Pick secondary targets (split fire, +1 TN each) | Sometimes | Map: tap another enemy; each target gets its own line | stub picks spare weapons |
 | F4 | Focus a weapon (see its arcs and bands) | Every turn | Weapons panel (tap the name) | selecting must never fire it |
-| F5 | Assign a weapon to the target | Every turn | Weapons panel (target symbol) | groups by name, arc, bin, mode, TN |
-| F6 | Fire or hold each weapon | Every turn | Weapons panel | shows heat projection |
+| F5 | Assign a weapon to the target: tap the symbol, or drag down the symbol column to paint several | Every turn | Weapons panel (target symbol) | groups by name, arc, bin, mode, TN. Drag rules: the first row touched sets assign or unassign for the whole drag; only the symbol column paints, the rest of the row scrolls; a still press opens the weapon card, a moving one paints; auto-scroll at the panel edge; one drag is one undo step; a grouped row takes one weapon per pass (test on a phone) |
+| F6 | Fire or hold each weapon (same tap / drag as F5; nothing fires until Fire!) | Every turn | Weapons panel | shows heat projection |
 | F7 | Strike escalation: smart, everything at target, all targets | Every turn | Weapons panel Strike button | one tap per step; personality text |
 | F8 | Weapon mode: LRM direct / indirect, rate of fire, charge, TAG aim | Sometimes | Weapons panel row mode button | rate of fire, capacitor are stubs |
 | F9 | Munition kind (LB-X, ATM, MML, Artemis, Narc, inferno, AC specials) | Sometimes | Weapons panel row ammo button | bin and kind are linked |
@@ -179,6 +179,11 @@ gets a map button or a confirm popup (it appears only when relevant); a rare act
 2. **Weapons panel: stays on screen in the fire phase?** I assumed yes (the weapons list is the heart of that phase and has
    grouping, sort, per-weapon TN). The summaries' "weapons arranged around the target by body location" would replace it.
    My view: keep the list for assigning, and show body location as a column in the Inspector's Weapons card.
+   UPDATE 2026-11-24: Daniel is working out how his location-based weapon layout would work. Worst case to fit: **5 columns
+   by 14 rows** of weapons, plus the target 'Mech and the extra buttons, on a phone. Questions to settle on paper first:
+   what the 5 columns are (body locations: arms, side torsos, centre torso / head, legs?), how a weapon in a crowded
+   location shows its mode and ammo buttons, whether the grouping rule (same name, arc, bin, mode, TN) still applies per
+   location, how sort works, and how the drag-to-paint gesture (F5) runs in a grid (row-wise, column-wise, or both).
 3. **Long press:** unit -> Inspector, empty hex -> hex card, weapon row -> that weapon's card, placard warning mark ->
    Inspector. Any conflict with drag-to-move: a long press needs to be still, a drag cancels it (summary's rule).
 4. **T4:** is "stand still" a Move! with no path, or its own Done button?
