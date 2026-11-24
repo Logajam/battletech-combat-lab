@@ -828,8 +828,8 @@ goes on: (1) a 'Mech that stays prone may still change facing at 1 MP a hexside 
 Initiative Die (Core, Initiative Phase section); (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
 item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
 the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
-(only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) Engine bug found with it: `weapon_attack_tns` with
-`at_hex` (TAG at the hex) drops the target's modifiers but never adds the -4, so TAG at a hex is 4 too hard; changing it changes bot TAG choices.
+(only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) DONE 2026-11-24: `weapon_attack_tns` with `at_hex`
+(TAG at the hex) now takes the -4 and leaves out the target hex's woods / smoke (p.64-66; not for area-effect weapons, p.180). No reference battle changed.
 Also: dropping to the ground, voluntary shutdown, eject (no homes yet, DECISION_HOMES Section 10 item 6).
 
 **SESSION 35 WORK ORDER (Daniel, 2026-11-24), in this order, then publish the website:** (1) the design-record audit only (Section 24 item 25);

@@ -433,7 +433,7 @@ pub fn weapon_attack_parts(b: &mut Battle, attacker: UnitId, target: UnitId, w: 
     let mut parts: Vec<(String, i64)> = vec![
         ("gunnery".into(), a.gunnery),
         (format!("AMM [{}]", a.move_mode), combat::mode_to_amm(&a.move_mode)),
-        ("LOS".into(), trace.result.modifier),
+        ("LOS".into(), if at_hex { trace.result.modifier - trace.steps.last().map_or(0, |st| st.woods_contrib) } else { trace.result.modifier }),
         ("heat".into(), a.heat_fire_modifier),
     ];
     let own_gear = equip::own_attack_modifier(a) + cond_mod;
@@ -441,7 +441,7 @@ pub fn weapon_attack_parts(b: &mut Battle, attacker: UnitId, target: UnitId, w: 
         parts.push(("own condition".into(), own_gear));
     }
     if at_hex {
-        parts.push(("hex aim".into(), 0));
+        parts.push(("immobile (hex)".into(), IMMOBILE_TMM));
     } else {
         let t = &b.units[target];
         parts.push(("TMM".into(), target_tmm(t)));
@@ -490,13 +490,17 @@ pub fn weapon_attack_tns(b: &mut Battle, attacker: UnitId, target: UnitId, weapo
     unavailable.extend(arc_unavailable(&b.units[attacker], &key));
     unavailable.extend(shielded_weapon_ids(&b.units[attacker]));
     let distance = hex_distance(a_hex, t_hex);
+    // AIMED AT THE HEX (Core p.64-66): a hex is an immobile target (-4), and the terrain in the target hex adds nothing (its woods
+    // and smoke come back out of the line-of-sight sum); area-effect weapons never take the -4 (p.180). Engine pass, 2026-11-24
+    // (Daniel's session 35 work order): before this, a TAG aimed at a hex had no -4 and paid for the woods it stood in.
+    let los_mod = if at_hex { trace.result.modifier - trace.steps.last().map_or(0, |st| st.woods_contrib) } else { trace.result.modifier };
     let own = if at_hex {
-        0
+        IMMOBILE_TMM
     } else {
         target_tmm(&b.units[target]) + equip::void_signature_modifier(&b.units[target], None, None) + prone_target_modifier(&b.units[target], distance)
     };
     let a = &b.units[attacker];
-    let pre_tn = a.gunnery + combat::mode_to_amm(&a.move_mode) + trace.result.modifier + a.heat_fire_modifier + equip::own_attack_modifier(a) + cond_mod + own;
+    let pre_tn = a.gunnery + combat::mode_to_amm(&a.move_mode) + los_mod + a.heat_fire_modifier + equip::own_attack_modifier(a) + cond_mod + own;
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, None, cover), &b.units[attacker], a_water);
     let mut tns = Vec::new();
     for &w in weapons {
@@ -505,7 +509,8 @@ pub fn weapon_attack_tns(b: &mut Battle, attacker: UnitId, target: UnitId, weapo
             continue;
         }
         let br = weapon_selection::range_bracket(b, attacker, w, distance);
-        tns.push((w, pre_tn + rm.unwrap() + adjust.adjust(b, w, br, None)));
+        let area_fix = if at_hex && wp::is_art_cannon(b, attacker, w) { -IMMOBILE_TMM } else { 0 };
+        tns.push((w, pre_tn + rm.unwrap() + adjust.adjust(b, w, br, None) + area_fix));
     }
     Some((tns, distance, cond_note))
 }
