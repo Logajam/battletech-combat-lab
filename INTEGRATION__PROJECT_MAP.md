@@ -102,6 +102,18 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - P3. Play UI: when playing, rely on long presses to open extra options (touch-first; see O1 / `INTEGRATION__BATTLEROM_UI.md`).
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
+- P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
+  branch each time code changes; the public-repo front-page link (E6) is still held until Daniel says so.
+- Secondary wants (Daniel, 2026-11-24, same day):
+  - P6. Peer-to-peer connection from the website ("pier to pier"). Needs the player UI up to snuff first (P3 / O1); not a
+    concern yet.
+  - P7. Bridge connection to MegaMek from the website (the bridge exists for the desktop, `INTEGRATION__MEGAMEK_BRIDGE.md`).
+  - P8. BTTT raid ("go through BTTT's pockets for loose change"): look at what BTTT does that we don't; study its bot ("kidnap
+    their bot") and decide whether it is worth adding to the bot collection; borrow its beveled hexes for level changes. Open:
+    which project "BTTT" is (no repo or doc in this project names it; ask Daniel for the link), and licence terms before any
+    borrowing (`CREDITS.md`, GPL v3 or later; never copy code or art without checking its licence).
+  - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
+    plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
