@@ -37,7 +37,7 @@
   Deployment roll: Red 5, Blue 4, Green 7 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative order (acts first to last): Blue, Red, Green.
+  Initiative order (acts first to last): Blue, Red, Green (rolled Red 8, Blue 2, Green 10).
   [Movement select] Blue 3: score 106.188 = dealt 10.95 x1.00 + (HP 484.0 - received 15.38 x1.00 - PSR 0.00) / enemies' future on me 43.17 x my best future 8.77 [two-ply, 42 of 61 spots (grid search) x 185 replies (short list); modeled reply Green 2 -> 0611 SE Run]
   [Movement] Blue 3: 1317 N -> 1516 NE, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 1: Princess (modern, attack): utility -43.41 = -fall 0.00 + bravery 12.09 [1.00 x 12.39 x 1.5 - taken 6.50] - aggression 47.50 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [101 of 101 spots; 12 enemies, nearest still to move]
@@ -200,7 +200,7 @@
   -- end of turn 1: Green 9 @ 0403 NE: HP 107, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative order (acts first to last): Red, Green, Blue.
+  Initiative order (acts first to last): Red, Green, Blue (rolled Red 8, Blue 11, Green 10).
   [Movement select] Red 1: Princess (modern, defend): utility -0.62 = -fall 0.00 + bravery -0.62 [1.00 x 12.75 x 1.5 - taken 19.75] - aggression 0.00 + close range 0.00 - facing 0 + hold 0.00 [67 of 67 spots; 12 enemies, nearest still to move]
   [Movement] Red 1: 2401 SW -> 2401 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Green 2: Princess (modern, defend): utility -26.43 = -fall 0.00 + bravery -25.25 [1.00 x 5.00 x 1.5 - taken 32.75] - aggression 0.00 + close range 7.82 - mutual support 9.00 - facing 0 + hold 0.00 [124 of 149 spots; 6 enemies, nearest still to move]
@@ -395,7 +395,7 @@ FALL (failed Attack Phase PSR): Cataphract CTF-3D takes 7 falling damage (1D6 1:
   -- end of turn 2: Green 9 @ 0403 NE: HP 107, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 7, Blue 8, Green 7; tie re-rolled Red 4, Green 3).
   [Movement select] Green 2: Princess (modern, defend): utility -33.59 = -fall 0.00 + bravery -30.50 [1.00 x 5.00 x 1.5 - taken 38.00] - aggression 0.00 + close range 3.91 - mutual support 7.00 - facing 0 + hold 0.00 [89 of 111 spots; 6 enemies, nearest still to move]
   [Movement] Green 2: 0510 N -> 0410 SE, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Green 8: Princess (modern, defend): utility -40.43 = -fall 0.00 + bravery -39.25 [1.00 x 2.50 x 1.5 - taken 43.00] - aggression 0.00 + close range 1.82 - mutual support 3.00 - facing 0 + hold 0.00 [163 of 232 spots; 6 enemies, nearest still to move]
@@ -616,7 +616,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
   -- end of turn 3: Green 9 @ 0403 NE: HP 107, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative order (acts first to last): Green, Blue, Red.
+  Initiative order (acts first to last): Green, Blue, Red (rolled Red 9, Blue 9, Green 4; tie re-rolled Red 8, Blue 5).
   [Movement select] Green 2: Princess (modern, defend): utility -30.34 = -fall 0.00 + bravery -29.25 [1.00 x 7.50 x 1.5 - taken 40.50] - aggression 0.00 + close range 3.91 - mutual support 5.00 - facing 0 + hold 0.00 [131 of 200 spots; 6 enemies, nearest still to move]
   [Movement] Green 2: 0410 SE -> 0410 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility -29.52 = -fall 0.00 + bravery -34.25 [1.00 x 7.50 x 1.5 - taken 45.50] - aggression 0.00 + close range 4.73 - facing 0 + hold 0.00 [108 of 132 spots; 6 enemies, nearest still to move]
@@ -981,7 +981,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   -- end of turn 4: Green 9 @ 0403 NE: HP 107, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
-  Initiative order (acts first to last): Blue, Red, Green.
+  Initiative order (acts first to last): Blue, Red, Green (rolled Red 10, Blue 9, Green 10; tie re-rolled Red 9, Green 9; tie re-rolled Red 7, Green 10).
   [Movement select] Blue 2: score 742.141 = dealt 47.27 x1.00 + (HP 319.0 - received 1.40 x1.00 - PSR 0.00) / enemies' future on me 9.69 x my best future 21.20 [two-ply, 132 of 516 spots (grid search) x 650 replies (short list); modeled reply Green 6 -> 1207 S Run]
   [Movement] Blue 2: 1817 NW -> 1817 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red 1: Princess (modern, defend): utility 15.85 = -fall 0.00 + bravery 3.12 [1.00 x 15.75 x 1.5 - taken 20.50] - aggression 0.00 + close range 12.73 - facing 0 + hold 0.00 [77 of 77 spots; 12 enemies, nearest still to move]
@@ -1276,7 +1276,7 @@ FALL (automatic fall): Commando COM-2D takes 3 falling damage (1D6 2: front tabl
   -- end of turn 5: Green 9 @ 0701 SE: HP 77, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
 
 === TURN 6 ===
-  Initiative order (acts first to last): Red, Blue, Green.
+  Initiative order (acts first to last): Red, Blue, Green (rolled Red 2, Blue 4, Green 7).
   [Movement select] Red 1: Princess (modern, attack): utility -1.90 = -fall 0.00 + bravery -2.12 [1.00 x 15.75 x 1.5 - taken 25.75] - aggression 12.50 + close range 12.73 - facing 0 + hold 0.00 [71 of 71 spots; 12 enemies, nearest still to move]
   [Movement] Red 1: 2401 S -> 2401 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 2: score 789.922 = dealt 31.51 x1.00 + (HP 319.0 - received 2.20 x1.00 - PSR 0.00) / enemies' future on me 7.58 x my best future 18.14 [two-ply, 132 of 536 spots (grid search) x 483 replies (short list); modeled reply: none with LOS]
@@ -1367,7 +1367,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 6: Green 9 @ 0701 SE: HP 74, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 7 ===
-  Initiative order (acts first to last): Blue, Red, Green.
+  Initiative order (acts first to last): Blue, Red, Green (rolled Red 6, Blue 2, Green 7).
   [Movement select] Blue 2: score 770.403 = dealt 47.27 x1.00 + (HP 319.0 - received 2.15 x1.00 - PSR 0.00) / enemies' future on me 6.90 x my best future 15.75 [two-ply, 132 of 536 spots (grid search) x 59 replies (short list); modeled reply Green 1 -> 1003 SE Run]
   [Movement] Blue 2: 1817 NW -> 1817 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 3: score 147.069 = dealt 23.67 x1.00 + (HP 432.0 - received 29.85 x1.00 - PSR 0.00) / enemies' future on me 42.91 x my best future 13.17 [two-ply, 54 of 102 spots (grid search) x 1044 replies (short list); modeled reply Green 6 -> 2206 SW Jump]
@@ -1494,7 +1494,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 7: Green 9 @ 0701 SE: HP 52, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 8 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 7, Blue 8, Green 4).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 11.
   Success - Commando COM-2D is standing (remaining running MP 0).
   [Movement select] Green 9: Princess (modern, defend): utility -73.50 = -fall 0.00 + bravery -28.00 [1.00 x 0.00 x 1.5 - taken 28.00] - aggression 42.50 + close range 0.00 - mutual support 3.00 - facing 0 + hold 0.00 [6 of 6 spots; 5 enemies, nearest still to move]
@@ -1681,7 +1681,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   -- end of turn 8: Green 9 @ 0701 N: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 5, Blue 7, Green 4).
   [Movement select] Green 9: Princess (modern, defend): utility -73.50 = -fall 0.00 + bravery -28.00 [1.00 x 0.00 x 1.5 - taken 28.00] - aggression 42.50 + close range 0.00 - mutual support 3.00 - facing 0 + hold 0.00 [6 of 6 spots; 5 enemies, nearest still to move]
   [Movement] Green 9: 0701 N -> 0701 SW, Run (2 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, defend): utility -29.00 = -fall 0.00 + bravery -28.00 [1.00 x 0.00 x 1.5 - taken 28.00] - aggression 0.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [31 of 47 spots; 5 enemies, nearest still to move]
@@ -2081,7 +2081,7 @@ FALL (failed Attack Phase PSR): Kintaro KTO-19 takes 6 falling damage (1D6 1: re
   -- end of turn 9: Green 9 @ 0701 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
-  Initiative order (acts first to last): Blue, Green, Red.
+  Initiative order (acts first to last): Blue, Green, Red (rolled Red 5, Blue 2, Green 3).
   [Movement select] Blue 3: score 135.096 = dealt 10.97 x1.00 + (HP 432.0 - received 17.64 x1.00 - PSR 0.00) / enemies' future on me 41.42 x my best future 12.41 [two-ply, 75 of 102 spots (grid search) x 484 replies (short list); modeled reply Green 7 -> 1508 S Run]
   [Movement] Blue 3: 1415 NE -> 1515 N, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 2: score 933.302 = dealt 22.45 x1.00 + (HP 319.0 - received 1.55 x1.00 - PSR 0.00) / enemies' future on me 5.83 x my best future 16.74 [two-ply, 173 of 538 spots (grid search) x 59 replies (short list); modeled reply Green 1 -> 1003 SE Run]
@@ -2340,7 +2340,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 10: Green 9 @ 0601 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 11 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 8, Blue 12, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -65.75 = -fall 0.00 + bravery -17.75 [1.00 x 0.00 x 1.5 - taken 17.75] - aggression 45.00 + close range 0.00 - mutual support 3.00 - facing 0 + hold 0.00 [8 of 12 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0601 SW -> 0502 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, attack): utility -40.68 = -fall 0.00 + bravery -18.50 [1.00 x 3.00 x 1.5 - taken 23.00] - aggression 25.00 + close range 7.82 - mutual support 5.00 - facing 0 + hold 0.00 [112 of 155 spots; 3 enemies, nearest still to move]
@@ -2524,7 +2524,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   -- end of turn 11: Green 9 @ 0502 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 12 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 9, Blue 11, Green 7).
   [Movement select] Green 9: Princess (modern, defend): utility -68.50 = -fall 0.00 + bravery -23.00 [1.00 x 0.00 x 1.5 - taken 23.00] - aggression 42.50 + close range 0.00 - mutual support 3.00 - facing 0 + hold 0.00 [8 of 12 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0502 SW -> 0402 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility -11.68 = -fall 0.00 + bravery -15.50 [1.00 x 5.00 x 1.5 - taken 23.00] - aggression 0.00 + close range 7.82 - mutual support 4.00 - facing 0 + hold 0.00 [117 of 144 spots; 3 enemies, nearest still to move]
@@ -2773,7 +2773,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 2.
   -- end of turn 12: Green 9 @ 0402 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 13 ===
-  Initiative order (acts first to last): Green, Blue, Red.
+  Initiative order (acts first to last): Green, Blue, Red (rolled Red 10, Blue 8, Green 5).
   [Movement] Green 5: all crew unconscious - skips movement (immobile).
   [Movement select] Green 9: Princess (modern, defend): utility -65.50 = -fall 0.00 + bravery -19.00 [1.00 x 0.00 x 1.5 - taken 19.00] - aggression 42.50 + close range 0.00 - mutual support 4.00 - facing 0 + hold 0.00 [8 of 13 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0402 SW -> 0303 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
@@ -2933,7 +2933,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 2.
   -- end of turn 13: Green 9 @ 0303 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 14 ===
-  Initiative order (acts first to last): Green, Blue, Red.
+  Initiative order (acts first to last): Green, Blue, Red (rolled Red 11, Blue 9, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -68.00 = -fall 0.00 + bravery -19.00 [1.00 x 0.00 x 1.5 - taken 19.00] - aggression 45.00 + close range 0.00 - mutual support 4.00 - facing 0 + hold 0.00 [8 of 13 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0303 SW -> 0203 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -38.09 = -fall 0.00 + bravery -15.50 [1.00 x 5.00 x 1.5 - taken 23.00] - aggression 17.50 + close range 5.91 - mutual support 11.00 - facing 0 + hold 0.00 [110 of 164 spots; 3 enemies, nearest still to move]
@@ -3160,7 +3160,7 @@ FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 2: fr
   -- end of turn 14: Green 9 @ 0203 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 15 ===
-  Initiative order (acts first to last): Blue, Red, Green.
+  Initiative order (acts first to last): Blue, Red, Green (rolled Red 5, Blue 2, Green 8).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Success - Awesome AWS-8Q is standing (remaining running MP 3).
   [Movement select] Blue 3: score 50.768 = dealt 3.34 x1.00 + (HP 332.0 - received 21.77 x1.00 - PSR 0.00) / enemies' future on me 46.19 x my best future 7.06 [two-ply, 27 of 40 spots (grid search) x 50 replies (short list); modeled reply Red 1 -> 2305 SW Walk]
@@ -3230,7 +3230,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 15: Green 9 @ 0104 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 16 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 9, Blue 12, Green 9; tie re-rolled Red 10, Green 6).
   [Movement select] Green 9: Princess (modern, attack): utility -71.50 = -fall 0.00 + bravery -18.00 [1.00 x 0.00 x 1.5 - taken 18.00] - aggression 42.50 + close range 0.00 - mutual support 11.00 - facing 0 + hold 0.00 [7 of 8 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0104 SW -> 0203 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0) - includes a backward move
   [Movement select] Green 1: Princess (modern, attack): utility -22.60 = -fall 0.00 + bravery -6.38 [1.00 x 8.25 x 1.5 - taken 18.75] - aggression 12.50 + close range 8.27 - mutual support 12.00 - facing 0 + hold 0.00 [124 of 124 spots; 3 enemies, nearest still to move]
@@ -3313,7 +3313,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 16: Green 9 @ 0203 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 17 ===
-  Initiative order (acts first to last): Green, Blue, Red.
+  Initiative order (acts first to last): Green, Blue, Red (rolled Red 8, Blue 7, Green 6).
   [Movement select] Green 9: Princess (modern, defend): utility -59.00 = -fall 0.00 + bravery -18.00 [1.00 x 0.00 x 1.5 - taken 18.00] - aggression 40.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [8 of 12 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0203 SW -> 0303 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0) - includes a backward move
   [Movement select] Green 1: Princess (modern, defend): utility -13.10 = -fall 0.00 + bravery -9.38 [1.00 x 8.25 x 1.5 - taken 21.75] - aggression 0.00 + close range 8.27 - mutual support 12.00 - facing 0 + hold 0.00 [124 of 124 spots; 3 enemies, nearest still to move]
@@ -3481,7 +3481,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 5.
   -- end of turn 17: Green 9 @ 0303 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 18 ===
-  Initiative order (acts first to last): Green, Red, Blue.
+  Initiative order (acts first to last): Green, Red, Blue (rolled Red 8, Blue 9, Green 7).
   [Movement select] Green 9: Princess (modern, defend): utility -15.25 = -fall 0.00 + bravery -14.25 [1.00 x 0.00 x 1.5 - taken 14.25] - aggression 0.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [7 of 13 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0303 SW -> 0303 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, defend): utility -9.73 = -fall 0.00 + bravery -6.00 [1.00 x 7.50 x 1.5 - taken 17.25] - aggression 0.00 + close range 8.27 - mutual support 12.00 - facing 0 + hold 0.00 [136 of 136 spots; 3 enemies, nearest still to move]
@@ -3588,7 +3588,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   -- end of turn 18: Green 9 @ 0303 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 19 ===
-  Initiative order (acts first to last): Blue, Green, Red.
+  Initiative order (acts first to last): Blue, Green, Red (rolled Red 10, Blue 4, Green 9).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 4.
   Failed to stand.
 FALL (failed to stand): Awesome AWS-8Q takes 8 falling damage (1D6 3: front table, 5-pt clusters).
@@ -3723,7 +3723,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 19: Green 9 @ 0303 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 20 ===
-  Initiative order (acts first to last): Green, Blue, Red.
+  Initiative order (acts first to last): Green, Blue, Red (rolled Red 11, Blue 10, Green 9).
   [Movement select] Green 9: Princess (modern, defend): utility -22.25 = -fall 0.00 + bravery -14.25 [1.00 x 0.00 x 1.5 - taken 14.25] - aggression 0.00 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [7 of 13 spots; 3 enemies, nearest still to move]
   [Movement] Green 9: 0303 SW -> 0303 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, defend): utility -2.55 = -fall 0.00 + bravery -9.00 [1.00 x 5.50 x 1.5 - taken 17.25] - aggression 0.00 + close range 9.45 - mutual support 3.00 - facing 0 + hold 0.00 [201 of 202 spots; 3 enemies, nearest still to move]
@@ -3882,7 +3882,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 20: Green 9 @ 0303 SW: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 21 ===
-  Initiative order (acts first to last): Blue, Red, Green.
+  Initiative order (acts first to last): Blue, Red, Green (rolled Red 5, Blue 3, Green 8).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
   Failed to stand.
 FALL (failed to stand): Awesome AWS-8Q takes 8 falling damage (1D6 1: rear table, 5-pt clusters).
@@ -4121,7 +4121,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 21: Green 9 @ 0303 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 22 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 9, Green 6).
   [Movement select] Green 9: Princess (modern, attack): utility -59.25 = -fall 0.00 + bravery -10.25 [1.00 x 0.00 x 1.5 - taken 10.25] - aggression 40.00 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [7 of 13 spots; 2 enemies, nearest still to move]
   [Movement] Green 9: 0303 SE -> 0403 SE, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, attack): utility -17.23 = -fall 0.00 + bravery -2.00 [1.00 x 5.50 x 1.5 - taken 10.25] - aggression 12.50 + close range 8.27 - mutual support 11.00 - facing 0 + hold 0.00 [211 of 218 spots; 2 enemies, nearest still to move]
@@ -4205,7 +4205,7 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 9.
   -- end of turn 22: Green 9 @ 0403 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 23 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 9).
 Stand attempt 1: needs 10 (Piloting 5 + +5, incl. -1 for standing). Rolled 5.
   Failed to stand.
 FALL (failed to stand): Awesome AWS-8Q takes 8 falling damage (1D6 5: front table, 5-pt clusters).
@@ -4262,7 +4262,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 23: Green 9 @ 0504 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 24 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 11, Green 6).
   [Movement select] Green 9: Princess (modern, attack): utility -55.25 = -fall 0.00 + bravery -10.25 [1.00 x 0.00 x 1.5 - taken 10.25] - aggression 35.00 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [7 of 11 spots; 2 enemies, nearest still to move]
   [Movement] Green 9: 0504 SE -> 0604 SE, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, attack): utility -4.30 = -fall 0.00 + bravery -2.75 [1.00 x 5.00 x 1.5 - taken 10.25] - aggression 10.00 + close range 9.45 - mutual support 1.00 - facing 0 + hold 0.00 [131 of 131 spots; 2 enemies, nearest still to move]
@@ -4391,7 +4391,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 24: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 25 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 7, Green 7; tie re-rolled Blue 5, Green 5; tie re-rolled Blue 10, Green 2).
   [Movement select] Green 9: Princess (modern, defend): utility -15.25 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 0.00 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 17.25 = -fall 0.00 + bravery 7.12 [1.00 x 8.25 x 1.5 - taken 5.25] - aggression 0.00 + close range 4.73 - mutual support 2.00 - facing 0 + hold 7.40 [91 of 114 spots; enemy still to move]
@@ -4457,7 +4457,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 25: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 6; tie re-rolled Blue 6, Green 7).
   [Movement select] Blue 2: score 480.433 = dealt 5.93 x1.00 + (HP 311.0 - received 0.90 x1.00 - PSR 0.00) / enemies' future on me 3.87 x my best future 5.92 [two-ply, 188 of 1047 spots (grid search) x 136 replies (short list); modeled reply Green 1 -> 1209 N Walk]
   [Movement] Blue 2: 1708 NW -> 2105 SE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -47.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 37.50 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -4492,7 +4492,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 26: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 27 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 12, Green 7).
   [Movement select] Green 9: Princess (modern, attack): utility -51.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 37.50 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -5.28 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 25.00 + close range 7.82 - facing 0 + hold 5.90 [73 of 150 spots; enemy still to move]
@@ -4535,7 +4535,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 27: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 28 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 7, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -56.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -11.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4578,7 +4578,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 28: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 29 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 11, Green 7).
   [Movement select] Green 9: Princess (modern, attack): utility -56.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -11.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4625,7 +4625,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 29: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 30 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 5, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -57.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -12.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - mutual support 1.00 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4674,7 +4674,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 30: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 31 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 9, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -57.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -12.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - mutual support 1.00 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4721,7 +4721,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 31: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 32 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 10, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -57.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -12.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - mutual support 1.00 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4777,7 +4777,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 32: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 33 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 12, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -57.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 10.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -12.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - mutual support 1.00 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4824,7 +4824,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 33: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 34 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 7, Green 7; tie re-rolled Blue 7, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -55.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -16.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - mutual support 5.00 - facing 0 + hold 5.90 [62 of 150 spots; enemy still to move]
@@ -4888,7 +4888,7 @@ FALL (automatic fall): Hunchback HBK-4G takes 5 falling damage (1D6 2: front tab
   -- end of turn 34: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 35 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 7, Green 8).
   [Movement select] Blue 2: score 773.111 = dealt 5.91 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 2.31 x my best future 5.70 [two-ply, 135 of 596 spots (grid search) x 153 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 2: 2308 NE -> 2210 S, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -48.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 40.00 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -4932,7 +4932,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
   -- end of turn 35: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 36 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 6, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -53.25 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 40.00 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 1: Princess (modern, attack): utility -7.63 = -fall 0.00 + bravery 7.12 [1.00 x 8.25 x 1.5 - taken 5.25] - aggression 22.50 + close range 3.55 - mutual support 2.00 - facing 0 + hold 6.20 [7 of 12 spots; enemy still to move]
@@ -5009,7 +5009,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 2: 
   -- end of turn 36: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 37 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 10, Green 6).
   [Movement select] Green 9: Princess (modern, attack): utility -55.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 42.50 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 6.
@@ -5134,7 +5134,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 12.
   -- end of turn 37: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 38 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 10).
   [Movement select] Blue 2: score 1146.918 = dealt 8.86 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.95 x my best future 7.12 [two-ply, 216 of 959 spots (grid search) x 189 replies (short list); modeled reply Green 3 -> 1607 NE Run]
   [Movement] Blue 2: 2313 SE -> 2612 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -58.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 50.00 + close range 0.00 - mutual support 8.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5188,7 +5188,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 2: front ta
   -- end of turn 38: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 39 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 7, Green 6).
   [Movement select] Green 9: Princess (modern, attack): utility -64.25 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 50.00 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -11.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - facing 0 + hold 5.90 [197 of 268 spots; enemy still to move]
@@ -5230,7 +5230,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 2: front ta
   -- end of turn 39: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 40 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 2, Green 3).
   [Movement select] Blue 2: score 818.716 = dealt 1.84 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.47 x my best future 3.85 [two-ply, 190 of 1044 spots (grid search) x 268 replies (short list); modeled reply Green 3 -> 2010 SE Run]
   [Movement] Blue 2: 2512 NW -> 2909 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -66.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 57.50 + close range 0.00 - mutual support 9.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5260,7 +5260,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 2: front ta
   -- end of turn 40: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 41 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 6, Green 5).
   [Movement select] Green 9: Princess (modern, attack): utility -70.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 57.50 + close range 0.00 - mutual support 13.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -5.28 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 25.00 + close range 7.82 - facing 0 + hold 5.90 [224 of 308 spots; enemy still to move]
@@ -5295,7 +5295,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 2: front ta
   -- end of turn 41: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 42 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 8, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -73.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 60.00 + close range 0.00 - mutual support 13.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -11.69 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 27.50 + close range 3.91 - facing 0 + hold 5.90 [183 of 308 spots; enemy still to move]
@@ -5345,7 +5345,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 42: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 43 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 7, Green 10).
   [Movement select] Blue 2: score 820.277 = dealt 3.40 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.36 x my best future 3.58 [two-ply, 121 of 444 spots (grid search) x 308 replies (short list); modeled reply Green 3 -> 2309 NE Run]
   [Movement] Blue 2: 3013 S -> 3209 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -78.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 65.00 + close range 0.00 - mutual support 13.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5375,7 +5375,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 43: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 44 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 10, Green 8).
   [Movement select] Green 9: Princess (modern, attack): utility -81.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 65.00 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility -5.28 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 25.00 + close range 7.82 - facing 0 + hold 5.90 [91 of 180 spots; enemy still to move]
@@ -5405,7 +5405,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 44: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 45 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 5, Green 7).
   [Movement select] Blue 2: score 820.652 = dealt 3.77 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.30 x my best future 3.42 [two-ply, 121 of 645 spots (grid search) x 180 replies (short list); modeled reply Green 3 -> 2409 SE Run]
   [Movement] Blue 2: 2712 N -> 3109 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, attack): utility -78.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 62.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5435,7 +5435,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 45: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 46 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 3, Green 5).
   [Movement select] Blue 2: score 819.892 = dealt 6.29 x1.00 + (HP 311.0 - received 1.25 x1.00 - PSR 0.00) / enemies' future on me 1.27 x my best future 3.35 [two-ply, 213 of 758 spots (grid search) x 180 replies (short list); modeled reply Green 3 -> 2409 SE Run]
   [Movement] Blue 2: 3109 N -> 3106 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, defend): utility -78.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 62.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5465,7 +5465,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 46: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 47 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 7, Green 5).
   [Movement select] Green 9: Princess (modern, defend): utility -78.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 62.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 16.35 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 0.00 + close range 3.55 - facing 0 + hold 6.80 [84 of 171 spots; enemy still to move]
@@ -5495,7 +5495,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 47: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 48 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 6, Green 5).
   [Movement select] Green 9: Princess (modern, defend): utility -73.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 52.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 7.91 = -fall 0.00 + bravery 3.00 [1.00 x 5.50 x 1.5 - taken 5.25] - aggression 0.00 + close range 5.91 - mutual support 1.00 - facing 0 + hold 0.00 [157 of 171 spots; enemy still to move]
@@ -5525,7 +5525,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 48: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 49 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 10, Green 3).
   [Movement select] Green 9: Princess (modern, defend): utility -73.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 52.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 19.43 = -fall 0.00 + bravery 7.12 [1.00 x 8.25 x 1.5 - taken 5.25] - aggression 0.00 + close range 5.91 - mutual support 1.00 - facing 0 + hold 7.40 [196 of 211 spots; enemy still to move]
@@ -5555,7 +5555,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 49: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 50 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 8, Green 4).
   [Movement select] Green 9: Princess (modern, defend): utility -72.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 52.50 + close range 0.00 - mutual support 15.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 20.43 = -fall 0.00 + bravery 7.12 [1.00 x 8.25 x 1.5 - taken 5.25] - aggression 0.00 + close range 5.91 - facing 0 + hold 7.40 [196 of 211 spots; enemy still to move]
@@ -5585,7 +5585,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 50: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 51 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 10, Green 4).
   [Movement select] Green 9: Princess (modern, attack): utility -73.75 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 52.50 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, attack): utility 0.73 = -fall 0.00 + bravery 7.12 [1.00 x 8.25 x 1.5 - taken 5.25] - aggression 17.50 + close range 5.91 - mutual support 1.00 - facing 0 + hold 6.20 [196 of 211 spots; enemy still to move]
@@ -5615,7 +5615,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 51: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 52 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 7, Green 8).
   [Movement select] Blue 2: score 816.880 = dealt 0.00 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.13 x my best future 2.96 [two-ply, 181 of 597 spots (grid search) x 211 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 2: 2703 N -> 2201 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, defend): utility -56.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 40.00 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5645,7 +5645,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 52: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 53 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 9).
   [Movement select] Blue 2: score 816.880 = dealt 0.00 x1.00 + (HP 311.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.11 x my best future 2.91 [two-ply, 137 of 410 spots (grid search) x 137 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 2: 2201 N -> 2201 SE, Walk (4 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Green 9: Princess (modern, defend): utility -56.00 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 40.00 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy moved]
@@ -5675,7 +5675,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 53: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 54 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 5, Green 5; tie re-rolled Blue 6, Green 4).
   [Movement select] Green 9: Princess (modern, defend): utility -61.25 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 40.00 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 10.27 = -fall 0.00 + bravery 3.00 [1.00 x 5.50 x 1.5 - taken 5.25] - aggression 0.00 + close range 8.27 - mutual support 1.00 - facing 0 + hold 0.00 [137 of 137 spots; enemy still to move]
@@ -5720,7 +5720,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 54: Green 9 @ 0604 SE: HP 44, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 55 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 5, Green 5; tie re-rolled Blue 7, Green 6).
   [Movement select] Green 9: Princess (modern, defend): utility -21.25 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 0.00 + close range 0.00 - mutual support 16.00 - facing 0 + hold 0.00 [6 of 8 spots; enemy still to move]
   [Movement] Green 9: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 4.16 = -fall 0.00 + bravery 2.25 [1.00 x 5.00 x 1.5 - taken 5.25] - aggression 0.00 + close range 5.91 - mutual support 4.00 - facing 0 + hold 0.00 [181 of 181 spots; enemy still to move]
@@ -5769,7 +5769,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 55: Green 9 @ 0604 SE: HP 37, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 56 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 10).
   [Movement select] Blue 2: score 778.769 = dealt 19.66 x1.00 + (HP 306.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.22 x my best future 3.02 [two-ply, 117 of 453 spots (grid search) x 260 replies (short list); modeled reply: none with LOS]
   [Movement] Blue 2: 1303 NE -> 1104 NW, Jump (5 MP, 2 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 9: Princess (modern, defend): utility -65.27 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 2.73 - mutual support 18.00 - facing 50 + hold 0.00 [7 of 8 spots; enemy moved]
@@ -5799,7 +5799,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 56: Green 9 @ 0504 SE: HP 37, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 57 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 8, Green 5).
   [Movement select] Green 9: Princess (modern, defend): utility -18.52 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 0.00 + close range 2.73 - mutual support 16.00 - facing 0 + hold 0.00 [8 of 11 spots; enemy still to move]
   [Movement] Green 9: 0504 SE -> 0504 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
   [Movement select] Green 3: Princess (modern, defend): utility 20.62 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 0.00 + close range 7.82 - facing 0 + hold 6.80 [199 of 280 spots; enemy still to move]
@@ -5858,7 +5858,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 57: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 58 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 6, Green 12).
   [Movement select] Blue 2: score 358.927 = dealt 3.76 x1.00 + (HP 306.0 - received 2.76 x0.95 - PSR 0.00) / enemy future 1.00 x my future 1.17 [two-ply, 173 of 828 spots (grid search) x 280 replies (short list); modeled reply Green 3 -> 1806 NW Walk]
   [Movement] Blue 2: 0604 NW -> 0904 N, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 3: Princess (modern, attack): utility -16.59 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 17.50 + close range 5.91 - mutual support 5.00 - facing 0 + hold 0.00 [212 of 280 spots; enemy moved]
@@ -5884,7 +5884,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 58: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 59 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 3, Green 7).
   [Movement select] Blue 2: score 356.963 = dealt 6.16 x0.94 + (HP 306.0 - received 0.92 x0.95 - PSR 0.00) / enemy future 1.00 x my future 1.15 [two-ply, 159 of 653 spots (grid search) x 129 replies (short list); modeled reply Green 3 -> 1507 SW Walk]
   [Movement] Blue 2: 0904 N -> 0602 NE, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 3: Princess (modern, attack): utility -17.18 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 25.00 + close range 7.82 - facing 0 + hold 0.00 [77 of 129 spots; enemy moved]
@@ -5910,7 +5910,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 59: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 60 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 8, Green 6).
   [Movement select] Green 3: Princess (modern, attack): utility -5.28 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 25.00 + close range 7.82 - facing 0 + hold 5.90 [77 of 129 spots; enemy still to move]
   [Movement] Green 3: 1605 NW -> 1605 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: no spot deals damage - closing fallback
@@ -5936,7 +5936,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 60: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 61 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 9, Green 7).
   [Movement select] Green 3: Princess (modern, defend): utility 12.93 = -fall 0.00 + bravery 3.00 [1.00 x 5.50 x 1.5 - taken 5.25] - aggression 0.00 + close range 4.73 - facing 0 + hold 5.20 [106 of 129 spots; enemy still to move]
   [Movement] Green 3: 1605 NW -> 1605 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: no spot deals damage - closing fallback
@@ -5962,7 +5962,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 61: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 62 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 6, Green 4).
   [Movement select] Green 3: Princess (modern, defend): utility -0.16 = -fall 0.00 + bravery -5.25 [1.00 x 0.00 x 1.5 - taken 5.25] - aggression 0.00 + close range 7.09 - mutual support 2.00 - facing 0 + hold 0.00 [139 of 140 spots; enemy still to move]
   [Movement] Green 3: 1605 SW -> 1806 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue 2: score 344.532 = dealt 9.41 x1.00 + (HP 306.0 - received 0.00 x0.95 - PSR 0.00) / enemy future 1.00 x my future 1.10 [enemy held at 1806; 220 spots with LOS]
@@ -5997,7 +5997,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 62: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 63 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Blue 5, Green 7).
   [Movement select] Blue 2: score 364.073 = dealt 1.85 x0.97 + (HP 306.0 - received 0.00 x1.07 - PSR 0.00) / enemy future 1.00 x my future 1.18 [two-ply, 159 of 887 spots (grid search) x 278 replies (short list); modeled reply Green 3 -> 1209 SW Run]
   [Movement] Blue 2: 0810 N -> 0309 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 3: Princess (modern, attack): utility -26.27 = -fall 0.00 + bravery -4.09 [1.00 x 0.00 x 1.5 - taken 4.09] - aggression 25.00 + close range 7.82 - mutual support 5.00 - facing 0 + hold 0.00 [195 of 278 spots; enemy moved]
@@ -6028,7 +6028,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 63: Green 9 @ 0504 NE: HP 32, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 === TURN 64 ===
-  Initiative: Green lost the roll, moves first.
+  Initiative: Green lost the roll, moves first (rolled Blue 9, Green 8).
   [Movement select] Green 3: Princess (modern, attack): utility -5.28 = -fall 0.00 + bravery 6.00 [1.00 x 7.50 x 1.5 - taken 5.25] - aggression 25.00 + close range 7.82 - facing 0 + hold 5.90 [170 of 214 spots; enemy still to move]
   [Movement] Green 3: 1309 SW -> 1309 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue 2: score 372.096 = dealt 16.01 x0.97 + (HP 306.0 - received 0.00 x1.07 - PSR 0.00) / enemy future 1.00 x my future 1.17 [enemy held at 1309; 62 spots with LOS]

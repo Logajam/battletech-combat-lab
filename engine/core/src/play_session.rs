@@ -540,8 +540,6 @@ impl Screen {
         }
         request["units"] = units_json(b, self.first);
         request["log"] = json!(new_log(b, &mut self.sent_log));
-        // this turn's Initiative throws (shown on the page; Daniel 2026-11-24)
-        request["initiative"] = b.initiative.clone();
         if self.first {
             request["board"] = crate::history::board(b);
             self.first = false;

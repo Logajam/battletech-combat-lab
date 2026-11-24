@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 143.482 = dealt 9.74 x1.00 + (HP 400.0 - received 13.48 x1.00 - PSR 0.00) / enemies' future on me 10.05 x my best future 3.48 [two-ply, 70 of 302 spots (grid search) x 1219 replies (short list); modeled reply Red 1 -> 0713 NW Run]
   [Movement] Blue: 0510 N -> 0612 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red 2: score 464.386 = dealt 11.67 x1.26 + (HP 254.0 - received 2.22 x1.01 - PSR 0.00) / enemy future 3.48 x my future 6.21 [enemy held at 0612; 115 spots with LOS]
@@ -13,7 +13,7 @@
   [Movement select] Red 1: CHARGE (TN 8, P 0.42, 40 dmg) on Blue: score 526.108 = dealt 16.67 x1.01 + (HP 302.0 - received 8.73 x1.00 - PSR 0.00) / enemy future 2.21 x my future 3.84 [incl. self-damage] beats 523.866
   [Movement] Red 1 declares a CHARGE against Blue (stops adjacent; 8 hexes counting the target's hex).
   [Movement] Red 1: 0505 S -> 0611 S, Run (10 MP, 8 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
-  [TAG] Blue's ISTAG -> Red 1: needs 8 (range 1), rolled 6 -> miss
+  [TAG] Blue's ISTAG -> Red 1: needs 8 (range 1; gunnery 4 + AMM 1 [Walk] + LOS 0 + heat 0 + TMM 3 + range 0), rolled 6 -> miss
   [Ranged] Firing order: Red 2 declares next (big guns first: expected 7.2).
   [Ranged] Blue holds ['ISArrowIV'] back for the Physical phase (plans punch (Left Arm), expected 1.94).
   [Ranged] Blue -> Red 2: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 0.00)
@@ -92,7 +92,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
   -- end of turn 1: Blue @ 0613 NW: HP 240, pilot hits 1, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 3).
   [Movement select] Blue: score 42.825 = dealt 10.90 x1.00 + (HP 344.0 - received 11.13 x1.00 - PSR 0.00) / enemies' future on me 35.96 x my best future 3.45 [two-ply, 79 of 210 spots (grid search) x 838 replies (short list); modeled reply Red 2 -> 0813 SW Walk]
   [Movement] Blue: 0613 NW -> 0613 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red 2: score 1833.060 = dealt 10.96 x1.02 + (HP 254.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.61 x my future 18.71 [enemy held at 0613; 232 spots with LOS]
@@ -126,7 +126,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
   -- end of turn 2: Blue @ 0613 SW: HP 232, pilot hits 1, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 4).
   [Movement select] Blue: score 47.259 = dealt 18.90 x1.00 + (HP 336.0 - received 7.03 x1.00 - PSR 0.00) / enemies' future on me 32.00 x my best future 2.76 [two-ply, 62 of 290 spots (grid search) x 829 replies (short list); modeled reply Red 2 -> 0713 SE Walk]
   [Movement] Blue: 0613 SW -> 0814 SE, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red 1: score 1643.094 = dealt 8.27 x1.13 + (HP 295.0 - received 1.40 x1.00 - PSR 0.00) / enemy future 2.76 x my future 15.35 [enemy held at 0814; 202 spots with LOS]
@@ -192,7 +192,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
   -- end of turn 3: Blue @ 0814 SE: HP 211, pilot hits 1, engine 0, gyro 1, heat 0
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
   [Movement select] Red 2: score 2529.977 = dealt 0.00 x1.00 + (HP 254.0 - received 3.49 x1.24 - PSR 0.00) / enemy future 1.74 x my future 17.62 [two-ply, 122 of 830 spots (grid search) x 257 replies (short list); modeled reply Blue -> 0513 N Walk]
   [Movement] Red 2: 0612 SW -> 0506 N, Run (9 MP, 7 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
   [Movement select] Red 1: score 2061.814 = dealt 5.16 x1.00 + (HP 295.0 - received 5.55 x1.26 - PSR 0.00) / enemy future 2.30 x my future 16.42 [two-ply, 208 of 1037 spots (grid search) x 257 replies (short list); modeled reply Blue -> 0914 N Walk]
@@ -214,7 +214,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
   -- end of turn 4: Blue @ 1016 S: HP 211, pilot hits 1, engine 0, gyro 1, heat 0
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 3).
   [Movement select] Blue: score 173.195 = dealt 153.11 x1.00 + (HP 314.0 - received 16.65 x1.00 - PSR 0.00) / enemies' future on me 29.17 x my best future 1.97 [two-ply, 120 of 190 spots (grid search) x 726 replies (short list); modeled reply Red 2 -> 1009 S Run]
   [Movement] Blue: 1016 S -> 0916 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red 2: score 2580.453 = dealt 5.30 x1.25 + (HP 254.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.49 x my future 15.10 [enemy held at 0916; 60 spots with LOS]
@@ -303,7 +303,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
   -- end of turn 5: Blue @ 0916 S: HP 201, pilot hits 1, engine 2, gyro 2, heat 0
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 6).
   [Movement select] Blue: score 28.998 = dealt 12.05 x1.00 + (HP 296.0 - received 1.17 x1.00 - PSR 0.00) / enemies' future on me 29.99 x my best future 1.72 [two-ply, 96 of 218 spots (grid search) x 866 replies (short list); modeled reply Red 2 -> 0404 S Run]
   [Movement] Blue: 0916 S -> 0915 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red 2: score 3001.953 = dealt 15.31 x1.38 + (HP 254.0 - received 2.22 x1.01 - PSR 0.00) / enemy future 1.30 x my future 15.44 [enemy held at 0915; 110 spots with LOS]

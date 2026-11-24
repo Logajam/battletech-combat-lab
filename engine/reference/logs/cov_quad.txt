@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 249.229 = dealt 0.83 x1.00 + (HP 430.0 - received 18.24 x1.01 - PSR 0.00) / enemy future 9.16 x my future 5.53 [two-ply, 44 of 256 spots (grid search) x 1219 replies (short list); modeled reply Red -> 0805 N Walk]
   [Movement] Blue: 0508 N -> 0804 NE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 623.436 = dealt 18.24 x1.01 + (HP 366.0 - received 0.83 x1.01 - PSR 0.00) / enemy future 5.53 x my future 9.16 [enemy held at 0804; 247 spots with LOS]
@@ -49,7 +49,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 9.
   -- end of turn 1: Blue @ 0804 NE: HP 288, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 10).
   [Movement select] Red: score 1205.893 = dealt 0.00 x1.00 + (HP 366.0 - received 9.53 x1.01 - PSR 0.00) / enemy future 4.15 x my future 14.03 [two-ply, 199 of 1208 spots (grid search) x 301 replies (short list); modeled reply Blue -> 1202 S Walk]
   [Movement] Red: 0805 NE -> 1208 SW, Run (11 MP, 8 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: score 126.295 = dealt 9.53 x1.01 + (HP 403.0 - received 8.28 x1.00 - PSR 0.00) / enemy future 14.03 x my future 4.15 [enemy held at 1208; 30 spots with LOS]
@@ -90,7 +90,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 9.
   -- end of turn 2: Blue @ 0806 S: HP 278, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
   [Movement select] Blue: score 131.068 = dealt 0.28 x1.00 + (HP 393.0 - received 14.14 x1.02 - PSR 0.00) / enemy future 13.36 x my future 4.61 [two-ply, 47 of 293 spots (grid search) x 1188 replies (short list); modeled reply Red -> 0509 S Run]
   [Movement] Blue: 0806 S -> 0510 SW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1058.425 = dealt 14.14 x1.02 + (HP 361.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 4.61 x my future 13.36 [enemy held at 0510; 177 spots with LOS]
@@ -132,7 +132,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 3: Blue @ 0510 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 12).
   [Movement select] Red: score 2348.946 = dealt 0.00 x1.00 + (HP 361.0 - received 5.88 x1.02 - PSR 0.00) / enemy future 2.57 x my future 16.98 [two-ply, 233 of 1130 spots (grid search) x 300 replies (short list); modeled reply Blue -> 0810 NW Walk]
   [Movement] Red: 0509 SW -> 0307 NE, Run (11 MP, 7 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: score 62.390 = dealt 5.88 x1.02 + (HP 373.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 16.98 x my future 2.57 [enemy held at 0307; 56 spots with LOS]
@@ -149,7 +149,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 4: Blue @ 0810 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
   [Movement select] Blue: score 56.335 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 14.55 x my future 2.20 [two-ply, 62 of 310 spots (grid search) x 1059 replies (short list); modeled reply Red -> 0104 SE Run]
   [Movement] Blue: 0810 NW -> 1012 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2388.788 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 2.20 x my future 14.55 [enemy held at 1012; 181 spots with LOS]
@@ -162,7 +162,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 5: Blue @ 1012 N: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 6).
   [Movement select] Red: score 2388.788 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.33 - PSR 0.00) / enemy future 1.92 x my future 12.73 [two-ply, 142 of 870 spots (grid search) x 291 replies (short list); modeled reply Blue -> 1211 NE Walk]
   [Movement] Red: 1303 SE -> 0502 NW, Run (11 MP, 8 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: score 57.893 = dealt 1.14 x1.33 + (HP 373.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 12.73 x my future 1.92 [enemy held at 0502; 7 spots with LOS]
@@ -179,7 +179,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 6: Blue @ 1110 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 3).
   [Movement select] Blue: score 57.207 = dealt 0.97 x1.00 + (HP 373.0 - received 0.80 x1.10 - PSR 0.00) / enemy future 11.32 x my future 1.71 [two-ply, 130 of 298 spots (grid search) x 663 replies (short list); modeled reply Red -> 0803 S Run]
   [Movement] Blue: 1110 NW -> 1109 NW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 2383.171 = dealt 0.76 x1.00 + (HP 361.0 - received 0.96 x1.00 - PSR 0.00) / enemy future 1.71 x my future 11.32 [enemy held at 1109; 114 spots with LOS]
@@ -199,7 +199,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 7: Blue @ 1109 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 10).
   [Movement select] Red: score 2382.411 = dealt 0.00 x1.00 + (HP 361.0 - received 0.96 x1.00 - PSR 0.00) / enemy future 1.54 x my future 10.19 [two-ply, 224 of 920 spots (grid search) x 287 replies (short list); modeled reply Blue -> 0711 N Run]
   [Movement] Red: 0404 S -> 0201 NW, Run (11 MP, 7 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -215,7 +215,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 8: Blue @ 0710 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
   [Movement select] Blue: score 58.334 = dealt 2.91 x1.00 + (HP 373.0 - received 6.26 x1.00 - PSR 0.00) / enemy future 9.26 x my future 1.40 [two-ply, 141 of 310 spots (grid search) x 441 replies (short list); modeled reply Red -> 0505 S Run]
   [Movement] Blue: 0710 SW -> 0711 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2384.295 = dealt 1.93 x1.00 + (HP 361.0 - received 0.97 x1.00 - PSR 0.00) / enemy future 1.40 x my future 9.26 [enemy held at 0711; 104 spots with LOS]
@@ -236,7 +236,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 9: Blue @ 0711 N: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
   [Movement select] Blue: score 56.335 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 8.49 x my future 1.28 [two-ply, 60 of 316 spots (grid search) x 879 replies (short list); modeled reply Red -> 1103 S Run]
   [Movement] Blue: 0711 N -> 0613 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2388.788 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.33 - PSR 0.00) / enemy future 1.28 x my future 8.49 [enemy held at 0613; 117 spots with LOS]
@@ -249,7 +249,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 10: Blue @ 0613 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
   [Movement select] Blue: score 57.225 = dealt 0.97 x1.00 + (HP 373.0 - received 0.76 x1.00 - PSR 0.00) / enemy future 7.84 x my future 1.18 [two-ply, 108 of 284 spots (grid search) x 878 replies (short list); modeled reply Red -> 1605 SW Run]
   [Movement] Blue: 0613 NE -> 0613 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 2386.952 = dealt 0.00 x0.92 + (HP 361.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 1.18 x my future 7.84 [enemy held at 0613; 130 spots with LOS]
@@ -265,7 +265,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 11: Blue @ 0613 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 12 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 8).
   [Movement select] Red: score 2389.663 = dealt 0.80 x1.10 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.10 x my future 7.28 [two-ply, 243 of 955 spots (grid search) x 284 replies (short list); modeled reply Blue -> 0511 NW Run]
   [Movement] Red: 0504 SW -> 0402 SE, Run (11 MP, 7 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -281,7 +281,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 12: Blue @ 0511 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 9).
   [Movement select] Blue: score 57.084 = dealt 0.97 x1.00 + (HP 373.0 - received 1.84 x0.92 - PSR 0.00) / enemy future 6.79 x my future 1.03 [two-ply, 136 of 296 spots (grid search) x 650 replies (short list); modeled reply Red -> 0505 S Run]
   [Movement] Blue: 0511 NW -> 0411 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2388.788 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.03 x my future 6.79 [enemy held at 0411; 61 spots with LOS]
@@ -294,7 +294,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 13: Blue @ 0411 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 14 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 10).
   [Movement select] Red: score 2298.241 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.33 - PSR 0.00) / enemy future 1.00 x my future 6.37 [two-ply, 277 of 1187 spots (grid search) x 290 replies (short list); modeled reply Blue -> 0913 SE Run]
   [Movement] Red: 1106 SE -> 1505 NE, Run (10 MP, 7 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -307,7 +307,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 14: Blue @ 0913 SE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 15 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
   [Movement select] Blue: score 62.251 = dealt 0.00 x1.00 + (HP 373.0 - received 0.00 x0.92 - PSR 0.00) / enemy future 5.99 x my future 1.00 [two-ply, 107 of 252 spots (grid search) x 742 replies (short list); modeled reply Red -> 1403 S Run]
   [Movement] Blue: 0913 SE -> 0813 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2163.050 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 5.99 [enemy held at 0813; 88 spots with LOS]
@@ -320,7 +320,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 15: Blue @ 0813 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 16 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue: score 65.913 = dealt 0.00 x1.00 + (HP 373.0 - received 0.00 x0.92 - PSR 0.00) / enemy future 5.66 x my future 1.00 [two-ply, 99 of 271 spots (grid search) x 890 replies (short list); modeled reply Red -> 1102 S Run]
   [Movement] Blue: 0813 NE -> 0813 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 2042.881 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.00 x my future 5.66 [enemy held at 0813; 148 spots with LOS]
@@ -333,7 +333,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 16: Blue @ 0813 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 17 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
   [Movement select] Red: score 1935.361 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 5.36 [two-ply, 122 of 838 spots (grid search) x 271 replies (short list); modeled reply: none with LOS]
   [Movement] Red: 1102 SE -> 0401 NW, Run (11 MP, 8 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -346,7 +346,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 17: Blue @ 1410 NE: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 18 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 6, Blue 4).
   [Movement select] Blue: score 73.876 = dealt 0.97 x1.00 + (HP 373.0 - received 1.84 x0.92 - PSR 0.00) / enemy future 5.09 x my future 1.00 [two-ply, 126 of 254 spots (grid search) x 583 replies (short list); modeled reply Red -> 0806 SE Run]
   [Movement] Blue: 1410 NE -> 1311 N, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 1839.393 = dealt 2.41 x0.92 + (HP 361.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 1.00 x my future 5.09 [enemy held at 1311; 60 spots with LOS]
@@ -363,7 +363,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 18: Blue @ 1311 N: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 2).
   [Movement select] Blue: score 76.762 = dealt 0.00 x1.00 + (HP 373.0 - received 0.72 x0.92 - PSR 0.00) / enemy future 4.85 x my future 1.00 [two-ply, 72 of 293 spots (grid search) x 1029 replies (short list); modeled reply Red -> 0210 NE Walk]
   [Movement] Blue: 1311 N -> 1509 NW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1751.294 = dealt 0.25 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.85 [enemy held at 1509; 145 spots with LOS]
@@ -377,7 +377,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 19: Blue @ 1509 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 3).
   [Movement select] Blue: score 80.513 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 4.63 x my future 1.00 [two-ply, 70 of 257 spots (grid search) x 950 replies (short list); modeled reply Red -> 0211 NE Walk]
   [Movement] Blue: 1509 NW -> 1506 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1671.448 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.33 - PSR 0.00) / enemy future 1.00 x my future 4.63 [enemy held at 1506; 61 spots with LOS]
@@ -390,7 +390,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 20: Blue @ 1506 N: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 21 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red: score 1598.776 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.43 [two-ply, 152 of 816 spots (grid search) x 227 replies (short list); modeled reply: none with LOS]
   [Movement] Red: 0211 SW -> 0715 SE, Run (10 MP, 7 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -403,7 +403,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 21: Blue @ 1103 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 22 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 11).
   [Movement select] Red: score 1532.161 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.24 [two-ply, 206 of 1021 spots (grid search) x 286 replies (short list); modeled reply Blue -> 0703 SW Run]
   [Movement] Red: 0715 SE -> 1315 NE, Run (9 MP, 6 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -416,7 +416,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 22: Blue @ 0703 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 23 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 5).
   [Movement select] Blue: score 91.492 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 4.07 x my future 1.00 [two-ply, 100 of 244 spots (grid search) x 719 replies (short list); modeled reply Red -> 0915 N Walk]
   [Movement] Blue: 0703 SW -> 1002 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 1470.874 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.00 x my future 4.07 [enemy held at 1002; 93 spots with LOS]
@@ -429,7 +429,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 23: Blue @ 1002 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 24 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 5).
   [Movement select] Blue: score 95.152 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 3.92 x my future 1.00 [two-ply, 67 of 259 spots (grid search) x 1037 replies (short list); modeled reply Red -> 0716 N Run]
   [Movement] Blue: 1002 NW -> 0703 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1414.302 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.92 [enemy held at 0703; 181 spots with LOS]
@@ -442,7 +442,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 24: Blue @ 0703 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 25 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
   [Movement select] Blue: score 98.870 = dealt 0.00 x1.00 + (HP 373.0 - received 0.00 x0.92 - PSR 0.00) / enemy future 3.77 x my future 1.00 [two-ply, 52 of 244 spots (grid search) x 748 replies (short list); modeled reply Red -> 1016 N Run]
   [Movement] Blue: 0703 SW -> 1003 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 1361.921 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.77 [enemy held at 1003; 64 spots with LOS]
@@ -455,7 +455,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 25: Blue @ 1003 NW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 26 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 11, Blue 12).
   [Movement select] Red: score 1313.281 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.64 [two-ply, 190 of 708 spots (grid search) x 296 replies (short list); modeled reply Blue -> 0703 SW Walk]
   [Movement] Red: 1613 N -> 1315 NE, Run (11 MP, 3 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -468,7 +468,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 26: Blue @ 0703 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 27 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
   [Movement select] Red: score 1267.995 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.51 [two-ply, 169 of 719 spots (grid search) x 244 replies (short list); modeled reply: none with LOS]
   [Movement] Red: 1315 NE -> 1416 S, Run (11 MP, 6 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -481,7 +481,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 27: Blue @ 1101 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 28 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 8).
   [Movement select] Red: score 1225.728 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.40 [two-ply, 148 of 520 spots (grid search) x 196 replies (short list); modeled reply: none with LOS]
   [Movement] Red: 1416 S -> 1316 N, Walk (6 MP, 3 hexes, 1 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -494,7 +494,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 28: Blue @ 0603 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 29 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 11).
   [Movement select] Red: score 1186.189 = dealt 0.00 x1.00 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.29 [two-ply, 177 of 654 spots (grid search) x 227 replies (short list); modeled reply: none with LOS]
   [Movement] Red: 1316 N -> 1415 SE, Run (11 MP, 5 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
@@ -507,7 +507,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 29: Blue @ 1001 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 30 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 7, Blue 6).
   [Movement select] Blue: score 117.110 = dealt 0.00 x1.00 + (HP 373.0 - received 0.24 x0.92 - PSR 0.00) / enemy future 3.18 x my future 1.00 [two-ply, 92 of 226 spots (grid search) x 559 replies (short list); modeled reply Red -> 1412 N Run]
   [Movement] Blue: 1001 SW -> 1001 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1149.342 = dealt 0.24 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.18 [enemy held at 1001; 65 spots with LOS]
@@ -521,7 +521,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 30: Blue @ 1001 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 31 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
   [Movement select] Blue: score 120.607 = dealt 0.83 x1.00 + (HP 373.0 - received 3.58 x0.92 - PSR 0.00) / enemy future 3.09 x my future 1.00 [two-ply, 92 of 226 spots (grid search) x 1293 replies (short list); modeled reply Red -> 1207 N Run]
   [Movement] Blue: 1001 SW -> 1001 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1114.552 = dealt 0.25 x1.00 + (HP 361.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.00 x my future 3.09 [enemy held at 1001; 159 spots with LOS]
@@ -535,7 +535,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 31: Blue @ 1001 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 32 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 4).
   [Movement select] Blue: score 124.418 = dealt 0.00 x1.00 + (HP 373.0 - received 0.25 x1.00 - PSR 0.00) / enemy future 3.00 x my future 1.00 [two-ply, 92 of 226 spots (grid search) x 966 replies (short list); modeled reply Red -> 0210 NE Run]
   [Movement] Blue: 1001 SW -> 1001 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1081.525 = dealt 0.00 x0.92 + (HP 361.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.00 [enemy held at 1001; 176 spots with LOS]
@@ -548,7 +548,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 32: Blue @ 1001 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 33 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 6).
   [Movement select] Blue: score 128.078 = dealt 0.00 x1.00 + (HP 373.0 - received 0.25 x1.00 - PSR 0.00) / enemy future 2.91 x my future 1.00 [two-ply, 96 of 226 spots (grid search) x 1114 replies (short list); modeled reply Red -> 0916 N Run]
   [Movement] Blue: 1001 SW -> 1003 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1049.729 = dealt 1.93 x1.00 + (HP 361.0 - received 0.97 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.91 [enemy held at 1003; 151 spots with LOS]
@@ -569,7 +569,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 33: Blue @ 1003 S: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 34 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue: score 130.290 = dealt 2.78 x1.00 + (HP 373.0 - received 13.27 x0.92 - PSR 0.00) / enemy future 2.83 x my future 1.00 [two-ply, 58 of 296 spots (grid search) x 1336 replies (short list); modeled reply Red -> 1203 N Run]
   [Movement] Blue: 1003 S -> 1101 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 1025.795 = dealt 13.27 x0.92 + (HP 361.0 - received 2.78 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.83 [enemy held at 1101; 143 spots with LOS]
@@ -606,7 +606,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   -- end of turn 34: Blue @ 1101 SW: HP 254, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 35 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 3).
   [Movement select] Blue: score 116.314 = dealt 0.28 x1.00 + (HP 365.0 - received 20.07 x1.09 - PSR 0.00) / enemy future 2.96 x my future 1.00 [two-ply, 42 of 192 spots (grid search) x 802 replies (short list); modeled reply Red -> 0602 S Run]
   [Movement] Blue: 1101 SW -> 0603 SW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1073.782 = dealt 20.07 x1.09 + (HP 356.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.96 [enemy held at 0603; 151 spots with LOS]
@@ -646,7 +646,7 @@ FALL (automatic fall): Barghest BGS-4X takes 7 falling damage (1D6 1: rear table
   -- end of turn 35: Blue @ 0603 SW: HP 236, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 36 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
 Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 5.
   Failed to stand.
 FALL (failed to stand): Barghest BGS-4X takes 7 falling damage (1D6 5: front table, 5-pt clusters).
@@ -715,7 +715,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 36: Blue @ 0603 SW: HP 190, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 37 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
   [Movement select] Red: score 1651.583 = dealt 35.70 x1.01 + (HP 356.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.54 [two-ply, 234 of 932 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0603 SW Run]
   [Movement] Red: 0703 SW -> 0704 NW, Walk (7 MP, 3 hexes, 1 heat; budget walk 7 / run 11 / jump 0) - includes a backward move
 Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 7.
@@ -761,7 +761,7 @@ Attack Phase PSR: needs 3 (Piloting 5 + -2). Rolled 4.
   -- end of turn 37: Blue @ 0603 NE: HP 177, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 38 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 11).
   [Movement select] Red: score 1661.902 = dealt 6.75 x1.00 + (HP 351.0 - received 10.07 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.86 [two-ply, 181 of 969 spots (grid search) x 140 replies (short list); modeled reply Blue -> 0904 SW Run]
   [Movement] Red: 0704 NW -> 0307 SE, Run (11 MP, 5 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
   [Movement select] Blue: score 57.488 = dealt 1.67 x1.00 + (HP 271.0 - received 0.00 x0.94 - PSR 0.00) / enemy future 4.86 x my future 1.00 [enemy held at 0307; 5 spots with LOS]
@@ -784,7 +784,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
   -- end of turn 38: Blue @ 0401 NW: HP 177, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 39 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 4).
   [Movement select] Blue: score 50.353 = dealt 0.28 x1.00 + (HP 271.0 - received 27.97 x1.21 - PSR 0.00) / enemy future 4.74 x my future 1.00 [two-ply, 34 of 94 spots (grid search) x 1029 replies (short list); modeled reply Red -> 0101 S Run]
   [Movement] Blue: 0401 NW -> 0102 S, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red: score 1668.135 = dealt 35.26 x0.94 + (HP 346.0 - received 0.84 x1.03 - PSR 0.00) / enemy future 1.00 x my future 4.74 [enemy held at 0102; 146 spots with LOS]
@@ -849,7 +849,7 @@ FALL (failed Attack Phase PSR): Barghest BGS-4X takes 7 falling damage (1D6 1: r
   -- end of turn 39: Blue @ 0102 S: HP 146, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 40 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 10).
   [Movement select] Red: score 2052.873 = dealt 63.78 x1.09 + (HP 336.0 - received 0.84 x1.05 - PSR 0.00) / enemy future 1.00 x my future 5.92 [two-ply, 143 of 546 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0102 S Run]
   [Movement] Red: 0201 S -> 0201 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
 Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 5.
@@ -937,7 +937,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   -- end of turn 40: Blue @ 0102 S: HP 104, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 41 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
   Success - Barghest BGS-4X is standing (remaining running MP 0).
   [Movement select] Blue: score 18.723 = dealt 0.31 x1.00 + (HP 171.0 - received 38.20 x0.91 - PSR 0.00) / enemy future 7.99 x my future 1.08 [two-ply, 6 spots x 558 replies (short list); modeled reply Red -> 0103 N Run]
@@ -1077,7 +1077,7 @@ FALL (failed Attack Phase PSR): Barghest BGS-4X takes 7 falling damage (1D6 4: f
   -- end of turn 41: Blue @ 0102 NE: HP 69, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 42 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 8).
   [Movement select] Red: score 2829.100 = dealt 26.71 x1.09 + (HP 331.0 - received 0.30 x0.96 - PSR 0.00) / enemy future 1.00 x my future 8.47 [two-ply, 120 of 558 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0102 NE Run]
   [Movement] Red: 0103 NE -> 0103 NE, Walk (6 MP, 3 hexes, 1 heat; budget walk 7 / run 11 / jump 0) - includes a backward move
 Stand attempt 1: needs 9 (Piloting 5 + +4, incl. -1 for standing). Rolled 10.

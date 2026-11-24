@@ -172,13 +172,9 @@ pub struct Battle {
     pub player: crate::player_choices::PlayerChoices,
     /// each team's own settings (TEAM_SETTINGS; team_settings.rs): (team, settings; None while they stand in `cfg`)
     pub team_cfgs: Vec<(String, Option<Config>)>,
-    /// the last Initiative roll's throws, round by round (a tie re-rolls among the tied teams, p.39): what a person is shown
-    /// (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be shown"). Not in the battle log, so
-    /// the reference logs and the answer key stay as they are; read only by the play session.
+    /// the last Initiative roll's throws, round by round (a tie re-rolls among the tied teams, p.39): the turn's Initiative log
+    /// line shows them (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be shown")
     pub initiative_throws: Vec<Vec<(String, i64)>>,
-    /// this turn's Initiative as the play page shows it: {"turn", "rounds": [[[team, roll], ...], ...], "order": acts first to
-    /// last}; Null before turn 1
-    pub initiative: serde_json::Value,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -258,7 +254,6 @@ impl Battle {
             player: Default::default(),
             team_cfgs,
             initiative_throws: Vec::new(),
-            initiative: serde_json::Value::Null,
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

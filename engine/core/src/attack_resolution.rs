@@ -419,6 +419,46 @@ pub fn single_attack_tn(b: &mut Battle, attacker: UnitId, target: UnitId, weapon
     best
 }
 
+/// The parts of `weapon_attack_tns`'s number for one weapon, named, in the order they are added (they sum to that number);
+/// None when that weapon cannot make the attack. For a person's report (TAG's line, bug B16): read only, nothing rolled.
+pub fn weapon_attack_parts(b: &mut Battle, attacker: UnitId, target: UnitId, w: ItemId, at_hex: bool) -> Option<Vec<(String, i64)>> {
+    let (tns, distance, _) = weapon_attack_tns(b, attacker, target, &[w], at_hex)?;
+    let tn = tns.first()?.1;
+    let a_hex = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let heights = (los_height(&b.units[attacker]), los_height(&b.units[target]));
+    let trace = trace_los_path(a_hex, t_hex, &b.board, heights.0, heights.1).unwrap();
+    let (cond_mod, _, _) = firing_conditions(b, attacker)?;
+    let a = &b.units[attacker];
+    let mut parts: Vec<(String, i64)> = vec![
+        ("gunnery".into(), a.gunnery),
+        (format!("AMM [{}]", a.move_mode), combat::mode_to_amm(&a.move_mode)),
+        ("LOS".into(), trace.result.modifier),
+        ("heat".into(), a.heat_fire_modifier),
+    ];
+    let own_gear = equip::own_attack_modifier(a) + cond_mod;
+    if own_gear != 0 {
+        parts.push(("own condition".into(), own_gear));
+    }
+    if at_hex {
+        parts.push(("hex aim".into(), 0));
+    } else {
+        let t = &b.units[target];
+        parts.push(("TMM".into(), target_tmm(t)));
+        let other = equip::void_signature_modifier(t, None, None) + prone_target_modifier(t, distance);
+        if other != 0 {
+            parts.push(("target state".into(), other));
+        }
+    }
+    parts.push(("range".into(), weapon_selection::weapon_range_mod(b, attacker, w, distance).unwrap_or(0)));
+    // whatever is left is the weapon's own adjustments (cover, targeting gear, quirks...): shown as one line so the parts always add up
+    let rest = tn - parts.iter().map(|p| p.1).sum::<i64>();
+    if rest != 0 {
+        parts.push(("other".into(), rest));
+    }
+    Some(parts)
+}
+
 /// The standard ranged attack TN of each of `weapons` that could fire at the target from where the attacker stands, in
 /// the given order (a weapon out of range, out of arc or otherwise unable is left out), with the range and the firing
 /// conditions' note; None when no attack can be made at all (no line of sight, or the attacker cannot fire). `at_hex`:

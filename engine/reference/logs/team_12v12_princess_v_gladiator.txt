@@ -54,7 +54,7 @@
   Deployment roll: Red 5, Blue 4 - Blue chose its edge.
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
   [Movement select] Blue 10: no spot deals damage even before the reply (two-ply, 25 spots) - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Blue 10: 0116 NE -> 0213 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 10: Princess (modern, attack): utility -70.50 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 67.50 + close range 0.00 - mutual support 3.00 - facing 0 + hold 0.00 [356 of 356 spots; 12 enemies, nearest moved]
@@ -190,7 +190,7 @@
   -- end of turn 1: Blue 12 @ 0410 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
   [Movement select] Blue 10: no spot deals damage even before the reply (two-ply, 90 spots) - closing fallback
   [Movement] Blue 10: 0213 NE -> 0213 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 10: Princess (modern, defend): utility -88.25 = -fall 0.00 + bravery -36.25 [1.00 x 3.33 x 1.5 - taken 41.25] - aggression 50.00 + close range 0.00 - mutual support 2.00 - facing 0 + hold 0.00 [344 of 500 spots; 12 enemies, nearest still to move]
@@ -364,7 +364,7 @@
   -- end of turn 2: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 3).
   [Movement select] Red 11: Princess (modern, defend): utility -81.75 = -fall 0.00 + bravery -25.75 [1.00 x 2.00 x 1.5 - taken 28.75] - aggression 50.00 + close range 0.00 - mutual support 6.00 - facing 0 + hold 0.00 [512 of 648 spots; 12 enemies, nearest still to move]
   [Movement] Red 11: 2913 NW -> 2917 SW, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 10: no spot deals damage even before the reply (two-ply, 99 spots) - closing fallback found nothing; nearest reachable spot to the enemy
@@ -526,7 +526,7 @@
   -- end of turn 3: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
   [Movement select] Red 11: Princess (modern, defend): utility -71.50 = -fall 0.00 + bravery -17.50 [1.00 x 3.33 x 1.5 - taken 22.50] - aggression 50.00 + close range 0.00 - mutual support 4.00 - facing 0 + hold 0.00 [480 of 480 spots; 12 enemies, nearest still to move]
   [Movement] Red 11: 2917 SW -> 3116 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue 11: score 1125.882 = dealt 20.70 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 5.88 x my best future 10.68 [two-ply, 45 of 55 spots (grid search) x 1020 replies (short list); modeled reply Red 7 -> 1717 NW Run]
@@ -749,7 +749,7 @@
   -- end of turn 4: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 6).
   [Movement select] Blue 11: score 1294.052 = dealt 21.32 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 5.08 x my best future 10.62 [two-ply, 66 of 95 spots (grid search) x 681 replies (short list); modeled reply Red 1 -> 1516 NW Run]
   [Movement] Blue 11: 0209 S -> 0209 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 10: Princess (modern, defend): utility -66.25 = -fall 0.00 + bravery -22.75 [1.00 x 5.00 x 1.5 - taken 30.25] - aggression 42.50 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [439 of 439 spots; 12 enemies, nearest still to move]
@@ -971,7 +971,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 5: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
   [Movement select] Blue 11: score 2080.236 = dealt 31.04 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 4.51 x my best future 15.19 [two-ply, 66 of 97 spots (grid search) x 482 replies (short list); modeled reply Red 6 -> 1516 NW Run]
   [Movement] Blue 11: 0209 S -> 0209 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 11: Princess (modern, defend): utility -72.25 = -fall 0.00 + bravery -26.25 [1.00 x 5.00 x 1.5 - taken 33.75] - aggression 45.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [375 of 375 spots; 12 enemies, nearest still to move]
@@ -1200,7 +1200,7 @@ FALL (failed Attack Phase PSR): Commando COM-2D takes 3 falling damage (1D6 2: f
   -- end of turn 6: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 8).
   [Movement select] Red 12: Princess (modern, defend): utility -76.25 = -fall 0.00 + bravery -30.25 [1.00 x 5.00 x 1.5 - taken 37.75] - aggression 45.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [333 of 333 spots; 12 enemies, nearest still to move]
   [Movement] Red 12: 3217 NW -> 3217 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 11: score 2708.887 = dealt 21.23 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 3.75 x my best future 16.59 [two-ply, 66 of 97 spots (grid search) x 689 replies (short list); modeled reply: none with LOS]
@@ -1514,7 +1514,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 6.
   -- end of turn 7: Blue 12 @ 0511 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 11).
   [Movement select] Red 12: Princess (modern, attack): utility -76.25 = -fall 0.00 + bravery -30.25 [1.00 x 5.00 x 1.5 - taken 37.75] - aggression 45.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [294 of 294 spots; 12 enemies, nearest still to move]
   [Movement] Red 12: 3217 NW -> 3217 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 11: no spot deals damage even before the reply (two-ply, 97 spots) - closing fallback
@@ -1819,7 +1819,7 @@ Attack Phase PSR 2/2: needs 6 (Piloting 5 + +1). Rolled 7.
   -- end of turn 8: Blue 12 @ 0810 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 12: Princess (modern, attack): utility -76.50 = -fall 0.00 + bravery -33.00 [1.00 x 3.33 x 1.5 - taken 38.00] - aggression 42.50 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [332 of 332 spots; 12 enemies, nearest still to move]
   [Movement] Red 12: 3217 NW -> 3017 SW, Walk (3 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 11: no spot deals damage even before the reply (two-ply, 106 spots) - closing fallback
@@ -2062,7 +2062,7 @@ FALL (automatic fall): Locust LCT-1V takes 2 falling damage (1D6 4: front table,
   -- end of turn 9: Blue 12 @ 1009 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 7).
   [Movement select] Red 10: Princess (modern, attack): utility -82.75 = -fall 0.00 + bravery -41.75 [1.00 x 5.00 x 1.5 - taken 49.25] - aggression 40.00 + close range 0.00 - mutual support 1.00 - facing 0 + hold 0.00 [438 of 438 spots; 12 enemies, nearest still to move]
   [Movement] Red 10: 3117 NW -> 3117 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 11: score 7708.732 = dealt 6.21 x1.00 + (HP 608.0 - received 0.03 x1.00 - PSR 0.00) / enemies' future on me 2.09 x my best future 26.42 [two-ply, 26 of 89 spots (grid search) x 1549 replies (short list); modeled reply Red 9 -> 1707 SW Run]
@@ -2355,7 +2355,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 2.
   -- end of turn 10: Blue 12 @ 1009 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 8, Blue 7).
   [Movement select] Blue 9: no spot deals damage even before the reply (two-ply, 475 spots) - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Blue 9: 1105 NE -> 1504 SW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Blue 12: score 3744.592 = dealt 19.31 x1.00 + (HP 608.0 - received 0.26 x1.00 - PSR 0.00) / enemies' future on me 1.65 x my best future 10.14 [two-ply, 70 of 127 spots (grid search) x 638 replies (short list); modeled reply Red 9 -> 1012 N Run]
@@ -2578,7 +2578,7 @@ FALL (failed Attack Phase PSR): Dervish DV-6M takes 6 falling damage (1D6 3: fro
   -- end of turn 11: Blue 12 @ 1009 S: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
   [Movement select] Blue 12: score 4332.872 = dealt 26.11 x1.00 + (HP 608.0 - received 0.59 x1.00 - PSR 0.00) / enemies' future on me 1.43 x my best future 10.14 [two-ply, 89 of 145 spots (grid search) x 633 replies (short list); modeled reply Red 9 -> 0910 N Run (CHARGE)]
   [Movement] Blue 12: 1009 S -> 0909 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
   [Movement select] Blue 1: score 2631.525 = dealt 5.95 x1.00 + (HP 326.0 - received 0.54 x1.00 - PSR 0.00) / enemies' future on me 1.15 x my best future 9.25 [two-ply, 67 of 207 spots (grid search) x 767 replies (short list); modeled reply Red 11 -> 2910 NW Walk]
@@ -2798,7 +2798,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   -- end of turn 12: Blue 12 @ 0909 S: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 12, Blue 10).
   [Movement select] Blue 12: score 5021.596 = dealt 41.51 x1.00 + (HP 608.0 - received 0.47 x1.00 - PSR 0.00) / enemies' future on me 1.29 x my best future 10.57 [two-ply, 70 of 132 spots (grid search) x 633 replies (short list); modeled reply Red 9 -> 0910 N Run (CHARGE)]
   [Movement] Blue 12: 0909 S -> 0909 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 11: score 5022.361 = dealt 41.51 x1.00 + (HP 608.0 - received 0.37 x1.00 - PSR 0.00) / enemies' future on me 1.29 x my best future 10.57 [two-ply, 56 of 105 spots (grid search) x 633 replies (short list); modeled reply Red 9 -> 0911 NW Run (CHARGE)]
@@ -3138,7 +3138,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   -- end of turn 13: Blue 12 @ 0909 S: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 14 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 11).
   [Movement select] Red 12: Princess (modern, defend): utility -43.25 = -fall 0.00 + bravery -36.25 [1.00 x 5.00 x 1.5 - taken 43.75] - aggression 0.00 + close range 0.00 - mutual support 7.00 - facing 0 + hold 0.00 [358 of 358 spots; 11 enemies, nearest still to move]
   [Movement] Red 12: 3217 NW -> 3217 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 12: score 4804.733 = dealt 2.71 x1.00 + (HP 608.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 1.28 x my best future 10.14 [two-ply, 28 of 132 spots (grid search) x 925 replies (short list); modeled reply: none with LOS]
@@ -3325,7 +3325,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   -- end of turn 14: Blue 12 @ 1208 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 15 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
   [Movement select] Red 12: Princess (modern, attack): utility -79.75 = -fall 0.00 + bravery -35.25 [1.00 x 3.33 x 1.5 - taken 40.25] - aggression 37.50 + close range 0.00 - mutual support 7.00 - facing 0 + hold 0.00 [353 of 353 spots; 11 enemies, nearest still to move]
   [Movement] Red 12: 3217 NW -> 3216 N, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 11: score 5702.712 = dealt 12.89 x1.00 + (HP 608.0 - received 0.03 x1.00 - PSR 0.00) / enemies' future on me 1.08 x my best future 10.14 [two-ply, 59 of 115 spots (grid search) x 1159 replies (short list); modeled reply Red 9 -> 1607 SW Run]
@@ -3530,7 +3530,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
   -- end of turn 15: Blue 12 @ 1507 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 16 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 10).
   [Movement select] Red 12: Princess (modern, attack): utility -82.75 = -fall 0.00 + bravery -57.75 [1.00 x 3.33 x 1.5 - taken 62.75] - aggression 25.00 + close range 2.00 - mutual support 2.00 - facing 0 + hold 0.00 [393 of 393 spots; 11 enemies, nearest still to move]
   [Movement] Red 12: 3216 N -> 3212 NW, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 12: score 6180.553 = dealt 16.62 x1.00 + (HP 608.0 - received 0.05 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.14 [two-ply, 48 of 127 spots (grid search) x 596 replies (short list); modeled reply Red 9 -> 1410 NE Run]
@@ -3775,7 +3775,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   -- end of turn 16: Blue 12 @ 1806 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 17 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
   [Movement select] Blue 11: score 6218.991 = dealt 57.43 x1.00 + (HP 608.0 - received 0.28 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.14 [two-ply, 50 of 112 spots (grid search) x 633 replies (short list); modeled reply Red 9 -> 0911 NW Run (CHARGE)]
   [Movement] Blue 11: 0810 SE -> 0810 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 1: score 2384.112 = dealt 6.49 x1.00 + (HP 320.0 - received 0.38 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 7.44 [two-ply, 54 of 186 spots (grid search) x 586 replies (short list); modeled reply Red 12 -> 2914 NW Run]
@@ -3986,7 +3986,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 11.
   -- end of turn 17: Blue 12 @ 2108 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 18 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 4).
   [Movement select] Blue 11: score 6217.910 = dealt 54.05 x1.00 + (HP 608.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.14 [two-ply, 50 of 111 spots (grid search) x 686 replies (short list); modeled reply Red 9 -> 1214 NW Run]
   [Movement] Blue 11: 0810 SE -> 0810 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 8: score 2475.999 = dealt 26.96 x1.00 + (HP 368.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 6.66 [two-ply, 139 of 513 spots (grid search) x 686 replies (short list); modeled reply Red 9 -> 1214 NW Run]
@@ -4145,7 +4145,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 4: fr
   -- end of turn 18: Blue 12 @ 2309 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
   [Movement select] Blue 11: no spot deals damage even before the reply (two-ply, 111 spots) - closing fallback
   [Movement] Blue 11: 0810 SE -> 0810 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 8: score 2457.151 = dealt 7.97 x1.00 + (HP 368.0 - received 0.04 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 6.66 [two-ply, 126 of 513 spots (grid search) x 768 replies (short list); modeled reply Red 9 -> 1616 NW Walk]
@@ -4529,7 +4529,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 12.
   -- end of turn 19: Blue 12 @ 2007 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
   [Movement select] Blue 11: score 6232.443 = dealt 68.65 x1.00 + (HP 608.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.14 [two-ply, 59 of 120 spots (grid search) x 537 replies (short list); modeled reply Red 9 -> 1214 NW Run]
   [Movement] Blue 11: 0810 SE -> 0810 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue 8: score 3034.853 = dealt 26.78 x1.00 + (HP 368.0 - received 0.24 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 8.18 [two-ply, 148 of 455 spots (grid search) x 537 replies (short list); modeled reply Red 9 -> 1114 NW Run]
@@ -4742,7 +4742,7 @@ FALL (automatic fall): Dervish DV-6M takes 6 falling damage (1D6 5: front table,
   -- end of turn 20: Blue 12 @ 1908 S: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 21 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
   [Movement select] Red 10: Princess (modern, defend): utility -47.75 = -fall 0.00 + bravery -52.75 [1.00 x 3.33 x 1.5 - taken 57.75] - aggression 0.00 + close range 6.00 - mutual support 1.00 - facing 0 + hold 0.00 [630 of 630 spots; 10 enemies, nearest still to move]
   [Movement] Red 10: 3209 SW -> 3210 NW, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue 11: score 6192.228 = dealt 49.50 x1.00 + (HP 608.0 - received 0.06 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.10 [two-ply, 59 of 120 spots (grid search) x 544 replies (short list); modeled reply Red 9 -> 1214 NW Run]
@@ -4938,7 +4938,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   -- end of turn 21: Blue 12 @ 1908 S: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 22 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 8, Blue 4).
   [Movement select] Blue 11: score 4921.563 = dealt 6.98 x1.00 + (HP 608.0 - received 0.01 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 8.08 [two-ply, 26 of 120 spots (grid search) x 645 replies (short list); modeled reply Red 9 -> 1809 NW Run]
   [Movement] Blue 11: 0810 SE -> 0908 N, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
 Stand attempt 1: needs 10 (Piloting 5 + +5, incl. -1 for standing). Rolled 6.
@@ -5155,7 +5155,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   -- end of turn 22: Blue 12 @ 1908 S: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 23 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
   [Movement select] Red 12: Princess (modern, attack): utility -52.25 = -fall 0.00 + bravery -59.75 [1.00 x 1.00 x 1.5 - taken 61.25] - aggression 2.50 + close range 11.00 - mutual support 1.00 - facing 0 + hold 0.00 [435 of 435 spots; 10 enemies, nearest still to move]
   [Movement] Red 12: 3213 N -> 3208 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 4 / run 6 / jump 5)
   [Movement select] Blue 11: no spot deals damage even before the reply (two-ply, 111 spots) - closing fallback
@@ -5394,7 +5394,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
   -- end of turn 23: Blue 12 @ 2008 SE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 24 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red 12: Princess (modern, attack): utility -61.50 = -fall 0.00 + bravery -54.00 [1.00 x 3.33 x 1.5 - taken 59.00] - aggression 12.50 + close range 7.00 - mutual support 2.00 - facing 0 + hold 0.00 [645 of 645 spots; 9 enemies, nearest still to move]
   [Movement] Red 12: 3208 SW -> 3008 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
 Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.
@@ -5604,7 +5604,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
   -- end of turn 24: Blue 12 @ 1809 NE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 25 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 3).
 Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.
   [Movement] Blue 6: still prone at 1715.
   [Movement select] Blue 11: score 7880.120 = dealt 12.77 x1.00 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 12.94 [two-ply, 55 of 134 spots (grid search) x 975 replies (short list); modeled reply Red 3 -> 2312 SW Run]
@@ -5778,7 +5778,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 6: fr
   -- end of turn 25: Blue 12 @ 1809 NE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
 Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.
   [Movement] Blue 6: still prone at 1715.
   [Movement select] Blue 10: score 7550.008 = dealt 17.41 x1.00 + (HP 608.0 - received 0.30 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 12.40 [two-ply, 29 spots x 664 replies (short list); modeled reply Red 12 -> 2913 SW Walk]
@@ -5933,7 +5933,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
   -- end of turn 26: Blue 12 @ 1809 NE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 27 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
 Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.
   [Movement] Blue 6: still prone at 1715.
   [Movement select] Blue 11: score 6314.925 = dealt 21.28 x1.00 + (HP 608.0 - received 0.02 x1.00 - PSR 0.00) / enemies' future on me 1.00 x my best future 10.35 [two-ply, 67 of 100 spots (grid search) x 1042 replies (short list); modeled reply Red 3 -> 2212 SW Run]
@@ -6134,7 +6134,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 27: Blue 12 @ 1809 NE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 28 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 8).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
   Success - Griffin GRF-1N is standing (remaining running MP 6).
   [Movement select] Red 12: Princess (modern, attack): utility -54.50 = -fall 0.00 + bravery -61.00 [1.00 x 2.00 x 1.5 - taken 64.00] - aggression 2.50 + close range 11.00 - mutual support 2.00 - facing 0 + hold 0.00 [114 of 114 spots; 9 enemies, nearest still to move]
@@ -6377,7 +6377,7 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 1: 
   -- end of turn 28: Blue 12 @ 1809 NE: HP 450, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 29 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 10).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   Success - Griffin GRF-1N is standing (remaining running MP 4).
   [Movement select] Red 12: Princess (modern, attack): utility -52.25 = -fall 0.00 + bravery -60.75 [1.00 x 1.00 x 1.5 - taken 62.25] - aggression 2.50 + close range 11.00 - facing 0 + hold 0.00 [50 of 50 spots; 9 enemies, nearest still to move]

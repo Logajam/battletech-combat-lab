@@ -297,8 +297,7 @@ function take(r) {
     if (u.weapons) S.wlist[u.id] = u.weapons;
   }
   if (r.board && !S.board) { S.board = r.board; buildMap(); S.needFocus = true; }
-  if (r.initiative && r.initiative.turn) S.init = r.initiative;
-  if (r.log && r.log.length) feedLog(r.log.map(initLine));
+  if (r.log && r.log.length) feedLog(r.log);
   releaseLog(r.kind);
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
@@ -310,15 +309,6 @@ function take(r) {
   HANDLERS[r.kind](r);
   redraw();
   if (S.needFocus && r.kind !== "deploy") { S.needFocus = false; const mine = S.units.filter((u) => u.team === S.myTeam && u.hex).map((u) => u.hex); if (mine.length) focusOn(mine, 3); }
-}
-// INITIATIVE (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be shown"; "The roll needs to be in the
-// report"). The engine sends each turn's throws (2D6 a team, p.39; tied teams re-roll among themselves) with every question, and the
-// report's Initiative line carries them. (The title bar is for whose turn it is, Daniel: not the roll.)
-const initText = (round) => round.map(([t, v]) => `${t} ${v}`).join(", ");
-function initLine(l) {
-  const I = S.init; if (!I || !/^\s*Initiative/.test(l)) return l;
-  const rounds = I.rounds || []; if (!rounds.length) return l;
-  return `${l.replace(/\.$/, "")} (rolled ${initText(rounds[0])}${rounds.slice(1).map((r) => `; tie re-rolled ${initText(r)}`).join("")}).`;
 }
 const errLine = (r) => (r.error ? `<div class="err">${esc(r.error)}</div>` : "");
 const eq = (u) => (u && u.equipment) || {};
@@ -1121,7 +1111,9 @@ function finish(end) {
 // It must not give anything away early: bot reasoning is never shown; a movement line appears once that unit has moved; everything about the
 // firing, physical and heat phases waits until that phase is over (the first question of a later phase). The report is a pop-up over every
 // screen and button until it is closed; after the firing phase a combat report opens by itself.
-const SEC = { move: 0, ranged: 1, phys: 2, heat: 3 };
+// "tag" (bug B16, Daniel 2026-11-22: "since TAG is used in its own sub phase it would be reported before the ranged attack phase
+// begins"): a TAG attack is resolved before any weapon is declared (Core p.200), so its lines are shown as soon as they come.
+const SEC = { move: 0, ranged: 1, phys: 2, heat: 3, tag: -1 };
 const GROUP = { deploy: 0, move_order: 0, movement: 0, stand_up: 0, boost: 0, spot: 1, tag: 1, target: 1, declaration: 1, physical: 2, end_phase: 3, over: 9 };
 S.queue = []; S.shown = []; S.fresh = []; S.lastSec = "move";
 function secOf(l) {
@@ -1129,7 +1121,8 @@ function secOf(l) {
   if (/\[Movement\]|=== TURN|Initiative|Deployment/.test(l)) return "move";
   if (/\[Physical\]/.test(l)) return "phys";
   if (/\[Heat\]|-- end of turn/.test(l)) return "heat";
-  if (/\[Ranged\]|\[Spot|\[TAG|\bAMS\b/i.test(l)) return "ranged";
+  if (/\[TAG\]/.test(l)) return "tag";
+  if (/\[Ranged\]|\[Spot|\bAMS\b/i.test(l)) return "ranged";
   return S.lastSec;                                         // an indented result line belongs to the line above it
 }
 function feedLog(lines) { for (const l of lines) { S.log.push(l); const s = secOf(l); if (s !== "hide") { S.lastSec = s; S.queue.push({ l, s }); } } }
@@ -1139,7 +1132,7 @@ function releaseLog(kind) {
     const q = S.queue[0], o = SEC[q.s];
     if (o !== 0 && g === o) break;                        // that phase is still going on: hold it (and everything after it)
     S.queue.shift(); S.shown.push(q.l); any = true;
-    if (q.s === "ranged" || q.s === "phys") { S.fresh.push(q.l); fired = true; }
+    if (q.s === "ranged" || q.s === "phys" || q.s === "tag") { S.fresh.push(q.l); fired = true; }
   }
   if (any) renderReport();
   if (fired) openReport(true);
@@ -1156,6 +1149,10 @@ function fmtLine(l) {
   if ((m = /^\s{4}(.+?): needs (\d+)(.*?), rolled (\d+) -> (.+)$/.exec(l))) {
     const hit = /\bhit\b/i.test(m[5]) && !/miss/i.test(m[5]);
     return `<div class="rs ${hit ? "hit" : "miss"}"><b>${esc(m[1])}</b> needs ${m[2]}${esc(m[3])}, rolled ${m[4]}: ${hit ? "HIT" : "miss"} <small>${hit ? esc(m[5].replace(/^hit\W*/i, "")) : ""}</small></div>`;
+  }
+  if ((m = /\[TAG\] (.+?)'s (.+?) -> (.+?): needs (\d+) \((.*?)\), rolled (\d+) -> (.+)$/.exec(l))) {
+    const hit = /DESIGNATED/.test(m[7]);
+    return `<div class="rs ${hit ? "hit" : "miss"}"><b>TAG: ${esc(m[1])} &rarr; ${esc(m[3])}</b> needs ${m[4]} <small>(${esc2(m[5])})</small>, rolled ${m[6]}: ${hit ? "DESIGNATED for this turn" : "miss"}</div>`;
   }
   if ((m = /\[Heat\] (.+?): (\d+) \+ movement (\d+) \+ weapons (\d+) \+ engine (\d+) - sinks (\d+) -> (\d+)/.exec(l)))
     return `<div class="rm"><b>${esc(m[1])}</b> heat ${m[2]} &rarr; ${m[7]} (movement +${m[3]}, weapons +${m[4]}, engine +${m[5]}, sinks &minus;${m[6]})</div>`;

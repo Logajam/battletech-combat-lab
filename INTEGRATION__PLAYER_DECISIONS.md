@@ -465,7 +465,7 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
    stand). STILL OPEN: the MegaMek / bridge movement audit. FOUND, NOT BUILT: a 'Mech that chooses to stay prone may still change facing at 1 MP a hexside (Core p.51), but the engine
    gives a unit that stays prone no move at all.
 3. FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
-4. FEAT **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
+4. FEAT (title bar: OPEN; the dice: DONE 2026-11-24, in the report) **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
    bar. (Phones might make me change my mind.)"
 
 ### B. Firing
@@ -495,7 +495,9 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
     questions from the plan; the engine asks "another target?" only while another enemy could be a secondary target, so with one enemy left (or the other outside the forward arc)
     the plan was never closed and answered that 'Mech's NEXT target question, a turn later, with "hold fire" on its own. TAG was just the last thing seen before it. The plan now
     answers only the question straight after its own last answer. `check_web_play.py` part 5 reproduces Daniel's game (one Raven, Skip TAG, Fire!) and fails on the old page.
-16. BUG **TAG's to-hit number is not expanded in the round report.** And: "since TAG is used in its own sub phase it would be reported before the ranged attack phase begins."
+16. FIXED 2026-11-24 BUG **TAG's to-hit number is not expanded in the round report.** And: "since TAG is used in its own sub phase it would be reported before the ranged attack phase begins."
+    DONE: the engine's [TAG] line carries the number's parts like the [Ranged] lines ("needs 8 (range 1; gunnery 4 + AMM 1 [Walk] + LOS 0 + heat 0 + TMM 3
+    + range 0)"); the report gives TAG its own section, shown as soon as the TAG step is over (before any weapon is declared), as "TAG: X -> Y needs N (...), rolled R".
 
 ### D. Reports (round report, combat report)
 17. FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a

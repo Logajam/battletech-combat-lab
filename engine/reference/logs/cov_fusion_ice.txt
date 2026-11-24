@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 7634.362 = dealt 14.48 x1.00 + (HP 422.0 - received 0.33 x1.01 - PSR 0.00) / enemy future 1.12 x my future 20.18 [two-ply, 110 of 423 spots (grid search) x 34 replies (short list); modeled reply Red -> 0606 SW Run]
   [Movement] Blue: 0508 N -> 0309 SE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 7 / jump 0) - includes a backward move
   [Movement select] Red: score 9.215 = dealt 0.83 x1.01 + (HP 166.0 - received 14.54 x1.01 - PSR 0.00) / enemy future 20.18 x my future 1.12 [enemy held at 0309; 5 spots with LOS]

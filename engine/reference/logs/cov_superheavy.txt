@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 1416.978 = dealt 56.69 x1.00 + (HP 1172.0 - received 63.44 x1.00 - PSR 0.00) / enemy future 23.56 x my future 28.91 [two-ply, 28 of 36 spots (grid search) x 36 replies (short list); modeled reply Red -> 0505 S Stand Still]
   [Movement] Blue: 0509 N -> 0509 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
   [Movement select] Red: score 739.281 = dealt 63.44 x1.00 + (HP 886.0 - received 56.69 x1.00 - PSR 0.00) / enemy future 28.91 x my future 23.56 [enemy held at 0509; 29 spots with LOS]
@@ -142,7 +142,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   -- end of turn 1: Blue @ 0509 N: HP 798, pilot hits 1, engine 1, gyro 0, heat 28 [SHUT DOWN]
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 12).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   Success - Omega SHP-5R is standing (remaining running MP 1).
   [Movement select] Red: score 1695.667 = dealt 54.38 x1.00 + (HP 809.0 - received 11.97 x1.00 - PSR 0.00) / enemy future 19.25 x my future 39.64 [two-ply, 12 spots x 1 replies (short list); modeled reply Blue -> 0509 N Stand Still]
@@ -200,7 +200,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
   -- end of turn 2: Blue @ 0509 N: HP 713, pilot hits 2, engine 1, gyro 0, heat 0 [PRONE]
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 10).
   [Movement select] Red: score 1622.872 = dealt 61.34 x1.00 + (HP 809.0 - received 9.83 x1.00 - PSR 0.00) / enemy future 22.57 x my future 44.11 [two-ply, 12 of 13 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0509 N Run]
   [Movement] Red: 0505 S -> 0505 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
@@ -329,7 +329,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 3 pilot hits): needs 7. 
   -- end of turn 3: Blue @ 0508 N: HP 647, pilot hits 3, engine 2, gyro 0, heat 29 [SHUT DOWN, UNCONSCIOUS]
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 4, Blue 2).
   [Movement] Blue: shut down - skips movement (immobile).
   [Movement select] Red: score 1856.427 = dealt 57.11 x1.00 + (HP 760.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 21.00 x my future 49.72 [enemy held at 0508; 1 spots with LOS]
   [Movement] Red: 0505 S -> 0505 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
@@ -379,7 +379,7 @@ End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 4.
   -- end of turn 4: Blue @ 0508 N: HP 577, pilot hits 4, engine 2, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
 
 === TURN 5 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 9).
   [Movement select] Red: score 2224.484 = dealt 52.36 x1.00 + (HP 760.0 - received 27.24 x1.00 - PSR 0.00) / enemy future 18.00 x my future 53.36 [two-ply, 12 of 13 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0508 N Stand Still]
   [Movement] Red: 0505 S -> 0505 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
   [Movement] Blue: all crew unconscious - skips movement (immobile).
@@ -513,7 +513,7 @@ End Phase wake-up check (pilot, 5 pilot hits): needs 11. Rolled 7.
   -- end of turn 5: Blue @ 0508 N: HP 526, pilot hits 5, engine 2, gyro 0, heat 19 [SHUT DOWN, PRONE, UNCONSCIOUS]
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
   [Movement] Blue: shut down - skips movement (immobile).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   Success - Omega SHP-5R is standing (remaining running MP 1).

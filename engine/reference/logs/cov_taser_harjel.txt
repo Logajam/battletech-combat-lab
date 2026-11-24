@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 146.016 = dealt 1.67 x1.00 + (HP 212.0 - received 7.36 x1.30 - PSR 0.00) / enemy future 4.23 x my future 3.02 [two-ply, 56 of 256 spots (grid search) x 815 replies (short list); modeled reply Red -> 0411 NE Run]
   [Movement] Blue: 0508 N -> 0511 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 465.827 = dealt 7.36 x1.30 + (HP 327.0 - received 1.67 x1.01 - PSR 0.00) / enemy future 3.02 x my future 4.23 [enemy held at 0511; 126 spots with LOS]
@@ -31,7 +31,7 @@
   -- end of turn 1: Blue @ 0511 NE: HP 144, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 4, Blue 2).
   [Movement select] Blue: score 25.809 = dealt 1.67 x1.00 + (HP 202.0 - received 14.41 x1.26 - PSR 0.00) / enemy future 7.61 x my future 1.00 [two-ply, 99 of 287 spots (grid search) x 792 replies (short list); modeled reply Red -> 0411 NE Run]
   [Movement] Blue: 0511 NE -> 0511 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 2494.860 = dealt 14.41 x1.26 + (HP 327.0 - received 1.67 x1.01 - PSR 0.00) / enemy future 1.00 x my future 7.61 [enemy held at 0511; 211 spots with LOS]
@@ -74,7 +74,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 2: Blue @ 0511 NE: HP 129, pilot hits 1, engine 0, gyro 0, heat 4 [SHUT DOWN, PRONE]
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 10).
   [Movement select] Red: score 3442.374 = dealt 16.46 x1.35 + (HP 327.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.46 [two-ply, 177 of 755 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0511 NE Stand Still]
   [Movement] Red: 0411 N -> 0411 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
   [Movement] Blue: shut down - skips movement (immobile).
@@ -115,7 +115,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 3: Blue @ 0511 NE: HP 118, pilot hits 1, engine 0, gyro 0, heat 0 [SHUT DOWN, PRONE]
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 5).
   [Movement] Blue: shut down - skips movement (immobile).
   [Movement select] Red: score 3594.344 = dealt 21.53 x1.18 + (HP 327.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.91 [enemy held at 0511; 212 spots with LOS]
   [Movement] Red: 0411 N -> 0411 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)

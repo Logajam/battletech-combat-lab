@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 35, later), INITIATIVE DICE IN THE LOG; TAG'S NUMBER SPELLED OUT AND REPORTED BEFORE THE RANGED PHASE (bug B16). REFERENCE LOGS UPDATED. REVIEW PENDING (higher-level model).**
+  Daniel: "The dice rolls to determine initiative every turn should be shown"; "The roll needs to be in the report"; and, on the answer key, "The answer key is there to prevent
+  unintended changes. Its not there to hold us back." (1) Every turn's Initiative line ends with the dice: "Initiative: Red lost the roll, moves first (rolled Red 7, Blue 7; tie
+  re-rolled Red 3, Blue 6)." (`forces::initiative_order` keeps each round's throws in `Battle::initiative_throws`; `orchestrator::log_initiative`). (2) A TAG line's number carries
+  its parts, as the ranged lines do (`attack_resolution::weapon_attack_parts`, read only and after the roll). (3) The play report gives TAG its own section, shown as soon as the TAG
+  step ends (p.200: TAG is resolved before the Ranged Attack Phase). No dice or decision changed: all 91 reference logs were rewritten (`check_rust_reference.py --update`) and checked
+  line by line to differ ONLY in those two kinds of line (2,246 Initiative lines, 1 TAG line). The answer-key test (`stage6_battles.rs`) takes the two additions back out (`known_changes`)
+  and gives the same results as main, where 41 of its 63 battles already fail (PROJECT_MAP Section 4, "The answer key has drifted"). A title-bar version of the dice was tried and taken
+  out (Daniel: that spot is for whose turn it is). The fire-screen ideas for B6 / B7 / B8 were parked as a patch (Daniel: hold onto them for comparison). Tests: `check_web_play.py`
+  (each Initiative line carries the dice; a designation shows in the report, parts spelled out, before the fire step).
+
 - **2026-11-24 (Claude, session 35), BATTLEROM BUG HUNT: five of Daniel's play bugs fixed (Section 24 items 2, 10, 11 for TAG, 13, 15). REVIEW PENDING (higher-level model).** Daniel: "Start the
   bug hunt. Nuke them from orbit authorized." (1) B15 + B10, "skip TAG ended my firing phase": a page bug, not TAG. After Fire! the page answers the engine's questions from the plan; the engine
   asks "another target?" only while another enemy can be a secondary target (`Screen::secondary` returns at once when none can), so with one enemy left the plan stayed open and answered that

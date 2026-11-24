@@ -1054,11 +1054,18 @@ pub fn play_on(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, marks: Ma
     finish(b, play);
 }
 
+/// The turn's Initiative line, with the dice (Daniel, 2026-11-24: "The dice rolls to determine initiative every turn should be
+/// shown"; a known change from the answer key, stage6_battles.rs `known_changes`): each team's 2D6, then any tie re-rolls (p.39).
 fn log_initiative(b: &mut Battle, order: &[String]) {
+    let text = |round: &Vec<(String, i64)>| round.iter().map(|(t, v)| format!("{} {}", t, v)).collect::<Vec<_>>().join(", ");
+    let dice = match b.initiative_throws.split_first() {
+        Some((first, rest)) => format!(" (rolled {}{})", text(first), rest.iter().map(|r| format!("; tie re-rolled {}", text(r))).collect::<String>()),
+        None => String::new(),
+    };
     if order.len() == 2 {
-        b.log(format!("  Initiative: {} lost the roll, moves first.", order[0]));
+        b.log(format!("  Initiative: {} lost the roll, moves first{}.", order[0], dice));
     } else {
-        b.log(format!("  Initiative order (acts first to last): {}.", order.join(", ")));
+        b.log(format!("  Initiative order (acts first to last): {}{}.", order.join(", "), dice));
     }
 }
 
@@ -1079,7 +1086,6 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let alive_teams = forces::team_names(b, &alive);
     let order = forces::initiative_order(b, &alive_teams, None);
     log_initiative(b, &order);
-    b.initiative = serde_json::json!({"turn": turn, "rounds": b.initiative_throws, "order": order});
     let in_order: Vec<UnitId> = order.iter().flat_map(|t| alive.iter().copied().filter(|m| b.units[*m].team.as_deref() == Some(t.as_str())).collect::<Vec<_>>()).collect();
 
     for u in 0..b.units.len() {

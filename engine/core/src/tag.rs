@@ -69,6 +69,7 @@ pub fn designation_units(b: &mut Battle, order: &[UnitId], target_of: &mut dyn F
     for &m in order {
         b.units[m].tag_designated = None;
     }
+
     // a new turn's spots start here: TAG hits below are the first (spotting.rs; p.70)
     b.spots.clear();
     for &attacker in order {
@@ -131,6 +132,18 @@ fn roll_designation(b: &mut Battle, attacker: UnitId, target: UnitId, aim: &'sta
     let t_name = b.units[target].side_name.clone().unwrap_or_default();
     let (tn, weapon, note) = if aim == "hex" { at_hex.unwrap() } else { at_mech.unwrap() };
     let roll = b.roll_2d6();
+    // the number's parts, as the ranged attack lines show theirs (bug B16, Daniel 2026-11-22: "TAG's to-hit number is not expanded";
+    // a known change from the answer key, stage6_battles.rs `known_changes`); read only, after the roll
+    let parts = crate::attack_resolution::weapon_attack_parts(b, attacker, target, weapon, aim == "hex").unwrap_or_default();
+    // written as the [Ranged] lines write theirs: "AMM 1 [Walk]" (the label's bracket goes after the number)
+    let parts = parts
+        .iter()
+        .map(|(k, v)| match k.split_once(' ') {
+            Some((name, note)) if note.starts_with('[') => format!("{} {} {}", name, v, note),
+            _ => format!("{} {}", k, v),
+        })
+        .collect::<Vec<_>>()
+        .join(" + ");
     if roll >= tn && b.units[target].tag_designated.as_deref() != Some("mech") {
         b.units[target].tag_designated = Some(aim.to_string());
     }
@@ -140,5 +153,5 @@ fn roll_designation(b: &mut Battle, attacker: UnitId, target: UnitId, aim: &'sta
     }
     let what = if aim == "hex" { format!("{}'s hex", t_name) } else { t_name };
     let wn = b.units[attacker].items[weapon].name.clone();
-    b.log(format!("  [TAG] {}'s {} -> {}: needs {} ({}), rolled {} -> {}", a_name, wn, what, tn, note, roll, if roll >= tn { "DESIGNATED for this turn (p.200)" } else { "miss" }));
+    b.log(format!("  [TAG] {}'s {} -> {}: needs {} ({}; {}), rolled {} -> {}", a_name, wn, what, tn, note, parts, roll, if roll >= tn { "DESIGNATED for this turn (p.200)" } else { "miss" }));
 }

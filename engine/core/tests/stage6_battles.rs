@@ -74,6 +74,34 @@ fn expected_log(dir: &PathBuf) -> (Vec<String>, Vec<String>) {
     (body, stderr)
 }
 
+/// KNOWN, DELIBERATE CHANGES since the answer key was frozen (Daniel, 2026-11-24: "The answer key is there to prevent unintended
+/// changes. Its not there to hold us back."). Each one is taken back out of the Rust log here, so everything else must still match
+/// the Python exactly. Add an entry (with its date and reason) for each change that is meant; never to hide an unexplained one.
+///  1. 2026-11-24: the Initiative line ends with the dice, " (rolled Red 7, Blue 7; tie re-rolled Red 3, Blue 6)" (orchestrator
+///     `log_initiative`; Daniel: "The dice rolls to determine initiative every turn should be shown").
+///  2. 2026-11-24: a TAG line's number carries its parts, "needs 9 (range 5; gunnery 4 + AMM 1 [Walk] + ...)" (tag.rs
+///     `roll_designation`; bug B16: "TAG's to-hit number is not expanded").
+fn known_changes(lines: Vec<String>) -> Vec<String> {
+    lines
+        .into_iter()
+        .map(|l| {
+            if l.starts_with("  Initiative") {
+                if let (Some(i), true) = (l.find(" (rolled "), l.ends_with(").")) {
+                    return format!("{}.", &l[..i]);
+                }
+            }
+            if l.starts_with("  [TAG] ") {
+                if let Some(i) = l.find("; gunnery ") {
+                    if let Some(j) = l[i..].find("), rolled ") {
+                        return format!("{}{}", &l[..i], &l[i + j..]);
+                    }
+                }
+            }
+            l
+        })
+        .collect()
+}
+
 /// Smoke that clears in one End Phase prints in hash order in Python (INTEGRATION__RUST_PORT.md "Found on the way" 1):
 /// compare each run of those lines sorted.
 fn normalize(lines: Vec<String>) -> Vec<String> {
@@ -184,7 +212,7 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     let seen = seen_c.get();
     let (want_log, want_err) = expected_log(&dir);
     let want_log = normalize(want_log);
-    let got_log: Vec<String> = normalize(b.log.lines.join("\n").split('\n').map(|s| s.to_string()).collect());
+    let got_log: Vec<String> = normalize(known_changes(b.log.lines.join("\n").split('\n').map(|s| s.to_string()).collect()));
     // smoke-clearing lines of one turn print in hash order in Python: compare them sorted
     if let Some(f) = failure {
         // show the first log difference as well: it usually names the cause

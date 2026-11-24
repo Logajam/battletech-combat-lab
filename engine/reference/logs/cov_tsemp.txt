@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 130.031 = dealt 0.83 x1.00 + (HP 166.0 - received 0.83 x1.37 - PSR 0.00) / enemy future 1.65 x my future 1.29 [two-ply, 404 of 2311 spots (grid search) x 1973 replies (short list); modeled reply Red -> 1013 SE Run]
   [Movement] Blue: 0509 N -> 1114 SE, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
@@ -21,7 +21,7 @@
   -- end of turn 1: Blue @ 1114 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 10).
   [Movement select] Red: score 176.310 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.28 - PSR 0.00) / enemy future 1.29 x my future 1.00 [two-ply, 256 of 1715 spots (grid search) x 1909 replies (short list); modeled reply Blue -> 1013 SE Walk]
   [Movement] Red: 0711 SE -> 0902 N, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 216.448 = dealt 1.39 x1.28 + (HP 166.0 - received 0.00 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.29 [enemy held at 0902; 247 spots with LOS]
@@ -41,7 +41,7 @@
   -- end of turn 2: Blue @ 0906 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 8).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 9 - works.
   [Movement select] Red: score 247.204 = dealt 0.83 x1.00 + (HP 228.0 - received 0.75 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 250 of 1323 spots (grid search) x 2709 replies (short list); modeled reply Blue -> 0504 S Walk]
   [Movement] Red: 0902 N -> 0505 SW, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -57,7 +57,7 @@
   -- end of turn 3: Blue @ 1108 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 12).
   [Movement select] Red: score 231.361 = dealt 1.17 x1.00 + (HP 228.0 - received 2.20 x1.28 - PSR 0.00) / enemy future 1.61 x my future 1.65 [two-ply, 271 of 1362 spots (grid search) x 2662 replies (short list); modeled reply Blue -> 0202 SE Run (CHARGE)]
   [Movement] Red: 0505 SW -> 0303 SE, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: CHARGE (TN 11, P 0.08, 25 dmg) on Red: score 164.062 = dealt 2.20 x1.28 + (HP 166.0 - received 1.17 x1.00 - PSR 0.00) / enemy future 1.65 x my future 1.61 [incl. self-damage] beats 164.040
@@ -77,7 +77,7 @@
   -- end of turn 4: Blue @ 0202 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 4).
   [Movement select] Blue: score 267.950 = dealt 1.85 x1.00 + (HP 166.0 - received 1.13 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.61 [two-ply, 236 of 1472 spots (grid search) x 1277 replies (short list); modeled reply Red -> 0214 S Run]
   [Movement] Blue: 0202 SE -> 0215 NW, Run (17 MP, 13 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
@@ -96,7 +96,7 @@
   -- end of turn 5: Blue @ 0215 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 11
 
 === TURN 6 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 11).
   [Movement select] Red: score 248.039 = dealt 0.83 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 252 of 1379 spots (grid search) x 1268 replies (short list); modeled reply Blue -> 0907 NE Run]
   [Movement] Red: 0310 NE -> 0905 SW, Run (11 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
@@ -116,7 +116,7 @@
   -- end of turn 6: Blue @ 0706 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 8).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 4 - works.
   [Movement select] Red: score 149.087 = dealt 0.00 x1.00 + (HP 228.0 - received 0.86 x1.28 - PSR 0.00) / enemy future 1.52 x my future 1.00 [two-ply, 314 of 1911 spots (grid search) x 2529 replies (short list); modeled reply Blue -> 1115 N Run]
   [Movement] Red: 0905 SW -> 1114 N, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -138,7 +138,7 @@
   -- end of turn 7: Blue @ 1115 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 8 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 8, Blue 10).
   [Movement select] Red: score 232.615 = dealt 0.42 x1.00 + (HP 228.0 - received 0.85 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.65 [two-ply, 247 of 1411 spots (grid search) x 1896 replies (short list); modeled reply Blue -> 1207 NW Run]
   [Movement] Red: 1114 N -> 1107 SW, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 162.836 = dealt 0.85 x1.01 + (HP 166.0 - received 0.42 x1.00 - PSR 0.00) / enemy future 1.65 x my future 1.61 [enemy held at 1107; 320 spots with LOS]
@@ -162,7 +162,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 8: Blue @ 1207 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 11
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 4).
   [Movement select] Blue: score 252.531 = dealt 0.76 x1.00 + (HP 166.0 - received 0.57 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.52 [two-ply, 388 of 2203 spots (grid search) x 2044 replies (short list); modeled reply Red -> 1107 SE Run]
   [Movement] Blue: 1207 NW -> 1207 NE, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 8 - works.
@@ -184,7 +184,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 9: Blue @ 1207 NE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 8; tie re-rolled Red 11, Blue 2).
   [Movement select] Blue: score 163.676 = dealt 3.23 x1.00 + (HP 166.0 - received 1.98 x1.00 - PSR 0.00) / enemy future 1.65 x my future 1.61 [two-ply, 361 of 2264 spots (grid search) x 1465 replies (short list); modeled reply Red -> 1216 SW Run]
   [Movement] Blue: 1207 NE -> 1117 NE, Run (17 MP, 11 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
   [Movement select] Red: score 233.494 = dealt 0.83 x1.01 + (HP 228.0 - received 0.42 x1.00 - PSR 0.00) / enemy future 1.61 x my future 1.65 [enemy held at 1117; 148 spots with LOS]
@@ -204,7 +204,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 10: Blue @ 1117 NE: HP 123, pilot hits 0, engine 0, gyro 0, heat 19
 
 === TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 5).
   [Movement select] Blue: score 252.531 = dealt 0.76 x1.00 + (HP 166.0 - received 0.57 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.52 [two-ply, 190 of 1193 spots (grid search) x 1463 replies (short list); modeled reply Red -> 1107 SE Run]
   [Movement] Blue: 1117 NE -> 1207 NE, Run (14 MP, 10 hexes, 2 heat; budget walk 9 / run 14 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 3 - works.
@@ -226,7 +226,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 11: Blue @ 1207 NE: HP 123, pilot hits 0, engine 0, gyro 0, heat 11
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 8; tie re-rolled Red 11, Blue 8).
   [Movement select] Blue: score 163.482 = dealt 3.04 x1.00 + (HP 166.0 - received 1.97 x1.01 - PSR 0.00) / enemy future 1.65 x my future 1.61 [two-ply, 301 of 1891 spots (grid search) x 1465 replies (short list); modeled reply Red -> 1216 SW Run]
   [Movement] Blue: 1207 NE -> 1117 S, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 234.221 = dealt 0.83 x1.37 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.65 [enemy held at 1117; 157 spots with LOS]
@@ -247,7 +247,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 12: Blue @ 1117 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 6).
   [Movement select] Blue: score 252.039 = dealt 1.14 x1.00 + (HP 166.0 - received 0.84 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.52 [two-ply, 289 of 1588 spots (grid search) x 1718 replies (short list); modeled reply Red -> 1509 SW Run]
   [Movement] Blue: 1117 S -> 1409 SW, Run (17 MP, 12 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
@@ -268,7 +268,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 13: Blue @ 1409 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 1
 
 === TURN 14 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
   [Movement select] Blue: score 131.389 = dealt 1.39 x1.01 + (HP 166.0 - received 0.14 x1.01 - PSR 0.00) / enemy future 1.65 x my future 1.29 [two-ply, 318 of 2100 spots (grid search) x 1291 replies (short list); modeled reply Red -> 1408 NW Walk]
   [Movement] Blue: 1409 SW -> 0901 NE, Run (15 MP, 11 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 290.924 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.29 x my future 1.65 [enemy held at 0901; 223 spots with LOS]
@@ -285,7 +285,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 14: Blue @ 0901 NE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 15 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 5, Blue 8).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 5 - works.
   [Movement select] Red: score 248.039 = dealt 0.83 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 345 of 2118 spots (grid search) x 1683 replies (short list); modeled reply Blue -> 0915 S Run]
   [Movement] Red: 1007 N -> 1116 NE, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -304,7 +304,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 15: Blue @ 0915 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 16 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
   [Movement select] Red: score 138.592 = dealt 0.06 x1.00 + (HP 228.0 - received 3.43 x1.28 - PSR 0.00) / enemy future 1.61 x my future 1.00 [two-ply, 161 of 881 spots (grid search) x 2115 replies (short list); modeled reply Blue -> 1110 N Walk]
   [Movement] Red: 1116 NE -> 1109 N, Run (11 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 272.241 = dealt 3.43 x1.28 + (HP 166.0 - received 0.06 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.61 [enemy held at 1109; 356 spots with LOS]
@@ -328,7 +328,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 16: Blue @ 1110 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 18
 
 === TURN 17 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 7 - works.
   [Movement select] Red: score 247.195 = dealt 0.00 x1.00 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 343 of 2095 spots (grid search) x 2213 replies (short list); modeled reply Blue -> 1110 NW Run]
   [Movement] Red: 1109 N -> 0308 S, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -345,7 +345,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 17: Blue @ 0908 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 18 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
   [Movement select] Red: score 229.976 = dealt 1.39 x1.00 + (HP 228.0 - received 3.43 x1.28 - PSR 0.00) / enemy future 1.61 x my future 1.65 [two-ply, 253 of 1202 spots (grid search) x 2607 replies (short list); modeled reply Blue -> 1009 NE Walk]
   [Movement] Red: 0308 S -> 1109 NE, Run (12 MP, 9 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 165.401 = dealt 3.43 x1.28 + (HP 166.0 - received 1.39 x1.01 - PSR 0.00) / enemy future 1.65 x my future 1.61 [enemy held at 1109; 419 spots with LOS]
@@ -367,7 +367,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 18: Blue @ 1009 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 19
 
 === TURN 19 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 3).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 10 - works.
   [Movement select] Red: score 149.087 = dealt 0.00 x1.00 + (HP 228.0 - received 0.86 x1.28 - PSR 0.00) / enemy future 1.52 x my future 1.00 [two-ply, 336 of 2058 spots (grid search) x 2216 replies (short list); modeled reply Blue -> 0207 SE Run]
   [Movement] Red: 1109 NE -> 0308 SE, Run (16 MP, 8 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -387,7 +387,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 19: Blue @ 0207 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 11
 
 === TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 6).
   [Movement select] Blue: score 162.394 = dealt 0.42 x1.00 + (HP 166.0 - received 0.42 x1.00 - PSR 0.00) / enemy future 1.65 x my future 1.61 [two-ply, 317 of 1713 spots (grid search) x 1251 replies (short list); modeled reply Red -> 0308 S Run]
   [Movement] Blue: 0207 S -> 0312 N, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 233.076 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.65 [enemy held at 0312; 236 spots with LOS]
@@ -402,7 +402,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   -- end of turn 20: Blue @ 0312 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 21 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 10 - works.
   [Movement select] Red: score 231.940 = dealt 1.39 x1.00 + (HP 228.0 - received 1.93 x1.28 - PSR 0.00) / enemy future 1.61 x my future 1.65 [two-ply, 316 of 1807 spots (grid search) x 2221 replies (short list); modeled reply Blue -> 0208 NE Walk]
   [Movement] Red: 0914 SW -> 0308 NE, Run (16 MP, 9 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -429,7 +429,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 21: Blue @ 0208 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 22 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 10).
   [Movement select] Blue: score 407.146 = dealt 0.42 x1.00 + (HP 166.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.45 [two-ply, 268 of 1648 spots (grid search) x 1247 replies (short list); modeled reply Red -> 0308 SE Run]
   [Movement] Blue: 0208 NW -> 1213 NW, Walk (10 MP, 10 hexes, 1 heat; budget walk 10 / run 15 / jump 0) - includes a backward move
   [Movement select] Red: score 90.606 = dealt 0.00 x1.00 + (HP 222.0 - received 0.00 x1.27 - PSR 0.00) / enemy future 2.45 x my future 1.00 [enemy held at 1213; 162 spots with LOS]
@@ -446,7 +446,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 22: Blue @ 1213 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 23 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
   [Movement select] Blue: score 394.095 = dealt 0.00 x1.00 + (HP 166.0 - received 0.00 x1.37 - PSR 0.00) / enemy future 1.00 x my future 2.37 [two-ply, 417 of 2387 spots (grid search) x 1316 replies (short list); modeled reply Red -> 0113 N Stand Still]
   [Movement] Blue: 1213 NW -> 0308 N, Run (17 MP, 12 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
@@ -465,7 +465,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 23: Blue @ 0308 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 24 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
   [Movement select] Red: score 110.234 = dealt 0.00 x1.00 + (HP 222.0 - received 3.87 x1.01 - PSR 0.00) / enemy future 1.98 x my future 1.00 [two-ply, 218 of 1229 spots (grid search) x 2207 replies (short list); modeled reply Blue -> 1007 N Walk]
   [Movement] Red: 0210 SE -> 1006 NW, Run (12 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 332.326 = dealt 3.87 x1.01 + (HP 166.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.98 [enemy held at 1006; 356 spots with LOS]
@@ -485,7 +485,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 24: Blue @ 1007 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 8
 
 === TURN 25 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 11).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 9 - works.
   [Movement select] Red: score 173.964 = dealt 2.31 x1.00 + (HP 222.0 - received 2.11 x1.00 - PSR 0.00) / enemy future 1.28 x my future 1.00 [two-ply, 340 of 1937 spots (grid search) x 2161 replies (short list); modeled reply Blue -> 0203 N Run (CHARGE)]
   [Movement] Red: 1006 NW -> 0202 S, Run (15 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -503,7 +503,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 25: Blue @ 0408 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 4).
   [Movement select] Blue: score 247.270 = dealt 3.91 x1.00 + (HP 166.0 - received 1.97 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.48 [two-ply, 384 of 2184 spots (grid search) x 791 replies (short list); modeled reply Red -> 0906 SE Run]
   [Movement] Blue: 0408 N -> 1006 SW, Walk (10 MP, 7 hexes, 1 heat; budget walk 10 / run 15 / jump 0) - includes a backward move
   [Movement select] Red: score 151.022 = dealt 1.39 x1.01 + (HP 222.0 - received 0.00 x1.27 - PSR 0.00) / enemy future 1.48 x my future 1.00 [enemy held at 1006; 158 spots with LOS]
@@ -521,7 +521,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 26: Blue @ 1006 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 27 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 5).
   [Movement select] Blue: score 219.875 = dealt 2.45 x1.00 + (HP 166.0 - received 0.84 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.32 [two-ply, 427 of 2628 spots (grid search) x 2007 replies (short list); modeled reply Red -> 0915 S Run]
   [Movement] Blue: 1006 SW -> 0916 S, Walk (11 MP, 10 hexes, 1 heat; budget walk 11 / run 17 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 5 - works.
@@ -545,7 +545,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 27: Blue @ 0916 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 8
 
 === TURN 28 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 6).
   [Movement select] Blue: score 247.135 = dealt 1.21 x1.00 + (HP 166.0 - received 0.96 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.49 [two-ply, 225 of 1258 spots (grid search) x 1219 replies (short list); modeled reply Red -> 0213 N Run (CHARGE)]
   [Movement] Blue: 0916 S -> 0212 N, Run (14 MP, 10 hexes, 2 heat; budget walk 9 / run 14 / jump 0)
   [Movement select] Red: CHARGE (TN 12, P 0.03, 28 dmg) on Blue: score 145.150 = dealt 0.96 x1.37 + (HP 216.0 - received 1.21 x1.00 - PSR 0.00) / enemy future 1.49 x my future 1.00 [incl. self-damage] beats 145.076
@@ -563,7 +563,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 28: Blue @ 0212 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 29 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
   [Movement select] Blue: score 238.207 = dealt 0.75 x1.00 + (HP 166.0 - received 0.33 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.43 [two-ply, 285 of 1682 spots (grid search) x 1517 replies (short list); modeled reply Red -> 0504 S Run]
   [Movement] Blue: 0212 N -> 0505 NW, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
@@ -579,7 +579,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 29: Blue @ 0505 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 30 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
   [Movement select] Blue: score 218.678 = dealt 2.08 x1.00 + (HP 166.0 - received 0.84 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.31 [two-ply, 344 of 1917 spots (grid search) x 1688 replies (short list); modeled reply Red -> 0604 SW Walk]
   [Movement] Blue: 0505 NW -> 0505 SW, Run (15 MP, 8 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 164.401 = dealt 0.00 x1.01 + (HP 216.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.31 x my future 1.00 [enemy held at 0505; 381 spots with LOS]
@@ -593,7 +593,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 30: Blue @ 0505 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 31 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
   [Movement select] Blue: score 200.768 = dealt 0.83 x1.00 + (HP 166.0 - received 0.83 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.21 [two-ply, 338 of 1995 spots (grid search) x 1838 replies (short list); modeled reply Red -> 0411 SW Run]
   [Movement] Blue: 0505 SW -> 0312 SW, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 7 - works.
@@ -610,7 +610,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 31: Blue @ 0312 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 32 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 5).
   [Movement select] Blue: score 187.687 = dealt 1.39 x1.00 + (HP 166.0 - received 0.42 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.13 [two-ply, 320 of 1708 spots (grid search) x 1775 replies (short list); modeled reply Red -> 0914 NW Run]
   [Movement] Blue: 0312 SW -> 0813 NW, Run (15 MP, 7 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 191.801 = dealt 0.00 x1.01 + (HP 216.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.13 x my future 1.00 [enemy held at 0813; 346 spots with LOS]
@@ -624,7 +624,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 32: Blue @ 0813 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 33 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 8; tie re-rolled Red 6, Blue 5).
   [Movement select] Blue: score 175.482 = dealt 0.83 x1.20 + (HP 166.0 - received 0.00 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.05 [two-ply, 396 of 2250 spots (grid search) x 1270 replies (short list); modeled reply Red -> 1016 S Walk]
   [Movement] Blue: 0813 NW -> 0804 N, Walk (10 MP, 9 hexes, 1 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
@@ -644,7 +644,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 33: Blue @ 0804 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 34 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 11).
   [Movement select] Red: score 216.000 = dealt 0.00 x1.37 + (HP 216.0 - received 0.00 x1.20 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 254 of 1668 spots (grid search) x 1987 replies (short list); modeled reply Blue -> 0803 N Walk]
   [Movement] Red: 0707 SW -> 0717 S, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 166.167 = dealt 0.14 x1.20 + (HP 166.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 0717; 186 spots with LOS]
@@ -661,7 +661,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 34: Blue @ 0715 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 35 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 7).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
   [Movement select] Red: score 204.559 = dealt 1.39 x1.00 + (HP 216.0 - received 2.38 x1.20 - PSR 0.00) / enemy future 1.05 x my future 1.00 [two-ply, 241 of 1215 spots (grid search) x 1681 replies (short list); modeled reply Blue -> 1013 SE Walk]
   [Movement] Red: 0717 S -> 1114 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -683,7 +683,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 35: Blue @ 1013 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 36 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 10).
   [Movement select] Red: score 213.204 = dealt 0.06 x1.00 + (HP 216.0 - received 2.38 x1.20 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 192 of 1168 spots (grid search) x 2478 replies (short list); modeled reply Blue -> 1108 N Walk]
   [Movement] Red: 1114 SE -> 1107 N, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 168.796 = dealt 2.38 x1.20 + (HP 166.0 - received 0.06 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 1107; 396 spots with LOS]
@@ -705,7 +705,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 36: Blue @ 1108 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 18
 
 === TURN 37 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
   [Movement select] Red: score 216.516 = dealt 0.83 x1.00 + (HP 216.0 - received 0.26 x1.20 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 322 of 1798 spots (grid search) x 2007 replies (short list); modeled reply Blue -> 0502 S Run]
   [Movement] Red: 1107 N -> 0503 S, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -722,7 +722,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 37: Blue @ 1101 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 38 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 8).
   [Movement select] Blue: score 166.140 = dealt 2.43 x1.00 + (HP 166.0 - received 1.67 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 240 of 1209 spots (grid search) x 963 replies (short list); modeled reply Red -> 0605 S Run]
   [Movement] Blue: 1101 N -> 0606 S, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
   [Movement select] Red: score 217.907 = dealt 1.39 x1.37 + (HP 216.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 0606; 226 spots with LOS]
@@ -741,7 +741,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 38: Blue @ 0606 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 39 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 4 - works.
   [Movement select] Red: score 214.791 = dealt 0.06 x1.00 + (HP 216.0 - received 1.06 x1.20 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 306 of 1733 spots (grid search) x 2419 replies (short list); modeled reply Blue -> 1006 SE Walk]
   [Movement] Red: 0703 S -> 1107 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -763,7 +763,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 39: Blue @ 1006 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 1
 
 === TURN 40 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 5).
   [Movement select] Red: score 214.995 = dealt 1.17 x1.00 + (HP 216.0 - received 2.11 x1.03 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 293 of 1334 spots (grid search) x 2380 replies (short list); modeled reply Blue -> 1208 N Run (CHARGE)]
   [Movement] Red: 1107 SE -> 1207 NW, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: CHARGE (TN 11, P 0.08, 25 dmg) on Red: score 167.005 = dealt 2.11 x1.03 + (HP 166.0 - received 1.17 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [incl. self-damage] beats 166.947
@@ -782,7 +782,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 40: Blue @ 1208 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 41 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
   [Movement select] Blue: score 166.180 = dealt 0.75 x1.00 + (HP 166.0 - received 0.57 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 349 of 2086 spots (grid search) x 2044 replies (short list); modeled reply Red -> 0504 S Run]
   [Movement] Blue: 1208 N -> 0505 SW, Run (15 MP, 8 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 4 - works.
@@ -805,7 +805,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 41: Blue @ 0505 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 42 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 4).
   [Movement select] Red: score 213.745 = dealt 1.45 x1.00 + (HP 216.0 - received 3.71 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 203 of 1282 spots (grid search) x 2011 replies (short list); modeled reply Blue -> 0513 S Walk]
   [Movement] Red: 0604 SW -> 0514 SW, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 168.255 = dealt 3.71 x1.00 + (HP 166.0 - received 1.45 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 0514; 297 spots with LOS]
@@ -826,7 +826,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 42: Blue @ 0513 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 43 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
   [Movement select] Red: score 214.791 = dealt 0.06 x1.00 + (HP 216.0 - received 1.06 x1.20 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 319 of 1637 spots (grid search) x 2272 replies (short list); modeled reply Blue -> 0713 SE Walk]
   [Movement] Red: 0514 SW -> 0813 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -863,7 +863,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 43: Blue @ 0713 N: HP 123, pilot hits 0, engine 0, gyro 0, heat 8
 
 === TURN 44 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 12).
   [Movement select] Red: score 207.926 = dealt 0.42 x1.00 + (HP 208.0 - received 0.48 x1.03 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 262 of 1448 spots (grid search) x 2073 replies (short list); modeled reply Blue -> 1214 SE Run]
   [Movement] Red: 0813 SE -> 1315 NE, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 166.069 = dealt 0.48 x1.03 + (HP 166.0 - received 0.42 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 1315; 260 spots with LOS]
@@ -885,7 +885,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 44: Blue @ 1214 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 45 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 8, Blue 6).
   [Movement select] Blue: score 168.737 = dealt 3.88 x1.00 + (HP 166.0 - received 1.15 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 296 of 1634 spots (grid search) x 1002 replies (short list); modeled reply Red -> 1308 NW Run]
   [Movement] Blue: 1214 S -> 1207 SE, Walk (9 MP, 7 hexes, 1 heat; budget walk 10 / run 15 / jump 0) - includes a backward move
     Red: Supercharger (turn 1 in a row) needs 3, rolled 8 - works.
@@ -902,7 +902,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 45: Blue @ 1207 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 46 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 5, Blue 9).
   [Movement select] Red: score 205.824 = dealt 1.39 x1.00 + (HP 208.0 - received 2.56 x1.39 - PSR 0.00) / enemy future 1.00 x my future 1.00 [two-ply, 298 of 1701 spots (grid search) x 2517 replies (short list); modeled reply Blue -> 0812 S Walk]
   [Movement] Red: 1008 NW -> 0813 S, Run (12 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
   [Movement select] Blue: score 168.176 = dealt 2.56 x1.39 + (HP 166.0 - received 1.39 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [enemy held at 0813; 419 spots with LOS]
@@ -925,7 +925,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   -- end of turn 46: Blue @ 0812 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 18 [SHUT DOWN]
 
 === TURN 47 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
   [Movement] Blue: shut down - skips movement (immobile).
     Red: Supercharger (turn 1 in a row) needs 3, rolled 5 - works.
   [Movement select] Red: CHARGE (TN 4, P 0.92, 21 dmg) on Blue: score 237.839 = dealt 23.73 x1.37 + (HP 208.0 - received 2.75 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [incl. self-damage] beats 214.881
@@ -994,7 +994,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 9.
   -- end of turn 47: Blue @ 0813 S: HP 99, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 48 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 3).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Success - Ebony MEB-12 is standing (remaining running MP 13).
   [Movement select] Blue: score 118.785 = dealt 1.39 x1.38 + (HP 137.0 - received 0.14 x1.69 - PSR 0.00) / enemy future 1.17 x my future 1.00 [two-ply, 183 of 1210 spots (grid search) x 1247 replies (short list); modeled reply Red -> 0811 S Walk]
@@ -1015,7 +1015,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   -- end of turn 48: Blue @ 0702 N: HP 99, pilot hits 1, engine 0, gyro 0, heat 2
 
 === TURN 49 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
   [Movement] Red: shut down - skips movement (immobile).
   [Movement select] Blue: CHARGE (TN 4, P 0.92, 25 dmg) on Red: score 169.576 = dealt 26.99 x1.38 + (HP 137.0 - received 4.58 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.00 [incl. self-damage] beats 150.053
   [Movement] Blue declares a CHARGE against Red (stops adjacent; 11 hexes counting the target's hex).
@@ -1074,7 +1074,7 @@ FALL (failed Attack Phase PSR): Ebony MEB-12 takes 3 falling damage (1D6 2: fron
   -- end of turn 49: Blue @ 0609 SW: HP 92, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 50 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 9, Blue 11).
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 3.
   Failed to stand.
 FALL (failed to stand): Owens OW-1G takes 4 falling damage (1D6 3: front table, 5-pt clusters).
@@ -1126,7 +1126,7 @@ FALL (automatic fall): Owens OW-1G takes 4 falling damage (1D6 5: front table, 5
   -- end of turn 50: Blue @ 0708 NW: HP 92, pilot hits 1, engine 0, gyro 0, heat 10
 
 === TURN 51 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
 No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.
   [Movement] Red: still prone at 0608.
   [Movement select] Blue: score 364.848 = dealt 14.75 x1.46 + (HP 130.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.09 x my future 2.88 [enemy held at 0608; 425 spots with LOS]
@@ -1150,7 +1150,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
   -- end of turn 51: Blue @ 0607 S: HP 92, pilot hits 1, engine 0, gyro 0, heat 9
 
 === TURN 52 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 8, Blue 7).
   [Movement select] Blue: score 441.402 = dealt 24.20 x1.36 + (HP 130.0 - received 0.30 x0.88 - PSR 0.00) / enemy future 1.08 x my future 3.39 [two-ply, 470 of 2621 spots (grid search) x 1 replies (short list); modeled reply Red -> 0608 S Stand Still]
   [Movement] Blue: 0607 S -> 0708 NW, Walk (11 MP, 7 hexes, 1 heat; budget walk 11 / run 17 / jump 0)
 No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.

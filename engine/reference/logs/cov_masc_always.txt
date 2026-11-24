@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
     Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
   [Movement select] Blue: score 28.909 = dealt 0.00 x1.00 + (HP 118.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 5.51 x my future 1.35 [two-ply, 360 of 2122 spots (grid search) x 1718 replies (short list); modeled reply Red -> 0511 SE Run]
   [Movement] Blue: 0511 N -> 1315 N, Run (16 MP, 8 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
@@ -20,7 +20,7 @@
   -- end of turn 1: Blue @ 1315 N: HP 83, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 7).
     Red: MASC (turn 2 in a row) needs 5, rolled 10 - works.
   [Movement select] Red: score 740.993 = dealt 0.28 x1.00 + (HP 182.0 - received 0.53 x1.01 - PSR 0.00) / enemy future 1.35 x my future 5.51 [two-ply, 346 of 2070 spots (grid search) x 1344 replies (short list); modeled reply Blue -> 1109 NW Run]
   [Movement] Red: 0909 SW -> 0505 NE, Run (12 MP, 7 hexes, 2 heat; budget walk 6 / run 12 / jump 5)
@@ -40,7 +40,7 @@
   -- end of turn 2: Blue @ 1106 NW: HP 83, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 9).
     Red: MASC (turn 3 in a row) needs 7, rolled 9 - works.
   [Movement select] Red: score 738.504 = dealt 2.78 x1.00 + (HP 182.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.35 x my future 5.51 [two-ply, 331 of 1673 spots (grid search) x 1903 replies (short list); modeled reply Blue -> 0608 N Walk]
   [Movement] Red: 0505 NE -> 0303 S, Run (12 MP, 7 hexes, 2 heat; budget walk 6 / run 12 / jump 5)
@@ -65,7 +65,7 @@
   -- end of turn 3: Blue @ 0302 S: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 7).
     Red: MASC (turn 4 in a row) needs 10, rolled 11 - works.
   [Movement select] Red: score 1062.098 = dealt 0.47 x1.00 + (HP 182.0 - received 0.60 x1.22 - PSR 0.00) / enemy future 1.01 x my future 5.93 [two-ply, 251 of 1067 spots (grid search) x 1108 replies (short list); modeled reply Blue -> 0810 N Run]
   [Movement] Red: 0303 S -> 0505 N, Run (12 MP, 7 hexes, 2 heat; budget walk 6 / run 12 / jump 5)
@@ -83,7 +83,7 @@
   -- end of turn 4: Blue @ 0711 NW: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 5).
     Blue: MASC (turn 5 in a row) needs 11, rolled 3 - FAILS.
   [Movement select] Blue: score 23.533 = dealt 0.00 x1.00 + (HP 112.0 - received 0.31 x0.98 - PSR 0.00) / enemy future 4.75 x my future 1.00 [two-ply, 274 of 1674 spots (grid search) x 1555 replies (short list); modeled reply Red -> 0409 S Run]
   [Movement] Blue: 0711 NW -> 0116 NE, Run (12 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
@@ -101,7 +101,7 @@
   -- end of turn 5: Blue @ 0116 NE: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
     Blue: MASC (turn 6 in a row) needs 11, rolled 8 - FAILS.
   [Movement select] Blue: score 28.317 = dealt 0.00 x1.00 + (HP 112.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.96 x my future 1.00 [two-ply, 196 of 837 spots (grid search) x 1091 replies (short list); modeled reply Red -> 0303 S Run]
   [Movement] Blue: 0116 NE -> 0616 N, Walk (8 MP, 5 hexes, 1 heat; budget walk 8 / run 12 / jump 0)
@@ -136,7 +136,7 @@ FALL (failed Attack Phase PSR): Falcon FLC-5P takes 3 falling damage (1D6 5: fro
   -- end of turn 6: Blue @ 0616 N: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Red lost the roll, moves first.
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
 Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 8.
   Success - Falcon FLC-5P is standing (remaining running MP 3).
 Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 7.
@@ -184,7 +184,7 @@ FALL (failed Attack Phase PSR): Snow Fox 2 takes 2 falling damage (1D6 1: rear t
   -- end of turn 7: Blue @ 0406 NW: HP 75, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
 === TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
 Stand attempt 1: a quad with no leg destroyed stands without a PSR (p.238).
   Success - Snow Fox 2 is standing (remaining running MP 7).
   [Movement select] Blue: score 156.858 = dealt 4.90 x1.25 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.85 x my future 2.56 [two-ply, 97 of 385 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
@@ -225,7 +225,7 @@ FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 3: f
   -- end of turn 8: Blue @ 0306 N: HP 75, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 8, Blue 5).
     Blue: MASC (turn 7 in a row) needs 11, rolled 6 - FAILS.
   [Movement select] Blue: score 286.856 = dealt 6.77 x1.64 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.64 x my future 4.16 [two-ply, 160 of 530 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
   [Movement] Blue: 0306 N -> 0306 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
@@ -272,7 +272,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   -- end of turn 9: Blue @ 0306 N: HP 75, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
     Blue: MASC (turn 8 in a row) needs 11, rolled 6 - FAILS.
   [Movement select] Blue: score 764.982 = dealt 7.51 x1.10 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 6.94 [two-ply, 160 of 530 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
   [Movement] Blue: 0306 N -> 0306 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)

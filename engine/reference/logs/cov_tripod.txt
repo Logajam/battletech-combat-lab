@@ -5,7 +5,7 @@
 # log
 
 === TURN 1 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
   [Movement select] Blue: score 347.590 = dealt 19.40 x1.00 + (HP 394.0 - received 24.63 x1.09 - PSR 0.00) / enemy future 16.41 x my future 14.67 [two-ply, 92 of 538 spots (grid search) x 568 replies (short list); modeled reply Red -> 0505 NE Stand Still]
   [Movement] Blue: 0508 N -> 1104 NE, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Movement select] Red: score 585.465 = dealt 24.63 x1.09 + (HP 519.0 - received 19.40 x1.01 - PSR 0.00) / enemy future 14.67 x my future 16.41 [enemy held at 1104; 155 spots with LOS]
@@ -64,7 +64,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
   -- end of turn 1: Blue @ 1104 NE: HP 262, pilot hits 1, engine 0, gyro 0, heat 28 [SHUT DOWN]
 
 === TURN 2 ===
-  Initiative: Blue lost the roll, moves first.
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 10).
   [Movement] Blue: shut down - skips movement (immobile).
   [Movement select] Red: score 2926.992 = dealt 68.89 x1.16 + (HP 499.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 5.00 x my future 28.53 [enemy held at 1104; 96 spots with LOS]
   [Movement] Red: 0505 S -> 1004 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
