@@ -530,3 +530,43 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
   harness (`tests/check_play.py` style) before changing anything.
 - The weeks' compute is low (Daniel): keep each piece small, and record what is done in the Change Record as before.
 
+
+## 25. Audit: the design record against the working page (2026-11-24, session 35; Section 24 item 25, "audit only")
+
+Daniel: "I feel like I need to send you on an audit of this entire conversation looking for missed details." The chats themselves are not in the repo; what
+they left is `INTEGRATION__BATTLEROM_UI.md` (the 2026-11-21 design record, Sections 1-5), `INTEGRATION__UI_DESIGN_NOTES.md` (the 2026-11-24 summaries),
+`INTEGRATION__UI_DECISION_HOMES.md` and Sections 22-24 here. Each design point was checked against `engine/lab/web/play.js` / `play.html`. Listed: only what
+is MISSING or PARTIAL and not already an item of Section 24 or the session 35 work order (PROJECT_MAP Section 4). Nothing was changed. "Overlay?" = may be
+replaced by the critical-table weapon overlay (DECISION_HOMES Section 10 item 2) or the two-placard design, so check before building.
+
+| # | Source | Design point | Page today | Overlay? |
+|---|---|---|---|---|
+| 1 | BATTLEROM_UI 3 | Illegal paths drawn dark grey and the commit button greys out | Not built: an illegal hex is simply not offered; no grey path | no |
+| 2 | BATTLEROM_UI 3 | Range display as MegaMek's: dashed outer line plus a translucent band just inside it | Dashed outer line only; no band | no |
+| 3 | BATTLEROM_UI 3 | Stacks shrink the sprites (a 'Mech keeps at least half the hex) | Not built: units in one hex draw on top of each other | no |
+| 4 | BATTLEROM_UI 3 | Hex card: terrain, MOVE COST, RISKS, what else is in the hex (blown-off limbs, buildings, mines, smoke) | Terrain, level, units, distance only | no |
+| 5 | BATTLEROM_UI 3 | MASC / supercharger: when both, the lower TN goes first unless the player picks | One yes / no for both; no order choice | no |
+| 6 | BATTLEROM_UI 4 | A fired weapon shows a red target on a black row | Not built (`fired = false` placeholder in `declSheet`) | yes (overlay: "fired = struck through") |
+| 7 | BATTLEROM_UI 4, NOTES 5-6 | Strike has THREE steps: Strike / Alpha Strike / ALPHA STRIKE! (everything at every target); missile-boat and machine-gun wordings ("personality"); a 3-dot step indicator | Two steps, one target, standard wording, no indicator | partly (the button's place) |
+| 8 | BATTLEROM_UI 4 | Ammunition choice per weapon remembered between turns (Daniel: "absolutely") | Bin choice is kept by the engine's player choices; NOT CHECKED that a mode (e.g. LRM indirect) carries to the next turn | no |
+| 9 | BATTLEROM_UI 4 | LRM Direct / Indirect mode | Modes exist where the engine offers them; indirect needs a spotter (Section 24-era work); not checked on the page | no |
+| 10 | BATTLEROM_UI 5 | Looks: SL-HIS Dark (default), Light, Win95, Modern, TERMINAL, AMBER | Four looks; Terminal and Amber missing (already "still open" in Section 22) | no |
+| 11 | BATTLEROM_UI 5 | Colour-blind mode: second palette PLUS line patterns and a letter on each range band | Palette and dashes; no letters on the bands | no |
+| 12 | BATTLEROM_UI 5 | Landscape: weapon list docks in the right column; switches by itself when a phone turns | Not built (Section 22 "still open") | yes |
+| 13 | BATTLEROM_UI 5 | Type floor 11 px, tap targets at least 32 px | Not measured; known 22-26 px weapon buttons in the overlay sketch | yes |
+| 14 | BATTLEROM_UI 1 | Esc is undo, and falls through to "deselect" when there is nothing to undo | Esc undoes and closes cards; no deselect fall-through | no |
+| 15 | NOTES 3 | Suppress the browser's right-click menu over the map (right-click pans or opens desktop actions) | Not built: right-click shows the browser menu | no |
+| 16 | NOTES 4 | Move by DRAGGING a 'Mech with a live path preview (the second way in, same steps underneath) | Tap-only waypoints | no |
+| 17 | NOTES 4 | Manual turning / command editing in the Inspector (spin in place, override the path finder) | Not built (turning in place now works from the map, 2026-11-24) | no |
+| 18 | NOTES 4, BATTLEROM_UI 3 | Facing choices show their MP cost | Arrows coloured by mode; the cost shows only after a tap (readout) | no |
+| 19 | NOTES 5-6 | Placard: Gunnery / Piloting, current movement, heat against capacity with escalating colours, a WARNING MARK (pilot hits, criticals) that opens the Inspector | Name and three bars; heat bar one colour; no G/P, movement, warning mark | yes (two-placard design) |
+| 20 | NOTES 6 | Two placards: simple on every unit, expanded under the selected unit (DECISION_HOMES Section 10 item 1, Daniel's ruling pending) | One placard style | yes |
+| 21 | NOTES 5-6 | Context actions shown only when legal (Charge, DFA, Club, Push, Stand, Aimed Shot) beside the placard | Charge / DFA by tapping an enemy while moving; Stand as a question; Club, Aimed Shot not offered to a person (the engine has aimed shots for bots: T16) | partly |
+| 22 | NOTES 6 | Overlays (movement, firepower, LOS, heat) several at once, one colour scale, an on-screen legend | Weapon range rings only (heat maps: Section 24 item 28) | no |
+| 23 | NOTES 2, 6 | Desktop conveniences: keyboard shortcuts, movable / dockable windows | Esc only | no |
+| 24 | BATTLEROM_UI 8 | Open questions never answered: the cut-off line on fire resolving after the turn; which looks stay; repo rename for BattleROM; a stronger cue for "assigned" v "assigned elsewhere" | Open | - |
+| 25 | BATTLEROM_UI 6 | MegaMek sprites on translucent hex bases (licence check per image set) | Plain silhouettes | no |
+
+Not counted (built since, or listed elsewhere): hazard confirm, combat report pop-up, rear pips, sort options (all seven), grouping key (name, location,
+rear, twist, bin, mode, rate, number, range, jam), info bar ranges, nearest target first, map centring, Report / REC placement, long press for the
+Inspector (B13), turning in place (A2).
