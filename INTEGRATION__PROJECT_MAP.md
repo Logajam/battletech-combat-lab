@@ -103,6 +103,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - P3a. BEFORE ANY UI GRAPHICS: write the play UI's interaction/state diagram (every decision, transition, context action and
   confirm path), then audit it against the Core Rulebook (library, pages cited) so every legal action has a discoverable
   control. Source: `INTEGRATION__UI_DESIGN_NOTES.md` section 6.
+  FIRST STEP (Daniel, 2026-11-24, next session): list EVERY decision a player can make and give each one a HOME (which screen
+  part: map, placard, expanded placard, detail sheet / Inspector, action cluster, long press, menu). Start from
+  `INTEGRATION__PLAYER_DECISIONS.md` Sections 4-9 and 12-14 (the existing decision audit; its Section 24 is Daniel's bug list)
+  and the vocabulary in `INTEGRATION__BATTLEROM_UI.md` Section 2. Daniel's warning: moving the mockup into the live game was
+  "less than successful", so settle homes on paper first, then build. Output: one table file; Daniel rules on the conflicts.
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
 - P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
