@@ -14,18 +14,19 @@ project's files. Never let one source project's file overwrite the other's same-
 ---
 
 
-## 0. WHERE WE ARE (2026-11-14, end of session 26) — read this first
+## 0. WHERE WE ARE (2026-11-24, end of session 35) — read this first
 
 **Daniel plays the BROWSER version (the website), 2026-11-24: "I'm exclusively using the browser based version for now."** A fix reaches him only when the
 website is published (`tools/publish_public.py --push`, then `tools/publish_web_lab.py --push`); test play fixes on the browser build (`check_web_play.py`).
 
-**Pick up here (Daniel, 2026-11-14, closing session 26):** "I'll start that list tomorrow" - he will play with Combat Lab
-alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`) and bring a change list; then it goes to Opus for review before
-anything goes to the public repo (E6). Session 26 built Daniel's round-2 list, all of it merged to `main` (pull requests 224,
-225): CL11-CL17, CL19-CL21 (Princess) and the standard parts of CL18; every entry is in the Change Record and the REVIEW QUEUE
-below. OPEN: (1) CL18's live user-built conditions, saved for Opus to design (the sheet in `INTEGRATION__COMBAT_LAB_V2_TASKS.md`);
-(2) CL21's Gladiator and Hydra heat maps (need CL6 saved state / CL7 overlays); (3) the Windows `CombatLab.exe` of alpha-2 was not
-run (no Wine here): if it misbehaves on Daniel's PC, start there.
+**Pick up here (Daniel, 2026-11-24, closing session 35: "Think we'll call it stable for the moment ... Then I'll start another session on fixing
+the answer key"):** NEXT SESSION = THE ANSWER KEY (Section 4, "The answer key has drifted"): `engine/core/tests/stage6_battles.rs` is not in
+`run_checks.py` and 41 of its 63 battles fail on main (intended changes since the freeze); sort each into "known change" (its `known_changes` list,
+dated) or re-freeze the key from today's engine, then put the test back in the suite. Still open from session 35: Daniel's scope call on ground
+targeting (Section 4 engine pass item 4: area-effect weapons only, or minefields and building damage too); the parked fire-screen ideas B6-B8
+(`reference_art/battlerom_ui/parked_fire_screen_B6_B7_B8.patch`); PLAYER_DECISIONS Section 24 items 9, 12, 14, 22, 23, 26-28 and the Section 25 audit
+list; the engine-pass leftovers (quad lateral shifts, Forced Withdrawal, the TO:AR moves); the optional Initiative Die is on the wish list. All of
+session 35 is merged (PR 330-333) and published (the website and the public source, 2026-11-24). Session 26's pick-up note is in INTEGRATION__HISTORY.md.
 
 This section is the current state and the open work, nothing else. The story of how it got here is in
 `INTEGRATION__HISTORY.md` (the old Section 0, word for word, with Daniel's quotes and every number) and
@@ -98,7 +99,7 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
-**P. Daniel's goal list (2026-11-24; his words; mostly NOT yet specced or built). START HERE NEXT SESSION (handed to a stronger model to sort):** read
+**P. Daniel's goal list (2026-11-24; his words; mostly NOT yet specced or built; after the answer key, see "Pick up here" above; handed to a stronger model to sort):** read
 `INTEGRATION__UI_DESIGN_NOTES.md` (two second-hand design summaries), `INTEGRATION__UI_DECISION_HOMES.md` (every action and its
 home, plus the MegaMek bridge section; Daniel's rulings are in Section 10) and `reference_art/battlerom_ui/weapon_grid_sketch.html`
 (the fire-phase layout he ruled on). Suggested order: P3a (finish the table: rulebook page and MegaMek class per row, then the
