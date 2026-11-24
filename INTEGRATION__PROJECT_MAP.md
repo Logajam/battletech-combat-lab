@@ -155,6 +155,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   sheen (shimmer sweep, bevel, glow). It leads to a page saying the program is free (GPL v3 or later) and suggesting a
   donation to charity instead. Daniel picks the charity (no payment is taken by us, no tracking). Keep it small and
   obviously a gag; check it reads well on a phone and in the dark look.
+- P14. COMMUNITY CROSS-LINKS research (Daniel, 2026-11-24; feeds P13's page): find (a) charities with a BattleTech link (e.g.
+  charity drives or events run by the community), (b) artists for hire in the BattleTech community, (c) content creators.
+  Output: a short "Elsewhere in the community" page. Rules for the research: list only what a live page confirms (date and URL
+  checked per entry); public businesses, official channels and people who advertise their work, not private individuals; no
+  endorsement wording; artists and creators may ask for removal; no artwork copied, links only. Daniel approves the final list.
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
