@@ -176,6 +176,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
     10: Engine (slot 10)
     11: ISGuardianECMSuite (slot 11)
     12: ISGuardianECMSuite (slot 12)
+    Slot roll: 7 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Gyro hit (1/4).
@@ -252,6 +253,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     7: ISArrowIV (slot 7)
     8: ISArrowIV (slot 8)
     9: ISArrowIV (slot 9)
+    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: ISArrowIV slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
   Critical hit pool at Left Torso:
@@ -263,6 +265,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     6: ISArrowIV (slot 6)
     7: ISArrowIV (slot 7)
     8: ISArrowIV (slot 8)
+    Slot roll: 3 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'DESTROYED', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
       Engine hit (1/3).
@@ -283,6 +286,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     9: Engine (slot 10)
     10: ISGuardianECMSuite (slot 11)
     11: ISGuardianECMSuite (slot 12)
+    Slot roll: 7 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'DESTROYED', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Engine hit (2/3).
@@ -297,6 +301,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     8: Engine (slot 10)
     9: ISGuardianECMSuite (slot 11)
     10: ISGuardianECMSuite (slot 12)
+    Slot roll: 5 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'DESTROYED', 'DESTROYED', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Gyro hit (2/4).
@@ -345,6 +350,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     7: Engine (slot 10)
     8: ISGuardianECMSuite (slot 11)
     9: ISGuardianECMSuite (slot 12)
+    Slot roll: 6 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Engine hit (3/3).

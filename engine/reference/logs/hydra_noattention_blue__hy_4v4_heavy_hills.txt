@@ -339,6 +339,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     4: Foot Actuator (slot 4)
     5: Heat Sink (slot 5)
     6: Heat Sink (slot 6)
+    Slot roll: 2 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/2 Criticals: Upper Leg Actuator hit.
       Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 2.
@@ -348,6 +349,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     3: Foot Actuator (slot 4)
     4: Heat Sink (slot 5)
     5: Heat Sink (slot 6)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/2 Criticals: Lower Leg Actuator hit.
       Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'DESTROYED', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (2 destroyed there) - walk MP now 1.
@@ -738,6 +740,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
     5: Medium Laser (slot 5)
+    Slot roll: 5 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Medium Laser slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Group 2/2: Hit location roll 10 (front table): Left Arm.
@@ -837,6 +840,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     4: PPC (slot 4)
     5: PPC (slot 5)
     6: PPC (slot 6)
+    Slot roll: 2 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Right Torso: ['Heat Sink', 'DESTROYED', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 27).
@@ -1132,6 +1136,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
     7: ISUltraAC5 (slot 7)
     8: ISUltraAC5 (slot 8)
     9: ISMediumLaser (slot 9)
+    Slot roll: 7 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: ISUltraAC5 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
   Critical hit pool at Right Arm:
     1: Shoulder (slot 1)
@@ -1142,6 +1147,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
     6: ISUltraAC5 (slot 6)
     7: ISUltraAC5 (slot 8)
     8: ISMediumLaser (slot 9)
+    Slot roll: 3 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: Lower Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'DESTROYED', 'ISUltraAC5', 'ISMediumLaser', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 4 -> Red 3: Medium Laser
@@ -1252,6 +1258,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     4: Heat Sink (slot 4)
     5: Sensors (slot 5)
     6: Life Support (slot 6)
+    Slot roll: 2 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Sensors hit.
       Current crit slots in Head: ['Life Support', 'DESTROYED', 'Cockpit', 'Heat Sink', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 3 -> Red 3: ISMediumLaser
@@ -1289,6 +1296,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 CL Ammo (slot 7)
     8: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 5 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'DESTROYED', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 15).
@@ -1300,6 +1308,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     5: ISMediumLaser (slot 6)
     6: ISLBXAC10 CL Ammo (slot 7)
     7: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 4 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     2/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 14).
@@ -1319,6 +1328,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
   Critical hit pool at Left Torso:
     1: ISLBXAC10 CL Ammo (slot 7)
     2: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 Ammo slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'DESTROYED', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
     ISLBXAC10 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (3/6).
@@ -1495,6 +1505,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     5: LRM 20 (slot 5)
     6: IS Ammo LRM-20 (slot 6)
     7: IS Ammo LRM-20 (slot 7)
+    Slot roll: 3 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/2 Criticals: LRM 20 slot hit.
       Current crit slots in Left Torso: ['LRM 20', 'LRM 20', 'DESTROYED', 'LRM 20', 'LRM 20', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Torso:
@@ -1504,6 +1515,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     4: LRM 20 (slot 5)
     5: IS Ammo LRM-20 (slot 6)
     6: IS Ammo LRM-20 (slot 7)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     2/2 Criticals: IS Ammo LRM-20 slot hit.
       Current crit slots in Left Torso: ['LRM 20', 'LRM 20', 'DESTROYED', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red 1: 4 + movement 0 + weapons 20 + engine 0 - sinks 27 -> 0
@@ -1598,6 +1610,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     10: Engine (slot 10)
     11: Medium Laser (slot 11)
     12: Medium Laser (slot 12)
+    Slot roll: 3 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Medium Laser', 'Medium Laser']
       Engine hit (1/3).
@@ -1614,6 +1627,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     2: Jump Jet (slot 2)
     3: Medium Laser (slot 3)
     4: IS Ammo LRM-15 (slot 4)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Jump Jet slot hit.
       Current crit slots in Right Torso: ['Jump Jet', 'DESTROYED', 'Medium Laser', 'IS Ammo LRM-15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 3).
@@ -1662,6 +1676,7 @@ FALL (failed Attack Phase PSR): Catapult CPLT-C1 takes 7 falling damage (1D6 2: 
     3: LRM 15 (slot 3)
     4: LRM 15 (slot 4)
     5: LRM 15 (slot 5)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/2 Criticals: Upper Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'LRM 15', 'LRM 15', 'LRM 15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Arm:
@@ -1669,6 +1684,7 @@ FALL (failed Attack Phase PSR): Catapult CPLT-C1 takes 7 falling damage (1D6 2: 
     2: LRM 15 (slot 3)
     3: LRM 15 (slot 4)
     4: LRM 15 (slot 5)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/2 Criticals: LRM 15 slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'DESTROYED', 'LRM 15', 'LRM 15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Fall cluster (2 dmg): rolled 5 -> Right Leg
@@ -1753,6 +1769,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     6: PPC (slot 6)
     7: PPC (slot 7)
     8: PPC (slot 8)
+    Slot roll: 1 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 26).
@@ -1764,6 +1781,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
     5: PPC (slot 6)
     6: PPC (slot 7)
     7: PPC (slot 8)
+    Slot roll: 3 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     2/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 25).
@@ -2044,6 +2062,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     4: PPC (slot 6)
     5: PPC (slot 7)
     6: PPC (slot 8)
+    Slot roll: 1 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 19).
@@ -2164,6 +2183,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     6: PPC (slot 6)
     7: PPC (slot 7)
     8: PPC (slot 8)
+    Slot roll: 2 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 27).
@@ -2185,6 +2205,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     3: PPC (slot 4)
     4: PPC (slot 5)
     5: PPC (slot 6)
+    Slot roll: 1 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 18).
@@ -2193,6 +2214,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     2: PPC (slot 4)
     3: PPC (slot 5)
     4: PPC (slot 6)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/2 Criticals: Heat Sink slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 17).
@@ -2428,6 +2450,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 7.
     2: Jump Jet (slot 2)
     3: Medium Laser (slot 3)
     4: IS Ammo LRM-15 (slot 4)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Jump Jet slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Jump Jet', 'Medium Laser', 'IS Ammo LRM-15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 3).
@@ -2462,6 +2485,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 9.
     4: Foot Actuator (slot 4)
     5: Jump Jet (slot 5)
     6: Jump Jet (slot 6)
+    Slot roll: 2 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Upper Leg Actuator hit.
       Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Jump Jet', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 3.
@@ -2567,11 +2591,13 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     1: PPC (slot 4)
     2: PPC (slot 5)
     3: PPC (slot 6)
+    Slot roll: 2 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/2 Criticals: PPC slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'PPC', 'DESTROYED', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
     1: PPC (slot 4)
     2: PPC (slot 6)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     2/2 Criticals: PPC slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'PPC', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 3 -> Red 1: ISMediumLaser
@@ -2610,6 +2636,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     3: PPC (slot 6)
     4: PPC (slot 7)
     5: PPC (slot 8)
+    Slot roll: 3 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/2 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Torso:
@@ -2617,6 +2644,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     2: Heat Sink (slot 5)
     3: PPC (slot 7)
     4: PPC (slot 8)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/2 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'PPC', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Group 4/8: Hit location roll 8 (front table): Left Torso.
@@ -2645,12 +2673,14 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     1: Heat Sink (slot 3)
     2: Heat Sink (slot 5)
     3: PPC (slot 7)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/3 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'PPC', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 14).
   Critical hit pool at Left Torso:
     1: Heat Sink (slot 5)
     2: PPC (slot 7)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     2/3 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     3/3 Criticals: Heat Sink slot hit.
@@ -2720,6 +2750,7 @@ FALL (automatic fall): Awesome AWS-8Q takes 8 falling damage (1D6 1: rear table,
     4: Foot Actuator (slot 4)
     5: Heat Sink (slot 5)
     6: Heat Sink (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/2 Criticals: Lower Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 1.
@@ -2729,6 +2760,7 @@ FALL (automatic fall): Awesome AWS-8Q takes 8 falling damage (1D6 1: rear table,
     3: Foot Actuator (slot 4)
     4: Heat Sink (slot 5)
     5: Heat Sink (slot 6)
+    Slot roll: 4 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/2 Criticals: Heat Sink slot hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'DESTROYED', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 12).
@@ -2847,6 +2879,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 CL Ammo (slot 7)
     8: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 7 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 CL Ammo slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
     ISLBXAC10 CL Ammo destroyed at Left Torso - EXPLOSION (10 dmg)! Pilot takes 1 hit (1/6).
@@ -2862,6 +2895,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     5: Heat Sink (slot 5)
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 2 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'Heat Sink', 'Heat Sink', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (1/3).
@@ -2872,6 +2906,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     4: Heat Sink (slot 5)
     5: ISMediumLaser (slot 6)
     6: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 2 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (2/3).
@@ -2917,6 +2952,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     7: ISUltraAC5 (slot 7)
     8: ISUltraAC5 (slot 8)
     9: ISMediumLaser (slot 9)
+    Slot roll: 4 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: ISUltraAC5 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
   Critical hit pool at Right Arm:
     1: Shoulder (slot 1)
@@ -2927,6 +2963,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     6: ISUltraAC5 (slot 7)
     7: ISUltraAC5 (slot 8)
     8: ISMediumLaser (slot 9)
+    Slot roll: 8 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: ISMediumLaser slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'DESTROYED', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
 PSR trigger: 40 armor+structure lost this phase (>=20) -> +1.
@@ -3328,6 +3365,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     9: Engine (slot 10)
     10: Medium Laser (slot 11)
     11: Medium Laser (slot 12)
+    Slot roll: 11 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/3 Criticals: Medium Laser slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Medium Laser', 'DESTROYED']
   Critical hit pool at Center Torso:
@@ -3341,6 +3379,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     8: Engine (slot 9)
     9: Engine (slot 10)
     10: Medium Laser (slot 11)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/3 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Medium Laser', 'DESTROYED']
       Gyro hit (1/2).
@@ -3354,6 +3393,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     7: Engine (slot 9)
     8: Engine (slot 10)
     9: Medium Laser (slot 11)
+    Slot roll: 7 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     3/3 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'DESTROYED', 'Engine', 'Medium Laser', 'DESTROYED']
       Engine hit (2/3).
@@ -3629,6 +3669,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     5: LRM 20 (slot 5)
     6: IS Ammo LRM-20 (slot 6)
     7: IS Ammo LRM-20 (slot 7)
+    Slot roll: 1 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/2 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
@@ -3638,6 +3679,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     4: LRM 20 (slot 5)
     5: IS Ammo LRM-20 (slot 6)
     6: IS Ammo LRM-20 (slot 7)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     2/2 Criticals: IS Ammo LRM-20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 3 -> Red 2: ISMediumLaser
@@ -3654,6 +3696,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     3: LRM 20 (slot 4)
     4: LRM 20 (slot 5)
     5: IS Ammo LRM-20 (slot 7)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/3 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'LRM 20', 'DESTROYED', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
@@ -3661,12 +3704,14 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     2: LRM 20 (slot 4)
     3: LRM 20 (slot 5)
     4: IS Ammo LRM-20 (slot 7)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/3 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
     1: LRM 20 (slot 4)
     2: LRM 20 (slot 5)
     3: IS Ammo LRM-20 (slot 7)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     3/3 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Red 2 -> Blue 3: Medium Laser
@@ -3701,6 +3746,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     10: Engine (slot 10)
     11: Medium Laser (slot 11)
     12: Medium Laser (slot 12)
+    Slot roll: 6 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'Medium Laser', 'Medium Laser']
       Gyro hit (1/2).
@@ -3924,6 +3970,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
     5: Medium Laser (slot 5)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Upper Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 1 -> Red 2: PPC
@@ -4042,6 +4089,7 @@ Stand attempt 2: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Lower Leg Actuator hit.
       Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 3.
@@ -4798,6 +4846,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     5: LRM 20 (slot 5)
     6: IS Ammo LRM-20 (slot 6)
     7: IS Ammo LRM-20 (slot 7)
+    Slot roll: 3 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/2 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['LRM 20', 'LRM 20', 'DESTROYED', 'LRM 20', 'LRM 20', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
@@ -4807,6 +4856,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     4: LRM 20 (slot 5)
     5: IS Ammo LRM-20 (slot 6)
     6: IS Ammo LRM-20 (slot 7)
+    Slot roll: 4 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     2/2 Criticals: LRM 20 slot hit.
       Current crit slots in Right Torso: ['LRM 20', 'LRM 20', 'DESTROYED', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Red 4 -> Blue 2: Medium Laser
@@ -4975,6 +5025,7 @@ Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains
     4: Heat Sink (slot 4)
     5: Sensors (slot 5)
     6: Life Support (slot 6)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Sensors hit.
       Current crit slots in Head: ['Life Support', 'Sensors', 'Cockpit', 'Heat Sink', 'DESTROYED', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Blue 1 -> Red 4: PPC
@@ -5025,11 +5076,13 @@ FALL (failed to stand): Catapult CPLT-C1 takes 7 falling damage (1D6 3: front ta
     1: Jump Jet (slot 2)
     2: Medium Laser (slot 3)
     3: IS Ammo LRM-15 (slot 4)
+    Slot roll: 2 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/2 Criticals: Medium Laser slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Jump Jet', 'DESTROYED', 'IS Ammo LRM-15', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Torso:
     1: Jump Jet (slot 2)
     2: IS Ammo LRM-15 (slot 4)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     2/2 Criticals: IS Ammo LRM-15 slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Jump Jet', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Fall cluster (2 dmg): rolled 6 -> Right Torso

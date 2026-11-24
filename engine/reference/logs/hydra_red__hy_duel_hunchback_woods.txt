@@ -239,6 +239,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Heat Sink (slot 11)
+    Slot roll: 7 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Heat Sink', '-Empty-']
       Gyro hit (1/2).
@@ -262,6 +263,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     8: Engine (slot 9)
     9: Engine (slot 10)
     10: Heat Sink (slot 11)
+    Slot roll: 8 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'DESTROYED', 'Engine', 'Heat Sink', '-Empty-']
       Engine hit (1/3).
@@ -275,6 +277,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     7: Engine (slot 8)
     8: Engine (slot 10)
     9: Heat Sink (slot 11)
+    Slot roll: 5 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'DESTROYED', 'Engine', 'DESTROYED', 'Engine', 'Heat Sink', '-Empty-']
       Gyro hit (2/2).

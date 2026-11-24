@@ -2568,7 +2568,7 @@ async function openPlayedGame() {
   if (r.error) { setStatus("The played game could not be opened: " + r.error); return; }
   lab.run = r.run; lab.runSetup = r.setup; lab.filter = {};
   $("results-empty").hidden = true; $("results").hidden = false;
-  show("results"); drawResults(); setStatus("Your played game: its results");
+  show("results"); drawResults(); setStatus("Your played game: its results (a replay opened from here is played by the bots, not your moves)");
 }
 
 start();

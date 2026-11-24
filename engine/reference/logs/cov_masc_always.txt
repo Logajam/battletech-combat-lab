@@ -310,6 +310,7 @@ FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 6: f
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Jump Jet (slot 11)
+    Slot roll: 4 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
       Gyro hit (1/2).
@@ -324,6 +325,7 @@ FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 6: f
     8: Engine (slot 9)
     9: Engine (slot 10)
     10: Jump Jet (slot 11)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
       Gyro hit (2/2).

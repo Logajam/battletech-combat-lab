@@ -365,6 +365,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 CL Ammo (slot 7)
     8: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 7 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 CL Ammo slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
     ISLBXAC10 CL Ammo destroyed at Left Torso - EXPLOSION (60 dmg)! Pilot takes 1 hit (1/6).
@@ -380,6 +381,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     5: Heat Sink (slot 5)
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 5 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'DESTROYED', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 15).
@@ -390,6 +392,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
     4: Heat Sink (slot 4)
     5: ISMediumLaser (slot 6)
     6: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 4 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     2/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'ISMediumLaser', 'DESTROYED', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 14).
@@ -419,6 +422,7 @@ FALL (failed Attack Phase PSR): Cataphract CTF-3D takes 7 falling damage (1D6 6:
     9: ISLBXAC10 (slot 9)
     10: ISMediumLaser (slot 10)
     11: ISUltraAC5 Ammo (slot 11)
+    Slot roll: 7 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
   Seatbelt check: needs 5. Rolled 10. Pilot unharmed.
 Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.

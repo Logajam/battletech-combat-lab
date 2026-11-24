@@ -139,6 +139,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     4: Lift Hoist/Arresting Hoist (slot 4)
     5: Lift Hoist/Arresting Hoist (slot 5)
     6: Environmental Sealing (slot 6)
+    Slot roll: 6 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/3 Criticals: Environmental Sealing slot hit.
       Current crit slots in Right Torso: ['Heat Sink', 'Jump Jet', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Torso:
@@ -147,6 +148,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     3: Lift Hoist/Arresting Hoist (slot 3)
     4: Lift Hoist/Arresting Hoist (slot 4)
     5: Lift Hoist/Arresting Hoist (slot 5)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/3 Criticals: Jump Jet slot hit.
       Current crit slots in Right Torso: ['Heat Sink', 'DESTROYED', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 2).
@@ -155,6 +157,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     2: Lift Hoist/Arresting Hoist (slot 3)
     3: Lift Hoist/Arresting Hoist (slot 4)
     4: Lift Hoist/Arresting Hoist (slot 5)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     3/3 Criticals: Heat Sink slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 1).
@@ -185,6 +188,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     4: IS Ammo Nail/Rivet - Full (slot 4)
     5: Cargo:SIZE:1.0 (slot 5)
     6: Environmental Sealing (slot 6)
+    Slot roll: 6 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Environmental Sealing slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Jump Jet', 'Searchlight', 'IS Ammo Nail/Rivet - Full', 'Cargo:SIZE:1.0', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
       Group 4/7: Hit location roll 2 (front table): Center Torso.
@@ -201,6 +205,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     1: Lift Hoist/Arresting Hoist (slot 3)
     2: Lift Hoist/Arresting Hoist (slot 4)
     3: Lift Hoist/Arresting Hoist (slot 5)
+    Slot roll: 3 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/1 Criticals: Lift Hoist/Arresting Hoist slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'Lift Hoist/Arresting Hoist', 'Lift Hoist/Arresting Hoist', 'DESTROYED', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
       Group 5/7: Hit location roll 7 (front table): Center Torso.
@@ -230,6 +235,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     3: Searchlight (slot 3)
     4: IS Ammo Nail/Rivet - Full (slot 4)
     5: Cargo:SIZE:1.0 (slot 5)
+    Slot roll: 5 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/2 Criticals: Cargo:SIZE:1.0 hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Jump Jet', 'Searchlight', 'IS Ammo Nail/Rivet - Full', 'DESTROYED', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Torso:
@@ -237,6 +243,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     2: Jump Jet (slot 2)
     3: Searchlight (slot 3)
     4: IS Ammo Nail/Rivet - Full (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/2 Criticals: IS Ammo Nail/Rivet - Full slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Jump Jet', 'Searchlight', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
   [Physical] Red -> Blue: kick (Left Leg) needs 4 (piloting 5 + base 0 + attack -1), rolled 3 -> miss (20 dmg, front side)
@@ -285,6 +292,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     4: Nail/Rivet Gun (slot 4)
     5: Spot Welder (slot 5)
     6: Environmental Sealing (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Lower Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Nail/Rivet Gun', 'Spot Welder', 'Environmental Sealing', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', 'Industrial Triple Strength Myomer', '-Empty-', '-Empty-', '-Empty-']
       Group 4/4: Hit location roll 6 (front table): Right Torso.

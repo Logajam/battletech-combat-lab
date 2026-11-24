@@ -442,6 +442,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 7.
   Critical hit pool at Left Torso:
     1: ISSRM6 Ammo - Inferno (slot 3)
     2: ISCoolantPod (slot 5)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/3 Criticals: ISSRM6 Ammo - Inferno slot hit.
       Current crit slots in Left Torso: ['ISSRM6', 'ISSRM6', 'DESTROYED', 'DESTROYED', 'ISCoolantPod', 'Chameleon Light Polarization Field', 'TSM', 'ISGuardianECMSuite', 'ISGuardianECMSuite', '-Empty-', '-Empty-', '-Empty-']
     ISSRM6 Ammo - Inferno destroyed at Left Torso - EXPLOSION (180 dmg)! Pilot takes 1 hit (2/6).

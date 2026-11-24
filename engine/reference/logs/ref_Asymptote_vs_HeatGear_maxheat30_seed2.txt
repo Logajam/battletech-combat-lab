@@ -241,6 +241,7 @@ Heat Phase (inferno explosion) consciousness check (pilot, 1 pilot hits): needs 
     10: Engine (slot 10)
     11: ISSuperCharger (slot 11)
     12: Cockpit (slot 12)
+    Slot roll: 7 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'ISSuperCharger', 'Cockpit']
       Gyro hit (1/2).
@@ -256,6 +257,7 @@ Heat Phase (inferno explosion) consciousness check (pilot, 1 pilot hits): needs 
     9: Engine (slot 10)
     10: ISSuperCharger (slot 11)
     11: Cockpit (slot 12)
+    Slot roll: 3 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'ISSuperCharger', 'Cockpit']
       Engine hit (1/3).

@@ -831,6 +831,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Small Laser (slot 11)
+    Slot roll: 8 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Small Laser', '-Empty-']
       Engine hit (1/3).

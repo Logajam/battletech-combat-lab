@@ -364,6 +364,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
     5: ISStreakSRM6 (slot 5)
     6: ISMediumPulseLaser (slot 6)
     7: IS Modular Armor (slot 7)
+    Slot roll: 6 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/1 Criticals: ISMediumPulseLaser slot hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'Engine', 'ISStreakSRM6', 'ISStreakSRM6', 'DESTROYED', 'IS Modular Armor', 'Endo Steel', 'Endo Steel', 'TSM', 'TSM', 'TSM']
   [Heat] Red: 8 + movement 1 + weapons 14 + engine 0 - sinks 14 -> 9
@@ -490,6 +491,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
     10: Engine (slot 10)
     11: Jump Jet (slot 11)
     12: IS Modular Armor (slot 12)
+    Slot roll: 10 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Jump Jet', 'IS Modular Armor']
       Engine hit (1/3).
@@ -505,6 +507,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
     9: Engine (slot 9)
     10: Jump Jet (slot 11)
     11: IS Modular Armor (slot 12)
+    Slot roll: 11 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     2/2 Criticals: IS Modular Armor slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Jump Jet', 'DESTROYED']
       Modular armor slot hit - its 10 points are destroyed (TO:AUE p.93).

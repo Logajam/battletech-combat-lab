@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 35, work order), ENGINE PASS AND REPORTS. REVIEW PENDING (higher-level model).** Daniel's work order (PROJECT_MAP Section 4).
+  (1) Design-record audit (PLAYER_DECISIONS Section 25; 25 findings, nothing changed). (2) Engine pass, a person's units only unless said: an attack aimed at a
+  hex takes the immobile -4 and ignores the target hex's terrain (p.64-66; TAG at a hex; every side); turning while prone (p.51, `BotSet::prone_turn`); dropping to the
+  ground (p.51, `drop_prone`); voluntary shutdown and restart (p.105, player_choices `power_request` / `held_off`, heat.rs); ejection (TO:AR p.164-165, `eject`);
+  the MegaMek movement audit (Section 4 engine-pass item 3). Ground targeting waits for Daniel's scope call. (3) Reports: "[Resolve] A -> T: weapon" and
+  "Slot roll: N on 1DM" lines (reference logs updated, each checked to differ only by the new lines; stage6 `known_changes` drops them); the play report
+  attack by attack with damage boiled down, critical hits highlighted with their check roll, a "Dice details" option, phase headings, opening at the latest
+  phase; Get Results (`results::battle_line` moved into the core; the Lab opens the played battle as a one-battle run); physical attacks in the per-weapon
+  statistics (physical.rs `tally_physical`: punches, kicks, clubs, pushes, charges, DFAs; physical kills now counted). Tests: check_play.py (kit game:
+  drop, prone turn, shutdown, eject), check_web_play.py (Get Results).
+
 - **2026-11-24 (Claude, session 35, later), INITIATIVE DICE IN THE LOG; TAG'S NUMBER SPELLED OUT AND REPORTED BEFORE THE RANGED PHASE (bug B16). REFERENCE LOGS UPDATED. REVIEW PENDING (higher-level model).**
   Daniel: "The dice rolls to determine initiative every turn should be shown"; "The roll needs to be in the report"; and, on the answer key, "The answer key is there to prevent
   unintended changes. Its not there to hold us back." (1) Every turn's Initiative line ends with the dice: "Initiative: Red lost the roll, moves first (rolled Red 7, Blue 7; tie

@@ -67,6 +67,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     8: ISERPPC (slot 8)
     9: ISERPPC (slot 9)
     10: ISLRM15 Ammo (slot 10)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'ISERPPC', 'ISERPPC', 'ISERPPC', 'ISLRM15 Ammo', 'DESTROYED', 'ISCASE']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 29).
@@ -80,6 +81,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     7: ISERPPC (slot 8)
     8: ISERPPC (slot 9)
     9: ISLRM15 Ammo (slot 10)
+    Slot roll: 7 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/2 Criticals: ISERPPC slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'ISERPPC', 'DESTROYED', 'ISERPPC', 'ISLRM15 Ammo', 'DESTROYED', 'ISCASE']
     CASE vents the excess: Left Torso loses 10 rear armor (2 left).

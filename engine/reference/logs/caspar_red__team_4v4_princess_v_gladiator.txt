@@ -375,6 +375,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
     4: CLDoubleHeatSink (slot 4)
     5: CLDoubleHeatSink (slot 5)
     6: CLDoubleHeatSink (slot 6)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 26).
@@ -539,6 +540,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 11.
     6: PPC (slot 6)
     7: PPC (slot 7)
     8: PPC (slot 8)
+    Slot roll: 7 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/1 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'DESTROYED', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Red 4 -> Blue 2: CLLargePulseLaser
@@ -785,6 +787,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
     5: Heat Sink (slot 5)
     6: PPC (slot 6)
     7: PPC (slot 8)
+    Slot roll: 7 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/1 Criticals: PPC slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Group 3/4: Hit location roll 6 (right table): Right Leg.
@@ -827,6 +830,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
     9: PPC (slot 9)
     10: PPC (slot 10)
     11: PPC (slot 11)
+    Slot roll: 6 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 27).
@@ -855,6 +859,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
     8: PPC (slot 9)
     9: PPC (slot 10)
     10: PPC (slot 11)
+    Slot roll: 10 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/1 Criticals: PPC slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'DESTROYED', '-Empty-']
       Group 2/2: Hit location roll 8 (right table): Center Torso.
@@ -876,6 +881,7 @@ FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 5: fr
     4: PPC (slot 4)
     5: PPC (slot 5)
     6: PPC (slot 6)
+    Slot roll: 1 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Right Torso: ['DESTROYED', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 26).
@@ -1004,6 +1010,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
     10: Engine (slot 10)
     11: ISMediumPulseLaser (slot 11)
     12: ISMediumPulseLaser (slot 12)
+    Slot roll: 1 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISMediumPulseLaser', 'ISMediumPulseLaser']
       Engine hit (1/3).
@@ -1363,6 +1370,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     4: CLDoubleHeatSink (slot 4)
     5: CLDoubleHeatSink (slot 5)
     6: CLDoubleHeatSink (slot 6)
+    Slot roll: 6 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 18).
@@ -1441,6 +1449,7 @@ FALL (failed Attack Phase PSR): Kintaro KTO-19 takes 6 falling damage (1D6 4: fr
     4: Foot Actuator (slot 4)
     5: Jump Jet (slot 5)
     6: Jump Jet (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/2 Criticals: Lower Leg Actuator hit.
       Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'Jump Jet', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 4.
@@ -1450,6 +1459,7 @@ FALL (failed Attack Phase PSR): Kintaro KTO-19 takes 6 falling damage (1D6 4: fr
     3: Foot Actuator (slot 4)
     4: Jump Jet (slot 5)
     5: Jump Jet (slot 6)
+    Slot roll: 5 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/2 Criticals: Jump Jet slot hit.
       Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'Jump Jet', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 4).
@@ -1553,6 +1563,7 @@ FALL (failed Movement Phase PSR (jump)): Black Hawk F takes 5 falling damage (1D
     4: Foot Actuator (slot 4)
     5: Jump Jet (slot 5)
     6: Jump Jet (slot 6)
+    Slot roll: 6 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Jump Jet slot hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Jump Jet', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 3).
@@ -1813,6 +1824,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     6: ISClaw (slot 6)
     7: IS Stealth (slot 10)
     8: IS Stealth (slot 11)
+    Slot roll: 1 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/2 Criticals: Shoulder hit.
       Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISClaw', 'ISClaw', 'ISClaw', 'Triple Strength Myomer', 'Triple Strength Myomer', 'Triple Strength Myomer', 'IS Stealth', 'IS Stealth', '-Empty-']
   Critical hit pool at Right Arm:
@@ -1823,6 +1835,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     5: ISClaw (slot 6)
     6: IS Stealth (slot 10)
     7: IS Stealth (slot 11)
+    Slot roll: 2 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     2/2 Criticals: Lower Arm Actuator hit.
       Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'DESTROYED', 'ISClaw', 'ISClaw', 'ISClaw', 'Triple Strength Myomer', 'Triple Strength Myomer', 'Triple Strength Myomer', 'IS Stealth', 'IS Stealth', '-Empty-']
   [Heat] Red 2: 3 + movement 1 + weapons 6 + engine 0 - sinks 10 -> 0
@@ -2026,6 +2039,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 3.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: CLERMediumLaser (slot 11)
+    Slot roll: 3 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (3/3).
@@ -2107,6 +2121,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
     5: Medium Laser (slot 5)
+    Slot roll: 5 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Medium Laser slot hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red 2: 0 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 0

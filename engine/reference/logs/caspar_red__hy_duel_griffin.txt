@@ -359,6 +359,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     4: LRM 10 (slot 4)
     5: IS Ammo LRM-10 (slot 5)
     6: IS Ammo LRM-10 (slot 6)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: IS Ammo LRM-10 slot hit.
       Current crit slots in Right Torso: ['Jump Jet', 'Jump Jet', 'LRM 10', 'LRM 10', 'DESTROYED', 'IS Ammo LRM-10', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     IS Ammo LRM-10 destroyed at Right Torso - EXPLOSION (90 dmg)! Pilot takes 1 hit (2/6).

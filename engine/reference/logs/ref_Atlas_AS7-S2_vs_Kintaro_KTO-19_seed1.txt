@@ -498,6 +498,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 4.
     4: Hand Actuator (slot 4)
     5: ISMediumLaser (slot 5)
     6: ISMediumLaser (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Lower Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Hand Actuator', 'ISMediumLaser', 'ISMediumLaser', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 2 + weapons 31 + engine 0 - sinks 32 -> 1
@@ -611,6 +612,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   Critical hit pool at Left Torso:
     1: ISLRM5 Ammo Narc-capable (slot 1)
     2: ISSRM6 Ammo Narc-capable (slot 2)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: ISSRM6 Ammo Narc-capable slot hit.
       Current crit slots in Left Torso: ['ISLRM5 Ammo Narc-capable', 'DESTROYED', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     ISSRM6 Ammo Narc-capable destroyed at Left Torso - EXPLOSION (24 dmg)! Pilot takes 1 hit (1/6).

@@ -110,6 +110,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
     2: Upper Arm Actuator (slot 2)
     3: CLSRM6 (slot 3)
     4: Clan Ammo SRM-6 (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Clan Ammo SRM-6 slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'CLSRM6', 'DESTROYED', 'Clan Ferro-Lamellor', 'Clan Ferro-Lamellor', 'Clan Ferro-Lamellor', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     Clan Ammo SRM-6 destroyed at Right Arm - EXPLOSION (180 dmg)! Pilot takes 1 hit (2/6).
@@ -135,6 +136,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
     9: ISRISCHyperLaser (slot 9)
     10: ISRISCHyperLaser (slot 10)
     11: ISRISCHyperLaser (slot 11)
+    Slot roll: 1 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Right Torso: ['DESTROYED', 'Engine', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', 'ISRISCHyperLaser', '-Empty-']
       Engine hit (1/3).

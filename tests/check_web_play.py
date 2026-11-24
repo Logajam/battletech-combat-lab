@@ -350,6 +350,17 @@ const POLICY = (r) => {
   // Initiative shown (Daniel, 2026-11-24): the title-bar chip with the throws, and the report's Initiative lines carry the dice
   solo.init = await page.evaluate(() => ({ lines: __bm.log.filter((l) => /Initiative/.test(l)).length, rolled: __bm.log.filter((l) => /Initiative.*\(rolled [^)]*\d/.test(l)).length }));
   const sent = await page.evaluate(() => __sent);
+  // GET RESULTS (bug B21): at the end the commit button becomes Get Results, which opens the Lab's Results tab with this one battle
+  if (solo.over) {
+    if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+    solo.getResults = await page.evaluate(() => !!document.querySelector('#cluster [data-act="get-results"]'));
+    if (solo.getResults) {
+      await page.locator('[data-act="get-results"]').click();
+      await page.waitForURL(/index\.html/, { timeout: 30000 }).catch(() => {});
+      await page.waitForFunction(() => document.getElementById('results') && !document.getElementById('results').hidden, null, { timeout: 60000 }).catch(() => {});
+      solo.results = await page.evaluate(() => ({ shown: !document.getElementById('results').hidden, battles: document.getElementById('results').innerText.includes('1 battles') }));
+    }
+  }
   // a target answer nobody tapped is right only as the plan's "no more targets" straight after its own declaration
   solo.auto = sent.filter((x, i) => x.kind === 'target' && !x.tap && !(i > 0 && sent[i - 1].kind === 'declaration' && sent[i - 1].unit === x.unit)).length;
   out.solo = solo;
@@ -441,6 +452,8 @@ def main():
         report(so.get("over") and so.get("fired", 0) >= 2 and so.get("tags", 0) >= 2 and so.get("auto") == 0, f"after Skip TAG and Fire! the page never answers a later fire question by itself (B10 / B15; {so})")
         ts = so.get("tagShown") or {}
         report(not so.get("designated") or (ts.get("line") and ts.get("html")), f"a TAG attack is in the report, its number's parts spelled out, before the ranged phase (B16; {ts})")
+        rs = so.get("results") or {}
+        report(so.get("getResults") and rs.get("shown") and rs.get("battles"), f"at the end Get Results opens the Lab's Results tab with the played battle (B21; {so.get('getResults')}, {rs})")
         ini = so.get("init") or {}
         report(ini.get("lines", 0) > 0 and ini.get("rolled") == ini.get("lines"), f"every turn's Initiative dice are shown: each report line carries the dice ({ini})")
         pg = out["page"]

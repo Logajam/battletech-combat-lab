@@ -64,6 +64,7 @@
     8: Engine (slot 8)
     9: Engine (slot 9)
     10: Engine (slot 10)
+    Slot roll: 5 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/3 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
       Gyro hit (1/2).
@@ -78,6 +79,7 @@
     7: Engine (slot 8)
     8: Engine (slot 9)
     9: Engine (slot 10)
+    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/3 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', '-Empty-', '-Empty-']
       Engine hit (1/3).
@@ -91,6 +93,7 @@
     6: Gyro (slot 7)
     7: Engine (slot 8)
     8: Engine (slot 9)
+    Slot roll: 4 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     3/3 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', '-Empty-', '-Empty-']
       Gyro hit (2/2).

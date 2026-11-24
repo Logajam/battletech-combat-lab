@@ -842,6 +842,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear tab
   Critical hit pool at Left Torso:
     1: IS Ammo AC/20 (slot 1)
     2: IS Ammo AC/20 (slot 2)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/2 Criticals: IS Ammo AC/20 slot hit.
       Current crit slots in Left Torso: ['IS Ammo AC/20', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     IS Ammo AC/20 destroyed at Left Torso - EXPLOSION (100 dmg)! Pilot takes 1 hit (1/6).
@@ -871,6 +872,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear tab
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Heat Sink (slot 11)
+    Slot roll: 10 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/3 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Heat Sink', '-Empty-']
       Engine hit (1/3).
@@ -885,6 +887,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear tab
     8: Engine (slot 8)
     9: Engine (slot 9)
     10: Heat Sink (slot 11)
+    Slot roll: 2 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/3 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Heat Sink', '-Empty-']
       Engine hit (2/3).
@@ -898,6 +901,7 @@ FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear tab
     7: Engine (slot 8)
     8: Engine (slot 9)
     9: Heat Sink (slot 11)
+    Slot roll: 3 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     3/3 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Heat Sink', '-Empty-']
       Gyro hit (1/2).
@@ -1017,6 +1021,7 @@ FALL (failed Movement Phase PSR (jump)): Jenner JR7-D takes 4 falling damage (1D
     10: Engine (slot 10)
     11: Jump Jet (slot 11)
     12: SRM 4 (slot 12)
+    Slot roll: 4 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', 'SRM 4']
       Gyro hit (1/2).
@@ -1032,6 +1037,7 @@ FALL (failed Movement Phase PSR (jump)): Jenner JR7-D takes 4 falling damage (1D
     9: Engine (slot 10)
     10: Jump Jet (slot 11)
     11: SRM 4 (slot 12)
+    Slot roll: 1 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', 'SRM 4']
       Engine hit (1/3).
@@ -1089,6 +1095,7 @@ FALL (failed to stand): Jenner JR7-D takes 4 falling damage (1D6 3: front table,
   Critical hit pool at Left Torso:
     1: Jump Jet (slot 1)
     2: Jump Jet (slot 2)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/2 Criticals: Jump Jet slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 4).
@@ -1500,6 +1507,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
     10: Engine (slot 10)
     11: Heat Sink (slot 11)
     12: Jump Jet (slot 12)
+    Slot roll: 11 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', 'Jump Jet']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 11).
@@ -2048,6 +2056,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Jump Jet (slot 12)
+    Slot roll: 11 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Jump Jet slot hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 4).
@@ -2283,6 +2292,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     8: Engine (slot 8)
     9: Engine (slot 9)
     10: Engine (slot 10)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED']
       Gyro hit (1/2).
@@ -2308,6 +2318,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 5: fr
     5: PPC (slot 5)
     6: PPC (slot 6)
     7: PPC (slot 7)
+    Slot roll: 7 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/1 Criticals: PPC slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'PPC', 'PPC', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Fall cluster (1 dmg): rolled 7 -> Center Torso
@@ -2325,6 +2336,7 @@ FALL (failed Attack Phase PSR): Griffin GRF-1N takes 6 falling damage (1D6 5: fr
     7: Engine (slot 8)
     8: Engine (slot 9)
     9: Engine (slot 10)
+    Slot roll: 4 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED']
       Gyro hit (2/2).
@@ -2535,6 +2547,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
     2: Upper Arm Actuator (slot 2)
     3: Medium Laser (slot 3)
     4: Medium Laser (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Medium Laser slot hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Medium Laser', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Additional critical hit due to TAC.
@@ -2544,11 +2557,13 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
     1: Shoulder (slot 1)
     2: Upper Arm Actuator (slot 2)
     3: Medium Laser (slot 3)
+    Slot roll: 2 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/2 Criticals: Upper Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Medium Laser', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Arm:
     1: Shoulder (slot 1)
     2: Medium Laser (slot 3)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     2/2 Criticals: Shoulder hit.
       Current crit slots in Left Arm: ['DESTROYED', 'DESTROYED', 'Medium Laser', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red 1: 4 + movement 0 + weapons 12 + engine 0 - sinks 20 -> 0

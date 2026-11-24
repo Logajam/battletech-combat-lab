@@ -558,6 +558,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
     9: ISLBXAC10 (slot 9)
     10: ISMediumLaser (slot 10)
     11: ISUltraAC5 Ammo (slot 11)
+    Slot roll: 3 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5 Ammo', 'ISCASE']
       Engine hit (1/3).
@@ -742,6 +743,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
     7: ISUltraAC5 (slot 7)
     8: ISUltraAC5 (slot 8)
     9: ISMediumLaser (slot 9)
+    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: ISMediumLaser slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Arm:
@@ -753,6 +755,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
     6: ISUltraAC5 (slot 6)
     7: ISUltraAC5 (slot 7)
     8: ISUltraAC5 (slot 8)
+    Slot roll: 1 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: Shoulder hit.
       Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'ISUltraAC5', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
 PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
@@ -872,6 +875,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     9: HAG/20 Ammo (slot 9)
     10: HAG/20 Ammo (slot 10)
     11: HAG/20 Ammo (slot 11)
+    Slot roll: 6 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: CLHAG20 slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'CLHAG20', 'CLHAG20', 'CLHAG20', 'DESTROYED', 'CLHAG20', 'CLHAG20', 'HAG/20 Ammo', 'HAG/20 Ammo', 'HAG/20 Ammo', '-Empty-']
     CLHAG20 destroyed at Right Arm - EXPLOSION (12 dmg)! Pilot takes 1 hit (1/6).
@@ -892,6 +896,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     4: CLDoubleHeatSink (slot 4)
     5: CLDoubleHeatSink (slot 5)
     6: CLDoubleHeatSink (slot 6)
+    Slot roll: 6 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 26).
@@ -946,6 +951,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 1.
@@ -960,6 +966,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     1: Hip (slot 1)
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/1 Criticals: Hip hit.
       Current crit slots in Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 1.
@@ -972,6 +979,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   Critical hit pool at Right Leg:
     1: Upper Leg Actuator (slot 2)
     2: Lower Leg Actuator (slot 3)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: Lower Leg Actuator hit.
       Current crit slots in Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (3 destroyed there) - walk MP now 1.
@@ -1022,6 +1030,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     8: ISLBXAC10 (slot 9)
     9: ISMediumLaser (slot 10)
     10: ISUltraAC5 Ammo (slot 11)
+    Slot roll: 8 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
   [Resolve] Blue 1 -> Red 3: ISSRM6
     ISSRM6 hit: cluster roll 3 on the 6-column table -> 2 connect (4 dmg).
@@ -1068,6 +1077,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     6: ISMediumLaser (slot 6)
     7: ISLBXAC10 CL Ammo (slot 7)
     8: ISLBXAC10 Ammo (slot 8)
+    Slot roll: 8 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/1 Criticals: ISLBXAC10 Ammo slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'DESTROYED', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
     ISLBXAC10 Ammo destroyed at Left Torso - EXPLOSION (50 dmg)! Pilot takes 1 hit (3/6).
@@ -1192,6 +1202,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: Jump Jet (slot 11)
+    Slot roll: 1 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
       Engine hit (1/3).
@@ -1414,6 +1425,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: CLERMediumLaser (slot 11)
+    Slot roll: 1 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (1/3).
@@ -1428,6 +1440,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     8: Engine (slot 9)
     9: Engine (slot 10)
     10: CLERMediumLaser (slot 11)
+    Slot roll: 8 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (2/3).
@@ -1505,6 +1518,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     7: CLECMSuite (slot 7)
     8: IS Stealth (slot 11)
     9: IS Stealth (slot 12)
+    Slot roll: 6 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/1 Criticals: CLERSmallLaser slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'DESTROYED', 'CLECMSuite', 'Clan Endo Steel', 'Clan Endo Steel', 'Clan Endo Steel', 'IS Stealth', 'IS Stealth']
     claw (Right Arm) hits Red 1's Right Torso for 12.

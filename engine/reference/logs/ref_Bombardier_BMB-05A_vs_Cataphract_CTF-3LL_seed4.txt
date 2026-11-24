@@ -48,6 +48,7 @@
     10: Engine (slot 10)
     11: ISPlasmaRifleAmmo (slot 11)
     12: ISPlasmaRifleAmmo (slot 12)
+    Slot roll: 3 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISPlasmaRifleAmmo', 'ISPlasmaRifleAmmo']
       Engine hit (1/3).

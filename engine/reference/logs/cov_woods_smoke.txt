@@ -794,6 +794,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
     3: Cockpit (slot 3)
     4: Sensors (slot 5)
     5: Life Support (slot 6)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Sensors hit.
       Current crit slots in Head: ['Life Support', 'DESTROYED', 'Cockpit', '-Empty-', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Group 2/2: Hit location roll 8 (right table): Center Torso.
@@ -846,6 +847,7 @@ Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 4.
     10: Engine (slot 10)
     11: Heat Sink (slot 11)
     12: Jump Jet (slot 12)
+    Slot roll: 1 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'Jump Jet']
       Engine hit (1/3).

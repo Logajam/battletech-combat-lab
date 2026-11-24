@@ -665,6 +665,7 @@
     2: Heat Sink (slot 2)
     3: LRM 10 (slot 3)
     4: LRM 10 (slot 4)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: LRM 10 slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'DESTROYED', 'LRM 10', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 1 + weapons 4 + engine 0 - sinks 20 -> 0

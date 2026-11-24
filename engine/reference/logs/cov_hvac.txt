@@ -56,6 +56,7 @@
     4: Cockpit (slot 4)
     5: Sensors (slot 5)
     6: Life Support (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Cockpit slot hit - its component armor absorbs it, no effect (p.207).
   [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
@@ -442,6 +443,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     4: Foot Actuator (slot 4)
     5: Heat Sink (slot 5)
     6: Jump Jet (slot 6)
+    Slot roll: 4 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', 'Heat Sink', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
@@ -460,6 +462,7 @@ FALL (failed Attack Phase PSR): Victor VTR-Cr takes 8 falling damage (1D6 6: fro
   Critical hit pool at Right Torso:
     1: IS Ammo HVAC/10 (slot 1)
     2: IS Ammo HVAC/10 (slot 2)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: IS Ammo HVAC/10 slot hit.
       Current crit slots in Right Torso: ['IS Ammo HVAC/10', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
     IS Ammo HVAC/10 destroyed at Right Torso - EXPLOSION (70 dmg)! Pilot takes 1 hit (1/6).

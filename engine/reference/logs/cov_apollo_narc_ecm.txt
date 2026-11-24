@@ -42,6 +42,7 @@
     7: IS Ammo LRM-15 (slot 7)
     8: IS Ammo LRM-15 (slot 8)
     9: IS Ammo LRM-15 (slot 9)
+    Slot roll: 2 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/1 Criticals: ISDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['ISDoubleHeatSink', 'DESTROYED', 'ISDoubleHeatSink', 'LRM 15', 'LRM 15', 'LRM 15', 'IS Ammo LRM-15', 'IS Ammo LRM-15', 'IS Ammo LRM-15', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (ISDoubleHeatSink) - heat dissipation reduced (now 18).

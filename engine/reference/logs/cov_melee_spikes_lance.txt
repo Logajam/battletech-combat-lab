@@ -275,6 +275,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     3: Engine (slot 3)
     4: Medium Laser (slot 4)
     5: Spikes (slot 5)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'Medium Laser', 'Spikes', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel']
       Engine hit (1/3).

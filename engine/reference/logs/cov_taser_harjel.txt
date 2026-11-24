@@ -101,6 +101,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     4: Machine Gun (slot 4)
     5: IS Machine Gun Ammo - Half (slot 5)
     6: Environmental Sealing (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/2 Criticals: Lower Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Machine Gun', 'IS Machine Gun Ammo - Half', 'Environmental Sealing', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Arm:
@@ -109,6 +110,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     3: Machine Gun (slot 4)
     4: IS Machine Gun Ammo - Half (slot 5)
     5: Environmental Sealing (slot 6)
+    Slot roll: 1 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/2 Criticals: Shoulder hit.
       Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'DESTROYED', 'Machine Gun', 'IS Machine Gun Ammo - Half', 'Environmental Sealing', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 20 -> 0

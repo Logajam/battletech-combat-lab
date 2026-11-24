@@ -405,17 +405,20 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     2: IS Streak SRM 4 Ammo (slot 2)
     3: ISC3BoostedSystemSlaveUnit (slot 3)
     4: ISC3BoostedSystemSlaveUnit (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/3 Criticals: ISC3BoostedSystemSlaveUnit slot hit.
       Current crit slots in Left Torso: ['ISStreakSRM4', 'IS Streak SRM 4 Ammo', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
   Critical hit pool at Left Torso:
     1: ISStreakSRM4 (slot 1)
     2: IS Streak SRM 4 Ammo (slot 2)
     3: ISC3BoostedSystemSlaveUnit (slot 3)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/3 Criticals: ISStreakSRM4 slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'IS Streak SRM 4 Ammo', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
   Critical hit pool at Left Torso:
     1: IS Streak SRM 4 Ammo (slot 2)
     2: ISC3BoostedSystemSlaveUnit (slot 3)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     3/3 Criticals: IS Streak SRM 4 Ammo slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
     IS Streak SRM 4 Ammo destroyed at Left Torso - EXPLOSION (176 dmg)! Pilot takes 1 hit (2/6).

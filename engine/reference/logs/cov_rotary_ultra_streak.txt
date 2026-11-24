@@ -547,6 +547,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Ferro-Fibrous', 'Ferro-Fibrous']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
@@ -690,6 +691,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/2 Criticals: Hip hit.
       Current crit slots in Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 5.
@@ -698,6 +700,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     1: Upper Leg Actuator (slot 2)
     2: Lower Leg Actuator (slot 3)
     3: Foot Actuator (slot 4)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/2 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['DESTROYED', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 4.
@@ -712,6 +715,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     1: Hip (slot 1)
     2: Lower Leg Actuator (slot 3)
     3: Foot Actuator (slot 4)
+    Slot roll: 2 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/1 Criticals: Lower Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'DESTROYED', 'Foot Actuator', 'Ferro-Fibrous', 'Ferro-Fibrous']
       Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 2.
@@ -769,6 +773,7 @@ FALL (fell again after standing): Sentinel STN-3L takes 4 falling damage (1D6 1:
   Critical hit pool at Left Torso:
     1: Heat Sink (slot 1)
     2: ISUltraAC5 Ammo (slot 2)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'ISUltraAC5 Ammo', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 9).

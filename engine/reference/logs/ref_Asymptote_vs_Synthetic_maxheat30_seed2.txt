@@ -697,6 +697,7 @@
     7: ISAC5 (slot 7)
     8: ISAC5 (slot 8)
     9: ISAC5 Ammo (slot 9)
+    Slot roll: 2 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: Upper Arm Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5 Ammo', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Arm:
@@ -708,6 +709,7 @@
     6: ISAC5 (slot 7)
     7: ISAC5 (slot 8)
     8: ISAC5 Ammo (slot 9)
+    Slot roll: 3 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: Hand Actuator hit.
       Current crit slots in Right Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'DESTROYED', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5 Ammo', '-Empty-', '-Empty-', '-Empty-']
   [Resolve] Red -> Blue: ISMediumPulseLaser

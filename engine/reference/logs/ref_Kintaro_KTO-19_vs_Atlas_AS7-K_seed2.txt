@@ -536,6 +536,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 4.
@@ -560,6 +561,7 @@ FALL (failed Attack Phase PSR): Kintaro KTO-19 takes 6 falling damage (1D6 5: fr
   Critical hit pool at Left Torso:
     1: ISLRM5 Ammo Narc-capable (slot 1)
     2: ISSRM6 Ammo Narc-capable (slot 2)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/2 Criticals: ISLRM5 Ammo Narc-capable slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'ISSRM6 Ammo Narc-capable', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     ISLRM5 Ammo Narc-capable destroyed at Left Torso - EXPLOSION (90 dmg)! Pilot takes 1 hit (2/6).

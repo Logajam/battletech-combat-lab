@@ -18,7 +18,7 @@ const LOCAB = { "Head": "H", "Center Torso": "CT", "Left Torso": "LT", "Right To
 const LOOKS = { slhisd: "SL-HIS Dark", slhis: "SL-HIS Light", w95: "Windows 95", modern: "Modern" };
 const pref = (k, d) => { try { const v = localStorage.getItem("bm_" + k); return v == null ? d : v; } catch (e) { return d; } };
 const setPref = (k, v) => { try { localStorage.setItem("bm_" + k, v); } catch (e) { /* storage off */ } };
-const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1" };
+const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1", dice: pref("dice", "1") === "1" };
 // movement colours follow MegaMek's (walk cyan, run yellow, jump orange; NOT VERIFIED against its source); the colour-blind set
 // (Okabe-Ito) also gives each mode its own line pattern
 const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A7" } : { Walk: "#00e5ff", Run: "#ffd400", Jump: "#ff7a3c" })[m] || "#99a";
@@ -1131,6 +1131,7 @@ function act(t) {
     case "menu-folder": { const sub = document.querySelector(`#menu .sub[data-f="${d.f}"]`); if (sub) sub.classList.toggle("open"); break; }
     case "look": O.look = d.v; setPref("look", d.v); applyLook(); buildMenu(); break;
     case "cvd": O.cvd = !O.cvd; setPref("cvd", O.cvd ? "1" : "0"); buildMenu(); redraw(); if (moving()) { if (S.dest) moveSheet(); } if (S.decl) declSheet(); break;
+    case "dice": O.dice = !O.dice; setPref("dice", O.dice ? "1" : "0"); buildMenu(); if ($("report").firstChild) renderReport(); break;
     case "rings": O.rings = !O.rings; setPref("rings", O.rings ? "1" : "0"); buildMenu(); redraw(); break;
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
     case "report": toggleReport(); $("menu").style.display = "none"; break;
@@ -1156,9 +1157,12 @@ function finish(end) {
 // the finished game as a one-battle run file for the Lab (lab.js openPlayedGame); the setup is the one the Lab handed over
 function getResults() {
   const end = S.end; if (!end || !end.line) return;
-  let setup = null; try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); } catch (e) { setup = null; }
+  let setup = S.setup || null; if (!setup) try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); } catch (e) { setup = null; }
   if (!setup) { showCard('<b>Get Results</b><div class="msg">This game was not started from this browser\'s Lab, so its setup is not here to open the results with.</div>'); return; }
-  const file = { combatlab_run: 1, setup: { ...setup, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
+  // a run's setup names bots only: the person's team is filed under the default bot (the statistics come from the battle line; a replay
+  // opened from the Results tab would be the bots' battle, not this game: recording the person's game is the saved-game work, P2 / P11)
+  const teams = (setup.teams || []).map((t) => (t.bot === "human" ? { ...t, bot: "gladiator" } : t));
+  const file = { combatlab_run: 1, played: true, setup: { ...setup, teams, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
   try { localStorage.setItem("bm_play_result", JSON.stringify(file)); } catch (e) { showCard('<b>Get Results</b><div class="msg">This browser will not let the page hand the results over (storage is off).</div>'); return; }
   location.href = "index.html";
 }
@@ -1259,15 +1263,21 @@ function reportHtml(lines) {
 function fmtDamage(l, target, st) {
   const t = l.trim(); let m;
   if ((m = /^Critical hit pool at (.+):$/.exec(t))) { if (st) st.loc = m[1]; return ""; }
-  if (/^(Check for possible critical|No critical hit\.|\d+ critical hit\(s\)\.|Critical hit pool at|Current crit slots in)/.test(t) || /^\d+: .+ \(slot \d+\)$/.test(t)) return "";
+  // the critical check's roll is always shown (Daniel, 2026-11-24: "The dice rolls for critical hits should be shown"); the slot roll, like the
+  // other detail dice (hit location, cluster), only with "Dice details" on (Daniel: "Showing dice rolls may need to be an optional setting")
+  if ((m = /^Check for possible critical\. Roll a (\d+)\.$/.exec(t))) { if (st) st.check = m[1]; return ""; }
+  if ((m = /^(\d+) critical hit\(s\)\.$/.exec(t))) return `<div class="rl ck">critical check: rolled ${st && st.check || "?"} &rarr; <b>${m[1]} critical hit${m[1] === "1" ? "" : "s"}</b></div>`;
+  if (/^No critical hit\.$/.test(t)) return `<div class="rl dm">critical check: rolled ${st && st.check || "?"} &rarr; none</div>`;
+  if ((m = /^Slot roll: (\d+) on 1D(\d+)/.exec(t))) return `<div class="rl dm dice">slot roll ${m[1]} on 1D${m[2]}</div>`;
+  if (/^(Critical hit pool at|Current crit slots in)/.test(t) || /^\d+: .+ \(slot \d+\)$/.test(t)) return "";
   if (/^\d+ damage \(\w+\) incoming to /.test(t) || /hit for \d+:$/.test(t)) return "";
   if ((m = /^(?:Group (\d+)\/(\d+): )?Hit location roll (\d+) \((\w+) table\): (.+)\.$/.exec(t)))
-    return `<div class="rl">${m[1] ? `<small>${m[1]}/${m[2]}</small> ` : ""}&rarr; <b>${esc(target)}</b> ${esc(m[5])} <small>(roll ${m[3]}, ${esc(m[4])})</small></div>`;
+    return `<div class="rl">${m[1] ? `<small>${m[1]}/${m[2]}</small> ` : ""}&rarr; <b>${esc(target)}</b> ${esc(m[5])} <small class="dice">(roll ${m[3]}, ${esc(m[4])})</small></div>`;
   if ((m = /^\[[^\]]+\] (\d+) armor pts destroyed at (.+?) \((\d+) -> (\d+) remaining\)\.(?: (\d+) damage applied to structure \[[^\]]+\] \((\d+) -> (\d+)\/\d+ remaining\)\.)?/.exec(t)))
     return `<div class="rl dm">${/rear/.test(m[2]) ? "rear " : ""}armour ${m[3]} &rarr; ${m[4]}${m[5] ? `, <b>structure ${m[6]} &rarr; ${m[7]}</b>` : ""}</div>`;
   if ((m = /^\d+\/\d+ Criticals: (.+) hit\.$/.exec(t))) return `<div class="rl crit">CRITICAL HIT: ${st && st.loc ? esc(target) + " " + esc(st.loc) + " &mdash; " : ""}${esc(m[1])}</div>`;
   if ((m = /^(.+?) hit: cluster roll (\d+)(?: \((.+?)\))? on the (\d+)-column table -> (\d+) connect \((\d+) dmg\)\.$/.exec(t)))
-    return `<div class="rl"><b>${m[5]}</b> of ${m[4]} hit${m[3] ? ` (${esc(m[3])})` : ""}, ${m[6]} damage <small>(cluster roll ${m[2]})</small></div>`;
+    return `<div class="rl"><b>${m[5]}</b> of ${m[4]} hit${m[3] ? ` (${esc(m[3])})` : ""}, ${m[6]} damage <small class="dice">(cluster roll ${m[2]})</small></div>`;
   const big = /destroy|DESTROYED|explo|pilot|Head hit|engine hit|gyro|critical|falls|Through-Armor|cockpit|unconscious/i.test(t);
   return `<div class="rl${big ? " big" : ""}">${esc(t)}</div>`;
 }
@@ -1275,6 +1285,7 @@ function renderReport() {
   const r = $("report"); if (!r.firstChild) r.innerHTML = '<div id="rbox"><div id="rhead"><b id="rtitle">Report</b><button data-act="report-close">Close</button></div><div id="rbody"></div></div>';
   const fresh = r.dataset.mode === "fire";
   $("rtitle").textContent = fresh ? "Combat report" : "Report";
+  r.classList.toggle("nodice", !O.dice);
   $("rbody").innerHTML = reportHtml(fresh ? S.fresh : S.shown) || '<div class="rd">Nothing to report yet.</div>';
   // the report opens at the start of the latest phase it has (B20)
   const heads = $("rbody").querySelectorAll(".rp, .rt"), last = heads[heads.length - 1];
@@ -1291,7 +1302,7 @@ function buildMenu() {
   const m = $("menu");
   const item = (label, act, extra, on) => `<div class="item ${on ? "on" : ""}" data-act="${act}" ${extra || ""}>${label}</div>`;
   m.innerHTML = `<div class="f" data-act="menu-folder" data-f="look">Look &#9656;</div><div class="sub open" data-f="look">${Object.entries(LOOKS).map(([k, n]) => item(n, "look", `data-v="${k}"`, O.look === k)).join("")}</div>
-    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}</div>
+    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}</div>
     <div class="f" data-act="menu-folder" data-f="game">Game &#9656;</div><div class="sub open" data-f="game">${item("Report", "report")}${item("Back to the Lab", "lab")}</div>`;
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
@@ -1307,6 +1318,7 @@ async function boot() {
     let setup = null;
     try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); localStorage.removeItem("bm_play_setup"); } catch (e) { /* storage off */ }
     if (setup) {
+      S.setup = setup;   // kept for Get Results (the stored copy is used up here so a reload does not start a second battle)
       $("info").textContent = "Starting the battle...";
       const r = await api("play_start", { setup });
       if (r.error) { setPhase("could not start"); $("info").textContent = r.error; return; }

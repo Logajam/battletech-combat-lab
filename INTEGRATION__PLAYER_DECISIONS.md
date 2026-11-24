@@ -500,18 +500,25 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
     + range 0)"); the report gives TAG its own section, shown as soon as the TAG step is over (before any weapon is declared), as "TAG: X -> Y needs N (...), rolled R".
 
 ### D. Reports (round report, combat report)
-17. FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a
+17. FIXED 2026-11-24 FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a
     weapon that hits should immediately report where it hit and any additional results of that hit before resolving the next attack. Attacks that miss are simply reported that they miss."
-18. FEAT **Clearer about who is firing, who is taking damage, and highlight significant events like a critical hit.**
-19. FEAT **Critical hits:** "The critical hit pool and current critical slots do not need to be reported in the log. Only the critical slot that was hit. Highlighted for visibility."
-20. FEAT **The report opens at the start of the most recent phase it has information on** (not at the end or the top).
-21. FEAT **When the battle is over the commit button turns into "Get Results"**, which switches to the results tab with all the battle statistics.
+18. FIXED 2026-11-24 FEAT **Clearer about who is firing, who is taking damage, and highlight significant events like a critical hit.**
+19. FIXED 2026-11-24 FEAT **Critical hits:** "The critical hit pool and current critical slots do not need to be reported in the log. Only the critical slot that was hit. Highlighted for visibility."
+20. FIXED 2026-11-24 FEAT **The report opens at the start of the most recent phase it has information on** (not at the end or the top).
+21. FIXED 2026-11-24 FEAT **When the battle is over the commit button turns into "Get Results"**, which switches to the results tab with all the battle statistics.
+
+    (17-21 DONE 2026-11-24: the engine writes "[Resolve] A -> T: weapon" before each attack's damage; the report puts each hit's location and damage
+    under its roll, boils the damage down ("-> Blue 3 Right Torso", "armour 11 -> 6, structure 15 -> 14"), shows a critical hit as one highlighted
+    "CRITICAL HIT: Blue 3 Right Leg - Lower Leg Actuator" with its critical check roll (always shown, Daniel 2026-11-24: "The dice rolls for critical hits
+    should be shown") and, with the menu option "Dice details in the report" (on by default; Daniel: "Showing dice rolls may need to be an optional
+    setting"), the slot roll ("slot roll 3 on 1D6", now logged by the engine), the hit-location and cluster rolls; no pool or slot lists; a heading per
+    phase, opening at the latest; Get Results hands the battle to the Lab's Results tab as a one-battle run (a replay from there is the bots' battle).)
 
 ### E. Physical attacks
 22. FEAT **Use the same weapons table on screen as the ranged attacks, complete with a commit button.**
 23. FEAT **Do not list every limb that can make an attack:** "Always use the best available limbs with the highest expected damage."
 
-24a. FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
+24a. FIXED 2026-11-24 FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
 
 ### F. Armour and placards
 24. BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see

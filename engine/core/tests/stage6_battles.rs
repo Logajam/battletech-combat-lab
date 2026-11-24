@@ -79,6 +79,7 @@ fn expected_log(dir: &PathBuf) -> (Vec<String>, Vec<String>) {
 /// the Python exactly. Add an entry (with its date and reason) for each change that is meant; never to hide an unexplained one.
 ///  1. 2026-11-24: the Initiative line ends with the dice, " (rolled Red 7, Blue 7; tie re-rolled Red 3, Blue 6)" (orchestrator
 ///     `log_initiative`; Daniel: "The dice rolls to determine initiative every turn should be shown").
+///  4. 2026-11-24: a "    Slot roll: N on 1DM ..." line after a critical hit pool (damage_resolution; the slot die shown); dropped here.
 ///  3. 2026-11-24: a "  [Resolve] A -> T: weapon" line before each attack's resolution (attack_resolution `run_ranged_phase`;
 ///     bug B17: report each hit where it happens); dropped here.
 ///  2. 2026-11-24: a TAG line's number carries its parts, "needs 9 (range 5; gunnery 4 + AMM 1 [Walk] + ...)" (tag.rs
@@ -86,7 +87,7 @@ fn expected_log(dir: &PathBuf) -> (Vec<String>, Vec<String>) {
 fn known_changes(lines: Vec<String>) -> Vec<String> {
     lines
         .into_iter()
-        .filter(|l| !l.starts_with("  [Resolve] "))
+        .filter(|l| !l.starts_with("  [Resolve] ") && !l.starts_with("    Slot roll: "))
         .map(|l| {
             if l.starts_with("  Initiative") {
                 if let (Some(i), true) = (l.find(" (rolled "), l.ends_with(").")) {

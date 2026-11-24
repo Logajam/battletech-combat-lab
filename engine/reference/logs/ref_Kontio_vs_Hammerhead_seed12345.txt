@@ -100,6 +100,7 @@
     2: Engine (slot 2)
     3: CLLargePulseLaser (slot 3)
     4: CLLargePulseLaser (slot 4)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: CLLargePulseLaser slot hit.
       Current crit slots in Right Torso: ['Engine', 'Engine', 'DESTROYED', 'CLLargePulseLaser', 'Clan Endo Steel', 'Clan Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Physical] Blue twists its torso 1 hexside left to reach Red.
@@ -466,12 +467,14 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 9.
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/2 Criticals: Hand Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'DESTROYED', 'Clan Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Arm:
     1: Shoulder (slot 1)
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
+    Slot roll: 3 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/2 Criticals: Lower Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'DESTROYED', 'Clan Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 1 + movement 2 + weapons 15 + engine 0 + stealth 10 - sinks 20 -> 8
@@ -554,6 +557,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 3.
     9: Engine (slot 9)
     10: Engine (slot 10)
     11: CLERMediumLaser (slot 11)
+    Slot roll: 2 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (3/3).
@@ -568,6 +572,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 3.
     8: Engine (slot 9)
     9: Engine (slot 10)
     10: CLERMediumLaser (slot 11)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Gyro hit (1/2).
