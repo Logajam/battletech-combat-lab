@@ -471,9 +471,12 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
 ### B. Firing
 5. FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";
    Daniel means area-effect attacks). Source the rule from the library (CLAUDE.md), cite the page.
-6. FEAT **Fire! with no weapons selected** "should both give a pop up warning, and count as holding fire."
-7. BUG **The Alpha Strike button is missing from underneath the weapons list** (the mockup puts Strike / Alpha Strike under the list on the map; the page has it only in the dock's Plan tab).
-8. FEAT **The Fire button should turn red.**
+6. PARKED 2026-11-24 FEAT **Fire! with no weapons selected** "should both give a pop up warning, and count as holding fire."
+7. PARKED 2026-11-24 BUG **The Alpha Strike button is missing from underneath the weapons list** (the mockup puts Strike / Alpha Strike under the list on the map; the page has it only in the dock's Plan tab).
+8. PARKED 2026-11-24 FEAT **The Fire button should turn red.**
+   (6-8 PARKED, Daniel 2026-11-24: "Some of this may be premature since my more recent thoughts may supersede your changes ... Hold onto the ideas
+   for comparison later." Built for the old weapon list, kept as `reference_art/battlerom_ui/parked_fire_screen_B6_B7_B8.patch`; the critical-table overlay
+   of UI_DECISION_HOMES Section 10 item 2 may replace them.)
 9. FEAT **Stacked weapons:** the target symbol "should fill up from left to right in partial increments" (n of m assigned).
 10. FIXED 2026-11-24 BUG **My Attack phase was skipped despite being able to torso twist to bring a target into sight.** (Probably the engine's "no line of sight / out of arc" test runs before the twist
     is considered. Not traced.) TRACED: the same page bug as 15 (the engine does count torso twists when it decides a target can be shot; `prepare_declaration`).
