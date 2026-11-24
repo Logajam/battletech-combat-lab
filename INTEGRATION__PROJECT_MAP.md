@@ -825,8 +825,12 @@ and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of
 to add in missing options. But lets continue bug fixes. We'll probaby find more holes along the way.")** Holes found so far, to add to as the bug hunt
 goes on: (1) DONE 2026-11-24: a person's 'Mech that stays prone may turn on the ground, 1 MP a hexside (Core p.51; `BotSet::prone_turn`, the stand_up answer's "facing"; bots always try to stand, unchanged);
 (2) MOVED TO THE WISH LIST (Daniel, 2026-11-24: "Optional initiative die goes on the wish list for when we add more game options"): the optional
-Initiative Die (Core, Initiative Phase section); (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
-item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
+Initiative Die (Core, Initiative Phase section); (3) DONE 2026-11-24, the MegaMek / bridge movement-options audit (Section 24 item 2): MegaMek's `MoveStepType` (enums/MoveStepType.java) against
+the engine, for 'Mechs. Have: forward, backward, turns, get up, jump, charge, DFA, unjam (a declaration, not a step). MISSING, Core: GO_PRONE (drop to the
+ground, p.51), voluntary SHUTDOWN / STARTUP (an End Phase choice, p.105), LATERAL shifts for quads (p.238; the engine loads quads), leaving the battlefield
+by the home edge under the optional Forced Withdrawal rules (FLEE; p.230 / missions). MISSING, TO:AR / TO:AUE (later books, the library has them):
+CAREFUL_STAND, HULL_DOWN, EJECT (Core has no ejection rule; TO:AR's advanced combat does), mechanical jump boosters. Bridge (DECISION_HOMES Section 12):
+charge / DFA and the arm flip are sent as MegaMek's own fallback, not our choice. Not 'Mech moves (vehicles, aircraft, infantry, cargo): not listed. (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
 the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
 (only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) DONE 2026-11-24: `weapon_attack_tns` with `at_hex`
 (TAG at the hex) now takes the -4 and leaves out the target hex's woods / smoke (p.64-66; not for area-effect weapons, p.180). No reference battle changed.
