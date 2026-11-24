@@ -6,6 +6,10 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 35), PUBLISHED: the public source (`publish_public.py --push`, main 47c7bc7..07d3ac4, 1056 commits, no private paths or
+  personal emails) and the website (`publish_web_lab.py --push`, gh-pages), from private main 37e5e9b (PR 332). Checked live at
+  logajam.github.io/battletech-combat-lab (the new play.js is served). Daniel plays this browser version.**
+
 - **2026-11-24 (Claude, session 35, work order), ENGINE PASS AND REPORTS. REVIEW PENDING (higher-level model).** Daniel's work order (PROJECT_MAP Section 4).
   (1) Design-record audit (PLAYER_DECISIONS Section 25; 25 findings, nothing changed). (2) Engine pass, a person's units only unless said: an attack aimed at a
   hex takes the immobile -4 and ignores the target hex's terrain (p.64-66; TAG at a hex; every side); turning while prone (p.51, `BotSet::prone_turn`); dropping to the
