@@ -823,7 +823,7 @@ and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of
 
 **ENGINE PASS FOR MISSING OPTIONS (Daniel, 2026-11-24: "With turning on the ground missing, I think were going to have to do an engine pass
 to add in missing options. But lets continue bug fixes. We'll probaby find more holes along the way.")** Holes found so far, to add to as the bug hunt
-goes on: (1) a 'Mech that stays prone may still change facing at 1 MP a hexside (Core p.51); the engine gives a unit that stays prone no move;
+goes on: (1) DONE 2026-11-24: a person's 'Mech that stays prone may turn on the ground, 1 MP a hexside (Core p.51; `BotSet::prone_turn`, the stand_up answer's "facing"; bots always try to stand, unchanged);
 (2) MOVED TO THE WISH LIST (Daniel, 2026-11-24: "Optional initiative die goes on the wish list for when we add more game options"): the optional
 Initiative Die (Core, Initiative Phase section); (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
 item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,

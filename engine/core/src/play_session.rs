@@ -15,7 +15,7 @@
 //!
 //! Requests ("kind") and their answers:
 //!   `move_order` {candidates}            -> {"unit": id}
-//!   `stand_up` {tn}                      -> {"stand": bool} (+ "plan": a movement answer for after the stand)
+//!   `stand_up` {tn, prone_turns}         -> {"stand": bool} (+ "plan": a movement answer after the stand; or, staying prone, "facing")
 //!   `boost` {systems}                    -> {"use": bool}  (MASC / supercharger this turn)
 //!   `movement` {options, attacks}        -> {"hex","facing","mode"} | {"stay": true} | {"attack": {"kind","target","hex","facing"}}
 //!   `spot` {candidates}                  -> {"target": id|null, "fires": bool}
@@ -198,7 +198,7 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None };
+    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None };
     let mut bots = HumanBots::new(screen, human);
     // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
@@ -359,6 +359,8 @@ struct Screen {
     /// a move the person planned together with standing up (`stand_up`'s "plan", bug A2): used by that unit's movement question
     /// right after a successful stand; dropped if the stand fails (no movement question follows) or anything else moves first
     stand_plan: Option<(UnitId, Value)>,
+    /// the facing a person chose for a unit that stays prone (the stand_up answer's "facing"; p.51)
+    prone_facing: Option<(UnitId, String)>,
 }
 
 /// Everything the movement question and its queries need about one unit's possible moves.
@@ -839,7 +841,15 @@ impl Controller for Screen {
         // fit the MP left: the movement question then says so and asks again (ask_with's preset).
         let view = move_view(b, mover, Some((run - 2).max(0)), None);
         self.stand_plan = None;
-        let (stand, plan) = self.ask(
+        self.prone_facing = None;
+        // the facings it could turn to if it stays prone, with their cost (1 MP a hexside, p.51)
+        let turns: Vec<Value> = ["N", "NE", "SE", "S", "SW", "NW"]
+            .iter()
+            .filter_map(|f| crate::orchestrator::prone_turn_cost(&b.units[mover], f).map(|(mp, mode)| json!({"facing": f, "mp": mp, "mode": mode})))
+            .collect();
+        let mut req = req;
+        req["prone_turns"] = json!(turns);
+        let (stand, plan, facing) = self.ask(
             b,
             req,
             |b, q| match q["q"].as_str() {
@@ -847,13 +857,29 @@ impl Controller for Screen {
                 Some("path") => Some(view.route(b, mover, q, Some((run - 2).max(0)), None).unwrap_or_else(|| json!({"error": "no route"}))),
                 _ => None,
             },
-            |_, a| {
+            |b, a| {
                 let stand = a["stand"].as_bool().ok_or_else(|| "stand up, or stay prone?".to_string())?;
-                Ok((stand, a.get("plan").filter(|p| stand && p.is_object()).cloned()))
+                // staying prone, it may turn (p.51)
+                let facing = match a["facing"].as_str().filter(|_| !stand) {
+                    Some(f) if f != b.units[mover].facing => {
+                        crate::orchestrator::prone_turn_cost(&b.units[mover], f).ok_or_else(|| format!("it cannot turn to face {} on the ground this turn", f))?;
+                        Some(f.to_string())
+                    }
+                    _ => None,
+                };
+                Ok((stand, a.get("plan").filter(|p| stand && p.is_object()).cloned(), facing))
             },
         );
         self.stand_plan = plan.map(|p| (mover, p));
+        self.prone_facing = facing.map(|f| (mover, f));
         stand
+    }
+
+    fn prone_turn(&mut self, _b: &mut Battle, mover: UnitId) -> Option<String> {
+        match self.prone_facing.take() {
+            Some((u, f)) if u == mover => Some(f),
+            _ => None,
+        }
     }
 
     fn before_move(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {

@@ -264,6 +264,7 @@ function redraw() {
   drawUnits(gDyn);
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
+  if (r && r.kind === "stand_up" && S.prone) drawProneArrows(gTop);
   if (r && r.kind === "declaration") { drawAim(gDyn); drawShotLine(gTop, r.unit, r.target, r.distance); }
   if (r && r.kind === "target" && S.fire && S.fire.tcur != null) { drawAim(gDyn); drawShotLine(gTop, r.unit, S.fire.tcur, (r.enemies.find((e) => e.id === S.fire.tcur) || {}).distance); }
   renderStrip(); infoBar(); dockRender();
@@ -302,7 +303,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -320,8 +321,25 @@ const eq = (u) => (u && u.equipment) || {};
 // only then is the piloting roll made. A failed roll leaves the 'Mech prone and the plan is dropped.
 HANDLERS.stand_up = (r) => {
   S.mv = null; clearCluster();
-  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. It may then face any way at no cost and move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="msg">Stand up lets you plan the move first; nothing is rolled until you hold <b>Move!</b>, and &times; brings you back here.</div><div class="row"><button class="go" data-act="stand-plan">Stand up</button><button data-act="stand" data-v="0">Stay prone</button></div>`);
+  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. It may then face any way at no cost and move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="msg">Stand up lets you plan the move first; nothing is rolled until you hold <b>Move!</b>, and &times; brings you back here.</div><div class="row"><button class="go" data-act="stand-plan">Stand up</button>${(r.prone_turns || []).length ? '<button data-act="prone-plan">Stay prone</button>' : '<button data-act="stand" data-v="0">Stay prone</button>'}</div>`);
 };
+// STAYING PRONE, IT MAY TURN (Core p.51: 1 MP a hexside; engine pass 2026-11-24): the arrows ring the 'Mech, each with its cost; holding
+// the button stays prone facing the way chosen (or as it lies). x goes back to the stand / stay choice.
+function pronePlan() {
+  const r = S.req; if (!r || r.kind !== "stand_up") return;
+  S.prone = { facing: null }; proneSheet(); redraw();
+}
+function proneSheet() {
+  const r = S.req, P = S.prone, o = P.facing ? (r.prone_turns || []).find((t) => t.facing === P.facing) : null;
+  sheet(`<h3>${esc(r.name)} stays prone</h3><div class="msg">It may turn on the ground, 1 MP a hexside (walking or running MP). Tap an arrow round the 'Mech to turn, then hold the button; with no arrow chosen it stays as it lies. &times; goes back.</div>`);
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>${o ? "MP " + o.mp : "MP 0"}</b> &middot; ${o ? "faces " + o.facing + " (" + o.mode + ")" : "lies as it is"}<br><span>stays prone</span></div><button class="go big" data-act="prone-go" data-hold="1">Stay prone<small>hold</small></button><button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>`;
+}
+function drawProneArrows(layer) {
+  const r = S.req, u = unit(r.unit); if (!u || !u.hex) return;
+  const [x, y] = centre(u.hex), by = Object.fromEntries((r.prone_turns || []).map((t) => [t.facing, t]));
+  arrowRing(layer, x, y, Object.keys(by), S.prone.facing || u.facing, (f) => modeCol(by[f].mode), (f) => { S.prone.facing = f; proneSheet(); redraw(); });
+}
 async function standPlan() {
   const r = S.req, seq = S.seq; if (!r || r.kind !== "stand_up") return;
   sheet('<div class="msg">Working out the moves after standing...</div>');
@@ -576,6 +594,7 @@ function undo() {
   if (!S.req) return;
   if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
   if (moving() && standing() && !S.dest && !S.attackTarget) { HANDLERS.stand_up(S.req); redraw(); return; }
+  if (S.prone && S.req.kind === "stand_up") { S.prone = null; HANDLERS.stand_up(S.req); redraw(); return; }
   if (moving()) { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
   if (S.decl && S.req.kind === "declaration") { S.decl.sel.clear(); declSheet(); redraw(); return; }
   if (S.fire && S.req.kind === "target") { S.fire.assign.clear(); S.fire.order = []; S.fire.lastPrimary = null; if (S.decl) S.decl.sel.clear(); fireRebuild(); return; }
@@ -1044,6 +1063,8 @@ function act(t) {
     case "pick-unit": send({ unit: +d.id }); break;
     case "stand": send({ stand: d.v === "1" }); break;
     case "stand-plan": standPlan(); break;
+    case "prone-plan": pronePlan(); break;
+    case "prone-go": if (S.prone) send(S.prone.facing ? { stand: false, facing: S.prone.facing } : { stand: false }); break;
     case "boost": send({ use: d.v === "1" }); break;
     case "spot": send({ target: d.id === "" ? null : +d.id, fires: true }); break;
     case "tag": send(d.id === "" ? { target: null } : { target: +d.id, aim: d.aim }); break;

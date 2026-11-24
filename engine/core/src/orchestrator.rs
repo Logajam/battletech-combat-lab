@@ -63,6 +63,12 @@ pub trait BotSet {
     /// controller records the switches it sets here (player_choices.rs). Default: nothing.
     fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) {}
     /// BattleROM: may a prone unit that can stand try to? A person may leave it prone. Default: yes (the engine always tried).
+    /// A unit that chose to stay prone may still change facing, 1 MP a hexside (Core p.51): the facing it turns to (compass), or None
+    /// to stay as it lies. Asked only after `wants_stand_up` said no; the bots always try to stand, so only a person is asked
+    /// (engine pass, 2026-11-24). Like `wants_stand_up`, not a bot decision: the bridge does not record it.
+    fn prone_turn(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
+        None
+    }
     fn wants_stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
         true
     }
@@ -183,6 +189,30 @@ pub fn turn_while_down_choice(b: &Battle, mover: UnitId, other: UnitId) -> Optio
     (best_turns > 0).then_some((best, best_turns, seen_as))
 }
 
+/// What turning to `to` while prone costs (1 MP a hexside, the short way round; p.51), and whether the unit has the MP: (hexsides,
+/// mode) where the mode is Walk if it fits the walking MP, else Run (a prone 'Mech declares walk or run first, p.51). None: no
+/// such facing, no turn needed, or not enough MP.
+pub fn prone_turn_cost(m: &crate::mech_state::Mech, to: &str) -> Option<(i64, &'static str)> {
+    let (from, to) = (hex_geometry::compass_to_facing(&m.facing).ok()?, hex_geometry::compass_to_facing(to).ok()?);
+    let d = (to - from).rem_euclid(6);
+    let sides = d.min(6 - d);
+    let (walk, run) = (compute_walk_mp(m), crate::mech_state::compute_running_mp(m));
+    if sides == 0 || sides > run {
+        return None;
+    }
+    Some((sides, if sides <= walk { "Walk" } else { "Run" }))
+}
+
+/// A person's unit that stays prone turns to `to` (p.51).
+fn prone_turn(b: &mut Battle, mover: UnitId, to: &str) {
+    let Some((sides, mode)) = prone_turn_cost(&b.units[mover], to) else { return };
+    b.units[mover].facing = to.to_string();
+    b.units[mover].move_mode = mode.into();
+    b.units[mover].mp_spent = sides;
+    let line = format!("  [Movement] {}: turns {} hexside(s) on the ground to face {} ({}, {} MP; p.51).", name(b, mover), sides, to, mode, sides);
+    b.log(line);
+}
+
 fn turn_while_down(b: &mut Battle, mover: UnitId, other: UnitId) {
     let Some((best, best_turns, seen_as)) = turn_while_down_choice(b, mover, other) else { return };
     let compass = hex_geometry::facing_to_compass(best).unwrap().to_string();
@@ -279,6 +309,9 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
         let stays = tries && !bots.wants_stand_up(b, mover);
         if stays {
             b.log(format!("  [Movement] {}: stays prone (chosen).", nm));
+            if let Some(to) = bots.prone_turn(b, mover) {
+                prone_turn(b, mover, &to);
+            }
         }
         let remaining = if stays { 0 } else { b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, None)) };
         let tries = tries && !stays;

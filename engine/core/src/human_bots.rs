@@ -58,6 +58,10 @@ pub trait Controller {
     fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
         None
     }
+    /// A unit that stays prone: the facing it turns to (p.51), or None.
+    fn prone_turn(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
+        None
+    }
     /// May a prone unit that can stand try to?
     fn stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
         true
@@ -236,6 +240,17 @@ impl<C: Controller> BotSet for HumanBots<C> {
         }
         let r = self.ctl.stand_up(b, mover);
         self.log.push(Decision::Choice { unit: mover, kind: "stand_up", answer: r.to_string() });
+        r
+    }
+
+    fn prone_turn(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
+        if !self.human.contains(&mover) {
+            return None;
+        }
+        let r = self.ctl.prone_turn(b, mover);
+        if let Some(f) = &r {
+            self.log.push(Decision::Choice { unit: mover, kind: "prone_turn", answer: f.clone() });
+        }
         r
     }
 

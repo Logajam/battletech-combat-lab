@@ -144,6 +144,12 @@ def stand_with_plan(lab, gid, r, kinds, pending):
     stand are shown before anything is rolled; the unit turns in place (any facing is free after standing, p.51) and the stand and
     the move go in one answer."""
     if any(x.startswith("stand_plan") for x in kinds):
+        # the second time: stay prone and turn on the ground (1 MP a hexside, p.51)
+        if r.get("prone_turns") and not any(x.startswith("prone_turn") for x in kinds):
+            t = r["prone_turns"][0]
+            pending.append((r["unit"], t["facing"], "prone"))
+            kinds.add("prone_turn_sent")
+            return {"stand": False, "facing": t["facing"]}
         return {"stand": True}
     v = lab.api("play_query", {"game": gid, "query": {"q": "reach", "unit": r["unit"]}})["view"]
     me = next(x for x in r["units"] if x["id"] == r["unit"])
@@ -159,8 +165,11 @@ def after_stand(r, k, kinds, pending):
     """The question after a planned stand: stood -> the planned facing and NO movement question for it."""
     if not pending:
         return
-    u, facing = pending.pop()
+    u, facing, *how = pending.pop()
     me = next(x for x in r["units"] if x["id"] == u)
+    if how:
+        kinds.add("prone_turn_ok" if me.get("prone") and me["facing"] == facing else f"prone_turn_bad: facing {me['facing']} (asked {facing}), prone {me.get('prone')}")
+        return
     if me.get("prone"):
         kinds.add("stand_plan_roll_failed")
     elif not (k == "movement" and r["unit"] == u) and me["facing"] == facing:
@@ -263,6 +272,8 @@ def main():
         check({"boost", "declaration", "end_phase", "spot"} <= kk, f"a game with MASC, TAG, coolant pods and AMS on the person's side: questions {sorted(kk)}", failures)
         check(end3["winner"] in ("Red", "Blue", "Draw"), f"... and it ends: {end3['winner']} after {end3['turns']} turns", failures)
         sp = sorted(x for x in kk if x.startswith("stand_plan"))
+        pt = sorted(x for x in kk if x.startswith("prone_turn"))
+        check("prone_turn_ok" in kk or not pt, f"a unit that stays prone turns on the ground when asked (p.51; {pt or 'no second stand question in this game'})", failures)
         check("stand_plan_ok" in kk or "stand_plan_roll_failed" in kk, f"a stand planned together with its move (turning in place) stands and moves with no second question (A2; {sp})", failures)
     finally:
         proc.kill()
