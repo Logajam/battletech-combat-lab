@@ -95,6 +95,80 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**P. Daniel's goal list (2026-11-24; his words; mostly NOT yet specced or built). START HERE NEXT SESSION (handed to a stronger model to sort):** read
+`INTEGRATION__UI_DESIGN_NOTES.md` (two second-hand design summaries), `INTEGRATION__UI_DECISION_HOMES.md` (every action and its
+home, plus the MegaMek bridge section; Daniel's rulings are in Section 10) and `reference_art/battlerom_ui/weapon_grid_sketch.html`
+(the fire-phase layout he ruled on). Suggested order: P3a (finish the table: rulebook page and MegaMek class per row, then the
+state diagram), P11 (one order format), then P3 / P10 / P2 / P4, P5 (download and website button), P12 / P9 (tournaments and Elo),
+P8 (BTTT), P13 / P14 (joke button and community links), P6 / P7 (peer to peer, MegaMek bridge from the website). Daniel's warning:
+moving the mockup into the live game "was less than successful", so settle homes on paper first.
+
+- P1. Load custom units (own `.mtf` files) when the Lab runs from the website (browser build).
+- P2. Save the starting conditions of a run to a file, probably with the units in use bundled inside it, so a run can be
+  shared easily (and loaded back).
+- P3. Play UI: when playing, rely on long presses to open extra options (touch-first; see O1 / `INTEGRATION__BATTLEROM_UI.md`). Daniel's fuller design discussion (second-hand summary): `INTEGRATION__UI_DESIGN_NOTES.md`; reconcile with the BattleROM mockup first.
+- P3a. BEFORE ANY UI GRAPHICS: write the play UI's interaction/state diagram (every decision, transition, context action and
+  confirm path), then audit it against the Core Rulebook (library, pages cited) so every legal action has a discoverable
+  control. Source: `INTEGRATION__UI_DESIGN_NOTES.md` section 6.
+  FIRST STEP (Daniel, 2026-11-24, next session): list EVERY decision a player can make and give each one a HOME (which screen
+  part: map, placard, expanded placard, detail sheet / Inspector, action cluster, long press, menu). Start from
+  `INTEGRATION__PLAYER_DECISIONS.md` Sections 4-9 and 12-14 (the existing decision audit; its Section 24 is Daniel's bug list)
+  and the vocabulary in `INTEGRATION__BATTLEROM_UI.md` Section 2. Daniel's warning: moving the mockup into the live game was
+  "less than successful", so settle homes on paper first, then build. Output: one table file; Daniel rules on the conflicts.
+  DRAFT 2 (2026-11-24, same day: Daniel's weapon-overlay ruling, rows F26-F30 and the MegaMek section; see the file's Section 10 item 2 and the live sketch `reference_art/battlerom_ui/weapon_grid_sketch.html`). DRAFT 1 WRITTEN 2026-11-24: `INTEGRATION__UI_DECISION_HOMES.md` (about 110 rows, Section 10 lists the rulings needed). The
+  on-screen data sheet is going away: its job moves to the Inspector (long press), Daniel 2026-11-24. Section 12 adds what the MegaMek bridge expects to be sent. REVIEW PENDING.
+- P11. ONE ORDER FORMAT (Daniel, 2026-11-24: "saving, sharing and branching for free is the winning combo"): one typed,
+  versioned schema for every decision answer (move, fire with twist / flip / ammo / mode, physical, switches), used by live
+  play (`play_answer`), the MegaMek bridge (`pick_json`, `decl_json`, `phys_json`, `path_steps`), bots, saved games and
+  replays. A saved game = starting conditions + the ordered answer list (P2); an alternate timeline = that list cut at an
+  earlier turn (P4). Starts from `human_bots.rs` `Decision` / `Controller` (already the typed list; its `Choice` catch-all is
+  free text and must become typed fields). Needs: a schema version from day one, input validation, the 91 reference battles
+  unchanged. First step: compare `play_answer` with the bridge's shapes and write the schema from the decision-homes table
+  (`INTEGRATION__UI_DECISION_HOMES.md`). Build order: after P3a, before P2 / P4.
+- P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
+  history on a separate branch" note in Section 0 and the saved-state work, CL6).
+- P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
+  branch each time code changes; the public-repo front-page link (E6) is still held until Daniel says so.
+- Secondary wants (Daniel, 2026-11-24, same day):
+  - P6. Peer-to-peer connection from the website ("pier to pier"). Needs the player UI up to snuff first (P3 / O1); not a
+    concern yet.
+  - P7. Bridge connection to MegaMek from the website (the bridge exists for the desktop, `INTEGRATION__MEGAMEK_BRIDGE.md`).
+  - P8. BTTT raid ("go through BTTT's pockets for loose change"): look at what BTTT does that we don't; study its bot ("kidnap
+    their bot") and decide whether it is worth adding to the bot collection; borrow its beveled hexes for level changes. Source:
+    https://github.com/Raptor007/BTTT (Daniel: keep what we take; he warned the author; BTTT's bot defends the hexes in a
+    head-to-head "trial of possession"). Licence: none found (per GPT, to be confirmed by
+    reading the repo); with no licence the author keeps all rights, so get the author's written OK (a repo issue or message)
+    before copying code or art, or re-implement the ideas ourselves. Credit it in `CREDITS.md` either way.
+  - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
+    plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
+- P10. ISOMETRIC (tilted) 2D MAP VIEW, a toggle beside top-down (Daniel, 2026-11-24). Flat board, squashed hexes, NOTHING stands up:
+  everything fits inside its own hex, token size follows hex size, 'Mechs stay flat top-down tokens (no 3D until models are worth
+  it), buildings may be drawn face-on to look upright. No height for hills: a level shows by shade, contour edge lines and a small
+  number. Main payoff: more of the board visible at once. Part 2: free camera (rotate/tilt/zoom) by gesture (two-finger on touch,
+  right-drag and wheel on desktop), one corner reset-to-top-down button, presets in the P3 long-press menu. Pairs with P8's beveled
+  hexes. Build after P3.
+- P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
+  tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
+  the pool (all mechs, or filters: weight, era, BV band), format (round robin, or Swiss / adaptive pairing so thousands of
+  mechs need roughly N log N battles, not N squared), battles per pairing with sides swapped (side bias), bot, map,
+  seeds; it runs in the background through the existing resumable record path (`btsim --stream`, `trial_records/progress/`,
+  the long-set SOP) and shows a live Elo table you can export. Build on `tools/round_robin.py` / `tools/fair_duels.py`.
+  DECIDED (Daniel, 2026-11-24): every pairing swaps sides; Elo is BV-BLIND (it never sees Battle Value). Purpose: the ratings
+  feed Daniel's valuation system (`battle_value.rs`), e.g. by comparing each mech's Elo with its BV to find over- and
+  under-valued mechs. So keep per-mech records (win / loss / draw, damage, turns) beside the rating, not just the rating.
+  Open: duels (1v1) versus lance fights may rank differently; which pairings to use is a design question for the plan.
+  Huge runs belong on the desktop build (native speed), not the browser build.
+- P13. JOKE: a "Pay Your Bills" button on the website's front page (Daniel, 2026-11-24), in the gold "Premium content" mobile-game
+  sheen (shimmer sweep, bevel, glow). It leads to a page saying the program is free (GPL v3 or later) and suggesting a
+  donation to charity instead. Daniel picks the charity (no payment is taken by us, no tracking). Keep it small and
+  obviously a gag; check it reads well on a phone and in the dark look.
+- P14. COMMUNITY CROSS-LINKS research (Daniel, 2026-11-24; feeds P13's page): find (a) charities with a BattleTech link (e.g.
+  charity drives or events run by the community), (b) artists for hire in the BattleTech community, (c) content creators.
+  Output: a short "Elsewhere in the community" page. Rules for the research: list only what a live page confirms (date and URL
+  checked per entry); public businesses, official channels and people who advertise their work, not private individuals; the
+  wording is Daniel's (he may endorse whom he likes); artists and creators may ask for removal; no artwork copied, links only. Daniel approves the final list.
+- Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
+
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
 - O1. THE FRONT END FOR PLAYER-CONTROLLED FORCES: designed as an interactive phone-first mockup, saved at
   `reference_art/battlerom_ui/battlerom_play_mockup.html`; the words for each part of the screen, Daniel's decisions and the
@@ -388,6 +462,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s34-ui) PLAY UI DESIGN SESSION, DOCS AND SKETCH ONLY** (2026-11-24): `INTEGRATION__UI_DECISION_HOMES.md` (about 115 rows; Section 12 = what the MegaMek bridge expects, items marked verify come from memory, NOT from MegaMek's source), `INTEGRATION__UI_DESIGN_NOTES.md` (second-hand Gemini and GPT summaries), `reference_art/battlerom_ui/weapon_grid_sketch.html` (live sketch, v3), backlog items P1-P14 in Section 0. Look at: the slot-row reading of "legs go in the arm columns" (checked against no unit file), the 26 px one-slot button size, the MegaMek rows marked verify, and whether the sketch's drag rules (paint inside the overlay, carry outside) survive a real phone.
 - **(s33-play) BATTLEROM FIRST PLAYABLE SLICE** (2026-11-21; 2026-11-22 second round: `DeployHook`, `MoveView`, `boardart.js`, Section 19 of PLAYER_DECISIONS; browser build 2026-11-22: `Link` trait in `play_session.rs`, `PageLink` and `play_run` in `engine/wasm/src/lib.rs`, `engine/wasm/web/playworker.js` / `coi.js` / `coi-sw.js`, the play calls in `engine.js`, `tests/check_web_play.py`. Look at: that blocking a worker on `Atomics.wait` is safe if the tab is hidden or throttled for hours; the service-worker reload on first visit; the localStorage hand-over from the Lab page to the play page): `engine/core/src/human_bots.rs`, `play_session.rs` (+ tests `human_bots`, `play_session`), Lab calls in `engine/lab/src/main.rs`, pages `engine/lab/web/play.html` / `play.js`, `tests/check_play.py`. Look at: that a Human unit's decisions never reach the normal bots' state (the pass-through test covers only a controller that forwards everything); the friend-occupied-hex filter in the movement query (a crash was found and fixed there); the automatic twist choice (first arc action that lets every picked weapon fire; assumes the engine lists "no change" first); the physical attack answer (current arc action, no twist choice); `player_choices.rs` (the stubs / ammo / heat code look there first for a person's units: check that an empty store changes nothing, as the 91 reference battles show); the new `BotSet` hooks (`before_move`, `wants_stand_up`, `end_phase`, `choose_tag`, `move_pick_forecast`) and `tag::designation_units`' new parameter; `ammo::auto_bin` (Daniel's order) and `ams_off` no longer needing `heat_managed`.
 - **(s33-ui) BATTLEROM PLAY SCREEN MOCKUP AND DESIGN RECORD** (2026-11-21): `reference_art/battlerom_ui/battlerom_play_mockup.html`, `INTEGRATION__BATTLEROM_UI.md` (design only, no engine change). Look at: the MegaMek facts that are marked NOT VERIFIED (walk = `Color.CYAN`, which constant each movement mode uses, the Esc binding), the grouping rule for weapons (name, arc, ammo bin, mode, TN must all match), the stacking limits and hazard text (placeholders), the contrast figures, and that nothing in the mockup is taken as a rule.
 - **(s31-hydra2) HYDRA SECOND PASS + WEAPON RANGE FIX** (2026-11-21): `hydra::indirect_exchange`, `Entry.net` / `c3_gain` / `forecast_net` / `net_loss`, `c3::without` / `link`, `move_select::IndirectProfile` / `weapon_ranges` (usable weapons only, every bot) / `max_range_megamek`, `spotting::reaches_indirectly`. Look at: the indirect profile's movement modifiers (enemy at a walk when unmoved), the Slave-bonus expectation in `net_loss`, the spotter value counted only when no friend sees the enemy, Princess's range against MegaMek's `isReady`.

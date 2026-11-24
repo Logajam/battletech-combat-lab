@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude), BATTLEROM PLAY UI: design session, docs and a sketch only (no engine or page code changed). REVIEW PENDING (higher-level model).** Daniel's goal list recorded as PROJECT_MAP
+  Section 0 items P1-P14 (custom units on the website, saved starting conditions, long-press play UI, alternate timelines, download upkeep and button, peer to peer, MegaMek bridge from the website,
+  the BTTT raid with licence note, Elo tournaments with BV-blind ratings, one order format, tournament setup in the Lab, a joke "Pay Your Bills" button, community cross-links, isometric map view).
+  New: `INTEGRATION__UI_DESIGN_NOTES.md`, `INTEGRATION__UI_DECISION_HOMES.md` (every player action with its home; MegaMek bridge section; plain-word homes), `reference_art/battlerom_ui/weapon_grid_sketch.html`.
+  Daniel's rulings that day: the data sheet leaves the screen and becomes the Inspector (long press); the weapon layout is a clear critical-table overlay with the target pinned in the centre column
+  (DECISION_HOMES Section 10 item 2); Elo is BV-blind and every pairing swaps sides; BTTT has no licence (get the author's OK or re-implement; credit it). Alpha-2 is the current download and predates all work since 2026-11-14.
+
 - **2026-11-22 (Claude, night), BATTLEROM: Daniel's list of bugs and features recorded (docs only).** 28 items, none started (Daniel: compute for the week is too low for more tasks);
   `INTEGRATION__PLAYER_DECISIONS.md` Section 24, pointer in PROJECT_MAP Section 4. REVIEW PENDING (higher-level model) for whoever builds them.
 
