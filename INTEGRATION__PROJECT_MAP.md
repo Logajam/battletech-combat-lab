@@ -151,6 +151,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   under-valued mechs. So keep per-mech records (win / loss / draw, damage, turns) beside the rating, not just the rating.
   Open: duels (1v1) versus lance fights may rank differently; which pairings to use is a design question for the plan.
   Huge runs belong on the desktop build (native speed), not the browser build.
+- P13. JOKE: a "Pay Your Bills" button on the website's front page (Daniel, 2026-11-24), in the gold "Premium content" mobile-game
+  sheen (shimmer sweep, bevel, glow). It leads to a page saying the program is free (GPL v3 or later) and suggesting a
+  donation to charity instead. Daniel picks the charity (no payment is taken by us, no tracking). Keep it small and
+  obviously a gag; check it reads well on a phone and in the dark look.
 - Context: the current download is alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`); it predates all work since 2026-11-14.
 
 **O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
