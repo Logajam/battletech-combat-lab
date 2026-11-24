@@ -152,6 +152,7 @@ pub fn resolve_fall(b: &mut Battle, u: UnitId, cause: &str, levels: i64, side: O
         "FALL{}: {} {} takes {} falling damage{} ({} table, 5-pt clusters).",
         cause_note, chassis, model, total_damage, if divisor > 1 { " (halved: water, p.115)" } else { "" }, side_note
     ));
+    b.ev("FALL").unit(u).sub(if cause.is_empty() { "unknown" } else { cause }).n(total_damage).emit(b);
     let mut remaining = total_damage;
     while remaining > 0 {
         let cluster = remaining.min(5);
@@ -172,6 +173,7 @@ pub fn resolve_fall(b: &mut Battle, u: UnitId, cause: &str, levels: i64, side: O
         let why = if is_immobile(&b.units[u]) { "immobile".to_string() } else { format!("needs {}", needed) };
         let ph = b.units[u].pilot_hits;
         b.log(format!("  Seatbelt check: {} - pilot takes 1 hit automatically ({}/6).", why, ph));
+        b.ev("PILOT_HIT").unit(u).n(ph).sub("fall").emit(b);
     } else {
         let roll = b.roll_2d6();
         if roll < needed {
@@ -179,6 +181,7 @@ pub fn resolve_fall(b: &mut Battle, u: UnitId, cause: &str, levels: i64, side: O
             mark_consciousness_check_pending(&mut b.units[u]);
             let ph = b.units[u].pilot_hits;
             b.log(format!("  Seatbelt check: needs {}{}. Rolled {}. FAILED - pilot takes 1 hit ({}/6).", needed, level_note, roll, ph));
+            b.ev("PILOT_HIT").unit(u).n(ph).sub("fall").emit(b);
         } else {
             b.log(format!("  Seatbelt check: needs {}{}. Rolled {}. Pilot unharmed.", needed, level_note, roll));
         }
@@ -352,6 +355,7 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
         let (roll, needed): (Option<i64>, i64);
         if is_quad(&b.units[u]) && destroyed_leg_count(&b.units[u]) == 0 {
             b.log(format!("Stand attempt {}: a quad with no leg destroyed stands without a PSR (p.238).", attempt));
+            b.ev("STAND_ATTEMPT").unit(u).ok(true).emit(b);
             roll = None;
             needed = 0;
         } else {
@@ -361,6 +365,7 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
             let r = b.roll_2d6();
             roll = Some(r);
             b.log(format!("Stand attempt {}: needs {} (Piloting {} + {:+}, incl. -1 for standing). Rolled {}.", attempt, needed, b.piloting, modifier, r));
+            b.ev("STAND_ATTEMPT").unit(u).tn(needed).roll(r).ok(r >= needed).emit(b);
         }
         if let Some(r) = roll {
             if r < needed {
@@ -528,6 +533,7 @@ pub fn resolve_consciousness_checks(b: &mut Battle, u: UnitId, phase_label: &str
         let needed = consciousness_target_number(hits).unwrap_or_else(|e| panic!("{}", e));
         let roll = b.roll_2d6();
         b.log(format!("{} consciousness check ({}, {} pilot hits): needs {}. Rolled {}.", phase_label, role, hits, needed, roll));
+        b.ev("CONSCIOUSNESS").unit(u).tn(needed).roll(roll).ok(roll >= needed).n(hits).emit(b);
         if roll < needed {
             let st = b.units[u].crew.get_mut(&role).unwrap();
             st.unconscious = true;
@@ -552,6 +558,7 @@ pub fn resolve_end_phase_wakeup(b: &mut Battle, u: UnitId) {
             let needed = consciousness_target_number(hits).unwrap_or_else(|e| panic!("{}", e));
             let roll = b.roll_2d6();
             b.log(format!("End Phase wake-up check ({}, {} pilot hits): needs {}. Rolled {}.", role, hits, needed, roll));
+            b.ev("CONSCIOUSNESS").unit(u).tn(needed).roll(roll).ok(roll >= needed).n(hits).sub("wakeup").emit(b);
             if roll >= needed {
                 b.units[u].crew.get_mut(role).unwrap().unconscious = false;
                 b.log(format!("  {} wakes up.", capitalize(role)));

@@ -154,4 +154,5 @@ fn roll_designation(b: &mut Battle, attacker: UnitId, target: UnitId, aim: &'sta
     let what = if aim == "hex" { format!("{}'s hex", t_name) } else { t_name };
     let wn = b.units[attacker].items[weapon].name.clone();
     b.log(format!("  [TAG] {}'s {} -> {}: needs {} ({}; {}), rolled {} -> {}", a_name, wn, what, tn, note, parts, roll, if roll >= tn { "DESIGNATED for this turn (p.200)" } else { "miss" }));
+    b.ev("TAG_DESIGNATE").unit(attacker).other(target).sub(if aim == "hex" { "hex" } else { "mech" }).what(&wn).tn(tn).roll(roll).ok(roll >= tn).emit(b);
 }

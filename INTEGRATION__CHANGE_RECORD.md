@@ -6,6 +6,26 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-24 (Claude, session 36), EVENT RECORDS AND SEARCH, PART 1. REVIEW PENDING (higher-level model).** Daniel: "a way to search sets of battles for events"
+  (a turn where a 'Mech took 4 engine hits in one phase; a 1v1 where both destroyed each other's gyro the same turn; and the replay tab must have it too).
+  **The engine now writes EVENTS as data** (`engine/core/src/events.rs`, `Battle::ev(KIND)...emit(b)`; list version 1, 33 kinds, `INTEGRATION__EVENTS.md`): initiative rolls
+  (tie re-rolls by round), moves / chosen moves / stand attempts / falls / water, building and hazard entries, the physical attacks, every ranged attack (family, number, roll,
+  hit) and the HIT that lands (location, damage, attacker, weapon), TAG designation / spotting / indirect fire / homing hits, criticals by slot type, component destruction,
+  ammo explosions with or without CASE, locations and units destroyed (cause), pilot hits, consciousness and restart rolls, shutdowns, heat each turn, target / move choices and hold-fire reasons.
+  Written beside the log lines they match, from numbers the code already holds: **no dice, no decisions**; off unless asked (`btsim --events`), never in a dry run or a Hydra playout (cloning a
+  battle drops them). Hooks: orchestrator (phase markers, initiative, moves, heat level), attack_resolution (attack, hold fire, target, homing, actor of a HIT), damage_resolution (HIT in
+  `apply_damage`, CRIT, component, explosion, location), piloting_rolls (fall, stand, consciousness, pilot hits), physical / charge / dfa, tag / spotting, hazards, heat. **Skids are NOT recorded:
+  the engine has no skid rule** (Daniel's list named them). WATER / BUILDING enter-leave compare the two ends of a move only.
+  **Proof it changes nothing:** `tests/check_rust_reference.py` (not `--update`) on the unchanged saved logs: 91 of 91 byte-identical; the check now plays every battle with events ON, so every run proves it
+  (and `tests/check_events.py` compares a battle's results with events on and off); `check_bridge_parity.py --quick` 83 of 83.
+  **Stored with each battle:** `btsim --events [--events-out FILE]`, in the `--stream` line; trial tools keep a gzip sidecar per batch (`trial_records/events/<records>/<batch>.events.jsonl.gz`, named in the
+  records line's `"events"`; its header holds the exact `btsim` command), the reference battles `engine/reference/events/<name>.events.jsonl.gz` (compared by the reference check; saved with `--update`, logs unchanged),
+  and every replay page carries its events. Old records have none and are skipped. **Size, 100 battles:** duels 0.30 MB gzipped (4.5 MB raw), 2v2 0.35, 4v4 0.77, 8v8 1.6 MB; recording costs 2-7% of run time.
+  **Search:** one engine, `engine/lab/web/events_query.js` (kind and field filters, sequences with `$a.u` references, same turn / phase, group + count, `u_team`); `tools/search_events.py` runs it under node and prints battle,
+  seed, turn, phase, the events and the exact `btsim --sims N --history N` replay command; the replay page has a **Search events** panel (prepared searches in `events_examples.json`, event type and filters, JSON) whose
+  results jump the replay to that turn and phase (`tools/sync_events_query.py` keeps the page's copy current; the test fails when it is not). Tests: `tests/check_events.py`, added to `run_checks.py` at the engine level.
+  Known limits are in INTEGRATION__EVENTS.md. Part 2 (coverage, a dense reference set, retiring the answer key) follows.
+
 - **2026-11-24 (Claude, session 35), PUBLISHED: the public source (`publish_public.py --push`, main 47c7bc7..07d3ac4, 1056 commits, no private paths or
   personal emails) and the website (`publish_web_lab.py --push`, gh-pages), from private main 37e5e9b (PR 332). Checked live at
   logajam.github.io/battletech-combat-lab (the new play.js is served). Daniel plays this browser version.**

@@ -56,6 +56,7 @@ pub fn apply_groups(b: &mut Battle, u: UnitId, damage: i64, table: &str, side: &
         let dmg = gear::shield_absorb(b, u, &loc, dmg, side);
         if loc == "Head" && head_hit_hurts_pilot(&b.units[u]) {
             pilot_hit(&mut b.units[u], 1, true);
+            b.pilot_hit_ev(u, "head hit");
         }
         apply_damage(b, u, &loc, Num::I(dmg), if side == "rear" { "rear_armor" } else { "armor" }, DamageType::Physical);
         if spiked && spike_wear {

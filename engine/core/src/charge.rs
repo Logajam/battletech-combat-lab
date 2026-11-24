@@ -104,6 +104,7 @@ pub fn declare(b: &mut Battle, attacker: UnitId, target: UnitId) -> Declared {
         if hit { "HIT" } else { "miss" }
     );
     b.log(line);
+    b.ev("PHYS_CHARGE").unit(attacker).other(target).tn(tn).roll(roll).ok(hit).emit(b);
     Declared::Going(tn, hit)
 }
 
@@ -132,7 +133,9 @@ pub fn resolve_damage(b: &mut Battle, attacker: UnitId, target: UnitId) -> Charg
     let bonus = gear::charge_spike_bonus(&b.units[attacker], spikes);
     let (a_name, t_name) = (b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
     b.log(format!("    Charge: {} takes {}{} ({}), {} takes {}.", t_name, dealt, if bonus != 0 { format!(" + {} (spikes, p.196)", bonus) } else { String::new() }, side, a_name, taken));
+    b.event_actor(Some((attacker, "charge".to_string())));
     let first = ma::apply_groups(b, target, dealt + bonus, "standard", &side, "Charge", false, None);
+    b.event_actor(None);
     if !first.is_empty() && first.iter().any(|(_, s)| *s) {
         gear::spike_retaliation(b, attacker, &["Center Torso"]);
     }

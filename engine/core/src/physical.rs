@@ -781,6 +781,15 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
                 if o.fumble { " - the flail swings back into its wielder (TO:AUE p.101)" } else { "" }
             ));
             o.tn = Some(tn);
+            if b.ev("PHYS_PUSH").live() {
+                let kind = if o.push { "PHYS_PUSH" } else if o.kick { "PHYS_KICK" } else if o.club || o.weapon { "PHYS_CLUB" } else { "PHYS_PUNCH" };
+                let dmg = match o.damage { Num::I(i) => i as f64, Num::F(f) => f };
+                let mut e = b.ev(kind).unit(attacker).other(target).tn(tn).roll(roll).ok(hit).dmg(dmg).what(&o.name);
+                if let Some(l) = o.limb.first() {
+                    e = e.loc(l);
+                }
+                e.emit(b);
+            }
             declared.push((attacker, target, o, hit, side.clone()));
         }
     }
@@ -796,6 +805,9 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         }
         let (an, tname) = (name_of(b, attacker), name_of(b, target));
         let before = (hp_of(b, target), b.is_destroyed(target));
+        if b.log.ev.on {
+            b.event_actor(Some((attacker, o.name.clone())));
+        }
         if hit {
             let loc = location(b, &o.table, &side, target);
             let dmg0 = match o.damage {
@@ -808,6 +820,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             let dmg = gear::shield_absorb(b, target, &loc, dmg, &side);
             if loc == "Head" && head_hit_hurts_pilot(&b.units[target]) {
                 pilot_hit(&mut b.units[target], 1, true);
+                b.pilot_hit_ev(target, "head hit");
             }
             let before = gear::snapshot(&b.units[target], &loc);
             apply_damage(b, target, &loc, Num::I(dmg), if side == "rear" { "rear_armor" } else { "armor" }, DamageType::Physical);
@@ -837,6 +850,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             apply_damage(b, attacker, &loc, Num::I(FLAIL_FUMBLE_DAMAGE), "armor", DamageType::Physical);
             add_trigger(&mut triggers, &an, "hit itself with a flail", 0);
         }
+        b.event_actor(None);
         tally_physical(b, attacker, target, &o.name, hit, Some(before));
     }
     // Core p.76: every physical attack is made before anyone is displaced - all charge and DFA damage lands from where

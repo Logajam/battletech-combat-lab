@@ -131,6 +131,7 @@ pub fn drowning(b: &mut Battle, u: UnitId, has_life_support_hit: bool) {
         return;
     }
     b.units[u].pilot_hits += 1;
+    b.pilot_hit_ev(u, "life support");
     mark_consciousness_check_pending(&mut b.units[u]);
     let (n, h) = (b.units[u].side_name.clone().unwrap_or_default(), b.units[u].pilot_hits);
     b.log(format!("  [End] {}: life support destroyed and fully submerged - MechWarrior takes 1 hit ({}/6, p.117).", n, h));

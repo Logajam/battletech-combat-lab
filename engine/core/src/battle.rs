@@ -84,6 +84,8 @@ pub struct Log {
     /// which of `lines` are bare prints (`Battle::print`): the Python printed them to the screen only, so its replay
     /// record (and the Rust history, history.rs) leaves them out
     pub printed: Vec<usize>,
+    /// the battle's event records (events.rs): data written beside the log lines, off unless a caller turns it on
+    pub ev: crate::events::EventLog,
 }
 
 impl Log {
@@ -284,7 +286,11 @@ impl Battle {
     /// `mech_state.is_destroyed(mech)` (reads config.FIGHT_TO_THE_DEATH).
     pub fn is_destroyed(&mut self, u: UnitId) -> bool {
         let ttd = self.cfg.has("FIGHT_TO_THE_DEATH") && self.cfg.b("FIGHT_TO_THE_DEATH");
-        crate::mech_state::is_destroyed(&mut self.units[u], ttd)
+        let gone = crate::mech_state::is_destroyed(&mut self.units[u], ttd);
+        if gone && self.log.ev.on {
+            self.note_destroyed(u);
+        }
+        gone
     }
     pub fn unit_index(&self, side_name: &str) -> UnitId {
         self.units.iter().position(|u| u.side_name.as_deref() == Some(side_name)).unwrap_or_else(|| panic!("no unit {}", side_name))
