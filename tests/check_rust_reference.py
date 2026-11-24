@@ -24,6 +24,7 @@ structure left, units destroyed), then the battle log. The turn cap is the engin
 """
 
 import difflib
+import gzip
 import json
 import os
 import subprocess
@@ -37,6 +38,9 @@ ENGINE = os.path.join(REPO_ROOT, "engine")
 BTSIM = os.path.join(ENGINE, "target", "release", "btsim")
 SCENARIOS_ZIP = os.path.join(ENGINE, "reference", "scenarios.zip")
 LOG_DIR = os.path.join(ENGINE, "reference", "logs")
+# each battle's event records (INTEGRATION__EVENTS.md), beside its log: one JSON event a line, gzipped. Played with events ON, so
+# every run of this check also proves that recording events leaves the battle's log byte for byte the same.
+EVENT_DIR = os.path.join(ENGINE, "reference", "events")
 SEED = 1
 
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
@@ -102,14 +106,19 @@ def battles(scenario_dir):
     return out
 
 
-def play(scenario_dir, folder, variant, parity=False):
+def play(scenario_dir, folder, variant, parity=False, history_dir=None):
     """One battle with btsim; returns the saved-log text. With `parity` (2026-11-17) the battle is played once under the
     MegaMek bridge's parity check (btsim --bridge-parity --bridge-compact, tests/check_bridge_parity.py) and returns
     (text, parity problem or None): the same battle serves both checks, so run_checks.py no longer plays them twice."""
     hydra, settings = variant
     cmd = [BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(SEED), "--log", "1", "--threads", "1"]
+    ev_file = os.path.join(scenario_dir, f"{folder}.{abs(hash(str(variant)))}.events.jsonl")
     if parity:
         cmd += ["--bridge-parity", "--bridge-compact"]
+    else:
+        cmd += ["--events", "--events-out", ev_file]
+    if history_dir:   # --history DIR: also write the battle's replay page there (a search result's replay command)
+        cmd += ["--history", "1", "--history-dir", history_dir]
     cmd += bot_args(hydra)
     for kv in settings:
         cmd += ["--set", kv]
@@ -131,8 +140,31 @@ def play(scenario_dir, folder, variant, parity=False):
         return saved_text(folder, hydra, settings, out), problem
     if proc.returncode != 0:
         # a panic is a result too: save its message so a change that makes or cures one shows as a difference
-        return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr
-    return saved_text(folder, hydra, settings, json.loads(proc.stdout))
+        return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr, None
+    text = saved_text(folder, hydra, settings, json.loads(proc.stdout))
+    return text, events_text(ev_file)
+
+
+def events_text(path):
+    """The battle's events as saved: a header line {events_version, teams}, then one JSON event a line (btsim --events-out), or None."""
+    if not os.path.exists(path):
+        return None
+    row = json.loads(open(path).readline())
+    os.remove(path)
+    head = json.dumps({"events_version": row["events_version"], "teams": row["teams"]}, separators=(",", ":")) + "\n"
+    return head + "".join(json.dumps(e, separators=(",", ":")) + "\n" for e in row["events"])
+
+
+def write_events(name, text):
+    os.makedirs(EVENT_DIR, exist_ok=True)
+    with open(os.path.join(EVENT_DIR, name + ".events.jsonl.gz"), "wb") as raw:
+        with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as z:
+            z.write(text.encode())
+
+
+def read_events(name):
+    path = os.path.join(EVENT_DIR, name + ".events.jsonl.gz")
+    return gzip.open(path, "rt").read() if os.path.exists(path) else None
 
 
 def saved_text(folder, hydra, settings, out):
@@ -152,6 +184,8 @@ def saved_text(folder, hydra, settings, out):
 def main(argv):
     update = "--update" in argv
     only = argv[argv.index("--only") + 1] if "--only" in argv else ""
+    exact = "--exact" in argv   # --only NAME is the whole name, not a prefix
+    history_dir = argv[argv.index("--history") + 1] if "--history" in argv else None
     # --parity: each battle is played once under the bridge's parity check as well (and the wire test is run), standing in
     # for tests/check_bridge_parity.py in run_checks.py (2026-11-17, Daniel: prune the checks)
     with_parity = "--parity" in argv
@@ -160,11 +194,15 @@ def main(argv):
     with tempfile.TemporaryDirectory() as tmp:
         with zipfile.ZipFile(SCENARIOS_ZIP) as z:
             z.extractall(tmp)
-        todo = [b for b in battles(tmp) if b[0].startswith(only)]
+        todo = [b for b in battles(tmp) if (b[0] == only if exact else b[0].startswith(only))]
         with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
-            played = list(pool.map(lambda b: play(tmp, b[1], b[2], with_parity), todo))
-        texts = [p[0] for p in played] if with_parity else played
+            played = list(pool.map(lambda b: play(tmp, b[1], b[2], with_parity, history_dir), todo))
+        if history_dir:   # a replay only: the page's log leaves out the engine's bare prints, so it is not compared with the saved one
+            print(f"replay page(s) written to {history_dir} (no comparison made)")
+            return 0
+        texts = [p[0] for p in played]
         problems = [p[1] for p in played] if with_parity else [None] * len(played)
+        events = [None if with_parity else p[1] for p in played]
         wire_result = None
         if with_parity:
             import check_bridge_parity   # noqa: E402 (its wire test: one recording through a real `btsim decide`)
@@ -177,7 +215,7 @@ def main(argv):
     if wire_result is not None:
         failed += not wire_result[0]
         print(f"{'PASS' if wire_result[0] else 'FAIL'}   bridge wire (hy_2v2_grass): {wire_result[1]}")
-    for (name, _, _), text in zip(todo, texts):
+    for (name, _, _), text, ev in zip(todo, texts, events):
         path = os.path.join(LOG_DIR, name + ".txt")
         note = " NOTE: turn cap" if "reached the turn cap" in text.split("# log", 1)[0] else ""
         capped += bool(note)
@@ -186,6 +224,8 @@ def main(argv):
         if update:
             with open(path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(text)
+            if ev is not None:
+                write_events(name, ev)
             print(f"SAVED  {name}{note}")
             continue
         if not os.path.exists(path):
@@ -193,8 +233,17 @@ def main(argv):
             print(f"FAIL   {name}: no saved log (run with --update)")
             continue
         old = open(path, encoding="utf-8").read()
+        ev_note = ""
+        if old == text and ev is not None:
+            saved_ev = read_events(name)
+            if saved_ev is None:
+                ev_note = " (no saved events: run with --update)"
+            elif saved_ev != ev:
+                failed += 1
+                print(f"FAIL   {name}{note}: the log matches but the EVENTS differ ({len(saved_ev.splitlines()) - 1} saved, {len(ev.splitlines()) - 1} now)")
+                continue
         if old == text:
-            print(f"PASS   {name}{note}")
+            print(f"PASS   {name}{note}{ev_note}")
         else:
             failed += 1
             diff = list(difflib.unified_diff(old.splitlines(), text.splitlines(), "saved", "now", n=1, lineterm=""))

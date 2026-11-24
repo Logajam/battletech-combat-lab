@@ -136,6 +136,11 @@ fn main() {
         decide();
         return;
     }
+    // --events-list: the event kinds and their field meanings (events.rs), as JSON; nothing is played
+    if args.iter().any(|a| a == "--events-list") {
+        println!("{}", serde_json::to_string_pretty(&btsim_core::events::kinds_json()).unwrap());
+        return;
+    }
     if args.first().map(|a| a.as_str()) == Some("profile") {
         profile(&args);
         return;
@@ -281,6 +286,9 @@ fn main() {
     let history_first: u64 = arg(&args, "--history").map_or(0, |v| v.parse().expect("--history"));
     let history_dir = PathBuf::from(arg(&args, "--history-dir").unwrap_or_else(|| "replays".into()));
     let history_json = args.iter().any(|a| a == "--history-json");
+    // --events (INTEGRATION__EVENTS.md): each battle also records its events (events.rs) - in its --stream line as "events", with
+    // "events_version". Recording only reads: the battles are the same as without it.
+    let want_events = args.iter().any(|a| a == "--events");
     if history_first > 0 {
         std::fs::create_dir_all(&history_dir).expect("--history-dir");
     }
@@ -291,6 +299,11 @@ fn main() {
                 // a line cut short by a stop is ignored (that battle is played again)
                 if let Ok(v) = serde_json::from_str::<Value>(line) {
                     if let Some(sim) = v["sim"].as_u64() {
+                        let mut v = v;
+                        if let Some(o) = v.as_object_mut() {
+                            o.remove("events");
+                            o.remove("event_teams");
+                        }
                         done.insert(sim, v);
                     }
                 }
@@ -298,6 +311,8 @@ fn main() {
         }
     }
     let writer = stream.as_ref().map(|p| std::sync::Mutex::new(std::fs::OpenOptions::new().create(true).append(true).open(p).expect("--stream FILE")));
+    // --events-out FILE: with --events, each battle's events are appended to FILE the moment it ends, {"sim","seed","events_version","events"}
+    let events_out = arg(&args, "--events-out").map(|p| std::sync::Mutex::new(std::fs::OpenOptions::new().create(true).append(true).open(p).expect("--events-out FILE")));
     let sims: Vec<u64> = (1..=battles).filter(|s| only.as_ref().map_or(true, |o| o.contains(s))).filter(|s| !done.contains_key(s)).collect();
     let runs: Vec<(u64, Value, Vec<String>)> = sims
         .into_par_iter()
@@ -310,13 +325,27 @@ fn main() {
                     let (r, record) = scenario.run_history(sim, s);
                     write_history(&history_dir, &record, history_json);
                     let log = if sim <= log_first { lines_of(&record) } else { vec![] };
-                    (r, log)
+                    // a history record carries the events (events.rs) whenever it is made
+                    let events = if want_events { Some(json!({"events": record["events"].clone(), "teams": record["teams"].clone()})) } else { None };
+                    (r, log, events)
+                } else if want_events {
+                    let (r, log, events) = scenario.run_events(s, sim <= log_first);
+                    (r, log, Some(events))
                 } else {
-                    scenario.run(s, sim <= log_first)
+                    let (r, log) = scenario.run(s, sim <= log_first);
+                    (r, log, None)
                 }
             }));
             let (v, log) = match played {
-                Ok((r, log)) => (battle_json(sim, s, &r), log),
+                Ok((r, log, events)) => {
+                    let mut v = battle_json(sim, s, &r);
+                    if let Some(e) = events {
+                        v["events"] = e["events"].clone();
+                        v["event_teams"] = e["teams"].clone();
+                        v["events_version"] = json!(btsim_core::events::EVENT_VERSION);
+                    }
+                    (v, log)
+                }
                 Err(e) => {
                     let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|m| m.to_string())).unwrap_or_else(|| "panic".into());
                     (json!({"sim": sim, "seed": s, "crashed": msg}), Vec::new())
@@ -327,6 +356,20 @@ fn main() {
                 let mut f = w.lock().unwrap();
                 writeln!(f, "{}", serde_json::to_string(&v).unwrap()).unwrap();
                 f.flush().unwrap();
+            }
+            // the events leave the summary (it is printed whole): --events-out FILE keeps them, one line a battle
+            let mut v = v;
+            let teams = v.as_object_mut().and_then(|o| o.remove("event_teams")).unwrap_or(Value::Null);
+            if let Some(o) = v.as_object_mut() {
+                o.remove("events_version");
+            }
+            if let Some(events) = v.as_object_mut().and_then(|o| o.remove("events")) {
+                if let Some(w) = &events_out {
+                    use std::io::Write;
+                    let mut f = w.lock().unwrap();
+                    writeln!(f, "{}", serde_json::to_string(&json!({"sim": sim, "seed": s, "events_version": btsim_core::events::EVENT_VERSION, "teams": teams, "events": events})).unwrap()).unwrap();
+                    f.flush().unwrap();
+                }
             }
             (sim, v, log)
         })

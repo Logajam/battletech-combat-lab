@@ -263,6 +263,7 @@ fn eject_pilot(b: &mut Battle, mover: UnitId) {
         let hits = (tn - roll) / 2;
         if hits > 0 {
             crate::mech_state::pilot_hit(&mut b.units[mover], hits, false);
+            b.pilot_hit_ev(mover, "hard landing");
         }
         line += &format!(" - a hard landing: {} hit(s).", hits);
     } else {
@@ -440,6 +441,10 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
         return;
     }
     b.log(format!("  [Movement select] {}: {}", nm, why));
+    if let Some(p) = &pick {
+        b.ev("MOVE_CHOSEN").unit(mover).sub(&p.mode.to_lowercase()).what(&p.hex).n(p.mp_spent).emit(b);
+    }
+    let from_hex = b.units[mover].hex.clone();
 
     let mut fell: Option<(String, String, i64, i64, &'static str)> = None;
     let mut start = String::new();
@@ -460,6 +465,7 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
             let (mode, fc) = (p.mode.clone(), moved);
             b.units[mover].movement_heat = heat::movement_heat(&b.units[mover], &mode, fc);
             b.log(format!("  [Movement] {}: {} -> {} {}, {} after {} MP ({} hexes) of a planned {} to {} {}.", nm, start, label, facing, why, used, moved, p.mode, p.hex, p.facing));
+            b.ev("MOVE").unit(mover).sub(&p.mode.to_lowercase()).what(&label).n(used).emit(b);
         }
         (Some(p), Some(f)) => {
             let budget = standup_mp.unwrap_or(if p.mode == "Run" { run } else { walk });
@@ -501,12 +507,15 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
                 if backward { " - includes a backward move" } else { "" }
             );
             b.log(line);
+            let (hexl, mp) = (b.units[mover].hex.clone().unwrap_or_default(), b.units[mover].mp_spent);
+            b.ev("MOVE").unit(mover).sub(&p.mode.to_lowercase()).what(&hexl).n(mp).emit(b);
         }
         (None, _) => {
             let (mode, fc) = (b.units[mover].move_mode.clone(), b.units[mover].move_fc);
             b.units[mover].movement_heat = heat::movement_heat(&b.units[mover], &mode, fc);
         }
     }
+    move_terrain_events(b, mover, from_hex.as_deref());
 
     // EJECTION (TO:AR p.164-165): the person chose to eject instead of moving (the unit stood still)
     if bots.eject(b, mover) {
@@ -606,6 +615,29 @@ fn landing_psr(b: &mut Battle, mover: UnitId) {
 type Fell = (String, String, i64, i64, &'static str);
 
 /// The movement subphase: walk the ground path to the pick hex by hex, making each terrain PSR where it happens.
+/// WATER_ENTER / BUILDING_ENTER / BUILDING_LEAVE, from where the move began and where it ended (events.rs; a hex passed through
+/// is not seen: only the two ends of the move are compared).
+fn move_terrain_events(b: &mut Battle, mover: UnitId, from: Option<&str>) {
+    if !b.ev("MOVE").live() {
+        return;
+    }
+    let (Some(from), Some(to)) = (from, b.units[mover].hex.clone()) else { return };
+    if from == to || !b.board.hexes.contains_key(from) || !b.board.hexes.contains_key(&to) {
+        return;
+    }
+    let (d0, d1) = (water::depth_at(&b.board, Some(from)), water::depth_at(&b.board, Some(&to)));
+    let (b0, b1) = (b.board.hexes[from].building, b.board.hexes[&to].building);
+    if d1 > 0 && d0 == 0 {
+        b.ev("WATER_ENTER").unit(mover).n(d1).what(&to).emit(b);
+    }
+    if b1 && !b0 {
+        b.ev("BUILDING_ENTER").unit(mover).what(&to).emit(b);
+    }
+    if b0 && !b1 {
+        b.ev("BUILDING_LEAVE").unit(mover).what(from).emit(b);
+    }
+}
+
 /// None when the mech gets there (or no roll was needed), else (hex, facing, MP spent, hexes moved, why).
 fn walk_path(b: &mut Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>, entry_edge: Option<&[String]>, gate: PathGate) -> Option<Fell> {
     if !(pick.mode == "Walk" || pick.mode == "Run") || !terrain_rules::has_psr_terrain(&b.board) {
@@ -747,6 +779,11 @@ fn phase_heat(b: &mut Battle, bots: &mut dyn BotSet, reports: &[(UnitId, SideRep
         let wh = reports.iter().find(|(x, _)| *x == u).map_or(0, |(_, r)| r.weapon_heat);
         bots.end_phase(b, u, wh);
         heat::resolve_heat_phase(b, u, wh);
+        if b.ev("HEAT_LEVEL").live() {
+            let h = b.units[u].current_heat;
+            let bracket = crate::events::HEAT_BRACKETS.iter().rev().find(|t| **t <= h).copied().unwrap_or(0);
+            b.ev("HEAT_LEVEL").unit(u).n(h).sub(&bracket.to_string()).emit(b);
+        }
     }
 }
 
@@ -1089,6 +1126,7 @@ fn after_phase(b: &mut Battle) {
             water::auto_breaches(b, u);
         }
     }
+    b.sweep_destroyed();
 }
 
 // ---- one battle ---------------------------------------------------------------------------------------------------------
@@ -1194,6 +1232,14 @@ fn log_initiative(b: &mut Battle, order: &[String]) {
         Some((first, rest)) => format!(" (rolled {}{})", text(first), rest.iter().map(|r| format!("; tie re-rolled {}", text(r))).collect::<String>()),
         None => String::new(),
     };
+    if b.ev("INITIATIVE_ROLL").live() {
+        let throws = b.initiative_throws.clone();
+        for (i, round) in throws.iter().enumerate() {
+            for (team, v) in round {
+                b.ev("INITIATIVE_ROLL").sub(team).roll(*v).n(i as i64 + 1).emit(b);
+            }
+        }
+    }
     if order.len() == 2 {
         b.log(format!("  Initiative: {} lost the roll, moves first{}.", order[0], dice));
     } else {
@@ -1210,6 +1256,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         }
     }
     b.log(format!("\n=== TURN {} ===", turn));
+    b.event_phase(turn, "initiative");
     let alive = forces::standing(b);
     for u in 0..b.units.len() {
         pr::snapshot_preexisting_damage(&mut b.units[u]);
@@ -1218,6 +1265,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let alive_teams = forces::team_names(b, &alive);
     let order = forces::initiative_order(b, &alive_teams, None);
     log_initiative(b, &order);
+    b.event_phase(turn, "movement");
     let in_order: Vec<UnitId> = order.iter().flat_map(|t| alive.iter().copied().filter(|m| b.units[*m].team.as_deref() == Some(t.as_str())).collect::<Vec<_>>()).collect();
 
     for u in 0..b.units.len() {
@@ -1317,6 +1365,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     }
 
     after_phase(b);
+    b.event_phase(turn, "ranged");
     let mut fighters = forces::fire_order(b, &order, &mut |_b, c| c[0]);
     {
         let mut target_of = |b: &mut Battle, u: UnitId| forces::choose_target(b, u, true, false);
@@ -1340,6 +1389,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         s.damage_dealt += reports[i].damage_dealt;
     }
 
+    b.event_phase(turn, "physical");
     let scrappers = forces::fire_order(b, &order, &mut |_b, c| c[0]);
     // reports parallel to `scrappers`: the physical phase reads each unit's ranged report (weapons fired, heat)
     let mut phys_reports: Vec<SideReport> = scrappers.iter().map(|u| fighters.iter().position(|f| f == u).map_or_else(SideReport::default, |i| std::mem::take(&mut reports[i]))).collect();
@@ -1349,11 +1399,13 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     }
     after_phase(b);
     marks(b, turn, "Physical attacks");
+    b.event_phase(turn, "heat");
     let heat_reports: Vec<(UnitId, SideReport)> = scrappers.iter().copied().zip(phys_reports).collect();
     phase_heat(b, bots, &heat_reports);
     after_phase(b);
     bots.manage_heat_equipment(b);
     bots.end_of_turn(b);
+    b.event_phase(turn, "end");
     phase_end(b, turn, &mut play.unit_stats);
     smoke::end_phase(b, turn);
 

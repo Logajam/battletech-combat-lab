@@ -25,7 +25,7 @@ it ends, a crash included ({"sim", "seed", "crashed": message}; the set goes on)
 stop and each batch plays only its missing battles; a batch already in the records file is not written twice. A
 batch's crashes are kept in its records line ("crashed") and printed.
 """
-import datetime, hashlib, json, os, subprocess
+import datetime, gzip, hashlib, json, os, subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECORDS = os.path.join(ROOT, "trial_records")
@@ -52,15 +52,26 @@ def commit():
         return ""
 
 
-def stream_args(path, scenario, red, blue, hydra, argv, seed, battles):
-    """btsim arguments that stream this batch's battles to its progress file ([] when recording is off)."""
-    if not path:
-        return []
+def batch_files(path, scenario, red, blue, hydra, argv, seed, battles):
+    """(stream file, events progress file, command file) of one batch under progress/, from the same key `append` uses."""
     key = json.dumps([scenario, red, blue, hydra, settings(argv), option(argv, "--max-turns", ""), seed, battles])
     folder = os.path.join(os.path.dirname(os.path.abspath(path)), "progress", os.path.splitext(os.path.basename(path))[0])
     os.makedirs(folder, exist_ok=True)
-    name = f"{scenario}_{hydra or red + '_' + blue}_{hashlib.sha1(key.encode()).hexdigest()[:10]}.jsonl"
-    return ["--stream", os.path.join(folder, name)]
+    name = f"{scenario}_{hydra or red + '_' + blue}_{hashlib.sha1(key.encode()).hexdigest()[:10]}"
+    return tuple(os.path.join(folder, name + ext) for ext in (".jsonl", ".events.jsonl", ".cmd.json"))
+
+
+def stream_args(path, scenario, red, blue, hydra, argv, seed, battles, cmd=None):
+    """btsim arguments that stream this batch's battles to its progress file ([] when recording is off). Each battle's EVENTS
+    (INTEGRATION__EVENTS.md) are kept too, in the batch's events progress file; `cmd` (the btsim command so far, folder first) is
+    saved beside them, so a search result can print the exact command that replays a battle."""
+    if not path:
+        return []
+    stream, events, cmdfile = batch_files(path, scenario, red, blue, hydra, argv, seed, battles)
+    if cmd is not None:
+        with open(cmdfile, "w") as f:
+            json.dump(cmd, f)
+    return ["--stream", stream, "--events", "--events-out", events]
 
 
 def report_crashes(out):
@@ -98,5 +109,45 @@ def append(path, tool, scenario, red, blue, hydra, argv, max_turns, seed, battle
                 continue
             if all(o.get(k) == line[k] for k in same):
                 return
+    line["events"] = write_events(path, scenario, red, blue, hydra, argv, max_turns, seed, battles)
+    if line["events"] is None:
+        del line["events"]
     with open(path, "a") as f:
         f.write(json.dumps(line) + "\n")
+
+
+def events_dir(path):
+    """Where a records file's event sidecars live: trial_records/events/<records file name>/."""
+    return os.path.join(os.path.dirname(os.path.abspath(path)), "events", os.path.splitext(os.path.basename(path))[0])
+
+
+def write_events(path, scenario, red, blue, hydra, argv, max_turns, seed, battles):
+    """Moves a finished batch's events from its progress file to the sidecar `events/<records>/<batch>.events.jsonl.gz` (gzip, one
+    JSON line a battle, a header line first) and returns the sidecar's path relative to the records file's folder, or None when
+    the batch has no events (a batch recorded before events existed, or by a tool that does not ask for them). Battles are
+    kept once each (a re-run after a stop appends only what was missing), in battle order."""
+    _, events, cmdfile = batch_files(path, scenario, red, blue, hydra, argv, seed, battles)
+    if not os.path.exists(events):
+        return None
+    rows = {}
+    for text in open(events):
+        try:
+            r = json.loads(text)
+        except ValueError:
+            continue  # a line cut short by a stop: that battle's events are lost, its result is not
+        rows[r["sim"]] = r
+    if not rows:
+        return None
+    cmd = json.load(open(cmdfile)) if os.path.exists(cmdfile) else None
+    head = {"header": True, "events_version": next(iter(rows.values()))["events_version"], "records": os.path.basename(path),
+            "tool_scenario": scenario, "red": red, "blue": blue, "hydra": hydra, "settings": settings(argv), "max_turns": max_turns,
+            "seed": seed, "battles": battles, "cmd": cmd}
+    out = events_dir(path)
+    os.makedirs(out, exist_ok=True)
+    name = os.path.splitext(os.path.basename(events))[0] + ".jsonl.gz"   # <batch>.events.jsonl.gz
+    with open(os.path.join(out, name), "wb") as raw:
+        with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as z:
+            z.write((json.dumps(head) + "\n").encode())
+            for sim in sorted(rows):
+                z.write((json.dumps(rows[sim], separators=(",", ":")) + "\n").encode())
+    return os.path.relpath(os.path.join(out, name), os.path.dirname(os.path.abspath(path)))

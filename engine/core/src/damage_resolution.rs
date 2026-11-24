@@ -196,6 +196,7 @@ pub fn mark_all_crits_destroyed(b: &mut Battle, u: UnitId, location: &str) {
         }
     }
     b.log(format!("  All critical slots in {} marked DESTROYED.", location));
+    b.ev("LOCATION_DESTROYED").unit(u).loc(location).emit(b);
 }
 
 /// A slot destroyed by a hit resolved elsewhere (the MegaMek bridge: MegaMek rolled the critical hit and applied its
@@ -297,6 +298,14 @@ pub fn apply_damage(b: &mut Battle, u: UnitId, location: &str, damage: Num, armo
     let mut current: Option<String> = Some(location.to_string());
     let mut current_armor_field = armor_field.to_string();
     b.log(format!("{} damage ({}) incoming to {} ({}).", damage.py_str(), damage_type.name(), location, armor_field));
+    if b.log.ev.on && damage > Num::I(0) {
+        let d = match damage { Num::I(i) => i as f64, Num::F(f) => f };
+        let mut e = b.ev("HIT").unit(u).loc(location).sub(&damage_type.name().to_lowercase()).dmg(d);
+        if let Some((a, w)) = b.log.ev.actor.clone() {
+            e = e.other(a).what(&w);
+        }
+        e.emit(b);
+    }
     while remaining > Num::I(0) && current.is_some() {
         let cur = current.clone().unwrap();
         if b.units[u].locations[cur.as_str()].destroyed {
@@ -541,6 +550,13 @@ pub fn resolve_slot_hit(b: &mut Battle, u: UnitId, location: &str, slot_idx: usi
             b.units[u].destroyed_slot_info.insert((location.to_string(), slot_idx), SlotInfo { name: name.clone(), instance_id: Some(id) });
             b.units[u].crits.get_mut(location).unwrap()[slot_idx] = Slot::name("DESTROYED");
             b.log(format!("    {}/{} Criticals: {} slot hit.", idx, total, name));
+            if b.ev("CRIT").live() {
+                let kind = {
+                    let m = &b.units[u];
+                    if m.items[id].category.as_deref() == Some("ammo") { "Ammo" } else if is_heat_sink(m, id) { "Heat Sink" } else if m.items[id].category.as_deref() == Some("weapon") { "Weapon" } else { "Other" }
+                };
+                b.ev("CRIT").unit(u).loc(location).sub(kind).what(&name).emit(b);
+            }
             let crits_now = display_crits(&b.units[u], location);
             b.log(format!("      Current crit slots in {}: {}", location, py_str_list(&crits_now)));
             if is_jump_jet(&b.units[u], id) && !b.units[u].destroyed_jump_jet_ids.contains(&id) {
@@ -588,6 +604,13 @@ pub fn resolve_slot_hit(b: &mut Battle, u: UnitId, location: &str, slot_idx: usi
             b.units[u].destroyed_slot_info.insert((location.to_string(), slot_idx), SlotInfo { name: n.clone(), instance_id: None });
             b.units[u].crits.get_mut(location).unwrap()[slot_idx] = Slot::name("DESTROYED");
             b.log(format!("    {}/{} Criticals: {} hit.", idx, total, n));
+            if b.ev("CRIT").live() {
+                let kind = if LEG_ACTUATOR_NAMES.contains(&n.as_str()) || n.contains("Actuator") || n.as_str() == "Shoulder" || n.as_str() == "Hip" { "Actuator" } else if ["Engine", "Gyro", "Cockpit", "Sensors", "Life Support"].contains(&n.as_str()) { n.as_str() } else { "Other" };
+                // engine / gyro hits so far (this critical not yet counted by the effects below)
+                let hits = match n.as_str() { "Engine" => b.units[u].engine_hits + 1, "Gyro" => b.units[u].gyro_hits + 1, _ => 0 };
+                let e = b.ev("CRIT").unit(u).loc(location).sub(kind).what(n);
+                (if hits > 0 { e.n(hits) } else { e }).emit(b);
+            }
             let crits_now = display_crits(&b.units[u], location);
             b.log(format!("      Current crit slots in {}: {}", location, py_str_list(&crits_now)));
             let n = n.as_str();
@@ -595,10 +618,16 @@ pub fn resolve_slot_hit(b: &mut Battle, u: UnitId, location: &str, slot_idx: usi
                 b.units[u].engine_hits += 1;
                 let (h, t) = (b.units[u].engine_hits, engine_hits_to_destroy(&b.units[u]));
                 b.log(format!("      Engine hit ({}/{}).", h, t));
+                if h >= t {
+                    b.ev("COMPONENT_DESTROYED").unit(u).sub("Engine").emit(b);
+                }
             } else if n == "Gyro" {
                 b.units[u].gyro_hits += 1;
                 let (h, t) = (b.units[u].gyro_hits, if has_hd_gyro(&b.units[u]) { 4 } else { 2 });
                 b.log(format!("      Gyro hit ({}/{}).", h, t));
+                if h >= t {
+                    b.ev("COMPONENT_DESTROYED").unit(u).sub("Gyro").emit(b);
+                }
             } else if n == "Cockpit" && has_command_console(&b.units[u]) && b.units[u].crits[location].iter().any(|s| s.is_name("Cockpit")) {
                 let last = b.units[u].crits[location].iter().enumerate().filter(|(_, s)| s.is_name("Cockpit")).map(|(i, _)| i).max().unwrap();
                 let first = slot_idx < last;
@@ -613,6 +642,7 @@ pub fn resolve_slot_hit(b: &mut Battle, u: UnitId, location: &str, slot_idx: usi
             } else if n == "Cockpit" {
                 b.units[u].cockpit_hit = true;
                 b.log("      Cockpit hit - instant kill condition set.");
+                b.ev("COMPONENT_DESTROYED").unit(u).sub("Cockpit").emit(b);
             } else if LEG_ACTUATOR_NAMES.contains(&n) && b.units[u].leg_locations.iter().any(|l| l == location) {
                 let c = b.units[u].destroyed_leg_actuators.get(location).copied().unwrap_or(0) + 1;
                 b.units[u].destroyed_leg_actuators.insert(location.to_string(), c);
@@ -681,6 +711,7 @@ fn case_is_cap(tier: &str) -> i64 {
 pub fn apply_explosion(b: &mut Battle, u: UnitId, component: ItemId, location: &str) {
     b.units[u].explosions += 1;
     b.units[u].pilot_hits += 1;
+    b.pilot_hit_ev(u, "explosion");
     mark_consciousness_check_pending(&mut b.units[u]);
     let mut base = b.units[u].items[component].explosion_damage;
     if let Some(partner) = b.units[u].items[component].partner {
@@ -706,6 +737,14 @@ pub fn apply_explosion(b: &mut Battle, u: UnitId, component: ItemId, location: &
     let cname = b.units[u].items[component].name.clone();
     let ph = b.units[u].pilot_hits;
     b.log(format!("    {} destroyed at {} - EXPLOSION ({} dmg)! Pilot takes 1 hit ({}/6).", cname, location, base, ph));
+    if b.ev("AMMO_EXPLOSION").live() {
+        let case = match get_case_tier(&b.units[u], location) {
+            None => "no_case",
+            Some("CASE") => "case",
+            Some(_) => "case_ii",
+        };
+        b.ev("AMMO_EXPLOSION").unit(u).loc(location).sub(case).what(&cname).dmg(base as f64).emit(b);
+    }
 
     let mut remaining = Num::I(base.min(EXPLOSION_IS_CAP));
     let mut incoming = Num::I(base);

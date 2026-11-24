@@ -625,6 +625,7 @@ pub fn resolve_hit(b: &mut Battle, target: UnitId, damage: i64, damage_type: Dam
     }
     if loc == "Head" && head_hit_hurts_pilot(&b.units[target]) {
         pilot_hit(&mut b.units[target], 1, true);
+        b.pilot_hit_ev(target, "head hit");
         let ph = b.units[target].pilot_hits;
         b.log(format!("      Head hit - pilot takes 1 hit ({}/6), regardless of armor.", ph));
     }
@@ -643,6 +644,7 @@ pub fn resolve_hit(b: &mut Battle, target: UnitId, damage: i64, damage_type: Dam
         }
         if tac_loc == "Head" && head_hit_hurts_pilot(&b.units[target]) {
             pilot_hit(&mut b.units[target], 1, true);
+        b.pilot_hit_ev(target, "head hit");
             let ph = b.units[target].pilot_hits;
             b.log(format!("      Head hit - pilot takes 1 hit ({}/6), regardless of armor.", ph));
         }
@@ -697,12 +699,14 @@ fn resolve_one_attack(b: &mut Battle, attacker: UnitId, target: UnitId, attack: 
     let tag_hex = b.units[target].tag_designated.as_deref() == Some("hex");
     if plan.kind == "homing" && tag_hex {
         b.log(format!("    {} homing missile hits the TAG-designated hex: {} area-effect damage to {} in it (p.190; Daniel 2026-10-21).", wname, wp::HOMING_AE, tname));
+        b.ev("HOMING_HIT").unit(attacker).other(target).sub("hex").what(&wname).dmg(wp::HOMING_AE as f64).emit(b);
         resolve_area(b, target, wp::HOMING_AE, &attack.side, attack.cover);
         return;
     }
     if plan.kind == "homing" {
         let dmg = wp::homing_damage(b, attacker, w);
         b.log(format!("    {} homing missile hits the TAG-designated {}: {} direct-fire ballistic damage (p.190):", wname, tname, dmg));
+        b.ev("HOMING_HIT").unit(attacker).other(target).sub("mech").what(&wname).dmg(dmg as f64).emit(b);
         resolve_hit(b, target, dmg, DamageType::Ballistic, &attack.side, "", false, attack.cover, false);
         return;
     }
@@ -813,6 +817,7 @@ fn resolve_one_attack(b: &mut Battle, attacker: UnitId, target: UnitId, attack: 
             let l = loc.as_ref().unwrap().clone();
             if l == "Head" && head_hit_hurts_pilot(&b.units[target]) {
                 pilot_hit(&mut b.units[target], 1, true);
+        b.pilot_hit_ev(target, "head hit");
             }
             let d = protected(b, target, &l, per, &side, false);
             apply_damage(b, target, &l, Num::I(d), if side == "rear" { "rear_armor" } else { "armor" }, dtype);
@@ -896,6 +901,7 @@ fn resolve_nail(b: &mut Battle, target: UnitId, attack: &DeclaredAttack, wname: 
     }
     if loc == "Head" && dmg > 0 && head_hit_hurts_pilot(&b.units[target]) {
         pilot_hit(&mut b.units[target], 1, true);
+        b.pilot_hit_ev(target, "head hit");
         let ph = b.units[target].pilot_hits;
         b.log(format!("      Head hit - pilot takes 1 hit ({}/6).", ph));
     }
@@ -1051,6 +1057,7 @@ fn resolve_aimed_hit(b: &mut Battle, attacker: UnitId, target: UnitId, weapon: I
     b.log(format!("    {} hit for {}: aimed at {}, 1D6 {} - on target.", wname, damage, aimed, die));
     if aimed == "Head" && head_hit_hurts_pilot(&b.units[target]) {
         pilot_hit(&mut b.units[target], 1, true);
+        b.pilot_hit_ev(target, "head hit");
         let ph = b.units[target].pilot_hits;
         b.log(format!("      Head hit - pilot takes 1 hit ({}/6), regardless of armor.", ph));
     }
@@ -1132,17 +1139,20 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let t_name = b.units[target].side_name.clone().unwrap_or_default();
     if b.units[attacker].shutdown {
         b.log(format!("  [Ranged] {}: shut down - no attacks.", a_name));
+        b.ev("HOLD_FIRE").unit(attacker).other(target).what("shut down").emit(b);
         return Prep::Done;
     }
     if b.units[attacker].charging.is_some() || b.units[attacker].dfa.is_some() {
         let what = if b.units[attacker].charging.is_some() { "charging" } else { "in a death from above on" };
         b.log(format!("  [Ranged] {}: {} {} - no ranged attacks this turn (pp.78-79).", a_name, what, t_name));
+        b.ev("HOLD_FIRE").unit(attacker).other(target).what("charging or death from above").emit(b);
         return Prep::Done;
     }
     if let Some(s) = crate::spotting::spot_of(b, attacker) {
         if !s.fires {
             let s_name = b.units[s.target].side_name.clone().unwrap_or_default();
             b.log(format!("  [Ranged] {}: spots {} for indirect fire - holds its own fire.", a_name, s_name));
+            b.ev("HOLD_FIRE").unit(attacker).other(target).what("spotting for indirect fire").emit(b);
             return Prep::Done;
         }
     }
@@ -1151,6 +1161,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     if secondary {
         if let Some(why) = crate::split_fire::refusal(b, attacker, target) {
             b.log(format!("  [Ranged] {}: no secondary attack on {} - {}.", a_name, t_name, why));
+            b.ev("HOLD_FIRE").unit(attacker).other(target).what("no secondary attack").emit(b);
             return Prep::Done;
         }
     }
@@ -1191,6 +1202,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         } else {
             if adv::indirect_weapons(b, attacker).is_empty() {
                 b.log(format!("  [Ranged] {}: no LOS to {} - holds fire.", a_name, t_name));
+                b.ev("HOLD_FIRE").unit(attacker).other(target).what("no line of sight").emit(b);
                 return Prep::Done;
             }
             indirect = true;
@@ -1216,6 +1228,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let total_weapons = get_weapons(&b.units[attacker]).len();
     if arc_choices.iter().all(|(key, _)| arc_unavailable(&b.units[attacker], key).len() == total_weapons) {
         b.log(format!("  [Ranged] {}: no weapon can bear on {} ({} arc) - can't fire.", a_name, t_name, arcs::arc_name(pair_arcs[a_facing as usize])));
+        b.ev("HOLD_FIRE").unit(attacker).other(target).what("no weapon can bear").emit(b);
         return Prep::Done;
     }
 
@@ -1255,6 +1268,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     };
     let Some(water_blocked) = water::blocked_weapon_ids(&b.units[attacker], &all_w, &w_locs, a_water, t_water, torpedo_line) else {
         b.log(format!("  [Ranged] {} ({}) can't attack {} ({}) across the water line (p.62) - holds fire.", a_name, a_water, t_name, t_water));
+        b.ev("HOLD_FIRE").unit(attacker).other(target).what("water line").emit(b);
         return Prep::Done;
     };
     unavailable.extend(water_blocked);
@@ -1607,6 +1621,13 @@ pub fn finish_declaration(
             if hit { "HIT" } else { "miss" },
             if ammo_note.is_empty() { String::new() } else { format!(" [{}]", ammo_note) }
         ));
+        if b.ev("ATTACK").live() {
+            let family = crate::events::weapon_family(&b.units[attacker], w, plan.kind.as_str());
+            b.ev("ATTACK").unit(attacker).other(target).sub(family).what(&wname).tn(tn).roll(roll).ok(hit).n(plan.shots).emit(b);
+            if ctx.indirect {
+                b.ev("INDIRECT_FIRE").unit(attacker).other(target).what(&wname).emit(b);
+            }
+        }
         let empty: Vec<String> = Vec::new();
         let wl = ctx.w_locs.get(&w).unwrap_or(&empty).clone();
         arcs::note_mech_turret_fire(&mut b.units[attacker], w, &wl, t_dir - ctx.a_facing);
@@ -1695,6 +1716,7 @@ pub trait RangedBot {
 /// Step 2 for one attacker. Rolls to-hit for every selected weapon and fills `report`.
 pub fn declare_attacks(b: &mut Battle, attacker: UnitId, target: UnitId, report: &mut SideReport, bot: &mut dyn RangedBot) {
     let Prep::Ready(ctx) = prepare_declaration(b, attacker, target, false) else { return };
+    b.ev("TARGET_CHOSEN").unit(attacker).other(target).emit(b);
     let mut planner = Planner::new(attacker, target, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
     let choice = bot.choose(b, &ctx, &mut planner, attacker, target);
     let records = bot.records_declared_damage(b, attacker) && !choice.weapons.is_empty();
@@ -1805,6 +1827,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         for attack in &attacks {
             let w = attack.weapon;
             let wname = b.units[attacker].items[w].name.clone();
+            if b.log.ev.on {
+                b.event_actor(Some((attacker, wname.clone())));
+            }
             let tname = b.units[target].side_name.clone().unwrap_or_default();
             // the Lab's tallies: what this shot did to the target (read-only: nothing here touches the dice or the rules)
             let hp_num = |n: Num| match n { Num::I(i) => i as f64, Num::F(f) => f };
@@ -1877,6 +1902,7 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
                 apply_groups(b, target, total, size, dtype, &side, cover, "");
             }
         }
+        b.event_actor(None);
         let dealt = hp_before - total_hp(&b.units[target]);
         reports[idx(attacker)].damage_dealt += match dealt {
             Num::I(i) => i as f64,

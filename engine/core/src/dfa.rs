@@ -94,6 +94,7 @@ pub fn declare(b: &mut Battle, attacker: UnitId, target: UnitId) -> Declared {
         if hit { "HIT" } else { "miss" }
     );
     b.log(line);
+    b.ev("PHYS_DFA").unit(attacker).other(target).tn(tn).roll(roll).ok(hit).emit(b);
     Declared::Going(tn, hit)
 }
 
@@ -171,7 +172,9 @@ pub fn resolve_damage(b: &mut Battle, attacker: UnitId, target: UnitId, hit: boo
         let ad = attacker_damage(&b.units[attacker]);
         b.log(format!("    DFA: {} takes {} ({} table, {}), {} takes {} (kick table).", t_name, td, table, t_side, a_name, ad));
         let talons = gear::dfa_talons(&b.units[attacker]);
+        b.event_actor(Some((attacker, "dfa".to_string())));
         let hits = ma::apply_groups(b, target, td, table, t_side, &format!("DFA{}", if talons { " (talons x1.5, p.196)" } else { "" }), false, None);
+        b.event_actor(None);
         if hits.iter().any(|(_, s)| *s) {
             let m = &b.units[attacker];
             let legs: Vec<String> = m.leg_locations.iter().filter(|l| !m.locations[l.as_str()].destroyed).take(2).cloned().collect();

@@ -175,6 +175,7 @@ pub fn declare_spotting(b: &mut Battle, order: &[UnitId], bot: &mut dyn crate::a
                 }
             ));
             b.spots.push(Spot { spotter: u, target, fires, tag: false });
+            b.ev("SPOT").unit(u).other(target).sub("declared").emit(b);
         }
     }
 }
@@ -183,6 +184,7 @@ pub fn declare_spotting(b: &mut Battle, order: &[UnitId], bot: &mut dyn crate::a
 pub fn tag_spot(b: &mut Battle, designator: UnitId, target: UnitId) {
     b.spots.retain(|s| s.spotter != designator);
     b.spots.push(Spot { spotter: designator, target, fires: true, tag: true });
+    b.ev("SPOT").unit(designator).other(target).sub("tag").emit(b);
 }
 
 /// Can weapon `w` of unit `f` reach a target `d` hexes away by indirect fire through a spotter? Its range brackets; an

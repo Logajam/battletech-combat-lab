@@ -90,6 +90,7 @@ pub fn magma_burn(b: &mut Battle, u: UnitId, why: &str) {
         }
         let name = b.units[u].side_name.clone().unwrap_or_default();
         b.log(format!("    {}: {} - liquid magma burns {} (2D6 each, TO:AR p.35).", name, why, rolls.join(", ")));
+        b.ev("HAZARD").unit(u).sub("magma").n(rolls.len() as i64).emit(b);
     });
 }
 
@@ -112,6 +113,7 @@ pub fn pool_damage(b: &mut Battle, u: UnitId, why: &str) {
     };
     let name = b.units[u].side_name.clone().unwrap_or_default();
     b.log(format!("    {}: {} - hazardous liquid roll {} ({}): {} damage (TO:AR p.47).", name, why, roll, what, dmg));
+    b.ev("HAZARD").unit(u).sub("hazardous_liquid").roll(roll).dmg(dmg as f64).emit(b);
     if dmg <= 0 {
         return;
     }
@@ -165,6 +167,7 @@ fn enter_hex_inner(b: &mut Battle, u: UnitId, label: &str, jumped: bool, why: Op
             state = Some(MAGMA_LIQUID.to_string());
             let name = b.units[u].side_name.clone().unwrap_or_default();
             b.log(format!("    {}: the magma crust at {} breaks (1D6 {}) - liquid magma for the rest of the battle (TO:AR p.34).", name, label, roll));
+            b.ev("HAZARD").unit(u).sub("magma_crust").what(label).roll(roll).emit(b);
         }
     }
     if let Some(s) = &state {
@@ -193,6 +196,7 @@ pub fn bog_down_roll(b: &mut Battle, u: UnitId, label: &str, what: &str) -> bool
     let by_jump = b.units[u].move_mode == "Jump";
     b.units[u].stuck = Some(Some(Stuck { rolls: 1, prone_stage: false, by_jump, stand_only: None }));
     b.log(format!("    {} is STUCK in {} (bogged down, TO:AR p.60): no more movement this turn.", name, label));
+    b.ev("HAZARD").unit(u).sub("bog").what(label).emit(b);
     true
 }
 

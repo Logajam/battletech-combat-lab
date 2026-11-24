@@ -49,7 +49,7 @@ def play(btsim, folder, battles, seed, threads, scenario=None, red=None, blue=No
     if "--max-turns" in argv:
         cmd += ["--max-turns", option(argv, "--max-turns", "50")]
     path = trial_records.records_path(argv, "round_robin")
-    cmd += trial_records.stream_args(path, scenario, red, blue, None, argv, seed, battles)
+    cmd += trial_records.stream_args(path, scenario, red, blue, None, argv, seed, battles, list(cmd))
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
     trial_records.report_crashes(out)
     trial_records.append(path, "round_robin", scenario, red, blue, None, argv,

@@ -466,6 +466,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s36-events) EVENT RECORDS AND SEARCH, PART 1** (2026-11-24): `events.rs` and every hook (grep `b.ev(`; orchestrator, attack_resolution, damage_resolution, piloting_rolls, physical, charge, dfa, tag, spotting,
+  hazards, heat), `btsim --events / --events-out / --events-list`, `scenario::run_events`, `history.rs` (events in the record), `trial_records.py` sidecars, `check_rust_reference.py` (events compared), `search_events.py`,
+  `events_query.js` + the replay viewer's panel and `sync_events_query.py`, `check_events.py`. Look at: whether each hook writes what its kind says in every path that reaches it (HIT's `d` is the
+  damage the location took, not the weapon's; CRIT misses a component lost with a destroyed location; MOVE's water / building comparison sees only a move's two ends); the cost of events on Hydra playouts (they are dropped on clone).
 - **(s35-work) SESSION 35 WORK ORDER** (2026-11-24): the engine pass (`attack_resolution` at_hex -4 and terrain, `orchestrator` prone_turn / drop_to_ground /
   eject_pilot and their `BotSet` hooks, heat.rs voluntary shutdown with `player_choices` power_request / held_off), the report (`[Resolve]` and `Slot roll` lines,
   play.js `reportHtml` / `fmtDamage`, Dice details option), Get Results (`results::battle_line` moved from lab/src/runs.rs; lab.js `openPlayedGame`), physical.rs

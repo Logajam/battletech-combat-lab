@@ -72,6 +72,11 @@ impl History {
         if self.heat.iter().any(|h| !h["maps"].as_object().is_none_or(|m| m.is_empty())) {
             self.data.insert("heat".into(), Value::Array(self.heat));
         }
+        // the event records (events.rs), for the replay page's search; a record made before they existed has no "events"
+        if b.log.ev.on {
+            self.data.insert("events_version".into(), json!(crate::events::EVENT_VERSION));
+            self.data.insert("events".into(), crate::events::events_json(b));
+        }
         self.data.insert("result".into(), json!({"winner": result.winner, "turns": result.turns_taken, "causes": causes}));
         Value::Object(self.data)
     }

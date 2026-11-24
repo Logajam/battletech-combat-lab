@@ -1,0 +1,136 @@
+[
+ {
+  "name": "engine-hits-4",
+  "what": "a 'Mech takes 4 or more engine critical hits in one turn and phase",
+  "query": {
+   "steps": [
+    {
+     "kind": "CRIT",
+     "where": {
+      "s": "Engine"
+     }
+    }
+   ],
+   "group": [
+    "u",
+    "t",
+    "p"
+   ],
+   "count": {
+    "gte": 4
+   }
+  }
+ },
+ {
+  "name": "mutual-gyro",
+  "what": "two different units each lose their gyro in the same turn (a 1v1 where both kill the other's gyro)",
+  "query": {
+   "steps": [
+    {
+     "as": "a",
+     "kind": "COMPONENT_DESTROYED",
+     "where": {
+      "s": "Gyro"
+     }
+    },
+    {
+     "as": "b",
+     "kind": "COMPONENT_DESTROYED",
+     "where": {
+      "s": "Gyro",
+      "u": {
+       "ne": "$a.u"
+      }
+     }
+    }
+   ],
+   "same": [
+    "t"
+   ],
+   "ordered": false
+  }
+ },
+ {
+  "name": "tag-then-homing",
+  "what": "a TAG designation that hit, then a homing missile hit on the same target in the same turn",
+  "query": {
+   "steps": [
+    {
+     "as": "a",
+     "kind": "TAG_DESIGNATE",
+     "where": {
+      "ok": true
+     }
+    },
+    {
+     "as": "b",
+     "kind": "HOMING_HIT",
+     "where": {
+      "o": "$a.o"
+     }
+    }
+   ],
+   "same": [
+    "t"
+   ]
+  }
+ },
+ {
+  "name": "stand-then-charge",
+  "what": "a unit tries to stand, then is charged the same turn",
+  "query": {
+   "steps": [
+    {
+     "as": "a",
+     "kind": "STAND_ATTEMPT"
+    },
+    {
+     "as": "b",
+     "kind": "PHYS_CHARGE",
+     "where": {
+      "o": "$a.u"
+     }
+    }
+   ],
+   "same": [
+    "t"
+   ]
+  }
+ },
+ {
+  "name": "ammo-explosion-no-case",
+  "what": "an ammo explosion in a location with no CASE",
+  "query": {
+   "steps": [
+    {
+     "kind": "AMMO_EXPLOSION",
+     "where": {
+      "s": "no_case"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "fall-then-pilot-hit",
+  "what": "a fall and a pilot hit on the same unit in the same turn",
+  "query": {
+   "steps": [
+    {
+     "as": "a",
+     "kind": "FALL"
+    },
+    {
+     "as": "b",
+     "kind": "PILOT_HIT",
+     "where": {
+      "u": "$a.u"
+     }
+    }
+   ],
+   "same": [
+    "t"
+   ]
+  }
+ }
+]

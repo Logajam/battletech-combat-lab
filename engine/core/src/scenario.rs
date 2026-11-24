@@ -218,11 +218,13 @@ impl Scenario {
     /// replay page's record). The battle is the same as `run` on that seed: recording only reads.
     pub fn run_history(&self, sim: u64, seed: u64) -> (BattleResult, Value) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        b.events_on();
         let mut history = crate::history::History::new(sim, seed);
         let mut marks = |b: &mut Battle, turn: i64, label: &str| history.mark(b, turn, label);
         let mut play = start_battle(&mut b, self.max_turns, &mut marks);
         let mut bots = GladiatorBots;
         play_on(&mut b, &mut bots, &mut play, &mut marks);
+        b.sweep_destroyed();
         let record = history.finish(&b, &play.result);
         (play.result, record)
     }
@@ -235,6 +237,21 @@ impl Scenario {
         play_on(&mut b, bots, &mut play, &mut marks);
         let log = if want_log { b.log.lines.clone() } else { vec![] };
         (play.result, log)
+    }
+
+    /// One battle on `seed` with event records on (events.rs): the result, its log (when `want_log`) and the events as JSON. The
+    /// battle is the same as `run`: events only read.
+    pub fn run_events(&self, seed: u64, want_log: bool) -> (BattleResult, Vec<String>, Value) {
+        let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        b.events_on();
+        let mut marks = |_: &mut Battle, _: i64, _: &str| {};
+        let mut play = start_battle(&mut b, self.max_turns, &mut marks);
+        let mut bots = GladiatorBots;
+        play_on(&mut b, &mut bots, &mut play, &mut marks);
+        let log = if want_log { b.log.lines.clone() } else { vec![] };
+        b.sweep_destroyed();
+        let events = serde_json::json!({"events": crate::events::events_json(&b), "teams": crate::events::teams_json(&b)});
+        (play.result, log, events)
     }
 
     /// One battle on `seed`: the result and its log (when `want_log`).

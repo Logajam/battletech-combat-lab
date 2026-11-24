@@ -11,6 +11,7 @@ pub mod los;
 pub mod equipment;
 pub mod config;
 pub mod battle;
+pub mod events;
 pub mod mech_state;
 pub mod mech_json;
 pub mod damage_resolution;

@@ -363,6 +363,8 @@ fn shut_down(b: &mut Battle, u: UnitId, why: &str) {
     b.units[u].shutdown = true;
     let line = format!("  [Heat] {}: SHUT DOWN ({}).", b.units[u].side_name.clone().unwrap_or_default(), why);
     b.log(line);
+    let heat_now = b.units[u].current_heat;
+    b.ev("SHUTDOWN").unit(u).sub("heat").what(why).n(heat_now).emit(b);
 }
 
 pub fn try_restart(b: &mut Battle, u: UnitId) {
@@ -375,6 +377,7 @@ pub fn try_restart(b: &mut Battle, u: UnitId) {
     let Some(tn) = shutdown_avoid_tn(level) else {
         b.units[u].shutdown = false;
         b.log(format!("  [Heat] {}: heat {} is below 14 - power plant restarts automatically.", name, level));
+        b.ev("RESTART").unit(u).ok(true).n(level).emit(b);
         return;
     };
     if level > RESTART_MAX_HEAT {
@@ -389,7 +392,9 @@ pub fn try_restart(b: &mut Battle, u: UnitId) {
     if roll >= tn {
         b.units[u].shutdown = false;
         b.log(format!("  [Heat] {}: restart roll at heat {}: needs {}, rolled {} - RESTARTED.", name, level, tn, roll));
+        b.ev("RESTART").unit(u).tn(tn).roll(roll).ok(true).n(level).emit(b);
     } else {
+        b.ev("RESTART").unit(u).tn(tn).roll(roll).ok(false).n(level).emit(b);
         b.log(format!("  [Heat] {}: restart roll at heat {}: needs {}, rolled {} - stays shut down.", name, level, tn, roll));
     }
 }
@@ -515,6 +520,7 @@ pub fn life_support_hits(b: &mut Battle, u: UnitId) {
         return;
     }
     ms::pilot_hit(&mut b.units[u], hits, true);
+    b.pilot_hit_ev(u, "life support");
     let m = &b.units[u];
     let line = format!(
         "  [Heat] {}: life support destroyed{}, heat {} - MechWarrior takes {} hit(s) ({}/6).",

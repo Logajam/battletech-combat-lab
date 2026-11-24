@@ -46,7 +46,7 @@ def run(folder, battles, seed, threads, hydra):
     units = json.load(open(os.path.join(folder, "units.json")))
     bot = {u["team"]: u["bot"] for u in units.values()}
     path, scenario = trial_records.records_path(argv, "hydra_trial"), os.path.basename(folder.rstrip("/"))
-    cmd += trial_records.stream_args(path, scenario, bot.get("Red"), bot.get("Blue"), hydra, argv, seed, battles)
+    cmd += trial_records.stream_args(path, scenario, bot.get("Red"), bot.get("Blue"), hydra, argv, seed, battles, list(cmd))
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
     trial_records.report_crashes(out)
     trial_records.append(path, "hydra_trial", scenario, bot.get("Red"), bot.get("Blue"), hydra, argv,

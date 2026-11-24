@@ -149,6 +149,9 @@ def main(argv):
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"),)))
         heavy.append(("rust       check_bridge_parity.py --quick",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
+        # the event records and their search (INTEGRATION__EVENTS.md): events change nothing, known events appear, the search works
+        heavy.append(("rust       check_events.py",
+                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_events.py"),)))
         # CL1 settings, stage-6 attach, CL2 histories, BV skills, charge targets, walk-on zones
         heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + human_bots + play_session + core unit tests",
                       run_command, (["cargo", "test", "--release", "-q", "-p", "btsim_core", "--lib", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
