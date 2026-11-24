@@ -31,6 +31,7 @@
   [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 31 = max 30 + sink 12 - current 0 - movement 1 - other 10; expected dmg 1.39)
     TSEMP Cannon: needs 9 (range mod +0), rolled 9 -> HIT
       Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 3 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Blue -> Red: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 4 = 4 (BattleMech): no effect.
   [Heat] Red: 1 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
@@ -105,6 +106,7 @@
     TSEMP Cannon: needs 10 (range mod +0), rolled 10 -> HIT
       Red fired its TSEMP Cannon: TSEMP interference on Red through turn 7 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
   [Ranged] Blue -> Red: range 2, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 1 + stealth 2); firing nothing (weapon heat 0 of budget 21 = max 30 + sink 14 - current 11 - movement 2 - other 10; expected dmg 0.00)
+  [Resolve] Red -> Blue: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 8 = 8 (BattleMech): interference.
       TSEMP hit: TSEMP interference on Blue through turn 7 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
@@ -236,6 +238,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   [Ranged] Red -> Blue: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.83)
     TSEMP Cannon: needs 10 (range mod +0), rolled 10 -> HIT
       Red fired its TSEMP Cannon: TSEMP interference on Red through turn 13 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Red -> Blue: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 7 = 7 (BattleMech): interference.
       TSEMP hit: TSEMP interference on Blue through turn 13 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
@@ -313,6 +316,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   [Ranged] Blue -> Red: range 1, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 1); firing ['TSEMP Cannon'] (weapon heat 10 of budget 22 = max 30 + sink 12 - current 9 - movement 1 - other 10; expected dmg 0.83)
     TSEMP Cannon: needs 10 (range mod +0), rolled 10 -> HIT
       Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 17 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Blue -> Red: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 6 = 6 (BattleMech): no effect.
   [Physical] Red twists its torso 1 hexside left to reach Blue.
@@ -635,6 +639,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   [Ranged] Red -> Blue: range 3, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.39)
     TSEMP Cannon: needs 9 (range mod +0), rolled 9 -> HIT
       Red fired its TSEMP Cannon: TSEMP interference on Red through turn 34 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Red -> Blue: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 7 = 7 (BattleMech): interference.
       TSEMP hit: TSEMP interference on Blue through turn 34 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
@@ -731,6 +736,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
   [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 1.39)
     TSEMP Cannon: needs 9 (range mod +0), rolled 10 -> HIT
       Red fired its TSEMP Cannon: TSEMP interference on Red through turn 39 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Red -> Blue: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 5 = 5 (BattleMech): no effect.
   [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 10 -> 1
@@ -794,6 +800,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     TSEMP Cannon: needs 10 (range mod +0), rolled 11 -> HIT
       Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 42 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
   [Ranged] Red: charging Blue - no ranged attacks this turn (pp.78-79).
+  [Resolve] Blue -> Red: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 4 = 4 (BattleMech): no effect.
   [Physical] Red -> Blue: CHARGE needs 12 (piloting 5 + AMM 2 + TMM 3 + terrain 2 + comparative +0), rolled 6 -> miss
@@ -851,6 +858,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     3: Engine (slot 3)
     4: ISTAG (slot 4)
     5: ISC3SlaveUnit (slot 5)
+    Slot roll: 1 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Right Torso: ['DESTROYED', 'Engine', 'Engine', 'ISTAG', 'ISC3SlaveUnit', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (1/3).
@@ -964,6 +972,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
     5: ISGuardianECMSuite (slot 5)
     6: IS Stealth (slot 8)
     7: IS Stealth (slot 9)
+    Slot roll: 4 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/1 Criticals: ISGuardianECMSuite slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'ISGuardianECMSuite', 'IS Endo Steel', 'IS Endo Steel', 'IS Stealth', 'IS Stealth', 'TSM', 'TSM', 'TSM']
     Charge (attacker): 3 to Red's Left Arm.
@@ -1097,6 +1106,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 30 = max 30 + sink 2 - current 0 - movement 2 - other 0; expected dmg 2.08)
     TSEMP Cannon: needs 8 (range mod +0), rolled 6 -> miss
       Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 51 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Resolve] Red -> Blue: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 7 = 7 (BattleMech): interference.
       TSEMP hit: TSEMP interference on Blue through turn 51 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
@@ -1159,6 +1169,7 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
     TSEMP Cannon: needs 4 (range mod +0), rolled 10 -> HIT
       Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 53 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
   [Ranged] Red: no weapon can bear on Blue (left side arc) - can't fire.
+  [Resolve] Blue -> Red: TSEMP Cannon
     TSEMP Cannon hit:
       TSEMP effects roll 7 = 7 (BattleMech): interference.
       TSEMP hit: TSEMP interference on Red through turn 53 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).

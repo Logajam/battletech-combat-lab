@@ -16,6 +16,9 @@ project's files. Never let one source project's file overwrite the other's same-
 
 ## 0. WHERE WE ARE (2026-11-14, end of session 26) — read this first
 
+**Daniel plays the BROWSER version (the website), 2026-11-24: "I'm exclusively using the browser based version for now."** A fix reaches him only when the
+website is published (`tools/publish_public.py --push`, then `tools/publish_web_lab.py --push`); test play fixes on the browser build (`check_web_play.py`).
+
 **Pick up here (Daniel, 2026-11-14, closing session 26):** "I'll start that list tomorrow" - he will play with Combat Lab
 alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`) and bring a change list; then it goes to Opus for review before
 anything goes to the public repo (E6). Session 26 built Daniel's round-2 list, all of it merged to `main` (pull requests 224,
@@ -462,6 +465,12 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s35-work) SESSION 35 WORK ORDER** (2026-11-24): the engine pass (`attack_resolution` at_hex -4 and terrain, `orchestrator` prone_turn / drop_to_ground /
+  eject_pilot and their `BotSet` hooks, heat.rs voluntary shutdown with `player_choices` power_request / held_off), the report (`[Resolve]` and `Slot roll` lines,
+  play.js `reportHtml` / `fmtDamage`, Dice details option), Get Results (`results::battle_line` moved from lab/src/runs.rs; lab.js `openPlayedGame`), physical.rs
+  `tally_physical`, play.js awareness (moved marks, `turnStatus`, twist arrow, `drawAttackLines` / `attackCard`, jump toggle) and the left / right placard bars
+  (`sideFrac`). Look at: the eject landing modifiers (planetary conditions not modelled); whether a charge's "hit" in the statistics should come from the roll
+  (today: damage dealt > 0); the attack lines' parsing of the report lines.
 - **(s35-bugs2) INITIATIVE DICE AND TAG REPORT** (2026-11-24): `forces::initiative_order` (`Battle::initiative_throws`), `orchestrator::log_initiative`, `attack_resolution::weapon_attack_parts`
   (the parts must sum to the TAG number: the leftover goes to "other"), tag.rs `roll_designation`'s line, `stage6_battles.rs` `known_changes`, play.js report section "tag". Reference logs updated
   (only those two kinds of line changed, checked line by line).
@@ -823,13 +832,32 @@ and Replay one tab or not (Daniel's question); heat maps as toggles; an audit of
 
 **ENGINE PASS FOR MISSING OPTIONS (Daniel, 2026-11-24: "With turning on the ground missing, I think were going to have to do an engine pass
 to add in missing options. But lets continue bug fixes. We'll probaby find more holes along the way.")** Holes found so far, to add to as the bug hunt
-goes on: (1) a 'Mech that stays prone may still change facing at 1 MP a hexside (Core p.51); the engine gives a unit that stays prone no move;
-(2) the optional Initiative Die (Core, Initiative Phase section) is not built; (3) the MegaMek / bridge movement-options audit (PLAYER_DECISIONS Section 24
-item 2); (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
+goes on: (1) DONE 2026-11-24: a person's 'Mech that stays prone may turn on the ground, 1 MP a hexside (Core p.51; `BotSet::prone_turn`, the stand_up answer's "facing"; bots always try to stand, unchanged);
+(2) MOVED TO THE WISH LIST (Daniel, 2026-11-24: "Optional initiative die goes on the wish list for when we add more game options"): the optional
+Initiative Die (Core, Initiative Phase section); (3) DONE 2026-11-24, the MegaMek / bridge movement-options audit (Section 24 item 2): MegaMek's `MoveStepType` (enums/MoveStepType.java) against
+the engine, for 'Mechs. Have: forward, backward, turns, get up, jump, charge, DFA, unjam (a declaration, not a step). MISSING, Core: GO_PRONE (drop to the
+ground, p.51), voluntary SHUTDOWN / STARTUP (an End Phase choice, p.105), LATERAL shifts for quads (p.238; the engine loads quads), leaving the battlefield
+by the home edge under the optional Forced Withdrawal rules (FLEE; p.230 / missions). MISSING, TO:AR / TO:AUE (later books, the library has them):
+CAREFUL_STAND, HULL_DOWN, EJECT (Core has no ejection rule; TO:AR's advanced combat does), mechanical jump boosters. Bridge (DECISION_HOMES Section 12):
+charge / DFA and the arm flip are sent as MegaMek's own fallback, not our choice. Not 'Mech moves (vehicles, aircraft, infantry, cargo): not listed. (4) bug B5, attacking a hex (the ground): Core p.64 makes a hex an immobile target (-4), p.66 drops the target hex's terrain modifier,
 the adjacent-hex rule changes for hex targets (p.65), and area-effect weapons never take the -4 (p.180). The engine has no ranged attack on a hex at all
-(only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) Engine bug found with it: `weapon_attack_tns` with
-`at_hex` (TAG at the hex) drops the target's modifiers but never adds the -4, so TAG at a hex is 4 too hard; changing it changes bot TAG choices.
-Also: dropping to the ground, voluntary shutdown, eject (no homes yet, DECISION_HOMES Section 10 item 6).
+(only distant artillery aims and TAG); it matters for buildings, minefields, artillery and TAG. (5) DONE 2026-11-24: `weapon_attack_tns` with `at_hex`
+(TAG at the hex) now takes the -4 and leaves out the target hex's woods / smoke (p.64-66; not for area-effect weapons, p.180). No reference battle changed.
+(6) DONE 2026-11-24 for a person's units (bots unchanged): dropping to the ground (Core p.51; the movement answer's "prone": true, a toggle in the move
+sheet), voluntary shutdown and restart (Core p.105; the End Phase / Inspector switch "power"; a unit shut down by choice is asked every End Phase and
+stays down until restarted), ejection (TO:AR p.164-165; the movement answer "eject": true behind a confirm card; the landing roll with the terrain, prone,
+unconscious and head-damage modifiers; the engine has no infantry, so the abandoned 'Mech leaves the battle and the MechWarrior on foot is not played on;
+auto-eject on an ammunition explosion and ejecting from a prone 'Mech's stand question are not built). Still open: quad lateral shifts (p.238), Forced
+Withdrawal by the home edge (p.230), and the TO:AR moves (careful stand, hull down, mechanical jump boosters).
+
+**SESSION 35 WORK ORDER (Daniel, 2026-11-24), in this order, then publish the website:** (1) the design-record audit only (Section 24 item 25);
+(2) the engine pass above (TAG at a hex, turning while prone, ground targeting, the movement audit, drop / shut down / eject); (3) the reports (items
+17-21, 24a); (4) movement and turn flow (items 3, 4) plus, new: "a clear signal of torso twists made by both sides"; "Attack lines drawn for both
+sides (So you can see what is shooting at you. Long press on the attack line to get details of that attack.)"; "Jump toggle in the movement tracker
+in the lower left of the screen. (That area is slated to become a conditional button and information spot. Switches movement modes, activates RHS or
+Coolant pods. Maybe others. Details later)"; (5) the left / right health bars (item 24). Daniel: "a lot of that is needed for situational awareness
+and options to make the game playable. And I don't think any of it will conflict with my goals to rework the UI." Event records get simplified in
+another conversation afterwards.
 
 **THE ANSWER KEY HAS DRIFTED (found 2026-11-24, Claude):** `engine/core/tests/stage6_battles.rs` (the Rust v the frozen Python answer key, battle by
 battle) is NOT in `run_checks.py`, and on main 41 of its 63 battles already fail (the 'ref_' and 'team_' battles at dice call 4-5, many 'cov_'

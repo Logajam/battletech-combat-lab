@@ -26,18 +26,22 @@
     Medium Laser: needs 6 (range mod +0), rolled 3 -> miss
     ISStreakSRM4: needs 6 (range mod +0), rolled 7 -> HIT
       [IS Streak SRM 4 Ammo: 24 shots left]
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 6 (right table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (23 -> 13 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 7 (right table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
@@ -52,11 +56,14 @@
     4: Cockpit (slot 4)
     5: Sensors (slot 5)
     6: Life Support (slot 6)
+    Slot roll: 3 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Cockpit slot hit - its component armor absorbs it, no effect (p.207).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (34 -> 29 remaining).
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 4 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
@@ -100,10 +107,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
     ISStreakSRM4: needs 8 (range mod +0), rolled 8 -> HIT
       [IS Streak SRM 4 Ammo: 23 shots left]
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 5 (rear table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (rear_armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (37 -> 27 remaining).
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 5 (rear table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (rear_armor).
@@ -153,6 +162,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     ISSNPPC: needs 9 (range mod +0), rolled 9 -> HIT
     Light PPC: needs 9 (range mod +0), rolled 8 -> miss
     Light PPC: needs 9 (range mod +0), rolled 7 -> miss
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 3 (left table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
@@ -166,6 +176,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
       Group 4/4: Hit location roll 8 (left table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (47 -> 45 remaining).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (left table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -191,14 +202,17 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     Light PPC: needs 10 (range mod +2), rolled 10 -> HIT
     Light PPC: needs 10 (range mod +2), rolled 12 -> HIT
   [Ranged] Red -> Blue: range 7, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 4 + heat 1); firing nothing (weapon heat 0 of budget 29 = max 30 + sink 14 - current 12 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 3 (rear table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (rear_armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (18 -> 13 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -234,6 +248,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     Medium Laser: needs 12 (range mod +4), rolled 8 -> miss
     ISStreakSRM4: needs 12 (range mod +4), rolled 5 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -275,12 +290,14 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     ISSNPPC: needs 7 (range mod +0), rolled 10 -> HIT
     Light PPC: needs 9 (range mod +2), rolled 6 -> miss
     Light PPC: needs 9 (range mod +2), rolled 9 -> HIT
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (8 -> 0 remaining). 2 damage applied to structure [STANDARD] (17 -> 15/17 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 4 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -332,10 +349,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   [Ranged] Red -> Blue: range 8, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Hyper Velocity Auto Cannon/10'] (weapon heat 7 of budget 44 = max 30 + sink 14 - current 0 - movement 0 - other 0; expected dmg 5.83)
     Hyper Velocity Auto Cannon/10: needs 7 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 1 shots left]
       Heavy smoke fills 0502 (from Red's HVAC fire; until the End Phase of turn 10).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (rear table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at rear_armor (15 -> 5 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
@@ -363,6 +382,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     ISSNPPC: needs 12 (range mod +2), rolled 9 -> miss
     Light PPC: needs 12 (range mod +2), rolled 5 -> miss
     Light PPC: needs 12 (range mod +2), rolled 12 -> HIT
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -395,6 +415,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     Hyper Velocity Auto Cannon/10: needs 13 (range mod +2), rolled 4 -> miss [IS Ammo HVAC/10: 7 shots left]
       Heavy smoke fills 0810 (from Blue's HVAC fire; until the End Phase of turn 12).
     ISSNPPC: needs 11 (range mod +0), rolled 11 -> HIT
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
@@ -408,6 +429,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
       Group 4/4: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (43 -> 41 remaining).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 11 (left table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
@@ -421,6 +443,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     4: Foot Actuator (slot 4)
     5: Heat Sink (slot 5)
     6: Jump Jet (slot 6)
+    Slot roll: 4 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', 'Heat Sink', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
@@ -439,6 +462,7 @@ FALL (failed Attack Phase PSR): Victor VTR-Cr takes 8 falling damage (1D6 6: fro
   Critical hit pool at Right Torso:
     1: IS Ammo HVAC/10 (slot 1)
     2: IS Ammo HVAC/10 (slot 2)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: IS Ammo HVAC/10 slot hit.
       Current crit slots in Right Torso: ['IS Ammo HVAC/10', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
     IS Ammo HVAC/10 destroyed at Right Torso - EXPLOSION (70 dmg)! Pilot takes 1 hit (1/6).
@@ -483,22 +507,26 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 9.
     Medium Laser: needs 11 (range mod +4), rolled 7 -> miss
     ISStreakSRM4: needs 11 (range mod +4), rolled 11 -> HIT
       [IS Streak SRM 4 Ammo: 20 shots left]
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 11 (left table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (armor).
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (12 -> 2/17 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 4 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (13 -> 11/13 remaining).
   Check for possible critical. Roll a 4.
     No critical hit.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (27 -> 22 remaining).
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 5 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
@@ -531,6 +559,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 9.
     ISSNPPC: needs 10 (range mod +2), rolled 11 -> HIT
     Light PPC: needs 10 (range mod +2), rolled 3 -> miss
     Light PPC: needs 10 (range mod +2), rolled 9 -> miss
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 8:
       Hit location roll 11 (left table): Right Leg.
 8 damage (ENERGY) incoming to Right Leg (armor).
@@ -591,6 +620,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     Light PPC: needs 10 (range mod +2), rolled 10 -> HIT
     Light PPC: needs 10 (range mod +2), rolled 9 -> miss
   [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 41 = max 30 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 5 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -617,6 +647,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 11.
     ISSNPPC: needs 9 (range mod +2), rolled 8 -> miss
     Light PPC: needs 9 (range mod +2), rolled 9 -> HIT
     Light PPC: needs 9 (range mod +2), rolled 8 -> miss
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 5 (right table): Right Arm.
 10 damage (BALLISTIC) incoming to Right Arm (armor).
@@ -625,6 +656,7 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 11.
   [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (7 -> 0 remaining). 3 damage applied to structure [STANDARD] (25 -> 22/25 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 5 (right table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -702,6 +734,7 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
     ISSNPPC: needs 4 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
     Light PPC: needs 6 (range mod +2) aimed at Center Torso, rolled 6 -> HIT
     Light PPC: needs 6 (range mod +2) aimed at Center Torso, rolled 10 -> HIT
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10: aimed at Center Torso, 1D6 5 - on target.
 10 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/25 remaining).
@@ -721,12 +754,15 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
     Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 1).
   All critical slots in Center Torso marked DESTROYED.
   9 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10: aimed at Center Torso, 1D6 5 - on target.
 10 damage (ENERGY) incoming to Center Torso (armor).
   Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5: aimed at Center Torso, 1D6 6 - on target.
 5 damage (ENERGY) incoming to Center Torso (armor).
   Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5: aimed at Center Torso, 1D6 1 - rolls for location.
       Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (4/6), regardless of armor.

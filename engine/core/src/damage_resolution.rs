@@ -478,6 +478,12 @@ pub fn resolve_critical(b: &mut Battle, u: UnitId, location: &str, explosive_onl
                 }
             }
             let choice = b.pick_number(pool.len() as i64);
+            // the slot roll, shown in the report (Daniel, 2026-11-24: critical hit dice; whether to show the slot roll is an option on
+            // the page). One die over the slots that can take the hit is the book's own shortcut (p.94: rolling both dice again on an
+            // inapplicable slot makes every applicable slot equally likely). A known change from the answer key (stage6 known_changes).
+            if b.cfg.b("VERBOSE") {
+                b.print(format!("    Slot roll: {} on 1D{} (one die over the {} slots that can take the hit; p.94).", choice, pool.len(), pool.len()));
+            }
             pool[(choice - 1) as usize]
         };
         let slot = slots[slot_idx].clone();

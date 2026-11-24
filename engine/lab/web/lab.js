@@ -1444,6 +1444,7 @@ async function playGame() {
   }
   const r = await api("play_start", { setup: chosen });
   if (r.error) { $("run-error").textContent = r.error; return; }
+  try { localStorage.setItem("bm_play_setup", JSON.stringify(chosen)); } catch (e) { /* only Get Results needs it */ }
   window.open(`play.html?game=${r.game}&colours=${encodeURIComponent(JSON.stringify(r.colours || {}))}`, "_blank");
 }
 
@@ -2554,6 +2555,20 @@ async function start() {
   let wasNarrow = narrow();
   window.addEventListener("resize", () => { if (narrow() !== wasNarrow) { wasNarrow = narrow(); location.reload(); } });
   if (DEMO && DEMO.autorun) runBatch();
+  openPlayedGame();
+}
+
+// GET RESULTS (bug B21, Daniel 2026-11-22: when the battle is over the commit button becomes "Get Results", which switches to the results
+// tab with all the battle statistics): the play page leaves the finished game here as a one-battle run file; it opens like a saved run.
+async function openPlayedGame() {
+  let file = null;
+  try { file = JSON.parse(localStorage.getItem("bm_play_result") || "null"); localStorage.removeItem("bm_play_result"); } catch (e) { file = null; }
+  if (!file) return;
+  const r = await api("load_run", { file });
+  if (r.error) { setStatus("The played game could not be opened: " + r.error); return; }
+  lab.run = r.run; lab.runSetup = r.setup; lab.filter = {};
+  $("results-empty").hidden = true; $("results").hidden = false;
+  show("results"); drawResults(); setStatus("Your played game: its results (a replay opened from here is played by the bots, not your moves)");
 }
 
 start();

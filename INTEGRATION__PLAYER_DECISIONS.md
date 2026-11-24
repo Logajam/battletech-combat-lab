@@ -457,16 +457,21 @@ Daniel: "Adding bugs and features to the list. Record and save. Compute for the 
 where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL = a decision for Daniel is still open. Daniel's own words are quoted where they carry the meaning.
 
 ### A. Movement
-1. FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
+1. FIXED 2026-11-24 FEAT **Jump option when moving.** "Possibly give the Move readout a jump toggle. The chosen option is remembered from one turn to the next."
 2. FIXED 2026-11-24 (except the audit) BUG **Stand-up.** "I should be able to undo a plan of stand." And: "I can not turn after a stand, which should be a free action." Also: "Should probably run an audit of Megamek and the
    Bridge for missing movement options." (An audit task of its own: MegaMek's movement choices against the engine's and the bridge's.)
    DONE: "Stand up" now opens the move as it would be after a first-try stand; nothing is rolled until Move! is held (x goes back to the prone choice), and the stand and move go in
    one answer (`stand_up` answer "plan"). Turning in place: the 'Mech's own token covered its hex; a tap on the 'Mech, or the arrows that now ring it, turns it (any move, not only a
    stand). STILL OPEN: the MegaMek / bridge movement audit. FOUND, NOT BUILT: a 'Mech that chooses to stay prone may still change facing at 1 MP a hexside (Core p.51), but the engine
    gives a unit that stays prone no move at all.
-3. FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
-4. FEAT (title bar: OPEN; the dice: DONE 2026-11-24, in the report) **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
+3. FIXED 2026-11-24 FEAT **Better visual signal on which units have already moved** (map, placards, unit strip).
+4. FIXED 2026-11-24 (title bar: who has the initiative, units still to move per side; the dice in the report) FEAT **Initiative in the title bar:** "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate should probably be displayed in the Title
    bar. (Phones might make me change my mind.)"
+
+   (1, 3, 4 DONE 2026-11-24, with two new items of Daniel's the same day: "a clear signal of torso twists made by both sides" (an amber torso arrow on
+   any twisted unit) and "Attack lines drawn for both sides ... Long press on the attack line to get details of that attack" (the latest turn's attacks,
+   ranged and physical, from the released report lines, hits / shots on each, a tap or long press opens that attack's report; View menu "Attack lines").
+   The jump toggle sits in the move readout at the lower left ("slated to become a conditional button and information spot", Daniel) and is kept per unit.)
 
 ### B. Firing
 5. MOVED TO THE ENGINE PASS 2026-11-24 (PROJECT_MAP Section 4, item 4; the rules found there) FEAT **Ground targeting is missing:** "My ability to target the ground seems to be missing." Rule: a -4 to hit when targeting the ground for many weapons ("AE attacks do not get it";
@@ -500,21 +505,28 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
     + range 0)"); the report gives TAG its own section, shown as soon as the TAG step is over (before any weapon is declared), as "TAG: X -> Y needs N (...), rolled R".
 
 ### D. Reports (round report, combat report)
-17. FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a
+17. FIXED 2026-11-24 FEAT **Report each attack where it happens:** "Though attack declaration and resolution are separate in the game state, for the purposes of reporting the effects of attacks in reports, a
     weapon that hits should immediately report where it hit and any additional results of that hit before resolving the next attack. Attacks that miss are simply reported that they miss."
-18. FEAT **Clearer about who is firing, who is taking damage, and highlight significant events like a critical hit.**
-19. FEAT **Critical hits:** "The critical hit pool and current critical slots do not need to be reported in the log. Only the critical slot that was hit. Highlighted for visibility."
-20. FEAT **The report opens at the start of the most recent phase it has information on** (not at the end or the top).
-21. FEAT **When the battle is over the commit button turns into "Get Results"**, which switches to the results tab with all the battle statistics.
+18. FIXED 2026-11-24 FEAT **Clearer about who is firing, who is taking damage, and highlight significant events like a critical hit.**
+19. FIXED 2026-11-24 FEAT **Critical hits:** "The critical hit pool and current critical slots do not need to be reported in the log. Only the critical slot that was hit. Highlighted for visibility."
+20. FIXED 2026-11-24 FEAT **The report opens at the start of the most recent phase it has information on** (not at the end or the top).
+21. FIXED 2026-11-24 FEAT **When the battle is over the commit button turns into "Get Results"**, which switches to the results tab with all the battle statistics.
+
+    (17-21 DONE 2026-11-24: the engine writes "[Resolve] A -> T: weapon" before each attack's damage; the report puts each hit's location and damage
+    under its roll, boils the damage down ("-> Blue 3 Right Torso", "armour 11 -> 6, structure 15 -> 14"), shows a critical hit as one highlighted
+    "CRITICAL HIT: Blue 3 Right Leg - Lower Leg Actuator" with its critical check roll (always shown, Daniel 2026-11-24: "The dice rolls for critical hits
+    should be shown") and, with the menu option "Dice details in the report" (on by default; Daniel: "Showing dice rolls may need to be an optional
+    setting"), the slot roll ("slot roll 3 on 1D6", now logged by the engine), the hit-location and cluster rolls; no pool or slot lists; a heading per
+    phase, opening at the latest; Get Results hands the battle to the Lab's Results tab as a one-battle run (a replay from there is the bots' battle).)
 
 ### E. Physical attacks
 22. FEAT **Use the same weapons table on screen as the ranged attacks, complete with a commit button.**
 23. FEAT **Do not list every limb that can make an attack:** "Always use the best available limbs with the highest expected damage."
 
-24a. FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
+24a. FIXED 2026-11-24 FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
 
 ### F. Armour and placards
-24. BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
+24. FIXED 2026-11-24 (the mockup's lrBar: armour and structure split at the centre, each side wearing in from its outer edge; centre torso and head count half to each side) BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
     `INTEGRATION__BATTLEROM_UI.md` Section 5).
 25. TASK **An audit of this whole conversation for missed details:** "I feel like I need to send you on an audit of this entire conversation looking for missed details." (Go through the
     sessions' transcripts and the BATTLEROM_UI design record item by item against the working page; the first audit, Section 22, compared the screens only.)
@@ -530,3 +542,43 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
   harness (`tests/check_play.py` style) before changing anything.
 - The weeks' compute is low (Daniel): keep each piece small, and record what is done in the Change Record as before.
 
+
+## 25. Audit: the design record against the working page (2026-11-24, session 35; Section 24 item 25, "audit only")
+
+Daniel: "I feel like I need to send you on an audit of this entire conversation looking for missed details." The chats themselves are not in the repo; what
+they left is `INTEGRATION__BATTLEROM_UI.md` (the 2026-11-21 design record, Sections 1-5), `INTEGRATION__UI_DESIGN_NOTES.md` (the 2026-11-24 summaries),
+`INTEGRATION__UI_DECISION_HOMES.md` and Sections 22-24 here. Each design point was checked against `engine/lab/web/play.js` / `play.html`. Listed: only what
+is MISSING or PARTIAL and not already an item of Section 24 or the session 35 work order (PROJECT_MAP Section 4). Nothing was changed. "Overlay?" = may be
+replaced by the critical-table weapon overlay (DECISION_HOMES Section 10 item 2) or the two-placard design, so check before building.
+
+| # | Source | Design point | Page today | Overlay? |
+|---|---|---|---|---|
+| 1 | BATTLEROM_UI 3 | Illegal paths drawn dark grey and the commit button greys out | Not built: an illegal hex is simply not offered; no grey path | no |
+| 2 | BATTLEROM_UI 3 | Range display as MegaMek's: dashed outer line plus a translucent band just inside it | Dashed outer line only; no band | no |
+| 3 | BATTLEROM_UI 3 | Stacks shrink the sprites (a 'Mech keeps at least half the hex) | Not built: units in one hex draw on top of each other | no |
+| 4 | BATTLEROM_UI 3 | Hex card: terrain, MOVE COST, RISKS, what else is in the hex (blown-off limbs, buildings, mines, smoke) | Terrain, level, units, distance only | no |
+| 5 | BATTLEROM_UI 3 | MASC / supercharger: when both, the lower TN goes first unless the player picks | One yes / no for both; no order choice | no |
+| 6 | BATTLEROM_UI 4 | A fired weapon shows a red target on a black row | Not built (`fired = false` placeholder in `declSheet`) | yes (overlay: "fired = struck through") |
+| 7 | BATTLEROM_UI 4, NOTES 5-6 | Strike has THREE steps: Strike / Alpha Strike / ALPHA STRIKE! (everything at every target); missile-boat and machine-gun wordings ("personality"); a 3-dot step indicator | Two steps, one target, standard wording, no indicator | partly (the button's place) |
+| 8 | BATTLEROM_UI 4 | Ammunition choice per weapon remembered between turns (Daniel: "absolutely") | Bin choice is kept by the engine's player choices; NOT CHECKED that a mode (e.g. LRM indirect) carries to the next turn | no |
+| 9 | BATTLEROM_UI 4 | LRM Direct / Indirect mode | Modes exist where the engine offers them; indirect needs a spotter (Section 24-era work); not checked on the page | no |
+| 10 | BATTLEROM_UI 5 | Looks: SL-HIS Dark (default), Light, Win95, Modern, TERMINAL, AMBER | Four looks; Terminal and Amber missing (already "still open" in Section 22) | no |
+| 11 | BATTLEROM_UI 5 | Colour-blind mode: second palette PLUS line patterns and a letter on each range band | Palette and dashes; no letters on the bands | no |
+| 12 | BATTLEROM_UI 5 | Landscape: weapon list docks in the right column; switches by itself when a phone turns | Not built (Section 22 "still open") | yes |
+| 13 | BATTLEROM_UI 5 | Type floor 11 px, tap targets at least 32 px | Not measured; known 22-26 px weapon buttons in the overlay sketch | yes |
+| 14 | BATTLEROM_UI 1 | Esc is undo, and falls through to "deselect" when there is nothing to undo | Esc undoes and closes cards; no deselect fall-through | no |
+| 15 | NOTES 3 | Suppress the browser's right-click menu over the map (right-click pans or opens desktop actions) | Not built: right-click shows the browser menu | no |
+| 16 | NOTES 4 | Move by DRAGGING a 'Mech with a live path preview (the second way in, same steps underneath) | Tap-only waypoints | no |
+| 17 | NOTES 4 | Manual turning / command editing in the Inspector (spin in place, override the path finder) | Not built (turning in place now works from the map, 2026-11-24) | no |
+| 18 | NOTES 4, BATTLEROM_UI 3 | Facing choices show their MP cost | Arrows coloured by mode; the cost shows only after a tap (readout) | no |
+| 19 | NOTES 5-6 | Placard: Gunnery / Piloting, current movement, heat against capacity with escalating colours, a WARNING MARK (pilot hits, criticals) that opens the Inspector | Name and three bars; heat bar one colour; no G/P, movement, warning mark | yes (two-placard design) |
+| 20 | NOTES 6 | Two placards: simple on every unit, expanded under the selected unit (DECISION_HOMES Section 10 item 1, Daniel's ruling pending) | One placard style | yes |
+| 21 | NOTES 5-6 | Context actions shown only when legal (Charge, DFA, Club, Push, Stand, Aimed Shot) beside the placard | Charge / DFA by tapping an enemy while moving; Stand as a question; Club, Aimed Shot not offered to a person (the engine has aimed shots for bots: T16) | partly |
+| 22 | NOTES 6 | Overlays (movement, firepower, LOS, heat) several at once, one colour scale, an on-screen legend | Weapon range rings only (heat maps: Section 24 item 28) | no |
+| 23 | NOTES 2, 6 | Desktop conveniences: keyboard shortcuts, movable / dockable windows | Esc only | no |
+| 24 | BATTLEROM_UI 8 | Open questions never answered: the cut-off line on fire resolving after the turn; which looks stay; repo rename for BattleROM; a stronger cue for "assigned" v "assigned elsewhere" | Open | - |
+| 25 | BATTLEROM_UI 6 | MegaMek sprites on translucent hex bases (licence check per image set) | Plain silhouettes | no |
+
+Not counted (built since, or listed elsewhere): hazard confirm, combat report pop-up, rear pips, sort options (all seven), grouping key (name, location,
+rear, twist, bin, mode, rate, number, range, jam), info bar ranges, nearest target first, map centring, Report / REC placement, long press for the
+Inspector (B13), turning in place (A2).

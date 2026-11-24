@@ -21,10 +21,12 @@
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 4.17)
     ISERMediumLaser: needs 8 (range mod +0), rolled 10 -> HIT
     ISERMediumLaser: needs 8 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 3 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -50,6 +52,7 @@
   [Ranged] Blue -> Red: range 6, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0); firing ['ISLargeXPulseLaser', 'ISMediumXPulseLaser'] (weapon heat 20 of budget 55 = max 30 + sink 26 - current 0 - movement 1 - other 0; expected dmg 2.50)
     ISLargeXPulseLaser: needs 10 (range mod +2, modifiers -2), rolled 7 -> miss
     ISMediumXPulseLaser: needs 10 (range mod +2, modifiers -2), rolled 12 -> HIT
+  [Resolve] Blue -> Red: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 9 (left table): Right Torso.
       Red's small shield (Right Arm) absorbs 3 of 6 at Right Torso (capacity left 8, p.195).
@@ -78,6 +81,7 @@
   [Ranged] Red -> Blue: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 1 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.78)
     ISERMediumLaser: needs 9 (range mod +0), rolled 7 -> miss
     ISERMediumLaser: needs 9 (range mod +0), rolled 11 -> HIT
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 10 (front table): Left Arm.
 9 damage (ENERGY) incoming to Left Arm (armor).
@@ -91,6 +95,7 @@
     4: Hand Actuator (slot 4)
     5: Hatchet (slot 5)
     6: Hatchet (slot 6)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/2 Criticals: Hatchet slot hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'DESTROYED', 'Hatchet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Arm:
@@ -99,8 +104,10 @@
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
     5: Hatchet (slot 6)
+    Slot roll: 3 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     2/2 Criticals: Lower Arm Actuator hit.
       Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Hand Actuator', 'DESTROYED', 'Hatchet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
@@ -138,6 +145,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['ISLargeXPulseLaser', 'ISMediumXPulseLaser'] (weapon heat 20 of budget 55 = max 30 + sink 26 - current 0 - movement 1 - other 0; expected dmg 4.17)
     ISLargeXPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 12 -> HIT
     ISMediumXPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 8 -> miss
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 4 (left table): Left Arm.
 9 damage (ENERGY) incoming to Left Arm (armor).
@@ -172,6 +180,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   [Ranged] Red -> Blue: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.78)
     ISERMediumLaser: needs 9 (range mod +0), rolled 7 -> miss
     ISERMediumLaser: needs 9 (range mod +0), rolled 3 -> miss
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 6 (right table): Right Leg.
       Red's small shield (Right Arm) absorbs 3 of 9 at Right Leg (capacity left 5, p.195).
@@ -184,6 +193,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/2 Criticals: Upper Leg Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 6.
@@ -191,6 +201,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
     1: Hip (slot 1)
     2: Lower Leg Actuator (slot 3)
     3: Foot Actuator (slot 4)
+    Slot roll: 3 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/2 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 5.
@@ -240,6 +251,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
   [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLargeXPulseLaser', 'ISMediumXPulseLaser'] (weapon heat 20 of budget 55 = max 30 + sink 26 - current 0 - movement 1 - other 0; expected dmg 13.75)
     ISLargeXPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 6 -> HIT
     ISMediumXPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 6 -> HIT
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 7 (right table): Right Torso.
       Red's small shield (Right Arm) absorbs 3 of 9 at Right Torso (capacity left 2, p.195).
@@ -255,6 +267,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
   All critical slots in Right Arm marked DESTROYED.
   1 damage remains, transfers to Center Torso.
   [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining).
+  [Resolve] Blue -> Red: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 7 (right table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
@@ -397,6 +410,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue -> Red: range 10, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['ISLargeXPulseLaser'] (weapon heat 14 of budget 54 = max 30 + sink 26 - current 0 - movement 2 - other 0; expected dmg 3.75)
     ISLargeXPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 8 -> HIT
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 9 (rear table): Left Leg.
 9 damage (ENERGY) incoming to Left Leg (rear_armor).
@@ -424,6 +438,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
   [Ranged] Blue -> Red: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['ISLargeXPulseLaser', 'ISMediumXPulseLaser'] (weapon heat 20 of budget 55 = max 30 + sink 26 - current 0 - movement 1 - other 0; expected dmg 4.75)
     ISLargeXPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 4 -> miss
     ISMediumXPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 8 -> miss
+  [Resolve] Red -> Blue: ISERMediumLaser
     ISERMediumLaser hit for 5:
       Hit location roll 9 (left table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -889,6 +904,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
   [Ranged] Red -> Blue: range 7, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser'] (weapon heat 10 of budget 42 = max 30 + sink 14 - current 0 - movement 2 - other 0; expected dmg 1.67)
     ISERMediumLaser: needs 10 (range mod +2), rolled 2 -> miss
     ISERMediumLaser: needs 10 (range mod +2), rolled 6 -> miss
+  [Resolve] Blue -> Red: ISLargeXPulseLaser
     ISLargeXPulseLaser hit for 9:
       Hit location roll 8 (left table): Center Torso.
 9 damage (ENERGY) incoming to Center Torso (armor).
@@ -907,6 +923,7 @@ Stand attempt 2: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
   5 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Blue -> Red: ISMediumXPulseLaser
     ISMediumXPulseLaser hit for 6:
       Hit location roll 7 (left table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).

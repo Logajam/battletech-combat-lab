@@ -31,6 +31,11 @@ pub struct UnitChoices {
     /// how many heat sinks to leave switched off, when the person set it
     pub sinks_off: Option<i64>,
     pub blue_shield: Option<bool>,
+    /// VOLUNTARY SHUTDOWN (Core p.105; engine pass 2026-11-24): this Heat Phase's request, Some(true) = shut down, Some(false) =
+    /// restart (used once, then cleared)
+    pub power_request: Option<bool>,
+    /// shut down by choice: no restart is tried until the person asks for one (then the usual heat checks, p.105)
+    pub held_off: bool,
 }
 
 #[derive(Clone, Debug, Default)]

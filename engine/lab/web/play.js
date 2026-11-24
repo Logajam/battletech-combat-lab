@@ -18,7 +18,7 @@ const LOCAB = { "Head": "H", "Center Torso": "CT", "Left Torso": "LT", "Right To
 const LOOKS = { slhisd: "SL-HIS Dark", slhis: "SL-HIS Light", w95: "Windows 95", modern: "Modern" };
 const pref = (k, d) => { try { const v = localStorage.getItem("bm_" + k); return v == null ? d : v; } catch (e) { return d; } };
 const setPref = (k, v) => { try { localStorage.setItem("bm_" + k, v); } catch (e) { /* storage off */ } };
-const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1" };
+const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: pref("rings", "1") === "1", labels: pref("labels", "1") === "1", dice: pref("dice", "1") === "1", atk: pref("atk", "1") === "1" };
 // movement colours follow MegaMek's (walk cyan, run yellow, jump orange; NOT VERIFIED against its source); the colour-blind set
 // (Okabe-Ito) also gives each mode its own line pattern
 const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A7" } : { Walk: "#00e5ff", Run: "#ffd400", Jump: "#ff7a3c" })[m] || "#99a";
@@ -127,6 +127,8 @@ const HOLD_SLOP = 10;
   svg.addEventListener("pointerdown", (e) => {
     ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; lastDist = 0; cancel(); start = [e.clientX, e.clientY];
     if (ptrs.size === 1) {
+      const al = e.target.closest("[data-atk]");
+      if (al) { timer = setTimeout(() => { timer = null; moved = true; attackCard(+al.dataset.atk); }, 650); return; }
       const t = e.target.closest("[data-unit],[data-hex],[data-reach]");
       const uid = t && t.dataset.unit != null ? +t.dataset.unit : null;
       const hex = t && (t.dataset.hex || t.dataset.reach);
@@ -176,6 +178,18 @@ function showWeaponCard(w) {
 // ---------------------------------------------------------------- units on the map
 const teamColour = (u) => (O.cvd ? (u.team === S.myTeam ? "#56B4E9" : "#D55E00") : COLOURS[u.team] || (u.team === S.myTeam ? "#4b8fd8" : "#d86a4b"));
 const short = (u) => String(u.mech || u.name || "").split(/\s+/)[0].slice(0, 7);
+// share of armour ("a": front + rear) or structure ("s") left on one side ("Left" / "Right"); centre locations count half to each side
+function sideFrac(u, kind, side) {
+  const mx = S.maxLoc[u.id] || {}, locs = u.locs || {};
+  let tot = 0, left = 0;
+  for (const [loc, v] of Object.entries(locs)) {
+    const m = mx[loc] || v, w = loc.includes(side) ? 1 : (loc.includes("Left") || loc.includes("Right")) ? 0 : 0.5;
+    if (!w) continue;
+    const now = kind === "a" ? (v[0] || 0) + (v[1] || 0) : v[2] || 0, max = kind === "a" ? (m[0] || 0) + (m[1] || 0) : m[2] || 0;
+    tot += w * max; left += w * (v[3] ? 0 : now);
+  }
+  return tot ? Math.max(0, Math.min(1, left / tot)) : 1;
+}
 function fracOf(u) {
   const m = S.max[u.id] || (S.max[u.id] = { hp: Math.max(1, u.hp) });
   return Math.max(0, Math.min(1, u.hp / m.hp));
@@ -183,6 +197,47 @@ function fracOf(u) {
 // A 'Mech sprite (a plain silhouette, not MegaMek's art) on a tinted hex base, a placard (name and the three bars: armour, structure,
 // heat) joined to the unit by a leader line. Placards are placed one at a time on the first spot that does not cover another.
 const SPOTS = [[0, 0.7], [0, -0.8], [1.15, 0.2], [-1.15, 0.2], [1.1, -0.7], [-1.1, -0.7], [1.1, 1.0], [-1.1, 1.0], [0, 1.5], [0, -1.6], [1.7, 0.2], [-1.7, 0.2], [1.6, -1.1], [-1.6, -1.1], [1.6, 1.3], [-1.6, 1.3]];
+// ATTACK LINES, both sides (Daniel, 2026-11-24: "Attack lines drawn for both sides (So you can see what is shooting at you. Long press on the attack
+// line to get details of that attack.)"): the latest turn's attacks from the report lines already released (no spoilers), a line from the
+// attacker to its target in the attacker's colour with hits / shots; a tap or a long press opens that attack's report.
+function attacksOfLatestTurn() {
+  const all = []; let turn = 0, cur = null;
+  for (const l of S.shown) {
+    const t = /=== TURN (\d+)/.exec(l); if (t) { turn = +t[1]; cur = null; continue; }
+    let m;
+    if ((m = /\[Ranged\] (.+?) -> (.+?): range/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: "weapons", lines: [l], shots: 0, hits: 0 }; all.push(cur); continue; }
+    if ((m = /\[Physical\] (.+?) -> (.+?): (.+?) needs \d+ .* -> (HIT|miss)/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: m[3], lines: [l], shots: 1, hits: m[4] === "HIT" ? 1 : 0 }; all.push(cur); continue; }
+    if (cur && /^\s{2}\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|-- end of turn/.test(l) && !/\[Resolve\]/.test(l)) { cur = null; continue; }
+    if (cur) { cur.lines.push(l); if (cur.kind === "weapons" && /^\s{4}.+?: needs \d+/.test(l)) { cur.shots++; if (/-> HIT/.test(l)) cur.hits++; } }
+  }
+  const last = Math.max(0, ...all.map((x) => x.turn));
+  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line
+}
+function drawAttackLines(layer) {
+  if (!O.atk) return;
+  S.atkList = attacksOfLatestTurn();
+  const byName = (n) => S.units.find((u) => u.name === n);
+  S.atkList.forEach((a, i) => {
+    const A = byName(a.a), T = byName(a.t); if (!A || !T || !A.hex || !T.hex) return;
+    const [x1, y1] = centre(A.hex), [x2, y2] = centre(T.hex), len = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / len * 4, ny = (x2 - x1) / len * 4;
+    const col = teamColour(A), g = el("g", { "data-atk": i, style: "cursor:pointer" }, layer);
+    const p = [x1 + nx, y1 + ny, x2 + nx - (x2 - x1) / len * R * 0.55, y2 + ny - (y2 - y1) / len * R * 0.55];
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "transparent", "stroke-width": 14 }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "#000", "stroke-width": 5.5, "stroke-opacity": ".55", "pointer-events": "none" }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: col, "stroke-width": 3.2, "stroke-dasharray": a.kind === "weapons" ? "" : "2 3", "pointer-events": "none" }, g);
+    const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+    el("polygon", { points: `${p[2] + ux * 7},${p[3] + uy * 7} ${p[2] - uy * 5},${p[3] + ux * 5} ${p[2] + uy * 5},${p[3] - ux * 5}`, fill: col, stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+    const lx = (p[0] + p[2]) / 2, ly = (p[1] + p[3]) / 2;
+    el("rect", { x: lx - 13, y: ly - 9, width: 26, height: 15, rx: 3, fill: "#0c0f13", "fill-opacity": ".85", stroke: col, "stroke-width": 1.2, "pointer-events": "none" }, g);
+    const tx = el("text", { x: lx, y: ly + 2.5, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5, "paint-order": "stroke", "pointer-events": "none" }, g);
+    tx.textContent = `${a.hits}/${a.shots}`;
+    g.addEventListener("click", (e) => { e.stopPropagation(); attackCard(i); });
+  });
+}
+function attackCard(i) {
+  const a = (S.atkList || [])[i]; if (!a) return;
+  showCard(`<b>${esc(a.a)} &rarr; ${esc(a.t)}</b> <small>turn ${a.turn}, ${a.hits} of ${a.shots} hit</small><div class="cardrep">${reportHtml(a.lines)}</div>`); document.body.classList.toggle("nodice", !O.dice);
+}
 function drawUnits(layer) {
   const placed = [], hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   const list = S.units.filter((u) => u.hex && !u.destroyed);
@@ -202,6 +257,12 @@ function drawUnits(layer) {
     el("rect", { x: -6, y: 5, width: 5, height: 10, rx: 1.5 }, sp); el("rect", { x: 1, y: 5, width: 5, height: 10, rx: 1.5 }, sp);
     const d = DIR[u.facing] || DIR.N;
     el("polygon", { points: `${x + d[0] * R * 0.82},${y + d[1] * R * 0.82} ${x + d[0] * R * 0.58 - d[1] * 6},${y + d[1] * R * 0.58 + d[0] * 6} ${x + d[0] * R * 0.58 + d[1] * 6},${y + d[1] * R * 0.58 - d[0] * 6}`, fill: "#fff", stroke: "#0c0f13", "stroke-width": 1.2, "pointer-events": "none" }, g);
+    // TORSO TWIST, either side (Daniel, 2026-11-24: "a clear signal of torso twists made by both sides"): an amber arrow the way the torso faces
+    if (u.twist) { const F = ["N", "NE", "SE", "S", "SW", "NW"], tf = F[(F.indexOf(u.facing) + u.twist + 6) % 6], t = DIR[tf] || DIR.N;
+      el("polygon", { points: `${x + t[0] * R * 0.62},${y + t[1] * R * 0.62} ${x + t[0] * R * 0.36 - t[1] * 5},${y + t[1] * R * 0.36 + t[0] * 5} ${x + t[0] * R * 0.36 + t[1] * 5},${y + t[1] * R * 0.36 - t[0] * 5}`, fill: "#ffb000", stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+      const tt = el("title", {}, g); tt.textContent = `torso twisted to face ${tf}`; }
+    // moved this turn: a check mark on the hex base
+    if (movedMark(u)) { el("circle", { cx: x - R * 0.55, cy: y - R * 0.55, r: 7, fill: "#2e7d4f", stroke: "#fff", "stroke-width": 1.2, "pointer-events": "none" }, g); const ck = el("text", { x: x - R * 0.55, y: y - R * 0.55 + 3.5, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); ck.textContent = "\u2713"; }
     // placard: the first spot that does not cover a sprite or another placard
     let spot = SPOTS[0];
     for (const s of SPOTS) { const r = { x: x + s[0] * R - W / 2, y: y + s[1] * R - (s[1] < 0 ? H : 0), w: W, h: H }; if (!placed.slice(baseCount).some((p) => hit(p, r)) && !placed.slice(0, baseCount).some((p) => hit(p, r) && !(Math.abs(s[0]) < 0.01 && Math.abs(s[1]) < 0.9))) { spot = s; break; } }
@@ -211,11 +272,19 @@ function drawUnits(layer) {
     if (far) el("line", { x1: x, y1: y, x2: px + W / 2, y2: py + (spot[1] < 0 ? H : 0), stroke: col, "stroke-width": 1.4 * k, "pointer-events": "none" }, g);
     el("rect", { x: px, y: py, width: W, height: H, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, g);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
-    [["A", fr.a, fr.a > 0.5 ? "#6fbf86" : fr.a > 0.25 ? "#dba94a" : "#e07468"], ["S", fr.s, fr.s > 0.5 ? "#8fb2d4" : "#e07468"], ["H", fr.h, "#ff7a3c"]].forEach(([lab, v, c], i) => {
-      const by = py + (17 + i * 6.8) * k;
+    // LEFT / RIGHT BARS (Section 24 item 24; the mockup's lrBar): armour and structure split at the centre, the unit's left side on the left
+    // half and its right on the right, each wearing in from its outer edge, so the damaged side shows; heat stays one bar
+    const sa = { l: sideFrac(u, "a", "Left"), r: sideFrac(u, "a", "Right") }, ss = { l: sideFrac(u, "s", "Left"), r: sideFrac(u, "s", "Right") };
+    const aCol = (v) => (v > 0.5 ? "#6fbf86" : v > 0.25 ? "#dba94a" : "#e07468"), sCol = (v) => (v > 0.5 ? "#8fb2d4" : "#e07468");
+    [["A", sa, aCol], ["S", ss, sCol], ["H", fr.h, () => "#ff7a3c"]].forEach(([lab, v, cf], i) => {
+      const by = py + (17 + i * 6.8) * k, bx = px + 14 * k, bw = W - 19 * k, bh = 5.4 * k;
       const l = el("text", { x: px + 5 * k, y: by + 5.4 * k, "font-size": 7.5 * k, fill: "#aab", "pointer-events": "none" }, g); l.textContent = lab;
-      el("rect", { x: px + 14 * k, y: by, width: W - 19 * k, height: 5.4 * k, fill: "#2b333d" }, g);
-      el("rect", { x: px + 14 * k, y: by, width: (W - 19 * k) * v, height: 5.4 * k, fill: c }, g);
+      el("rect", { x: bx, y: by, width: bw, height: bh, fill: "#2b333d" }, g);
+      if (typeof v === "number") { el("rect", { x: bx, y: by, width: bw * v, height: bh, fill: cf(v) }, g); return; }
+      const hw = bw / 2;
+      el("rect", { x: bx + hw * (1 - v.l), y: by, width: hw * v.l, height: bh, fill: cf(v.l) }, g);
+      el("rect", { x: bx + hw, y: by, width: hw * v.r, height: bh, fill: cf(v.r) }, g);
+      el("line", { x1: bx + hw, y1: by, x2: bx + hw, y2: by + bh, stroke: "#000", "stroke-width": 0.9 * k }, g);
     });
     if (u.prone) { const p = el("text", { x: x + 16, y: y - 18, "font-size": 8, fill: "#ffd400", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "PRONE"; }
     if (u.shutdown) { const p = el("text", { x: x + 16, y: y - 8, "font-size": 8, fill: "#e07468", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "OFF"; }
@@ -227,9 +296,12 @@ function fracs(u) {
   for (const [loc, v] of Object.entries(u.locs || {})) { const m = mx[loc] || v; a += v[0] + (v[1] || 0); am += m[0] + (m[1] || 0); st += v[2]; sm += m[2]; }
   return { a: am ? Math.max(0, a / am) : 1, s: sm ? Math.max(0, st / sm) : 1, h: Math.min(1, (u.heat || 0) / Math.max(1, u.max_heat || 30)) };
 }
+// MOVED THIS TURN (Section 24 item 3): during the Movement Phase a unit that has moved carries a check mark (map, placard, strip)
+const inMovement = () => !!S.req && ["move_order", "movement", "stand_up", "boost"].includes(S.req.kind);
+const movedMark = (u) => inMovement() && !!u.moved && !u.destroyed;
 function renderStrip() {
   const mine = S.units.filter((u) => u.team === S.myTeam), foes = S.units.filter((u) => u.team !== S.myTeam);
-  $("strip").innerHTML = mine.map((u) => `<div class="chip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}" data-u="${u.id}"><i style="background:${teamColour(u)}"></i>${esc(u.name)} <span class="msg">${esc(u.mech || "")}</span><span class="bar" title="armour and structure left"><b style="width:${Math.round(fracOf(u) * 100)}%"></b></span>${u.heat ? `<span class="warnt">${u.heat}H</span>` : ""}${u.shutdown ? '<span class="err">OFF</span>' : ""}${u.prone ? "<span>PRONE</span>" : ""}</div>`).join("");
+  $("strip").innerHTML = mine.map((u) => `<div class="chip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}${movedMark(u) ? " moved" : ""}" data-u="${u.id}"><i style="background:${teamColour(u)}"></i>${movedMark(u) ? "&#10003; " : ""}${esc(u.name)} <span class="msg">${esc(u.mech || "")}</span><span class="bar" title="armour and structure left"><b style="width:${Math.round(fracOf(u) * 100)}%"></b></span>${u.heat ? `<span class="warnt">${u.heat}H</span>` : ""}${u.shutdown ? '<span class="err">OFF</span>' : ""}${u.prone ? "<span>PRONE</span>" : ""}</div>`).join("");
   $("estrip").innerHTML = foes.map((u) => `<div class="echip${u.destroyed ? " dead" : ""}${S.sel === u.id ? " sel" : ""}" data-u="${u.id}" title="${esc(u.name + " " + (u.mech || ""))}">${esc(short(u))}<b>${Math.round(fracOf(u) * 100)}%</b></div>`).join("");
 }
 function infoBar() {
@@ -261,14 +333,30 @@ function redraw() {
   if (r && r.kind === "deploy") drawDeploy(gDyn);
   if (r && r.kind === "target") drawTargets(gDyn);
   if (r && (r.kind === "spot" || r.kind === "tag")) drawPickTargets(gDyn);
+  drawAttackLines(gDyn);
   drawUnits(gDyn);
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
+  if (r && r.kind === "stand_up" && S.prone) drawProneArrows(gTop);
   if (r && r.kind === "declaration") { drawAim(gDyn); drawShotLine(gTop, r.unit, r.target, r.distance); }
   if (r && r.kind === "target" && S.fire && S.fire.tcur != null) { drawAim(gDyn); drawShotLine(gTop, r.unit, S.fire.tcur, (r.enemies.find((e) => e.id === S.fire.tcur) || {}).distance); }
   renderStrip(); infoBar(); dockRender();
 }
-function setPhase(t) { $("phase").textContent = t; }
+function setPhase(t) { $("phase").textContent = t; $("phase").title = t; }
+// WHOSE TURN (Section 24 item 4, Daniel: "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate
+// should probably be displayed in the Title bar"): who has the Initiative this turn and, while moving, each side's units still to move
+function turnStatus() {
+  const il = S.log.slice().reverse().find((l) => /^\s*Initiative/.test(l)) || "";
+  const loser = (/Initiative: (.+?) lost the roll/.exec(il) || [])[1];
+  const teams = [...new Set(S.units.map((u) => u.team))];
+  const winner = loser && teams.length === 2 ? teams.find((t) => t !== loser) : null;
+  let txt = winner ? ` · ${winner === S.myTeam ? "you have" : winner + " has"} the initiative` : "";
+  if (inMovement()) {
+    const left = teams.map((t) => [t, S.units.filter((u) => u.team === t && u.hex && !u.destroyed && !u.shutdown && !u.moved).length]);
+    txt += " · to move: " + left.map(([t, n]) => `${t === S.myTeam ? "you" : t} ${n}`).join(", ");
+  }
+  return txt;
+}
 function sheet(html) { $("sheet").innerHTML = html; }
 async function send(answer) {
   const seq = S.seq; S.req = null; S.decl = null; S.pv = null; S.fire = null; $("wpanel").style.display = "none"; sheet('<div class="msg">Working...</div>'); redraw();
@@ -302,10 +390,10 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; S.drop = false; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
-  setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
+  setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}${turnStatus()}`);
   HANDLERS[r.kind](r);
   redraw();
   if (S.needFocus && r.kind !== "deploy") { S.needFocus = false; const mine = S.units.filter((u) => u.team === S.myTeam && u.hex).map((u) => u.hex); if (mine.length) focusOn(mine, 3); }
@@ -320,8 +408,25 @@ const eq = (u) => (u && u.equipment) || {};
 // only then is the piloting roll made. A failed roll leaves the 'Mech prone and the plan is dropped.
 HANDLERS.stand_up = (r) => {
   S.mv = null; clearCluster();
-  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. It may then face any way at no cost and move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="msg">Stand up lets you plan the move first; nothing is rolled until you hold <b>Move!</b>, and &times; brings you back here.</div><div class="row"><button class="go" data-act="stand-plan">Stand up</button><button data-act="stand" data-v="0">Stay prone</button></div>`);
+  sheet(`<h3>${esc(r.name)} is prone</h3>${errLine(r)}<div class="msg">Standing up costs 2 movement points and needs a piloting roll of <b>${r.tn}</b> or more (2D6); a failed roll is a fall${r.pilot_hits ? `; pilot hits ${r.pilot_hits} are already counted` : ""}. It may then face any way at no cost and move on with the points left (${r.run} running MP to start). Stay prone to keep firing from the ground.</div><div class="msg">Stand up lets you plan the move first; nothing is rolled until you hold <b>Move!</b>, and &times; brings you back here.</div><div class="row"><button class="go" data-act="stand-plan">Stand up</button>${(r.prone_turns || []).length ? '<button data-act="prone-plan">Stay prone</button>' : '<button data-act="stand" data-v="0">Stay prone</button>'}</div>`);
 };
+// STAYING PRONE, IT MAY TURN (Core p.51: 1 MP a hexside; engine pass 2026-11-24): the arrows ring the 'Mech, each with its cost; holding
+// the button stays prone facing the way chosen (or as it lies). x goes back to the stand / stay choice.
+function pronePlan() {
+  const r = S.req; if (!r || r.kind !== "stand_up") return;
+  S.prone = { facing: null }; proneSheet(); redraw();
+}
+function proneSheet() {
+  const r = S.req, P = S.prone, o = P.facing ? (r.prone_turns || []).find((t) => t.facing === P.facing) : null;
+  sheet(`<h3>${esc(r.name)} stays prone</h3><div class="msg">It may turn on the ground, 1 MP a hexside (walking or running MP). Tap an arrow round the 'Mech to turn, then hold the button; with no arrow chosen it stays as it lies. &times; goes back.</div>`);
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>${o ? "MP " + o.mp : "MP 0"}</b> &middot; ${o ? "faces " + o.facing + " (" + o.mode + ")" : "lies as it is"}<br><span>stays prone</span></div><button class="go big" data-act="prone-go" data-hold="1">Stay prone<small>hold</small></button><button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>`;
+}
+function drawProneArrows(layer) {
+  const r = S.req, u = unit(r.unit); if (!u || !u.hex) return;
+  const [x, y] = centre(u.hex), by = Object.fromEntries((r.prone_turns || []).map((t) => [t.facing, t]));
+  arrowRing(layer, x, y, Object.keys(by), S.prone.facing || u.facing, (f) => modeCol(by[f].mode), (f) => { S.prone.facing = f; proneSheet(); redraw(); });
+}
 async function standPlan() {
   const r = S.req, seq = S.seq; if (!r || r.kind !== "stand_up") return;
   sheet('<div class="msg">Working out the moves after standing...</div>');
@@ -348,7 +453,15 @@ function drawPickTargets(layer) {
 // ---- movement (also the planning done while choosing which unit moves, and placing units before turn 1)
 // S.mv is the movement view being shown: the movement question itself, or, in the move_order question, the view of whichever
 // candidate is selected (fetched with the "reach" query), so the player can look over every unit before moving one.
-function reachIndex(r) { const byHex = {}; for (const o of r.options) (byHex[o.hex] = byHex[o.hex] || []).push(o); return byHex; }
+// JUMP TOGGLE (Section 24 item 1, Daniel 2026-11-24: "Jump toggle in the movement tracker in the lower left of the screen"; "The chosen option
+// is remembered from one turn to the next"): for a unit with jump MP, on = only the jumps are lit, off = only walking and running.
+S.jumpPref = {};
+const jumpOn = () => !!(S.mv && S.mv.jump > 0 && S.jumpPref[S.mv.unit]);
+function reachIndex(r) {
+  const filter = r === S.mv && S.mv.jump > 0 && !standing(), j = jumpOn();
+  const byHex = {}; for (const o of r.options) { if (filter && (o.mode === "Jump") !== j) continue; (byHex[o.hex] = byHex[o.hex] || []).push(o); } return byHex;
+}
+function jumpButton() { const v = S.mv; if (!v || !(v.jump > 0) || standing()) return ""; const on = jumpOn(); return `<button class="sm jt ${on ? "on" : ""}" data-act="jump-toggle" title="Jump on: only jumps are shown">Jump ${on ? "on" : "off"}</button>`; }
 const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.kind === "move_order" || S.req.kind === "stand_up");
 const standing = () => !!S.req && S.req.kind === "stand_up";
 function drawReach(layer) {
@@ -413,7 +526,7 @@ function moveIntro(unavailable) {
     sheet(`<h3>Stand up and move ${esc(v.name)}</h3><div class="msg">If the roll (<b>${S.req.tn}</b>+) succeeds it moves on with ${v.run} MP. Tap a tinted hex, or an arrow round the 'Mech to stand facing another way (free). Hold <b>Move!</b> to stand and move; with nothing chosen it stands where it is. &times; goes back.</div>`);
     stayCluster(); return;
   }
-  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}`);
+  sheet(`<h3>Move ${esc(v.name)}</h3>${errLine(v)}<div class="msg">${v.standup_mp != null ? "It has stood up and moves on with the points left. " : ""}${v.entry ? "Choose where to enter the map. " : ""}Tap a tinted hex. ${v.attacks.length ? "Tap an enemy for a charge or death from above. " : ""}Cyan = walk (${v.walk} MP), yellow = run (${v.run} MP)${v.jump ? ", orange = jump (" + v.jump + " MP)" : ""}.</div>${v.entry ? "" : '<div class="msg">To leave it where it is, hold <b>Move!</b>.</div>'}${dropRow(null)}${v.entry ? "" : '<div class="row"><button class="sm" data-act="eject-ask">Eject...</button></div>'}`);
   stayCluster();
 }
 // WAYPOINTS: each tap inside the lit range adds a waypoint and the range re-lights from there with the points left; the last tap is the
@@ -528,7 +641,7 @@ function drawAttackStops(layer) {
 function stayCluster() {
   const v = S.mv; if (!v || v.entry || S.dest) return;
   const c = $("cluster"); c.style.display = "flex";
-  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; ${standing() ? "stands here" : "stays here"}<br><span>no destination chosen</span></div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>${standing() ? '<button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>' : ""}`;
+  c.innerHTML = `<div class="readout"><b>MP 0</b> &middot; ${standing() ? "stands here" : "stays here"}<br><span>no destination chosen</span>${jumpButton()}</div><button class="go big" data-act="commit" data-hold="1">Move!<small>hold</small></button>${standing() ? '<button class="x" data-act="undo" aria-label="Back (Esc)">&times;</button>' : ""}`;
 }
 let HOLD = null;
 const holdEnd = () => { if (HOLD) { clearTimeout(HOLD.t); HOLD.b.classList.remove("holding"); HOLD = null; } };
@@ -557,7 +670,7 @@ const doCommit = () => {
 function clearCluster() { $("cluster").innerHTML = ""; $("cluster").style.display = "none"; }
 function setCluster(o, label, extra) {
   const c = $("cluster"); c.style.display = "flex";
-  c.innerHTML = `<div class="readout"><b>MP ${o.mp} / ${mvBudget(o.mode)}</b> &middot; TMM +${o.tmm}${extra || ""}<br><span>${o.mode}${o.psrs ? ` &middot; ${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""}` : ""}</span></div><button class="go big" data-act="commit" data-hold="1">${label}<small>hold</small></button><button class="x" data-act="undo" aria-label="Undo (Esc)">&times;</button>`;
+  c.innerHTML = `<div class="readout"><b>MP ${o.mp} / ${mvBudget(o.mode)}</b> &middot; TMM +${o.tmm}${extra || ""}<br><span>${o.mode}${o.psrs ? ` &middot; ${o.psrs} piloting roll${o.psrs > 1 ? "s" : ""}` : ""}</span>${jumpButton()}</div><button class="go big" data-act="commit" data-hold="1">${label}<small>hold</small></button><button class="x" data-act="undo" aria-label="Undo (Esc)">&times;</button>`;
 }
 function moveSheet() {
   const os = destOpts(), modes = [...new Set(os.map((o) => o.mode))], o = optNow() || os[0], warns = [];
@@ -569,6 +682,7 @@ function moveSheet() {
     <div class="msg">${o.mp} MP (turns included) &middot; ${o.hexes} hex${o.hexes === 1 ? "" : "es"} &middot; target movement modifier +${o.tmm} &middot; movement heat ${o.heat}</div>
     ${warns.length ? `<div class="warnt">&#9888; ${warns.join("; ")}. Moving on accepts the warning.</div>` : ""}
     ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The cost counts the whole way round. The unit ends at the last hex in the mode shown, taking its own best route there (the one that moves the most hexes), which may not pass through the waypoints.</div>` : ""}
+    ${dropRow(o)}
     <div class="msg">Tap another tinted hex to add a waypoint (the lit range is what is left from here). Tap an arrow around the hex to turn. &times; or Esc removes the last waypoint.</div>
     `);
 }
@@ -576,13 +690,18 @@ function undo() {
   if (!S.req) return;
   if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
   if (moving() && standing() && !S.dest && !S.attackTarget) { HANDLERS.stand_up(S.req); redraw(); return; }
+  if (S.prone && S.req.kind === "stand_up") { S.prone = null; HANDLERS.stand_up(S.req); redraw(); return; }
   if (moving()) { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; moveIntro(); redraw(); return; }
   if (S.decl && S.req.kind === "declaration") { S.decl.sel.clear(); declSheet(); redraw(); return; }
   if (S.fire && S.req.kind === "target") { S.fire.assign.clear(); S.fire.order = []; S.fire.lastPrimary = null; if (S.decl) S.decl.sel.clear(); fireRebuild(); return; }
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); }
 }
 // Send the move: in the move_order question the move is a plan that goes with the unit chosen; later the movement question uses it.
-function commitMove(answer) { if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
+// DROP TO THE GROUND (Core p.51; engine pass 2026-11-24): after a ground move with 1 MP to spare, not a jump; it ends prone, same facing.
+// A toggle in the move sheet (also with nothing chosen: drop where it stands); it goes with the answer as "prone": true.
+function dropOk(o) { const v = S.mv; if (!v || standing() || v.standup_mp != null || v.entry) return false; const mode = o ? o.mode : "Stand Still", mp = o ? o.mp : 0; return mode !== "Jump" && mp + 1 <= v.run; }
+function dropRow(o) { return dropOk(o) ? `<div class="row"><button class="sm ${S.drop ? "on" : ""}" data-act="drop">${S.drop ? "&#10003; " : ""}Drop prone at the end (+1 MP)</button></div>` : ""; }
+function commitMove(answer) { if (S.drop && (answer.stay || answer.hex) && dropOk(answer.stay ? null : optNow())) answer = { ...answer, prone: true }; if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
 // charge / death from above: tap an enemy; the stops go black; pick one; a popup explains and asks
 function onUnitTap(id) {
   const r = S.req; DOCK.unit = null;
@@ -922,8 +1041,17 @@ HANDLERS.end_phase = (r) => {
     ${e.coolant.pods ? `<div class="sw"><label>Coolant pods (${e.coolant.pods})</label><button class="sm" data-act="sw-cool" data-v="now">Use a pod now</button><button class="sm" data-act="sw-cool" data-v="hold">Hold them</button><button class="sm" data-act="sw-cool" data-v="auto">Automatic</button><span class="msg">now: ${e.coolant.mode}</span></div>` : ""}
     ${e.radical.live ? `<div class="sw"><label>Radical heat sinks</label><button class="sm ${e.radical.on ? "go" : ""}" data-act="sw-rad" data-v="1">On (needs ${e.radical.tn}+)</button><button class="sm ${e.radical.on ? "" : "go"}" data-act="sw-rad" data-v="0">Off</button></div>` : ""}
     ${jam}
+    ${powerRow(e)}
     <div class="row"><button class="go" data-act="end-go">Continue</button><button data-act="detail">All switches...</button></div>`);
 };
+// VOLUNTARY SHUTDOWN (Core p.105; engine pass 2026-11-24): shut down in this End Phase; a 'Mech shut down by choice stays down until
+// its player asks for a restart in a later End Phase (heat checks apply).
+function powerRow(e) {
+  const p = e.power; if (!p) return "";
+  if (p.shutdown && p.by_choice) return `<div class="sw"><label>Shut down by choice</label><button class="sm ${p.request === "on" ? "go" : ""}" data-act="sw-power" data-v="${p.request === "on" ? "" : "on"}">${p.request === "on" ? "&#10003; Restart this End Phase" : "Restart this End Phase"}</button></div>`;
+  if (p.shutdown) return "";
+  return `<div class="sw"><label>Power plant</label><button class="sm ${p.request === "off" ? "go" : ""}" data-act="sw-power" data-v="${p.request === "off" ? "" : "off"}">${p.request === "off" ? "&#10003; Shut down this End Phase" : "Shut down this End Phase"}</button><span class="msg">it stays down until you restart it</span></div>`;
+}
 
 // ---------------------------------------------------------------- the dock: the bottom sheet with the unit's tabs
 // Header (unit name, smaller / bigger arrows; a flick up or down does the same), a summary line, and the tabs Plan (what the question
@@ -994,6 +1122,7 @@ function equipBody(u) {
   if (e.radical.has) rows.push(`<div class="sw"><label>Radical heat sinks</label><button class="sm ${e.radical.on ? "on" : ""}" data-act="sw-rad" data-v="${e.radical.on ? 0 : 1}">${e.radical.on ? "On" : "Off"}</button><span class="msg">${e.radical.live ? "works on " + e.radical.tn + "+" : "destroyed"}</span></div>`);
   if (e.boost.has) rows.push(`<div class="sw"><label>MASC / supercharger</label><button class="sm ${e.boost.on ? "on" : ""}" data-act="sw-boost" data-v="${e.boost.on ? 0 : 1}">${e.boost.on ? "On" : "Off"}</button><span class="msg">works on ${e.boost.tn}+; asked at the start of each move</span></div>`);
   for (const a of e.ams || []) rows.push(`<div class="sw"><label>${esc(a.name)}</label><button class="sm ${a.off ? "" : "on"}" data-act="sw-ams" data-id="${a.id}">${a.off ? "Off" : "On"}</button></div>`);
+  { const pr = powerRow(e); if (pr) rows.push(pr); }   // voluntary shutdown: set any time, done in the next End Phase (p.105)
   if (e.blue_shield.has) rows.push(`<div class="sw"><label>Blue Shield</label><button class="sm ${e.blue_shield.on ? "on" : ""}" data-act="sw-blue" data-v="${e.blue_shield.on ? 0 : 1}">${e.blue_shield.on ? "On" : "Off"}</button></div>`);
   for (const j of e.jammed || []) rows.push(`<div class="sw"><label>${esc(j.name)} jammed</label><button class="sm ${j.unjam ? "on" : ""}" data-act="sw-unjam1" data-name="${esc(j.name)}">${j.unjam ? "Clear it next turn" : "Leave it"}</button></div>`);
   for (const c of e.capacitors || []) rows.push(`<div class="sw"><label>${esc(c.name)} capacitor</label><button class="sm ${c.charge ? "on" : ""}" data-act="sw-cap" data-name="${esc(c.name)}">&#9889; ${c.charge ? "Charge" : "Fire normally"}</button></div>`);
@@ -1044,6 +1173,13 @@ function act(t) {
     case "pick-unit": send({ unit: +d.id }); break;
     case "stand": send({ stand: d.v === "1" }); break;
     case "stand-plan": standPlan(); break;
+    // EJECT (TO:AR p.164-165; engine pass 2026-11-24): instead of moving; asked again on a card, as it cannot be undone
+    case "eject-ask": showCard(`<b>Eject?</b><div class="msg">The MechWarrior ejects instead of moving and lands behind the 'Mech (a piloting roll; a hard landing costs hits). The 'Mech is abandoned and out of the battle. This cannot be undone.</div><div class="row"><button class="go" data-act="eject-go">Eject</button><button data-act="card-close">Stay in the cockpit</button></div>`); break;
+    case "eject-go": $("card").style.display = "none"; if (S.req && S.req.kind === "movement") send({ eject: true }); break;
+    case "jump-toggle": if (S.mv) { S.jumpPref[S.mv.unit] = !jumpOn(); S.reachIdx = null; S.dest = null; S.way = []; S.wrIdx = null; S.path = null; S.attackSel = null; moveIntro(); redraw(); } break;
+    case "drop": S.drop = !S.drop; if (S.dest) moveSheet(); else moveIntro(); break;
+    case "prone-plan": pronePlan(); break;
+    case "prone-go": if (S.prone) send(S.prone.facing ? { stand: false, facing: S.prone.facing } : { stand: false }); break;
     case "boost": send({ use: d.v === "1" }); break;
     case "spot": send({ target: d.id === "" ? null : +d.id, fires: true }); break;
     case "tag": send(d.id === "" ? { target: null } : { target: +d.id, aim: d.aim }); break;
@@ -1083,6 +1219,7 @@ function act(t) {
     case "sw-rad": setSwitch({ radical: d.v === "1" }); break;
     case "sw-boost": setSwitch({ boost: d.v === "1" }); break;
     case "sw-blue": setSwitch({ blue_shield: d.v === "1" }); break;
+    case "sw-power": setSwitch({ power: d.v || null }); break;
     case "sw-ams": { const u = unit(S.sel), off = (eq(u).ams || []).filter((x) => (x.id === +d.id ? !x.off : x.off)).map((x) => x.id); setSwitch({ ams_off: off }); break; }
     case "sw-unjam1": { const u = unit(S.sel), names = (eq(u).jammed || []).filter((x) => (x.name === d.name ? !x.unjam : x.unjam)).map((x) => x.name); setSwitch({ unjam: names }); break; }
     case "sw-cap": { const u = unit(S.sel), names = (eq(u).capacitors || []).filter((x) => (x.name === d.name ? !x.charge : x.charge)).map((x) => x.name); setSwitch({ charge: names }); break; }
@@ -1090,10 +1227,13 @@ function act(t) {
     case "menu-folder": { const sub = document.querySelector(`#menu .sub[data-f="${d.f}"]`); if (sub) sub.classList.toggle("open"); break; }
     case "look": O.look = d.v; setPref("look", d.v); applyLook(); buildMenu(); break;
     case "cvd": O.cvd = !O.cvd; setPref("cvd", O.cvd ? "1" : "0"); buildMenu(); redraw(); if (moving()) { if (S.dest) moveSheet(); } if (S.decl) declSheet(); break;
+    case "atk": O.atk = !O.atk; setPref("atk", O.atk ? "1" : "0"); buildMenu(); redraw(); break;
+    case "dice": O.dice = !O.dice; setPref("dice", O.dice ? "1" : "0"); buildMenu(); if ($("report").firstChild) renderReport(); break;
     case "rings": O.rings = !O.rings; setPref("rings", O.rings ? "1" : "0"); buildMenu(); redraw(); break;
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
     case "report": toggleReport(); $("menu").style.display = "none"; break;
     case "lab": location.href = "index.html"; break;
+    case "get-results": getResults(); break;
   }
 }
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("report").style.display === "block") { closeReport(); return; } if ($("card").style.display === "block") { $("card").style.display = "none"; return; } undo(); } });
@@ -1106,6 +1246,22 @@ function finish(end) {
   setPhase("Battle over");
   redraw();
   sheet(`<h3>Battle over</h3><div class="msg">${end.winner === "Draw" ? "A draw" : esc(end.winner) + " wins"} after ${end.turns} turns. ${end.decisions} decisions recorded.</div><div class="row"><button data-act="report">Show the report</button><button data-act="lab">Back to the Lab</button></div>`);
+  // GET RESULTS (bug B21): the commit button becomes Get Results, which opens the Lab's Results tab with this battle's statistics
+  S.end = end;
+  const c = $("cluster"); c.style.display = "flex";
+  c.innerHTML = `<div class="readout"><b>Battle over</b><br><span>${end.winner === "Draw" ? "a draw" : esc(end.winner) + " wins"}</span></div><button class="go big" data-act="get-results">Get Results</button>`;
+}
+// the finished game as a one-battle run file for the Lab (lab.js openPlayedGame); the setup is the one the Lab handed over
+function getResults() {
+  const end = S.end; if (!end || !end.line) return;
+  let setup = S.setup || null; if (!setup) try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); } catch (e) { setup = null; }
+  if (!setup) { showCard('<b>Get Results</b><div class="msg">This game was not started from this browser\'s Lab, so its setup is not here to open the results with.</div>'); return; }
+  // a run's setup names bots only: the person's team is filed under the default bot (the statistics come from the battle line; a replay
+  // opened from the Results tab would be the bots' battle, not this game: recording the person's game is the saved-game work, P2 / P11)
+  const teams = (setup.teams || []).map((t) => (t.bot === "human" ? { ...t, bot: "gladiator" } : t));
+  const file = { combatlab_run: 1, played: true, setup: { ...setup, teams, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
+  try { localStorage.setItem("bm_play_result", JSON.stringify(file)); } catch (e) { showCard('<b>Get Results</b><div class="msg">This browser will not let the page hand the results over (storage is off).</div>'); return; }
+  location.href = "index.html";
 }
 // ---------------------------------------------------------------- the report (Daniel, 2026-11-22)
 // It must not give anything away early: bot reasoning is never shown; a movement line appears once that unit has moved; everything about the
@@ -1122,6 +1278,7 @@ function secOf(l) {
   if (/\[Physical\]/.test(l)) return "phys";
   if (/\[Heat\]|-- end of turn/.test(l)) return "heat";
   if (/\[TAG\]/.test(l)) return "tag";
+  if (/\[Resolve\]/.test(l)) return "ranged";
   if (/\[Ranged\]|\[Spot|\bAMS\b/i.test(l)) return "ranged";
   return S.lastSec;                                         // an indented result line belongs to the line above it
 }
@@ -1160,12 +1317,76 @@ function fmtLine(l) {
   if (/^\s{4}/.test(l)) return `<div class="rs">${esc(l.trim())}</div>`;
   return `<div class="rd">${esc(l.trim().replace(/^\[[^\]]+\]\s*/, ""))}</div>`;
 }
+// THE REPORT, ATTACK BY ATTACK (bugs B17-B20, Daniel 2026-11-22). The engine rolls every attack as it is declared and applies the damage
+// later (declaration and resolution are separate in the game); each resolved attack's lines start with "[Resolve] A -> T: weapon". The
+// report puts those lines straight under that attack's roll, so a hit shows where it landed and what it did before the next attack (B17);
+// the damage lines are boiled down to "-> Blue 3 Right Torso: armour 11 -> 6" (B18); a critical hit shows only the slot hit, highlighted,
+// without the pool or the slot lists (B19); each phase gets a heading and the report opens at the start of the latest one (B20).
+const PHASE_NAME = { move: "Movement", tag: "TAG", ranged: "Weapon attacks", phys: "Physical attacks", heat: "Heat and End Phase" };
+const RESOLVE_END = /^\s*\[(Ranged|Heat|Physical|Movement|End|TAG|Spot|Resolve)\]|^\s*-- end of turn|=== TURN|^PSR trigger|^Attack Phase PSR|^\s*Initiative/;
+function reportHtml(lines) {
+  // 1. take each resolution block out, queued by (attacker, target, weapon)
+  const blocks = new Map(), keep = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^\s*\[Resolve\] (.+?) -> (.+?): (.+)$/.exec(lines[i]);
+    if (!m) { keep.push(lines[i]); continue; }
+    const body = [];
+    while (i + 1 < lines.length && !RESOLVE_END.test(lines[i + 1])) body.push(lines[++i]);
+    const k = `${m[1]}|${m[2]}|${m[3]}`;
+    (blocks.get(k) || blocks.set(k, []).get(k)).push({ target: m[2], body });
+  }
+  // 2. the lines in order, each attack's roll followed by what it did
+  let out = "", who = null, sec = null;
+  for (const l of keep) {
+    // a heading where a line names its phase itself (an indented result line belongs to the phase above it)
+    const s = /\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|^\s*Initiative|\bAMS\b|-- end of turn/.test(l) ? secOf(l) : null;
+    if (s && s !== "hide" && s !== sec && PHASE_NAME[s]) { out += `<div class="rp" data-ph="${s}">${PHASE_NAME[s]}</div>`; sec = s; }
+    if (/=== TURN/.test(l)) sec = null;
+    const h = /\[Ranged\] (.+?) -> (.+?): range/.exec(l); if (h) who = [h[1], h[2]];
+    out += fmtLine(l);
+    const roll = /^\s{4}(.+?)(?: x\d+)?: needs \d+/.exec(l);
+    if (roll && who) {
+      // a hit takes the next block for that weapon; a miss only one that tells of the miss (a homing or artillery round striking the hex)
+      const q = blocks.get(`${who[0]}|${who[1]}|${roll[1]}`), hit = /-> HIT/.test(l);
+      const blk = q && q.length && (hit || /miss/i.test(q[0].body.join(" "))) ? q.shift() : null;
+      if (blk) out += `<div class="rr">${((st) => blk.body.map((b) => fmtDamage(b, blk.target, st)).join(""))({})}</div>`;
+    }
+  }
+  // resolution blocks no roll claimed (should not happen): shown at the end rather than lost
+  for (const [k, q] of blocks) for (const blk of q) out += `<div class="rh">${esc(k.replace(/\|/g, " &rarr; "))}</div><div class="rr">${((st) => blk.body.map((b) => fmtDamage(b, blk.target, st)).join(""))({})}</div>`;
+  return out;
+}
+// one line of a hit's resolution, boiled down (B18, B19): '' = not shown
+function fmtDamage(l, target, st) {
+  const t = l.trim(); let m;
+  if ((m = /^Critical hit pool at (.+):$/.exec(t))) { if (st) st.loc = m[1]; return ""; }
+  // the critical check's roll is always shown (Daniel, 2026-11-24: "The dice rolls for critical hits should be shown"); the slot roll, like the
+  // other detail dice (hit location, cluster), only with "Dice details" on (Daniel: "Showing dice rolls may need to be an optional setting")
+  if ((m = /^Check for possible critical\. Roll a (\d+)\.$/.exec(t))) { if (st) st.check = m[1]; return ""; }
+  if ((m = /^(\d+) critical hit\(s\)\.$/.exec(t))) return `<div class="rl ck">critical check: rolled ${st && st.check || "?"} &rarr; <b>${m[1]} critical hit${m[1] === "1" ? "" : "s"}</b></div>`;
+  if (/^No critical hit\.$/.test(t)) return `<div class="rl dm">critical check: rolled ${st && st.check || "?"} &rarr; none</div>`;
+  if ((m = /^Slot roll: (\d+) on 1D(\d+)/.exec(t))) return `<div class="rl dm dice">slot roll ${m[1]} on 1D${m[2]}</div>`;
+  if (/^(Critical hit pool at|Current crit slots in)/.test(t) || /^\d+: .+ \(slot \d+\)$/.test(t)) return "";
+  if (/^\d+ damage \(\w+\) incoming to /.test(t) || /hit for \d+:$/.test(t)) return "";
+  if ((m = /^(?:Group (\d+)\/(\d+): )?Hit location roll (\d+) \((\w+) table\): (.+)\.$/.exec(t)))
+    return `<div class="rl">${m[1] ? `<small>${m[1]}/${m[2]}</small> ` : ""}&rarr; <b>${esc(target)}</b> ${esc(m[5])} <small class="dice">(roll ${m[3]}, ${esc(m[4])})</small></div>`;
+  if ((m = /^\[[^\]]+\] (\d+) armor pts destroyed at (.+?) \((\d+) -> (\d+) remaining\)\.(?: (\d+) damage applied to structure \[[^\]]+\] \((\d+) -> (\d+)\/\d+ remaining\)\.)?/.exec(t)))
+    return `<div class="rl dm">${/rear/.test(m[2]) ? "rear " : ""}armour ${m[3]} &rarr; ${m[4]}${m[5] ? `, <b>structure ${m[6]} &rarr; ${m[7]}</b>` : ""}</div>`;
+  if ((m = /^\d+\/\d+ Criticals: (.+) hit\.$/.exec(t))) return `<div class="rl crit">CRITICAL HIT: ${st && st.loc ? esc(target) + " " + esc(st.loc) + " &mdash; " : ""}${esc(m[1])}</div>`;
+  if ((m = /^(.+?) hit: cluster roll (\d+)(?: \((.+?)\))? on the (\d+)-column table -> (\d+) connect \((\d+) dmg\)\.$/.exec(t)))
+    return `<div class="rl"><b>${m[5]}</b> of ${m[4]} hit${m[3] ? ` (${esc(m[3])})` : ""}, ${m[6]} damage <small class="dice">(cluster roll ${m[2]})</small></div>`;
+  const big = /destroy|DESTROYED|explo|pilot|Head hit|engine hit|gyro|critical|falls|Through-Armor|cockpit|unconscious/i.test(t);
+  return `<div class="rl${big ? " big" : ""}">${esc(t)}</div>`;
+}
 function renderReport() {
   const r = $("report"); if (!r.firstChild) r.innerHTML = '<div id="rbox"><div id="rhead"><b id="rtitle">Report</b><button data-act="report-close">Close</button></div><div id="rbody"></div></div>';
   const fresh = r.dataset.mode === "fire";
   $("rtitle").textContent = fresh ? "Combat report" : "Report";
-  $("rbody").innerHTML = (fresh ? S.fresh : S.shown).map(fmtLine).join("") || '<div class="rd">Nothing to report yet.</div>';
-  $("rbody").scrollTop = fresh ? 0 : $("rbody").scrollHeight;
+  r.classList.toggle("nodice", !O.dice);
+  $("rbody").innerHTML = reportHtml(fresh ? S.fresh : S.shown) || '<div class="rd">Nothing to report yet.</div>';
+  // the report opens at the start of the latest phase it has (B20)
+  const heads = $("rbody").querySelectorAll(".rp, .rt"), last = heads[heads.length - 1];
+  $("rbody").scrollTop = fresh || !last ? 0 : last.offsetTop - $("rbody").offsetTop;
 }
 function openReport(fire) {
   const r = $("report"); r.dataset.mode = fire ? "fire" : "all"; renderReport(); r.style.display = "block";
@@ -1178,7 +1399,7 @@ function buildMenu() {
   const m = $("menu");
   const item = (label, act, extra, on) => `<div class="item ${on ? "on" : ""}" data-act="${act}" ${extra || ""}>${label}</div>`;
   m.innerHTML = `<div class="f" data-act="menu-folder" data-f="look">Look &#9656;</div><div class="sub open" data-f="look">${Object.entries(LOOKS).map(([k, n]) => item(n, "look", `data-v="${k}"`, O.look === k)).join("")}</div>
-    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}</div>
+    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}${item("Attack lines (the latest turn)", "atk", "", O.atk)}</div>
     <div class="f" data-act="menu-folder" data-f="game">Game &#9656;</div><div class="sub open" data-f="game">${item("Report", "report")}${item("Back to the Lab", "lab")}</div>`;
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
@@ -1194,6 +1415,7 @@ async function boot() {
     let setup = null;
     try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); localStorage.removeItem("bm_play_setup"); } catch (e) { /* storage off */ }
     if (setup) {
+      S.setup = setup;   // kept for Get Results (the stored copy is used up here so a reload does not start a second battle)
       $("info").textContent = "Starting the battle...";
       const r = await api("play_start", { setup });
       if (r.error) { setPhase("could not start"); $("info").textContent = r.error; return; }

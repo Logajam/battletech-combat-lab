@@ -583,6 +583,36 @@ fn add_trigger(t: &mut Triggers, who: &str, why: &str, m: i64) {
 }
 
 /// Successful pushes (p.83): the target moves one hex straight on, the pusher into its hex, then the target makes a PSR.
+fn hp_of(b: &Battle, u: UnitId) -> f64 {
+    match crate::attack_resolution::total_hp(&b.units[u]) {
+        Num::I(i) => i as f64,
+        Num::F(f) => f,
+    }
+}
+
+/// The Lab's per-weapon statistics for a physical attack, as the ranged attacks keep theirs (attack_resolution run_ranged_phase:
+/// attacks, hits, damage dealt, turns used, kills): bug 24a, Daniel 2026-11-22: "Physical attack damage should be recorded in the
+/// \"Per weapon\" stats in results." Read only: nothing here touches the dice or the rules. `before`: the target's (HP, destroyed)
+/// before the attack's damage (None: no damage of its own, a push).
+fn tally_physical(b: &mut Battle, attacker: UnitId, target: UnitId, what: &str, hit: bool, before: Option<(f64, bool)>) {
+    b.tally.fit(b.units.len());
+    let turn_now = b.units[attacker].turn_number;
+    let (dealt, killed) = before.map_or((0.0, false), |(hp0, dead0)| ((hp0 - hp_of(b, target)).max(0.0), !dead0 && b.is_destroyed(target)));
+    let ws = b.tally.weapons[attacker].entry(what.to_string()).or_insert([0.0; 5]);
+    ws[0] += 1.0;
+    if hit {
+        ws[1] += 1.0;
+    }
+    ws[2] += dealt;
+    if ws[4] != turn_now as f64 {
+        ws[3] += 1.0;
+        ws[4] = turn_now as f64;
+    }
+    if killed {
+        b.tally.kills[attacker] += 1;
+    }
+}
+
 pub fn resolve_pushes(b: &mut Battle, pushes: &[(UnitId, UnitId)], triggers: &mut Triggers) {
     // Two 'Mechs that push each other and both succeed: neither moves, but both still make the PSR (p.83). Only such a
     // pair cancels; any other push is resolved as usual.
@@ -761,9 +791,11 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             if hit {
                 pushes.push((attacker, target));
             }
+            tally_physical(b, attacker, target, &o.name, hit, None);
             continue;
         }
         let (an, tname) = (name_of(b, attacker), name_of(b, target));
+        let before = (hp_of(b, target), b.is_destroyed(target));
         if hit {
             let loc = location(b, &o.table, &side, target);
             let dmg0 = match o.damage {
@@ -805,11 +837,29 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             apply_damage(b, attacker, &loc, Num::I(FLAIL_FUMBLE_DAMAGE), "armor", DamageType::Physical);
             add_trigger(&mut triggers, &an, "hit itself with a flail", 0);
         }
+        tally_physical(b, attacker, target, &o.name, hit, Some(before));
     }
     // Core p.76: every physical attack is made before anyone is displaced - all charge and DFA damage lands from where
     // the 'Mechs stood, then the displacements: pushes, charges, DFAs (each skips a 'Mech an earlier one already moved).
-    let charge_hits: Vec<charge::ChargeHit> = charges.into_iter().map(|(attacker, target)| charge::resolve_damage(b, attacker, target)).collect();
-    let dfa_hits: Vec<crate::dfa::DfaHit> = dfas.into_iter().map(|(attacker, target, hit)| crate::dfa::resolve_damage(b, attacker, target, hit)).collect();
+    let charge_hits: Vec<charge::ChargeHit> = charges
+        .into_iter()
+        .map(|(attacker, target)| {
+            let before = (hp_of(b, target), b.is_destroyed(target));
+            let h = charge::resolve_damage(b, attacker, target);
+            let dealt = before.0 - hp_of(b, target);
+            tally_physical(b, attacker, target, "Charge", dealt > 0.0, Some(before));
+            h
+        })
+        .collect();
+    let dfa_hits: Vec<crate::dfa::DfaHit> = dfas
+        .into_iter()
+        .map(|(attacker, target, hit)| {
+            let before = (hp_of(b, target), b.is_destroyed(target));
+            let h = crate::dfa::resolve_damage(b, attacker, target, hit);
+            tally_physical(b, attacker, target, "Death from above", hit, Some(before));
+            h
+        })
+        .collect();
     resolve_pushes(b, &pushes, &mut triggers);
     for h in &charge_hits {
         for (name, extra) in charge::resolve_displacement(b, h) {

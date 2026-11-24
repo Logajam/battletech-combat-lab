@@ -27,18 +27,22 @@
     Medium Laser: needs 6 (range mod +0), rolled 2 -> miss
     ISStreakSRM4: needs 6 (range mod +0), rolled 8 -> HIT
       [IS Streak SRM 4 Ammo: 24 shots left]
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 9 (right table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (23 -> 13 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 6 (right table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 9 (right table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (32 -> 22 remaining).
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 9 (right table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
@@ -75,10 +79,12 @@
     Hyper Velocity Auto Cannon/10: needs 8 (range mod +0), rolled 10 -> HIT [IS Ammo HVAC/10: 6 shots left]
       Heavy smoke fills 0412 (from Blue's HVAC fire; until the End Phase of turn 3).
     ISSNPPC: needs 8 (range mod +0), rolled 10 -> HIT
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 8 (rear table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (rear_armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at rear_armor (10 -> 0 remaining).
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 5 (rear table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (rear_armor).
@@ -119,19 +125,23 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     Medium Laser: needs 6 (range mod +0), rolled 12 -> HIT
     ISStreakSRM4: needs 6 (range mod +0), rolled 3 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 7 (right table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (23 -> 13 remaining).
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (34 -> 29 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 5 damage (ENERGY) incoming to Head (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (left table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -167,14 +177,17 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     Medium Laser: needs 6 (range mod +0), rolled 3 -> miss
     ISStreakSRM4: needs 6 (range mod +0), rolled 3 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Blue -> Red: Light PPC
     Light PPC hit for 5:
       Hit location roll 7 (left table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (47 -> 37 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
@@ -203,16 +216,19 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
     Medium Laser: needs 9 (range mod +0), rolled 8 -> miss
     ISStreakSRM4: needs 9 (range mod +0), rolled 9 -> HIT
       [IS Streak SRM 4 Ammo: 23 shots left]
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 6 (rear table): Right Torso.
 10 damage (BALLISTIC) incoming to Right Torso (rear_armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at rear_armor (10 -> 0 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (21 -> 16/21 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 7 (rear table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (rear_armor).
@@ -262,6 +278,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
     ISStreakSRM4: needs 8 (range mod +0), rolled 6 -> miss
       Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -349,6 +366,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     Hyper Velocity Auto Cannon/10: needs 6 (range mod +0), rolled 8 -> HIT [IS Ammo HVAC/10: 2 shots left]
       Heavy smoke fills 0612 (from Blue's HVAC fire; until the End Phase of turn 9).
     ISSNPPC: needs 6 (range mod +0), rolled 9 -> HIT
+  [Resolve] Red -> Blue: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.
@@ -360,6 +378,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     Cockpit destroyed from Head destruction.
   All critical slots in Head marked DESTROYED.
   3 damage remains, transfers to nowhere (attack finished).
+  [Resolve] Red -> Blue: ISStreakSRM4
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 5 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
@@ -373,6 +392,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
       Group 4/4: Hit location roll 5 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
+  [Resolve] Blue -> Red: Hyper Velocity Auto Cannon/10
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 7 (left table): Left Torso.
 10 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -385,17 +405,20 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     2: IS Streak SRM 4 Ammo (slot 2)
     3: ISC3BoostedSystemSlaveUnit (slot 3)
     4: ISC3BoostedSystemSlaveUnit (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/3 Criticals: ISC3BoostedSystemSlaveUnit slot hit.
       Current crit slots in Left Torso: ['ISStreakSRM4', 'IS Streak SRM 4 Ammo', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
   Critical hit pool at Left Torso:
     1: ISStreakSRM4 (slot 1)
     2: IS Streak SRM 4 Ammo (slot 2)
     3: ISC3BoostedSystemSlaveUnit (slot 3)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/3 Criticals: ISStreakSRM4 slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'IS Streak SRM 4 Ammo', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
   Critical hit pool at Left Torso:
     1: IS Streak SRM 4 Ammo (slot 2)
     2: ISC3BoostedSystemSlaveUnit (slot 3)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     3/3 Criticals: IS Streak SRM 4 Ammo slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', 'ISC3BoostedSystemSlaveUnit', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
     IS Streak SRM 4 Ammo destroyed at Left Torso - EXPLOSION (176 dmg)! Pilot takes 1 hit (2/6).
@@ -408,6 +431,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     2/2 Criticals: Left Torso critical slots exhausted during this round - discarded (no transfer).
     CASE vents the excess: Left Torso loses 0 rear armor (0 left).
     CASE contains the explosion. No further transfer.
+  [Resolve] Blue -> Red: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 7 (left table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).

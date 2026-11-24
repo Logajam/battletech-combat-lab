@@ -74,6 +74,7 @@
     PPC: needs 8 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
     Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 9 (right table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -101,6 +102,7 @@
     PPC: needs 10 (range mod +3), rolled 12 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 3 -> miss
     Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+  [Resolve] Red -> Blue: CLLRM20
     CLLRM20 hit: cluster roll 8 +2 (Artemis IV) on the 20-column table -> 16 connect (16 dmg).
       Group 1/4: Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
@@ -115,10 +117,12 @@
       Group 4/4: Hit location roll 9 (right table): Left Torso.
 1 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 1 armor pts destroyed at armor (12 -> 11 remaining).
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 8 (rear table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (rear_armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at rear_armor (10 -> 0 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -161,6 +165,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
     PPC: needs 11 (range mod +2), rolled 11 -> HIT
     Medium Laser: needs 13 (range mod +4), rolled 8 -> miss
     Medium Laser: needs 13 (range mod +4), rolled 7 -> miss
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 10 (front table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -290,6 +295,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
     PPC: needs 8 (range mod +0), rolled 4 -> miss
     Medium Laser: needs 10 (range mod +2), rolled 8 -> miss
     Medium Laser: needs 10 (range mod +2), rolled 9 -> miss
+  [Resolve] Red -> Blue: CLLRM20
     CLLRM20 hit: cluster roll 12 +2 (Artemis IV) on the 20-column table -> 20 connect (20 dmg).
       Group 1/4: Hit location roll 5 (right table): Right Arm.
 5 damage (MISSILE) incoming to Right Arm (armor).
@@ -334,10 +340,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     CLLRM20: needs 10 (range mod +2), rolled 7 -> miss [Clan Ammo LRM-20 (Clan) Artemis-capable: 1 shots left]
     CLLRM20: needs 10 (range mod +2), rolled 7 -> miss [Clan Ammo LRM-20 (Clan) Artemis-capable: 0 shots left]
     CLLBXAC20: needs 9 (range mod +2, modifiers -1), rolled 7 -> miss [Clan LB 20-X Cluster Ammo: 2 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 6 (right table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (34 -> 24 remaining).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 8 (left table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (armor).
@@ -387,10 +395,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     CLLRM20: needs 10 (range mod +0), rolled 4 -> miss [Clan Ammo LRM-20 (Clan) Artemis-capable: 3 shots left]
     CLLRM20: needs 10 (range mod +0), rolled 4 -> miss [Clan Ammo LRM-20 (Clan) Artemis-capable: 2 shots left]
     CLLBXAC20: needs 11 (range mod +2, modifiers -1), rolled 10 -> miss [Clan LB 20-X Cluster Ammo: 1 shots left]
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (front table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (24 -> 19 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
@@ -529,6 +539,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     PPC: needs 9 (range mod +0), rolled 11 -> HIT
     Medium Laser: needs 11 (range mod +2), rolled 4 -> miss
     Medium Laser: needs 11 (range mod +2), rolled 6 -> miss
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 3 (front table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -574,6 +585,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     CLERMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
     CLERMediumLaser: needs 11 (range mod +2), rolled 12 -> HIT
     CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 3 (rear table): Right Arm.
 7 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -586,6 +598,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     3: PPC (slot 3)
     4: PPC (slot 4)
     5: PPC (slot 5)
+    Slot roll: 1 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/2 Criticals: Shoulder hit.
       Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Right Arm:
@@ -593,6 +606,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     2: PPC (slot 3)
     3: PPC (slot 4)
     4: PPC (slot 5)
+    Slot roll: 2 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     2/2 Criticals: PPC slot hit.
       Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'DESTROYED', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 1 + weapons 20 + engine 0 - sinks 40 -> 0
@@ -633,6 +647,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     CLERMediumLaser: needs 10 (range mod +0), rolled 5 -> miss
     CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
     CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (left table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (armor).
@@ -655,6 +670,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 50 = max 30 + sink 22 - current 0 - movement 2 - other 0; expected dmg 7.22)
     Medium Laser: needs 6 (range mod +0), rolled 5 -> miss
     Medium Laser: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -672,6 +688,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     8: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 8)
     9: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 9)
     10: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 10)
+    Slot roll: 5 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/2 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Endo Steel', 'Endo Steel']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 38).
@@ -685,6 +702,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     7: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 8)
     8: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 9)
     9: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 10)
+    Slot roll: 5 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/2 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', 'DESTROYED', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Endo Steel', 'Endo Steel']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 36).
@@ -774,6 +792,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
     CLERMediumLaser: needs 12 (range mod +2), rolled 12 -> HIT
     CLERMediumLaser: needs 12 (range mod +2), rolled 9 -> miss
     CLERMediumLaser: needs 12 (range mod +2), rolled 9 -> miss
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 6 (left table): Left Leg.
 7 damage (ENERGY) incoming to Left Leg (armor).
@@ -798,20 +817,24 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 9.
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 50 = max 30 + sink 22 - current 0 - movement 2 - other 0; expected dmg 7.22)
     Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 7 -> HIT
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 8 (left table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/11 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 7 (left table): Left Torso.
 7 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 7 armor pts destroyed at armor (11 -> 4 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (22 -> 17 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (left table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
@@ -842,6 +865,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
     CLERMediumLaser: needs 10 (range mod +0), rolled 10 -> HIT
     CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 6 (left table): Left Leg.
 7 damage (ENERGY) incoming to Left Leg (armor).
@@ -864,6 +888,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 50 = max 30 + sink 22 - current 0 - movement 2 - other 0; expected dmg 2.78)
     Medium Laser: needs 9 (range mod +0), rolled 8 -> miss
     Medium Laser: needs 9 (range mod +0), rolled 9 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -890,6 +915,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 52 = max 30 + sink 22 - current 0 - movement 0 - other 0; expected dmg 7.22)
     Medium Laser: needs 6 (range mod +0), rolled 9 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 4 -> miss
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 6 (left table): Left Leg.
 7 damage (ENERGY) incoming to Left Leg (armor).
@@ -901,6 +927,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/2 Criticals: Hip hit.
       Current crit slots in Left Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 7.
@@ -909,9 +936,11 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     1: Upper Leg Actuator (slot 2)
     2: Lower Leg Actuator (slot 3)
     3: Foot Actuator (slot 4)
+    Slot roll: 2 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     2/2 Criticals: Lower Leg Actuator hit.
       Current crit slots in Left Leg: ['DESTROYED', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Left Leg (2 destroyed there) - walk MP now 6.
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 7 (left table): Left Torso.
 7 damage (ENERGY) incoming to Left Torso (armor).
@@ -922,9 +951,11 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     1: Engine (slot 1)
     2: Engine (slot 2)
     3: Engine (slot 3)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Engine', 'Engine', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (1/3).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -940,6 +971,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     6: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 8)
     7: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 9)
     8: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 10)
+    Slot roll: 6 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     1/2 Criticals: Clan Ammo LRM-20 (Clan) Artemis-capable slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', 'DESTROYED', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'DESTROYED', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Endo Steel', 'Endo Steel']
   Critical hit pool at Left Torso:
@@ -950,6 +982,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     5: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 7)
     6: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 9)
     7: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 10)
+    Slot roll: 5 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     2/2 Criticals: Clan Ammo LRM-20 (Clan) Artemis-capable slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Endo Steel', 'Endo Steel']
 PSR trigger: 2 leg actuator(s) destroyed at Left Leg this phase -> +2, one roll.
@@ -975,16 +1008,19 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 46 = max 30 + sink 22 - current 0 - movement 1 - other 5; expected dmg 5.83)
     Medium Laser: needs 7 (range mod +0), rolled 11 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 7 (rear table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/11 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -998,6 +1034,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
     4: CLDoubleHeatSink (slot 4)
     5: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 9)
     6: Clan Ammo LRM-20 (Clan) Artemis-capable (slot 10)
+    Slot roll: 4 on 1D6 (one die over the 6 slots that can take the hit; p.94).
     1/1 Criticals: CLDoubleHeatSink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Clan Ammo LRM-20 (Clan) Artemis-capable', 'Endo Steel', 'Endo Steel']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 34).
@@ -1020,6 +1057,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 47 = max 30 + sink 22 - current 0 - movement 0 - other 5; expected dmg 7.22)
     Medium Laser: needs 6 (range mod +0), rolled 5 -> miss
     Medium Laser: needs 6 (range mod +0), rolled 2 -> miss
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 8 (rear table): Left Torso.
 7 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -1029,9 +1067,11 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
   Critical hit pool at Left Torso:
     1: Engine (slot 2)
     2: Engine (slot 3)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Engine', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (2/3).
+  [Resolve] Red -> Blue: CLERMediumLaser
     CLERMediumLaser hit for 7:
       Hit location roll 8 (rear table): Left Torso.
 7 damage (ENERGY) incoming to Left Torso (rear_armor).

@@ -88,6 +88,7 @@
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 11 -> HIT
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 10 (front table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -97,14 +98,17 @@
   All critical slots in Left Arm marked DESTROYED.
   1 damage remains, transfers to Left Torso.
   [STANDARD/ENERGY] 1 armor pts destroyed at armor (7 -> 6 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (21 -> 18.5 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (21 -> 18.5 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
@@ -132,6 +136,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 4 (rear table): Right Arm.
 5 damage (ENERGY) incoming to Right Arm (rear_armor).
@@ -154,14 +159,17 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 11 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (8 -> 5.5 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (5.5 -> 3 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (rear table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -212,14 +220,17 @@ Stand attempt 2: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 11.
     Medium Laser: needs 8 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 9 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (8 -> 5.5 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (5.5 -> 3 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
@@ -250,6 +261,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 12 (range mod +2), rolled 5 -> miss
     Medium Laser: needs 12 (range mod +2), rolled 8 -> miss
     Medium Laser: needs 12 (range mod +2), rolled 5 -> miss
+  [Resolve] Red -> Blue: ISERPPC
     ISERPPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -263,6 +275,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     3: Engine (slot 3)
     4: Medium Laser (slot 4)
     5: Spikes (slot 5)
+    Slot roll: 2 on 1D5 (one die over the 5 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'Medium Laser', 'Spikes', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel']
       Engine hit (1/3).
@@ -387,10 +400,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 18 (range mod +4), rolled 7 -> miss
     Medium Laser: needs 18 (range mod +4), rolled 7 -> miss
     Medium Laser: needs 18 (range mod +4), rolled 8 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 8 (right table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (30.5 -> 28 remaining).
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (right table): Left Leg.
 5 damage (ENERGY) incoming to Left Leg (armor).
@@ -456,12 +471,14 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 10 (range mod +0), rolled 11 -> HIT
     Medium Laser: needs 10 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 10 (range mod +0), rolled 7 -> miss
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (rear table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (rear_armor).
   [HARDENED/ENERGY] 0.5 armor pts destroyed at rear_armor (0.5 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 7 (rear table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -490,14 +507,17 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 6 (front table): Right Torso.
 5 damage (ENERGY) incoming to Right Torso (armor).
   [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (19.5 -> 17 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (7 -> 2 remaining).
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 11 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).
@@ -511,6 +531,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
   4 damage remains, transfers to Center Torso.
+  [Resolve] Red -> Blue: Medium Laser
     Medium Laser hit for 5:
       Hit location roll 10 (rear table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (rear_armor).

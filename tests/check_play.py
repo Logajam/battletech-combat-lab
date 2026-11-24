@@ -144,6 +144,12 @@ def stand_with_plan(lab, gid, r, kinds, pending):
     stand are shown before anything is rolled; the unit turns in place (any facing is free after standing, p.51) and the stand and
     the move go in one answer."""
     if any(x.startswith("stand_plan") for x in kinds):
+        # the second time: stay prone and turn on the ground (1 MP a hexside, p.51)
+        if r.get("prone_turns") and not any(x.startswith("prone_turn") for x in kinds):
+            t = r["prone_turns"][0]
+            pending.append((r["unit"], t["facing"], "prone"))
+            kinds.add("prone_turn_sent")
+            return {"stand": False, "facing": t["facing"]}
         return {"stand": True}
     v = lab.api("play_query", {"game": gid, "query": {"q": "reach", "unit": r["unit"]}})["view"]
     me = next(x for x in r["units"] if x["id"] == r["unit"])
@@ -159,8 +165,14 @@ def after_stand(r, k, kinds, pending):
     """The question after a planned stand: stood -> the planned facing and NO movement question for it."""
     if not pending:
         return
-    u, facing = pending.pop()
+    u, facing, *how = pending.pop()
     me = next(x for x in r["units"] if x["id"] == u)
+    if how == ["drop"]:
+        kinds.add("drop_ok" if me.get("prone") and me["facing"] == facing else f"drop_bad: prone {me.get('prone')}, facing {me['facing']} (planned {facing})")
+        return
+    if how:
+        kinds.add("prone_turn_ok" if me.get("prone") and me["facing"] == facing else f"prone_turn_bad: facing {me['facing']} (asked {facing}), prone {me.get('prone')}")
+        return
     if me.get("prone"):
         kinds.add("stand_plan_roll_failed")
     elif not (k == "movement" and r["unit"] == u) and me["facing"] == facing:
@@ -179,6 +191,8 @@ def kit_game(lab, kinds):
     """A game with MASC, TAG, coolant pods and AMS on the person's side: the rarer questions, every mode and switch answered."""
     gid = lab.api("play_start", {"setup": KIT, "seed": 7})["game"]
     pending = []
+    power_unit = []
+    eject_unit = []
     for _ in range(20000):
         p = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
         if p["state"] == "waiting":
@@ -190,6 +204,12 @@ def kit_game(lab, kinds):
         r, seq = p["request"], p["seq"]
         k = r["kind"]
         kinds.add(k)
+        for line in r.get("log", []):
+            if "SHUT DOWN (by choice" in line: kinds.add("power_log_off")
+            if "stays shut down (by choice" in line: kinds.add("power_log_held")
+            if "restart chosen" in line: kinds.add("power_log_restart")
+            if "EJECTS (TO:AR" in line: kinds.add("eject_log")
+            if "abandoned - out of the battle" in line: kinds.add("eject_out")
         after_stand(r, k, kinds, pending)
         if k == "deploy":
             ans = {"hex": r["hexes"][0], "facing": "N"}
@@ -199,6 +219,9 @@ def kit_game(lab, kinds):
             ans = stand_with_plan(lab, gid, r, kinds, pending)
         elif k == "boost":
             ans = {"use": True}
+        elif k == "movement" and "power_held_seen" in kinds and "eject_sent" not in kinds and power_unit and r["unit"] != power_unit[0]:
+            # last of the engine-pass checks: one MechWarrior ejects (TO:AR p.164) and the 'Mech leaves the battle
+            ans = {"eject": True}; kinds.add("eject_sent"); eject_unit.append(r["unit"])
         elif k == "movement":
             if r["attacks"] and "attack" not in kinds:
                 kinds.add("attack")
@@ -209,6 +232,13 @@ def kit_game(lab, kinds):
             else:
                 best = max(r["options"], key=lambda o: (o["mode"] == "Run", o["mp"]), default=None)
                 ans = {"stay": True} if best is None else {"hex": best["hex"], "facing": best["facing"], "mode": best["mode"]}
+                # once: a walk that leaves 1 MP drops to the ground at the end (p.51)
+                walk = [o for o in r["options"] if o["mode"] == "Walk" and 0 < o["mp"] < r["run"]]
+                if walk and not any(x.startswith("drop_") for x in kinds):
+                    o = walk[0]
+                    ans = {"hex": o["hex"], "facing": o["facing"], "mode": o["mode"], "prone": True}
+                    pending.append((r["unit"], o["facing"], "drop"))
+                    kinds.add("drop_sent")
         elif k == "spot":
             ans = {"target": r["candidates"][0]["id"], "fires": True}
         elif k == "tag":
@@ -225,6 +255,15 @@ def kit_game(lab, kinds):
             ans = {"weapons": [w["id"] for w in rows if w["in_range"] and not w["needs_twist"] and not w["jammed"]], "modes": modes, "shots": shots}
         elif k == "end_phase":
             ans = {"switches": {"coolant": "now", "radical": r["equipment"]["radical"]["live"]}}
+            # voluntary shutdown (p.105): one unit shuts down by choice, stays down one End Phase, then asks for a restart
+            pw = r["equipment"].get("power") or {}
+            if not any(x.startswith("power_") for x in kinds) and not pw.get("shutdown"):
+                ans["switches"]["power"] = "off"; kinds.add("power_off_sent"); power_unit.append(r["unit"])
+            elif power_unit and r["unit"] == power_unit[0] and pw.get("by_choice"):
+                kinds.add("power_held_seen")
+                if "power_held_seen2" in kinds:
+                    ans["switches"]["power"] = "on"; kinds.add("power_on_sent")
+                kinds.add("power_held_seen2")
         elif k == "physical":
             ans = {"kind": r["kinds"][0]["kind"]}
         else:
@@ -263,6 +302,14 @@ def main():
         check({"boost", "declaration", "end_phase", "spot"} <= kk, f"a game with MASC, TAG, coolant pods and AMS on the person's side: questions {sorted(kk)}", failures)
         check(end3["winner"] in ("Red", "Blue", "Draw"), f"... and it ends: {end3['winner']} after {end3['turns']} turns", failures)
         sp = sorted(x for x in kk if x.startswith("stand_plan"))
+        ej = sorted(x for x in kk if x.startswith("eject"))
+        check({"eject_sent", "eject_log", "eject_out"} <= kk, f"a MechWarrior ejects instead of moving; the 'Mech leaves the battle (TO:AR p.164; {ej})", failures)
+        pw = sorted(x for x in kk if x.startswith("power_"))
+        check({"power_log_off", "power_log_held", "power_log_restart"} <= kk, f"a voluntary shutdown stays down until the person asks for a restart (p.105; {pw})", failures)
+        dr = sorted(x for x in kk if x.startswith("drop_"))
+        check("drop_ok" in kk, f"a move answered with prone: true ends with the unit dropped to the ground, same facing (p.51; {dr})", failures)
+        pt = sorted(x for x in kk if x.startswith("prone_turn"))
+        check("prone_turn_ok" in kk or not pt, f"a unit that stays prone turns on the ground when asked (p.51; {pt or 'no second stand question in this game'})", failures)
         check("stand_plan_ok" in kk or "stand_plan_roll_failed" in kk, f"a stand planned together with its move (turning in place) stands and moves with no second question (A2; {sp})", failures)
     finally:
         proc.kill()

@@ -24,20 +24,24 @@
     ISMediumPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 3 -> miss
     ISLRM15: needs 9 (range mod +1), rolled 7 -> miss [ISLRM15 Ammo: 7 shots left]
     ISMediumLaser: needs 10 (range mod +2), rolled 6 -> miss
+  [Resolve] Blue -> Red: ISERLargeLaser
     ISERLargeLaser hit for 8:
       Hit location roll 7 (front table): Center Torso.
 8 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (40 -> 32 remaining).
+  [Resolve] Blue -> Red: ISMediumVSPLaser
     ISMediumVSPLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (32 -> 27 remaining).
+  [Resolve] Red -> Blue: ISERPPC
       Blue's Blue Shield halves the ISERPPC: 10 -> 5 (p.207).
     ISERPPC hit for 5:
       Hit location roll 12 (left table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 5 damage (ENERGY) incoming to Head (armor).
   [REFLECTIVE/ENERGY] 2 armor pts destroyed at armor (9 -> 7 remaining).
+  [Resolve] Red -> Blue: ISLargePulseLaser
     ISLargePulseLaser hit for 9:
       Hit location roll 9 (left table): Right Torso.
 9 damage (ENERGY) incoming to Right Torso (armor).
@@ -63,6 +67,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     8: ISERPPC (slot 8)
     9: ISERPPC (slot 9)
     10: ISLRM15 Ammo (slot 10)
+    Slot roll: 6 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/2 Criticals: Heat Sink slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'ISERPPC', 'ISERPPC', 'ISERPPC', 'ISLRM15 Ammo', 'DESTROYED', 'ISCASE']
       Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 29).
@@ -76,6 +81,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     7: ISERPPC (slot 8)
     8: ISERPPC (slot 9)
     9: ISLRM15 Ammo (slot 10)
+    Slot roll: 7 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/2 Criticals: ISERPPC slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'ISERPPC', 'DESTROYED', 'ISERPPC', 'ISLRM15 Ammo', 'DESTROYED', 'ISCASE']
     CASE vents the excess: Left Torso loses 10 rear armor (2 left).
@@ -98,13 +104,16 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
     ISMediumVSPLaser: needs -1 (range mod +0, modifiers -3) aimed at Center Torso, rolled 10 -> HIT
     ISMediumVSPLaser: needs -1 (range mod +0, modifiers -3) aimed at Center Torso, rolled 8 -> HIT
     ISERLargeLaser: needs 2 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
+  [Resolve] Blue -> Red: ISMediumVSPLaser
     ISMediumVSPLaser hit for 9: aimed at Center Torso, 1D6 6 - on target.
 9 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 9 armor pts destroyed at rear_armor (21 -> 12 remaining).
+  [Resolve] Blue -> Red: ISMediumVSPLaser
     ISMediumVSPLaser hit for 9: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 4 (rear table): Right Arm.
 9 damage (ENERGY) incoming to Right Arm (rear_armor).
   [STANDARD/ENERGY] 9 armor pts destroyed at armor (25 -> 16 remaining).
+  [Resolve] Blue -> Red: ISERLargeLaser
     ISERLargeLaser hit for 8: aimed at Center Torso, 1D6 2 - rolls for location.
       Hit location roll 7 (rear table): Center Torso.
 8 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -150,6 +159,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 12.
     ISMediumVSPLaser: needs 4 (range mod +0, modifiers -3), rolled 7 -> HIT
     ISMediumVSPLaser: needs 4 (range mod +0, modifiers -3), rolled 11 -> HIT
     ISERLargeLaser: needs 7 (range mod +0), rolled 7 -> HIT
+  [Resolve] Blue -> Red: ISMediumVSPLaser
     ISMediumVSPLaser hit for 9:
       Hit location roll 8 (rear table): Left Torso.
 9 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -179,11 +189,13 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 12.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
   3 damage remains, transfers to Center Torso.
+  [Resolve] Blue -> Red: ISMediumVSPLaser
     ISMediumVSPLaser hit for 9:
       Hit location roll 8 (rear table): Left Torso.
 9 damage (ENERGY) incoming to Left Torso (rear_armor).
   Left Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/ENERGY] 9 armor pts destroyed at armor (27 -> 18 remaining).
+  [Resolve] Blue -> Red: ISERLargeLaser
     ISERLargeLaser hit for 8:
       Hit location roll 11 (rear table): Left Arm.
 8 damage (ENERGY) incoming to Left Arm (rear_armor).

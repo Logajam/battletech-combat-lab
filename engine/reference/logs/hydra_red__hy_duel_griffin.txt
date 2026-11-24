@@ -72,6 +72,7 @@
     LRM 10: needs 14 (range mod +5), rolled 7 -> miss [IS Ammo LRM-10: 9 shots left]
   [Ranged] Blue -> Red: range 2, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 4 - movement 1 - other 0; expected dmg 0.83)
     PPC: needs 11 (range mod +2), rolled 11 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 10 (right table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -396,6 +397,7 @@
   [Ranged] Red fires in order: ['PPC', 'LRM 10'].
     PPC: needs 10 (range mod +0), rolled 11 -> HIT
     LRM 10: needs 12 (range mod +2), rolled 4 -> miss [IS Ammo LRM-10: 6 shots left]
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -507,6 +509,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 10 (range mod +3), rolled 10 -> HIT
     LRM 10: needs 13 (range mod +6), rolled 4 -> miss [IS Ammo LRM-10: 4 shots left]
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -540,6 +543,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
     LRM 10: needs 11 (range mod +3), rolled 7 -> miss [IS Ammo LRM-10: 3 shots left]
   [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 2.78)
     PPC: needs 9 (range mod +0), rolled 9 -> HIT
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 6 (front table): Right Torso.
 10 damage (ENERGY) incoming to Right Torso (armor).
@@ -586,6 +590,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   [Ranged] Red fires in order: ['PPC', 'LRM 10'].
     PPC: needs 11 (range mod +1), rolled 11 -> HIT
     LRM 10: needs 14 (range mod +4), rolled 10 -> miss [IS Ammo LRM-10: 4 shots left]
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 9 (rear table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (rear_armor).
@@ -639,6 +644,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
     PPC: needs 6 (range mod +0), rolled 5 -> miss
   [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 7.22)
     PPC: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 7 (front table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
@@ -659,6 +665,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
   [Ranged] Red -> Blue: range 4, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 14 = max 4 + sink 12 - current 1 - movement 1 - other 0; expected dmg 1.67)
     PPC: needs 10 (range mod +0), rolled 11 -> HIT
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 7 (left table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -764,6 +771,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 7 (range mod +0), rolled 11 -> HIT
     LRM 10: needs 8 (range mod +1), rolled 7 -> miss [IS Ammo LRM-10: 11 shots left]
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
@@ -771,6 +779,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
   Check for possible critical. Roll a 4.
     No critical hit.
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 8 (front table): Left Torso.
 10 damage (ENERGY) incoming to Left Torso (armor).
@@ -792,6 +801,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
     PPC: needs 7 (range mod +0), rolled 8 -> HIT
   [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; expected dmg 4.17)
     PPC: needs 8 (range mod +0), rolled 7 -> miss
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 4 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
@@ -928,6 +938,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
     PPC: needs 8 (range mod +0), rolled 4 -> miss
     LRM 10: needs 9 (range mod +1), rolled 8 -> miss [IS Ammo LRM-10: 6 shots left]
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 5 (left table): Left Arm.
 10 damage (ENERGY) incoming to Left Arm (armor).
@@ -964,6 +975,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     PPC: needs 8 (range mod +0), rolled 9 -> HIT
   [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 4 - movement 0 - other 0; expected dmg 5.83)
     PPC: needs 7 (range mod +0), rolled 9 -> HIT
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10:
       Hit location roll 11 (right table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
@@ -973,6 +985,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     Hip specifically destroyed at Left Leg from Left Leg destruction.
   All critical slots in Left Leg marked DESTROYED.
   0 damage remains, transfers to Left Torso.
+  [Resolve] Blue -> Red: PPC
     PPC hit for 10:
       Hit location roll 3 (right table): Right Leg.
 10 damage (ENERGY) incoming to Right Leg (armor).
@@ -984,6 +997,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
+    Slot roll: 4 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: Foot Actuator hit.
       Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 4.
@@ -1006,6 +1020,7 @@ FALL (automatic fall): Griffin GRF-1N takes 6 falling damage (1D6 3: front table
     5: PPC (slot 5)
     6: PPC (slot 6)
     7: PPC (slot 7)
+    Slot roll: 7 on 1D7 (one die over the 7 slots that can take the hit; p.94).
     1/1 Criticals: PPC slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'PPC', 'PPC', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Fall cluster (1 dmg): rolled 6 -> Right Torso
@@ -1076,9 +1091,11 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 3.
     PPC: needs 3 (range mod +3) aimed at Center Torso, rolled 7 -> HIT
     LRM 10: needs 6 (range mod +6), rolled 6 -> HIT [IS Ammo LRM-10: 0 shots left]
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: PPC
     PPC hit for 10: aimed at Center Torso, 1D6 5 - on target.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (15 -> 5 remaining).
+  [Resolve] Red -> Blue: LRM 10
     LRM 10 hit: cluster roll 7 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 2 (right table): Right Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
@@ -1095,6 +1112,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 3.
   Critical hit pool at Left Torso:
     1: Jump Jet (slot 1)
     2: Jump Jet (slot 2)
+    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
     1/1 Criticals: Jump Jet slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Jump jet destroyed (Jump Jet) - jump MP reduced (now 4).

@@ -58,6 +58,18 @@ pub trait Controller {
     fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
         None
     }
+    /// Does the MechWarrior eject this Movement Phase (TO:AR p.164)?
+    fn eject(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
+    /// After its ground move: does the unit drop to the ground (p.51)?
+    fn drop_prone(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
+    /// A unit that stays prone: the facing it turns to (p.51), or None.
+    fn prone_turn(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
+        None
+    }
     /// May a prone unit that can stand try to?
     fn stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
         true
@@ -236,6 +248,39 @@ impl<C: Controller> BotSet for HumanBots<C> {
         }
         let r = self.ctl.stand_up(b, mover);
         self.log.push(Decision::Choice { unit: mover, kind: "stand_up", answer: r.to_string() });
+        r
+    }
+
+    fn eject(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        if !self.human.contains(&mover) {
+            return false;
+        }
+        let r = self.ctl.eject(b, mover);
+        if r {
+            self.log.push(Decision::Choice { unit: mover, kind: "eject", answer: "true".into() });
+        }
+        r
+    }
+
+    fn drop_prone(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        if !self.human.contains(&mover) {
+            return false;
+        }
+        let r = self.ctl.drop_prone(b, mover);
+        if r {
+            self.log.push(Decision::Choice { unit: mover, kind: "drop_prone", answer: "true".into() });
+        }
+        r
+    }
+
+    fn prone_turn(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
+        if !self.human.contains(&mover) {
+            return None;
+        }
+        let r = self.ctl.prone_turn(b, mover);
+        if let Some(f) = &r {
+            self.log.push(Decision::Choice { unit: mover, kind: "prone_turn", answer: f.clone() });
+        }
         r
     }
 

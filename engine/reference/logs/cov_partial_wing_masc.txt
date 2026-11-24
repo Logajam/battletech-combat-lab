@@ -56,6 +56,7 @@
     ISMML5: needs 12 (range mod +0), rolled 6 -> miss [IS Ammo MML-5 SRM: 18 shots left]
   [Ranged] Blue -> Red: range 1, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.53)
     CLLRM10: needs 11 (range mod +0), rolled 10 -> miss [Clan Ammo LRM-10: 10 shots left]
+  [Resolve] Red -> Blue: ISSmallXPulseLaser
     ISSmallXPulseLaser hit for 3:
       Hit location roll 6 (front table): Right Torso.
 3 damage (ENERGY) incoming to Right Torso (armor).
@@ -116,6 +117,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSNPPC: needs 12 (range mod +0), rolled 3 -> miss
     ISMML5: needs 14 (range mod +2), rolled 7 -> miss [IS Ammo MML-5 LRM: 19 shots left]
     ISMML5: needs 14 (range mod +2), rolled 8 -> miss [IS Ammo MML-5 LRM: 18 shots left]
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 12 on the 10-column table -> 10 connect (10 dmg).
       Group 1/2: Hit location roll 6 (right table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -170,6 +172,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSNPPC: needs 8 (range mod +0), rolled 3 -> miss
     ISMML5: needs 10 (range mod +2), rolled 3 -> miss [IS Ammo MML-5 LRM: 17 shots left]
     ISMML5: needs 10 (range mod +2), rolled 7 -> miss [IS Ammo MML-5 LRM: 16 shots left]
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 8 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
@@ -258,6 +261,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
   [Ranged] Blue -> Red: range 13, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.75)
     CLLRM10: needs 9 (range mod +2), rolled 9 -> HIT [Clan Ammo LRM-10: 5 shots left]
   [Ranged] Red -> Blue: range 13, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 23 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 10 (right table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -403,14 +407,17 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSmallXPulseLaser: needs 6 (range mod +2, modifiers -2), rolled 7 -> HIT
   [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 3.68)
     CLLRM10: needs 7 (range mod +0), rolled 9 -> HIT [Clan Ammo LRM-10: 2 shots left]
+  [Resolve] Red -> Blue: ISSmallXPulseLaser
     ISSmallXPulseLaser hit for 3:
       Hit location roll 10 (front table): Front Left Leg.
 3 damage (ENERGY) incoming to Front Left Leg (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (5 -> 2 remaining).
+  [Resolve] Red -> Blue: ISSmallXPulseLaser
     ISSmallXPulseLaser hit for 3:
       Hit location roll 7 (front table): Center Torso.
 3 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 3 armor pts destroyed at armor (6 -> 3 remaining).
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 8 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 7 (rear table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (rear_armor).
@@ -473,6 +480,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSNPPC: needs 12 (range mod +0), rolled 8 -> miss
   [Ranged] Blue -> Red: range 2, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 1 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.53)
     CLLRM10: needs 11 (range mod +0), rolled 11 -> HIT [Clan Ammo LRM-10: 0 shots left]
+  [Resolve] Blue -> Red: CLLRM10
     CLLRM10 hit: cluster roll 10 on the 10-column table -> 8 connect (8 dmg).
       Group 1/2: Hit location roll 7 (rear table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (rear_armor).
@@ -514,6 +522,7 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSNPPC: needs 12 (range mod +0), rolled 12 -> HIT
     ISMML5: needs 12 (range mod +0), rolled 5 -> miss [IS Ammo MML-5 LRM: 7 shots left]
     ISMML5: needs 12 (range mod +0), rolled 6 -> miss [IS Ammo MML-5 LRM: 6 shots left]
+  [Resolve] Red -> Blue: ISSNPPC
     ISSNPPC hit for 10:
       Hit location roll 8 (left table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).

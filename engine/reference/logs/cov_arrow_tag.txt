@@ -24,10 +24,12 @@
     ISUltraAC5 x2: needs 9 (range mod +2), rolled 3 -> miss [ISUltraAC5 Ammo: 18 shots left]
     ISFlamer: needs 7 (range mod +0), rolled 7 -> HIT
   [Ranged] Red 1: charging Blue - no ranged attacks this turn (pp.78-79).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (rear table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (15 -> 9 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
       ISFlamer: +2 heat to Blue (outside heat, p.102).
     ISFlamer hit for 2:
       Hit location roll 9 (rear table): Left Leg.
@@ -109,10 +111,12 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
     ISUltraAC5 x2: needs 7 (range mod +1), rolled 5 -> miss [ISUltraAC5 Ammo: 16 shots left]
     ISFlamer: needs 8 (range mod +2), rolled 9 -> HIT
   [Ranged] Red 1: no weapon can bear on Blue (rear arc) - can't fire.
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (left table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
       ISFlamer: +2 heat to Blue (outside heat, p.102).
     ISFlamer hit for 2:
       Hit location roll 8 (left table): Center Torso.
@@ -147,10 +151,12 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
   [Ranged] Red 1 holds ['ISArrowIV'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 5.83).
   [Ranged] Red 1 -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
   [Ranged] Red 1 picks up a tree club in 0714 instead of firing (p.79).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (10 -> 4 remaining).
+  [Resolve] Red 2 -> Blue: ISUltraAC5
     ISUltraAC5 hit: cluster roll 11 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 7 (rear table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (rear_armor).
@@ -170,6 +176,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 10.
     10: Engine (slot 10)
     11: ISGuardianECMSuite (slot 11)
     12: ISGuardianECMSuite (slot 12)
+    Slot roll: 7 on 1D12 (one die over the 12 slots that can take the hit; p.94).
     1/1 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Gyro hit (1/4).
@@ -229,6 +236,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     [Red 2 fire control] ISUltraAC5: rapid fire x2
     ISUltraAC5 x2: needs 7 (range mod +2), rolled 7 -> HIT [ISUltraAC5 Ammo: 12 shots left]
   [Ranged] Red 1 -> Blue: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red 2 -> Blue: ISUltraAC5
     ISUltraAC5 hit: cluster roll 8 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 8 (rear table): Left Torso.
 5 damage (BALLISTIC) incoming to Left Torso (rear_armor).
@@ -245,6 +253,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     7: ISArrowIV (slot 7)
     8: ISArrowIV (slot 8)
     9: ISArrowIV (slot 9)
+    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/2 Criticals: ISArrowIV slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
   Critical hit pool at Left Torso:
@@ -256,6 +265,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     6: ISArrowIV (slot 6)
     7: ISArrowIV (slot 7)
     8: ISArrowIV (slot 8)
+    Slot roll: 3 on 1D8 (one die over the 8 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'DESTROYED', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'ISArrowIV', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
       Engine hit (1/3).
@@ -276,6 +286,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     9: Engine (slot 10)
     10: ISGuardianECMSuite (slot 11)
     11: ISGuardianECMSuite (slot 12)
+    Slot roll: 7 on 1D11 (one die over the 11 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'DESTROYED', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Engine hit (2/3).
@@ -290,6 +301,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     8: Engine (slot 10)
     9: ISGuardianECMSuite (slot 11)
     10: ISGuardianECMSuite (slot 12)
+    Slot roll: 5 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     2/2 Criticals: Gyro hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'DESTROYED', 'DESTROYED', 'Engine', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Gyro hit (2/4).
@@ -321,6 +333,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
     ISUltraAC5 x2: needs 8 (range mod +2), rolled 3 -> miss [ISUltraAC5 Ammo: 10 shots left]
   [Ranged] Red 1 -> Blue: range 2, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -337,6 +350,7 @@ Heavy-duty gyro hit this phase: no PSR forced, +1 to any PSR (p.204).
     7: Engine (slot 10)
     8: ISGuardianECMSuite (slot 11)
     9: ISGuardianECMSuite (slot 12)
+    Slot roll: 6 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     1/1 Criticals: Engine hit.
       Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite']
       Engine hit (3/3).

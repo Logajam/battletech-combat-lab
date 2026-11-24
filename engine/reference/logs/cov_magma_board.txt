@@ -29,6 +29,7 @@
   [Ranged] Red -> Blue: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISUltraAC5'] (weapon heat 2 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.59)
     [Red fire control] ISUltraAC5: rapid fire x2
     ISUltraAC5 x2: needs 11 (range mod +2), rolled 10 -> miss [ISUltraAC5 Ammo: 18 shots left]
+  [Resolve] Blue -> Red: LRM 10
     LRM 10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
       Group 1/2: Hit location roll 3 (right table): Right Leg.
 5 damage (MISSILE) incoming to Right Leg (armor).
@@ -81,6 +82,7 @@
   [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISUltraAC5'] (weapon heat 2 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 1.18)
     [Red fire control] ISUltraAC5: rapid fire x2
     ISUltraAC5 x2: needs 10 (range mod +2), rolled 10 -> HIT [ISUltraAC5 Ammo: 14 shots left]
+  [Resolve] Red -> Blue: ISUltraAC5
     ISUltraAC5 hit: cluster roll 11 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
       Group 1/2: Hit location roll 10 (front table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
@@ -201,6 +203,7 @@
     ISUltraAC5 x2: needs 10 (range mod +2), rolled 10 -> HIT [ISUltraAC5 Ammo: 4 shots left]
   [Ranged] Blue -> Red: range 11, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 0.53)
     LRM 10: needs 11 (range mod +2), rolled 8 -> miss [IS Ammo LRM-10: 3 shots left]
+  [Resolve] Red -> Blue: ISUltraAC5
     ISUltraAC5 hit: cluster roll 7 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
       Group 1/1: Hit location roll 8 (front table): Left Torso.
 5 damage (BALLISTIC) incoming to Left Torso (armor).
@@ -584,6 +587,7 @@
     ISFlamer: needs 12 (range mod +4), rolled 11 -> miss
   [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 37 = max 30 + sink 11 - current 0 - movement 4 - other 0; expected dmg 0.08)
     Flamer: needs 12 (range mod +4), rolled 10 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -602,6 +606,7 @@
   [Ranged] Blue -> Red: range 4, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 0.00)
   [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 2.50)
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 9 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (right table): Right Leg.
 6 damage (ENERGY) incoming to Right Leg (armor).
@@ -648,6 +653,7 @@
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 1.00)
     ISMediumPulseLaser: needs 10 (range mod +4, modifiers -2), rolled 11 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (rear table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -659,6 +665,7 @@
     2: Heat Sink (slot 2)
     3: LRM 10 (slot 3)
     4: LRM 10 (slot 4)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
     1/1 Criticals: LRM 10 slot hit.
       Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'DESTROYED', 'LRM 10', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 1 + weapons 4 + engine 0 - sinks 20 -> 0
@@ -688,6 +695,7 @@
   [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 1.67)
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 9 -> HIT
   [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 11 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (front table): Right Torso.
 6 damage (ENERGY) incoming to Right Torso (armor).
@@ -735,6 +743,7 @@
   [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISFlamer'].
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 7 -> HIT
     ISFlamer: needs 10 (range mod +2), rolled 7 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (right table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -756,6 +765,7 @@
   [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISFlamer'].
     ISMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 5 -> miss
     ISFlamer: needs 9 (range mod +0), rolled 6 -> miss
+  [Resolve] Blue -> Red: Flamer
       Flamer: +2 heat to Red (outside heat, p.102).
     Flamer hit for 2:
       Hit location roll 8 (right table): Center Torso.
@@ -978,6 +988,7 @@
     ISFlamer: needs 7 (range mod +0), rolled 5 -> miss
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 37 = max 30 + sink 11 - current 0 - movement 4 - other 0; expected dmg 1.75)
     Flamer: needs 7 (range mod +0), rolled 5 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (left table): Right Arm.
 6 damage (ENERGY) incoming to Right Arm (armor).
@@ -1023,10 +1034,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     ISFlamer: needs 7 (range mod +0), rolled 6 -> miss
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 37 = max 30 + sink 11 - current 0 - movement 4 - other 0; expected dmg 1.25)
     Flamer: needs 8 (range mod +0), rolled 12 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (left table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (12 -> 6 remaining).
+  [Resolve] Blue -> Red: Flamer
       Flamer: +2 heat to Red (outside heat, p.102).
     Flamer hit for 2:
       Hit location roll 6 (left table): Left Leg.
@@ -1084,6 +1097,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 2.50)
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 8 -> HIT
   [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (left table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
@@ -1119,10 +1133,12 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
     ISFlamer: needs 9 (range mod +0), rolled 11 -> HIT
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 1.25)
     Flamer: needs 8 (range mod +0), rolled 3 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (front table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (7 -> 1 remaining).
+  [Resolve] Red -> Blue: ISFlamer
       ISFlamer: +2 heat to Blue (outside heat, p.102).
     ISFlamer hit for 2:
       Hit location roll 11 (front table): Left Arm.
@@ -1193,6 +1209,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 2.50)
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -2), rolled 10 -> HIT
   [Ranged] Blue -> Red: range 4, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 4 (left table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (armor).
@@ -1242,11 +1259,13 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 6 -> HIT
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 40 = max 30 + sink 11 - current 0 - movement 1 - other 0; expected dmg 2.17)
     Flamer: needs 6 (range mod +0), rolled 10 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 6 damage (ENERGY) incoming to Head (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
+  [Resolve] Blue -> Red: Flamer
       Flamer: +2 heat to Red (outside heat, p.102).
     Flamer hit for 2:
       Hit location roll 6 (front table): Right Torso.
@@ -1299,6 +1318,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
     ISFlamer: needs 9 (range mod +0), rolled 5 -> miss
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['Flamer'] (weapon heat 3 of budget 36 = max 30 + sink 11 - current 0 - movement 5 - other 0; expected dmg 1.25)
     Flamer: needs 8 (range mod +0), rolled 7 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 9 (right table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
@@ -1369,6 +1389,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [Ranged] Red -> Blue: range 5, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.50)
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 12 -> HIT
   [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 34 = max 30 + sink 9 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (rear table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (rear_armor).
@@ -1403,6 +1424,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 34 = max 30 + sink 9 - current 0 - movement 5 - other 0; expected dmg 0.00)
   [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.50)
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 12 -> HIT
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (rear table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (rear_armor).

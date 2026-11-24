@@ -104,11 +104,13 @@
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 6 -> miss
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 4 -> miss
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 9 -> HIT
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 6 damage (ENERGY) incoming to Head (armor).
   [HARDENED/ENERGY] 3 armor pts destroyed at armor (9 -> 6 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 3 (front table): Right Arm.
 6 damage (ENERGY) incoming to Right Arm (armor).
@@ -388,6 +390,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 7 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 7 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 8 -> miss
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (front table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
@@ -439,10 +442,12 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 6 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 4 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 4 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 10 (front table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (armor).
   [HARDENED/ENERGY] 3 armor pts destroyed at armor (34 -> 31 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
   Tripod leg sub-roll (front): base 5 -> 5 -> Left Leg
       Hit location roll 5 (front table): Left Leg.
@@ -738,10 +743,12 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 10 -> HIT
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (right table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [HARDENED/ENERGY] 3 armor pts destroyed at armor (47 -> 44 remaining).
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
   Tripod leg sub-roll (left): base 4 -> 5 -> Left Leg
       Hit location roll 6 (left table): Left Leg.
@@ -874,6 +881,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 5 -> miss
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 6 -> miss
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 9 -> miss
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (front table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
@@ -967,6 +975,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 7 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 8 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4, modifiers -2), rolled 7 -> miss
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -1278,6 +1287,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 8.
     ISMediumPulseLaser: needs 12 (range mod +2, modifiers -2), rolled 6 -> miss
     ISMediumPulseLaser: needs 12 (range mod +2, modifiers -2), rolled 12 -> HIT
     ISMediumPulseLaser: needs 12 (range mod +2, modifiers -2), rolled 5 -> miss
+  [Resolve] Blue -> Red: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (2/6), regardless of armor.
@@ -1332,6 +1342,7 @@ Attack Phase consciousness check (gunner, 2 pilot hits): needs 5. Rolled 9.
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 7 -> miss
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 10 -> miss
     ISMediumPulseLaser: needs 11 (range mod +4, modifiers -2), rolled 6 -> miss
+  [Resolve] Red -> Blue: ISMediumPulseLaser
     ISMediumPulseLaser hit for 6:
       Hit location roll 5 (left table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (armor).
