@@ -283,6 +283,7 @@ async function loop() {
 const HANDLERS = {};
 function take(r) {
   S.req = r; S.units = r.units;
+  if (r.kind !== "target" && r.kind !== "declaration") S.script = null;   // a plan never reaches past its own unit's fire questions
   for (const u of S.units) { // first sight of a unit: its full armour, structure and slot names (for the bars and the criticals tab)
     if (!S.maxLoc[u.id]) S.maxLoc[u.id] = JSON.parse(JSON.stringify(u.locs || {}));
     if (u.crit_names) S.critNames[u.id] = u.crit_names;
@@ -606,7 +607,8 @@ const primaryOf = () => { const F = S.fire; return F.order.find((id) => (F.pvt.g
 HANDLERS.target = async (r) => {
   S.sel = r.unit; S.decl = null;
   const sc = S.script;
-  if (sc && sc.unit === r.unit && !r.error) {            // Fire! is playing the plan: the next target, or no more
+  if (scriptLive(r)) {                                   // Fire! is playing the plan: the next target, or no more
+    sc.at = S.seq;
     const e = sc.entries[sc.i];
     if (sc.i > 0 && e && r.enemies.some((x) => x.id === e.t)) { send({ target: e.t }); return; }
     S.script = null; send({ target: null }); return;
@@ -680,15 +682,24 @@ function fireGo() {
   const F = S.fire, D = S.decl; if (!F || !F.assign.size) return;
   const p = primaryOf(), order = [p, ...F.order.filter((t) => t !== p)];
   const entries = order.map((t) => ({ t, ids: [...F.assign].filter(([, x]) => x === t).map(([w]) => w), charge: D ? [...D.charge] : [], aim: D ? { ...D.aim } : {} }));
-  S.script = { unit: F.unit, entries, i: 0 };
+  S.script = { unit: F.unit, entries, i: 0, at: S.seq };
   send({ target: entries[0].t });
+}
+// The plan answers ONLY the questions that follow straight on from its own answers (`at` = the last question it answered; the engine numbers
+// every question it asks). The engine asks "another target?" only while the unit has weapons left to split, so a plan that used every weapon
+// gets no such question: without this check the plan stayed behind and answered that unit's NEXT target question, a turn later, with "hold
+// fire" on its own (Daniel's bugs B10 and B15, 2026-11-22: "skip TAG ended my firing phase"; fixed 2026-11-24).
+function scriptLive(r) {
+  const sc = S.script;
+  if (sc && sc.unit === r.unit && !r.error && S.seq === sc.at + 1) return true;
+  S.script = null; return false;
 }
 // when the engine asks the declaration while Fire! is playing the plan, the page answers it from the plan
 function scriptDecl(r) {
-  const sc = S.script; if (!sc) return false;
+  const sc = S.script; if (!sc || !scriptLive(r)) return false;
   const e = sc.entries[sc.i];
-  if (r.error || !e || e.t !== r.target || r.unit !== sc.unit) { S.script = null; return false; }
-  sc.i++; send({ weapons: e.ids, charge: e.charge, aim: e.aim }); return true;
+  if (!e || e.t !== r.target) { S.script = null; return false; }
+  sc.i++; sc.at = S.seq; send({ weapons: e.ids, charge: e.charge, aim: e.aim }); return true;
 }
 function drawTargets(layer) {
   const F = S.fire, D = S.decl, w = D && D.rows.find((x) => x.id === D.focus), T = fireTotals();
