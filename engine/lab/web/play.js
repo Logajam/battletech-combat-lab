@@ -178,6 +178,18 @@ function showWeaponCard(w) {
 // ---------------------------------------------------------------- units on the map
 const teamColour = (u) => (O.cvd ? (u.team === S.myTeam ? "#56B4E9" : "#D55E00") : COLOURS[u.team] || (u.team === S.myTeam ? "#4b8fd8" : "#d86a4b"));
 const short = (u) => String(u.mech || u.name || "").split(/\s+/)[0].slice(0, 7);
+// share of armour ("a": front + rear) or structure ("s") left on one side ("Left" / "Right"); centre locations count half to each side
+function sideFrac(u, kind, side) {
+  const mx = S.maxLoc[u.id] || {}, locs = u.locs || {};
+  let tot = 0, left = 0;
+  for (const [loc, v] of Object.entries(locs)) {
+    const m = mx[loc] || v, w = loc.includes(side) ? 1 : (loc.includes("Left") || loc.includes("Right")) ? 0 : 0.5;
+    if (!w) continue;
+    const now = kind === "a" ? (v[0] || 0) + (v[1] || 0) : v[2] || 0, max = kind === "a" ? (m[0] || 0) + (m[1] || 0) : m[2] || 0;
+    tot += w * max; left += w * (v[3] ? 0 : now);
+  }
+  return tot ? Math.max(0, Math.min(1, left / tot)) : 1;
+}
 function fracOf(u) {
   const m = S.max[u.id] || (S.max[u.id] = { hp: Math.max(1, u.hp) });
   return Math.max(0, Math.min(1, u.hp / m.hp));
@@ -260,11 +272,19 @@ function drawUnits(layer) {
     if (far) el("line", { x1: x, y1: y, x2: px + W / 2, y2: py + (spot[1] < 0 ? H : 0), stroke: col, "stroke-width": 1.4 * k, "pointer-events": "none" }, g);
     el("rect", { x: px, y: py, width: W, height: H, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, g);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
-    [["A", fr.a, fr.a > 0.5 ? "#6fbf86" : fr.a > 0.25 ? "#dba94a" : "#e07468"], ["S", fr.s, fr.s > 0.5 ? "#8fb2d4" : "#e07468"], ["H", fr.h, "#ff7a3c"]].forEach(([lab, v, c], i) => {
-      const by = py + (17 + i * 6.8) * k;
+    // LEFT / RIGHT BARS (Section 24 item 24; the mockup's lrBar): armour and structure split at the centre, the unit's left side on the left
+    // half and its right on the right, each wearing in from its outer edge, so the damaged side shows; heat stays one bar
+    const sa = { l: sideFrac(u, "a", "Left"), r: sideFrac(u, "a", "Right") }, ss = { l: sideFrac(u, "s", "Left"), r: sideFrac(u, "s", "Right") };
+    const aCol = (v) => (v > 0.5 ? "#6fbf86" : v > 0.25 ? "#dba94a" : "#e07468"), sCol = (v) => (v > 0.5 ? "#8fb2d4" : "#e07468");
+    [["A", sa, aCol], ["S", ss, sCol], ["H", fr.h, () => "#ff7a3c"]].forEach(([lab, v, cf], i) => {
+      const by = py + (17 + i * 6.8) * k, bx = px + 14 * k, bw = W - 19 * k, bh = 5.4 * k;
       const l = el("text", { x: px + 5 * k, y: by + 5.4 * k, "font-size": 7.5 * k, fill: "#aab", "pointer-events": "none" }, g); l.textContent = lab;
-      el("rect", { x: px + 14 * k, y: by, width: W - 19 * k, height: 5.4 * k, fill: "#2b333d" }, g);
-      el("rect", { x: px + 14 * k, y: by, width: (W - 19 * k) * v, height: 5.4 * k, fill: c }, g);
+      el("rect", { x: bx, y: by, width: bw, height: bh, fill: "#2b333d" }, g);
+      if (typeof v === "number") { el("rect", { x: bx, y: by, width: bw * v, height: bh, fill: cf(v) }, g); return; }
+      const hw = bw / 2;
+      el("rect", { x: bx + hw * (1 - v.l), y: by, width: hw * v.l, height: bh, fill: cf(v.l) }, g);
+      el("rect", { x: bx + hw, y: by, width: hw * v.r, height: bh, fill: cf(v.r) }, g);
+      el("line", { x1: bx + hw, y1: by, x2: bx + hw, y2: by + bh, stroke: "#000", "stroke-width": 0.9 * k }, g);
     });
     if (u.prone) { const p = el("text", { x: x + 16, y: y - 18, "font-size": 8, fill: "#ffd400", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "PRONE"; }
     if (u.shutdown) { const p = el("text", { x: x + 16, y: y - 8, "font-size": 8, fill: "#e07468", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "OFF"; }

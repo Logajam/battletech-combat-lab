@@ -526,7 +526,7 @@ where a guess exists). Tags: BUG = it does something wrong now; FEAT = new; CALL
 24a. FIXED 2026-11-24 FEAT **Physical attack damage goes into the "Per weapon" stats in the results** (Daniel, 2026-11-22, later: "Physical attack damage should be recorded in the \"Per weapon\" stats in results."). Punches, kicks, charges and so on counted as weapons there, next to the ranged ones. (Check what the per-weapon stats cover now.)
 
 ### F. Armour and placards
-24. BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
+24. FIXED 2026-11-24 (the mockup's lrBar: armour and structure split at the centre, each side wearing in from its outer edge; centre torso and head count half to each side) BUG **The right / left health bars did not make it into the port** (the mockup's placard bars wear in from the left and right edges so the damaged side shows; see
     `INTEGRATION__BATTLEROM_UI.md` Section 5).
 25. TASK **An audit of this whole conversation for missed details:** "I feel like I need to send you on an audit of this entire conversation looking for missed details." (Go through the
     sessions' transcripts and the BATTLEROM_UI design record item by item against the working page; the first audit, Section 22, compared the screens only.)
