@@ -110,6 +110,14 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   "less than successful", so settle homes on paper first, then build. Output: one table file; Daniel rules on the conflicts.
   DRAFT 1 WRITTEN 2026-11-24: `INTEGRATION__UI_DECISION_HOMES.md` (about 110 rows, Section 10 lists the rulings needed). The
   on-screen data sheet is going away: its job moves to the Inspector (long press), Daniel 2026-11-24. Section 12 adds what the MegaMek bridge expects to be sent. REVIEW PENDING.
+- P11. ONE ORDER FORMAT (Daniel, 2026-11-24: "saving, sharing and branching for free is the winning combo"): one typed,
+  versioned schema for every decision answer (move, fire with twist / flip / ammo / mode, physical, switches), used by live
+  play (`play_answer`), the MegaMek bridge (`pick_json`, `decl_json`, `phys_json`, `path_steps`), bots, saved games and
+  replays. A saved game = starting conditions + the ordered answer list (P2); an alternate timeline = that list cut at an
+  earlier turn (P4). Starts from `human_bots.rs` `Decision` / `Controller` (already the typed list; its `Choice` catch-all is
+  free text and must become typed fields). Needs: a schema version from day one, input validation, the 91 reference battles
+  unchanged. First step: compare `play_answer` with the bridge's shapes and write the schema from the decision-homes table
+  (`INTEGRATION__UI_DECISION_HOMES.md`). Build order: after P3a, before P2 / P4.
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
 - P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
