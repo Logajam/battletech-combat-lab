@@ -116,17 +116,22 @@ function zoom(f, cx, cy) {
   S.view = { x: v.x + (v.w - nw) * px, y: v.y + (v.h - nh) * py, w: nw, h: nh };
   applyView();
 }
-// drag to pan, wheel / pinch to zoom, press and hold for a card
+// drag to pan, wheel / pinch to zoom, press and hold for a card. PRESS AND HOLD (bug B13, Daniel 2026-11-22: "Long click to view detailed
+// information on the enemy is not working"): on a unit it opens the Inspector, the detail sheet of THAT unit, friend or enemy (Daniel's
+// ruling 2026-11-24: the data sheet's job moves to the Inspector on a long press); on a hex, the hex card. It used to open only the hex
+// card, and any movement over 2 px cancelled it, which a fingertip always makes: a hold must stay within HOLD_SLOP px of where it began.
+const HOLD_SLOP = 10;
 (() => {
-  const ptrs = new Map(); let moved = false, lastDist = 0, timer = null;
+  const ptrs = new Map(); let moved = false, lastDist = 0, timer = null, start = null;
   const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
   svg.addEventListener("pointerdown", (e) => {
-    ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; lastDist = 0; cancel();
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; lastDist = 0; cancel(); start = [e.clientX, e.clientY];
     if (ptrs.size === 1) {
       const t = e.target.closest("[data-unit],[data-hex],[data-reach]");
-      const hex = t && (t.dataset.hex || t.dataset.reach || (unit(+t.dataset.unit) || {}).hex);
-      const which = hex || (t && (unit(+t.dataset.unit) || {}).hex);
-      if (which) timer = setTimeout(() => { if (!moved) { moved = true; showHexCard(which); } }, 650);
+      const uid = t && t.dataset.unit != null ? +t.dataset.unit : null;
+      const hex = t && (t.dataset.hex || t.dataset.reach);
+      if (uid != null && unit(uid)) timer = setTimeout(() => { timer = null; moved = true; inspect(uid); }, 650);
+      else if (hex) timer = setTimeout(() => { timer = null; moved = true; showHexCard(hex); }, 650);
     }
   });
   svg.addEventListener("pointermove", (e) => {
@@ -135,6 +140,8 @@ function zoom(f, cx, cy) {
     const r = svg.getBoundingClientRect();
     if (ptrs.size === 1) {
       const dx = e.clientX - prev[0], dy = e.clientY - prev[1];
+      // a press still waiting to become a hold does not pan until the finger has clearly left its spot
+      if (timer && start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) <= HOLD_SLOP) return;
       if (Math.abs(dx) + Math.abs(dy) > 2) { moved = true; cancel(); }
       S.view.x -= dx * S.view.w / r.width; S.view.y -= dy * S.view.h / r.height; applyView();
     } else if (ptrs.size === 2) {
@@ -295,7 +302,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; if (DOCK.size === 0) dockSize(1);
+  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; clearCluster(); $("wpanel").style.display = "none"; DOCK.tab = "plan"; DOCK.unit = null; if (DOCK.size === 0) dockSize(1);
   const turn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
   const PH = { deploy: "Deployment", move_order: "Movement", movement: "Movement", stand_up: "Movement", boost: "Movement", spot: "Ranged attacks", tag: "TAG", target: "Ranged attacks", declaration: "Ranged attacks", physical: "Physical attacks", end_phase: "Heat" };
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}`);
@@ -578,7 +585,7 @@ function undo() {
 function commitMove(answer) { if (standing()) send({ stand: true, plan: answer }); else if (S.order) send({ unit: S.mv.unit, plan: answer }); else send(answer); }
 // charge / death from above: tap an enemy; the stops go black; pick one; a popup explains and asks
 function onUnitTap(id) {
-  const r = S.req;
+  const r = S.req; DOCK.unit = null;
   if (r && r.kind === "move_order" && r.candidates.includes(id)) { if (id !== S.sel) selectMover(id); else { S.sel = id; redraw(); } return; }
   S.sel = id;
   if (moving() && id === S.mv.unit) {                      // its own hex (the token covers it): turn in place
@@ -922,12 +929,12 @@ HANDLERS.end_phase = (r) => {
 // Header (unit name, smaller / bigger arrows; a flick up or down does the same), a summary line, and the tabs Plan (what the question
 // asks), Weapons, Stats (equipment switches, critical slots) and Armor (the silhouette with a pip for each point, damage turns pips red from
 // the outside in). The question's own controls always live in Plan; the other tabs show whichever unit is selected (enemies read-only).
-const DOCK = { size: 1, tab: "plan" };
+const DOCK = { size: 1, tab: "plan", unit: null };   // unit: the one a long press is inspecting (null: the selected one)
 const TABS = [["plan", "Plan"], ["weapons", "Weapons"], ["stats", "Stats"], ["armor", "Armor"]];
 function dockSize(n) { DOCK.size = Math.max(0, Math.min(2, n)); $("dock").dataset.size = DOCK.size; setPref("dock", DOCK.size); }
 function dockTab(t) { DOCK.tab = t; if (DOCK.size === 0) dockSize(1); dockRender(); }
 function dockRender() {
-  const u = unit(S.sel) || S.units.find((x) => x.team === S.myTeam) || S.units[0];
+  const u = (DOCK.tab !== "plan" && unit(DOCK.unit)) || unit(S.sel) || S.units.find((x) => x.team === S.myTeam) || S.units[0];
   $("dock").dataset.tab = DOCK.tab;
   if (!u) return;
   const f = fracs(u);
@@ -938,7 +945,9 @@ function dockRender() {
 }
 const renderDetail = dockRender;
 function openDetail(tab) { DOCK.tab = tab === "equip" ? "stats" : tab || "stats"; dockSize(2); dockRender(); }
-function closeDetail() { DOCK.tab = "plan"; dockSize(1); dockRender(); }
+function closeDetail() { DOCK.tab = "plan"; DOCK.unit = null; dockSize(1); dockRender(); }
+// press and hold on a unit (map token or strip chip): its Inspector
+function inspect(id) { DOCK.unit = id; openDetail("stats"); }
 function tabBody(u) {
   if (DOCK.tab === "weapons") return weaponsTab(u);
   if (DOCK.tab === "armor") return armorTab(u);
@@ -1006,10 +1015,22 @@ document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-act]");
   if (t && t.dataset.hold && e.detail > 0) return; // Move! is a long press; only a keyboard activation (no click count) commits at once
   if (t && !(t.tagName === "INPUT" && t.type === "checkbox")) { act(t); return; }
-  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; if (setTcur(id)) return; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if (DOCK.tab !== "plan") dockRender(); return; }
+  const chip = e.target.closest(".chip,.echip"); if (chip) { const id = +chip.dataset.u; DOCK.unit = null; if (setTcur(id)) return; if (S.req && S.req.kind === "move_order" && S.cands.includes(id)) { selectMover(id); return; } if (moving() && S.mv.attacks.some((a) => a.target === id)) { onUnitTap(id); return; } S.sel = id; redraw(); if (DOCK.tab !== "plan") dockRender(); return; }
   const un = e.target.closest("[data-unit]"); if (un && setTcur(+un.dataset.unit)) return; if (un && !(S.req && S.req.kind === "target" && S.req.enemies.some((x) => x.id === +un.dataset.unit))) { onUnitTap(+un.dataset.unit); return; }
   if (!e.target.closest("#menu") && !e.target.closest("#menu-btn")) $("menu").style.display = "none";
 });
+// press and hold on a strip chip (your units, the enemy bar): that unit's Inspector; the click that ends the hold does nothing more
+(() => {
+  let t = null, held = false, at = null;
+  document.addEventListener("pointerdown", (e) => {
+    const c = e.target.closest(".chip,.echip"); if (!c) return;
+    held = false; at = [e.clientX, e.clientY]; clearTimeout(t);
+    t = setTimeout(() => { t = null; held = true; inspect(+c.dataset.u); }, 650);
+  });
+  document.addEventListener("pointermove", (e) => { if (t && at && Math.hypot(e.clientX - at[0], e.clientY - at[1]) > HOLD_SLOP) { clearTimeout(t); t = null; } });
+  ["pointerup", "pointercancel"].forEach((n) => document.addEventListener(n, () => { clearTimeout(t); t = null; }));
+  document.addEventListener("click", (e) => { if (held && e.target.closest(".chip,.echip")) { held = false; e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 document.addEventListener("change", (e) => { const t = e.target; if (t.dataset && t.dataset.act === "fire") { t.checked ? S.decl.sel.add(+t.dataset.id) : S.decl.sel.delete(+t.dataset.id); declSheet(); redraw(); } else if (t.dataset && t.dataset.act === "sw-unjam") { sendUnjam(); } });
 function sendUnjam() { const names = [...document.querySelectorAll('[data-act="sw-unjam"]')].filter((c) => c.checked).map((c) => c.dataset.name); setSwitch({ unjam: names }, S.req ? S.req.unit : S.sel); }
 function refreshPanel() { if (S.decl) declSheet(); }

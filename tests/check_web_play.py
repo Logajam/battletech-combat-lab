@@ -211,7 +211,11 @@ const POLICY = (r) => {
     };
     if (st.kind === 'deploy') { await page.locator('[data-deploy]').first().dispatchEvent('click'); await page.waitForSelector('[data-act="place"]'); await holdBtn(page, 'place'); }
     else if (st.kind === 'move_order') await tap('pick-unit');
-    else if (st.kind === 'stand_up') await tap('stand', '[data-v="1"]');
+    else if (st.kind === 'stand_up') {
+      // standing is planned with the move (bug A2): Stand up opens the plan, nothing is rolled until Move! is held
+      await tap('stand-plan'); await page.waitForFunction(() => !!window.__bm.mv, null, { timeout: 20000 });
+      await holdBtn(page, 'commit');
+    }
     else if (st.kind === 'boost') await tap('boost', '[data-v="0"]');
     else if (st.kind === 'movement') {
       const hex = await page.evaluate(() => { const r = window.__bm.req; const o = r.options.filter((x) => x.mode === 'Walk').sort((a, b) => b.mp - a.mp)[0] || r.options[0]; return o && o.hex; });
@@ -320,13 +324,16 @@ const POLICY = (r) => {
     if (st.kind === 'tag') { solo.tags++; await tapSel('[data-act="tag"][data-id=""]'); }
     else if (st.kind === 'target') {
       await page.waitForFunction(() => !__bm.req || __bm.req.kind !== 'target' || (__bm.fire && __bm.fire.pvt.size), null, { timeout: 20000 }).catch(() => {});
-      const ok = await page.evaluate(() => { const F = __bm.fire; if (!F) return false; for (const [id, t] of F.pvt) { const w = t.req && t.req.weapons.find((x) => x.in_range && !x.needs_twist); if (w) { setTcur(id); __bm.decl.sel.add(w.id); syncAssign(); return true; } } return false; });
+      const ok = await page.evaluate(() => { const F = __bm.fire; if (!F) return false; for (const [id, t] of F.pvt) { const w = t.req && t.req.weapons.find((x) => x.in_range); if (w) { setTcur(id); __bm.decl.sel.add(w.id); syncAssign(); return true; } } return false; });
       if (ok) { solo.fired++; await tapSel('[data-act="fire-go"]'); } else if (await page.evaluate(() => !!(__bm.req && __bm.req.kind === 'target'))) await tapSel('[data-act="hold"]');
     }
     else await page.evaluate(() => { window.__tap = true; const r = __bm.req, k = r.kind;
       if (k === "deploy") send({ hex: r.hexes[0], facing: "N" });
       else if (k === "move_order") send({ unit: r.candidates[0] });
-      else if (k === "movement") { const o = r.options.filter((x) => x.mode === "Walk").sort((a, b) => b.mp - a.mp)[0]; send(o ? { hex: o.hex, facing: o.facing, mode: o.mode } : { stay: true }); }
+      else if (k === "movement") {   // close in on the Atlas (the Raven's own guns reach 9 hexes)
+        const foe = __bm.units.find((u) => u.team !== __bm.myTeam && u.hex && !u.destroyed);
+        const o = r.options.slice().sort((a, b) => (foe ? dist(a.hex, foe.hex) - dist(b.hex, foe.hex) : 0) || b.mp - a.mp)[0];
+        send(o ? { hex: o.hex, facing: o.facing, mode: o.mode } : { stay: true }); }
       else if (k === "stand_up") send({ stand: true });
       else if (k === "physical") send({ kind: null });
       else if (k === "end_phase") send({});
