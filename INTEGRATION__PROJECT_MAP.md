@@ -16,6 +16,9 @@ project's files. Never let one source project's file overwrite the other's same-
 
 ## 0. WHERE WE ARE (2026-11-14, end of session 26) — read this first
 
+**Daniel plays the BROWSER version (the website), 2026-11-24: "I'm exclusively using the browser based version for now."** A fix reaches him only when the
+website is published (`tools/publish_public.py --push`, then `tools/publish_web_lab.py --push`); test play fixes on the browser build (`check_web_play.py`).
+
 **Pick up here (Daniel, 2026-11-14, closing session 26):** "I'll start that list tomorrow" - he will play with Combat Lab
 alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`) and bring a change list; then it goes to Opus for review before
 anything goes to the public repo (E6). Session 26 built Daniel's round-2 list, all of it merged to `main` (pull requests 224,
@@ -462,6 +465,12 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s35-work) SESSION 35 WORK ORDER** (2026-11-24): the engine pass (`attack_resolution` at_hex -4 and terrain, `orchestrator` prone_turn / drop_to_ground /
+  eject_pilot and their `BotSet` hooks, heat.rs voluntary shutdown with `player_choices` power_request / held_off), the report (`[Resolve]` and `Slot roll` lines,
+  play.js `reportHtml` / `fmtDamage`, Dice details option), Get Results (`results::battle_line` moved from lab/src/runs.rs; lab.js `openPlayedGame`), physical.rs
+  `tally_physical`, play.js awareness (moved marks, `turnStatus`, twist arrow, `drawAttackLines` / `attackCard`, jump toggle) and the left / right placard bars
+  (`sideFrac`). Look at: the eject landing modifiers (planetary conditions not modelled); whether a charge's "hit" in the statistics should come from the roll
+  (today: damage dealt > 0); the attack lines' parsing of the report lines.
 - **(s35-bugs2) INITIATIVE DICE AND TAG REPORT** (2026-11-24): `forces::initiative_order` (`Battle::initiative_throws`), `orchestrator::log_initiative`, `attack_resolution::weapon_attack_parts`
   (the parts must sum to the TAG number: the leftover goes to "other"), tag.rs `roll_designation`'s line, `stage6_battles.rs` `known_changes`, play.js report section "tag". Reference logs updated
   (only those two kinds of line changed, checked line by line).
