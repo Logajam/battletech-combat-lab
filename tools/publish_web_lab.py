@@ -25,6 +25,11 @@ def run(args, cwd, **kw):
     return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True, **kw)
 
 
+HOLD = ("HELD (Daniel, 2026-11-25): the BTTT bot (engine/core/src/bttt.rs) is not to be in any public copy or website build yet. "
+        "Remove this hold only when Daniel says BTTT may go public.")
+if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine", "core", "src", "bttt.rs")):
+    sys.exit(HOLD)
+
 def main(argv):
     if "--skip-build" not in argv:
         subprocess.check_call([sys.executable, os.path.join(REPO_ROOT, "tools", "build_web_lab.py")])
