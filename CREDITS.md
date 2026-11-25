@@ -36,18 +36,18 @@ the BattleTech community. This project would not exist without their work.
   `data/forcegenerator` era tables and `data/universe/factions`), reduced to a bit mask per 'Mech per era by
   `tools/make_availability.py`, following MegaMek's RAT generator (`RATGenerator.java`). Same licence as above
   (CC BY-NC-SA 4.0, non-commercial); the file carries MegaMek's notice in its `_license` field.
+- **Unit images (sprites)** (2026-11-25): MegaMek's top-down unit images (35 of them, from `reference_art/megamek_sprites/`) are packed
+  unchanged into `engine/lab/web/mechsprites.js` (`tools/make_mechsprites.py`) and shown as the picture on each unit's base in the 3D
+  tabletop view; they ship with the Combat Lab pages. They are (C) the MegaMek Team and the unit image artists, CC BY-NC-SA 4.0 (Daniel,
+  2026-11-25: "licensed as allowed to be used for non commercial purposes, which is us"): non-commercial only, ShareAlike. The file keeps
+  that notice in its header. Never relicense them; any download or copy carrying the file carries this credit. Own generic pictures for
+  units without one are planned (Daniel, 2026-11-25) and will replace the plain fallback figure.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot and its "caspar" bot a translation of MegaMek's CASPAR bot (Mutual Support movement
   and deployment; `engine/core/src/caspar.rs`), both from MegaMek's source, and both deploy by a translation of MegaMek's bot
   deployment (`BotClient` / `Princess`; `engine/core/src/princess_deploy.rs`), rules the rulebooks leave open were settled by reading
   MegaMek's source (cited "MegaMek" in the code), and `megamek_bridge/` is built against MegaMek (see its README). MegaMek
   is never copied into or changed by this project.
-
-## BTTT
-
-**BTTT: BattleTech TableTop** by Raptor007 (Blair Sherman), <https://github.com/Raptor007/BTTT>, a fan-made computer game of tabletop BattleTech.
-It has no licence, so this project copies none of its code, sounds, textures or other files. Its game and its computer opponent were studied
-for ideas (how a simple one-turn bot weighs damage, cover and heat), and anything built from them is written from scratch. With thanks to the author.
 
 ## BattleTech
 
@@ -69,3 +69,7 @@ The programs are built with open-source Rust libraries (MIT, Apache-2.0 and simi
 licence and its licence text are in [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) (made by
 `tools/third_party_licenses.py`). The replay page loads the fonts Saira Condensed and IBM Plex from Google Fonts when it
 is viewed (SIL Open Font License); they are not part of the download.
+
+**three.js** (MIT, Copyright 2010-2021 three.js authors, <https://threejs.org>): `engine/lab/web/three.min.js`, release r128, unchanged,
+with its own licence notice in the file's first lines. It draws the 3D tabletop view of the map (`tabletop.js`) and is downloaded by the
+play page only when that view is asked for. It is JavaScript the page loads, not a Rust library, so it is not in `THIRD_PARTY_LICENSES.txt`.

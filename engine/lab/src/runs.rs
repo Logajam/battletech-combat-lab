@@ -3,7 +3,7 @@
 //!
 //! SETUP (JSON):
 //! ```text
-//! {"teams": [{"name": "Red", "bot": "gladiator" | "princess" | "hydra" | "caspar" | "bttt",
+//! {"teams": [{"name": "Red", "bot": "gladiator" | "princess" | "hydra" | "caspar",
 //!             "units": [{"unit": "Atlas AS7-K.mtf", "gunnery": 4, "piloting": 5}, ...]}, ...],
 //!  "board": "16x17_Grassland_1.board",            (a board's id from list_boards)
 //!  "battles": 20, "seed": 1, "threads": 0 (= automatic: a quarter of the cores left free), "max_turns": 100 (optional)}
@@ -49,7 +49,7 @@ use serde_json::{json, Value};
 
 use crate::catalog::Catalog;
 
-pub const BOTS: [&str; 5] = ["gladiator", "princess", "hydra", "caspar", "bttt"];
+pub const BOTS: [&str; 4] = ["gladiator", "princess", "hydra", "caspar"];
 
 /// The engine settings and the turn cap for a setup (one board, one zone assignment), the packed units and board unpacked.
 /// Err = what is wrong with it, in words for the page.
