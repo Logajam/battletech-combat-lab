@@ -131,6 +131,7 @@ moving the mockup into the live game "was less than successful", so settle homes
   (`INTEGRATION__UI_DECISION_HOMES.md`). Build order: after P3a, before P2 / P4.
 - P4. Alternate timelines in a game (branch from an earlier turn and play on; ties to the "going back in time and changing
   history on a separate branch" note in Section 0 and the saved-state work, CL6).
+- P5a. BTTT IS PRIVATE-ONLY FOR NOW (Daniel, 2026-11-25): the private download `CombatLab-alpha-3.zip` (`downloads` branch) includes it; `publish_public.py` and `publish_web_lab.py` refuse to run while `engine/core/src/bttt.rs` exists (a HOLD guard at the top of each) until Daniel says BTTT may go public.
 - P5. KEEP THE DOWNLOAD UP TO DATE and add a download button to the website (Daniel, 2026-11-24). Rebuild on the `downloads`
   branch each time code changes; the public-repo front-page link (E6) is still held until Daniel says so.
 - Secondary wants (Daniel, 2026-11-24, same day):
