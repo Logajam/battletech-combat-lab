@@ -52,6 +52,9 @@ impl BotSet for GladiatorBots {
             if b.units[attacker].bot == "hydra" {
                 return crate::hydra::choose_target(b, attacker);
             }
+            if b.units[attacker].bot == "bttt" {
+                return crate::bttt::choose_target(b, attacker);
+            }
             crate::bot_targets::gladiator_choose_target(b, attacker)
         })
     }
@@ -65,6 +68,10 @@ impl BotSet for GladiatorBots {
     }
 
     fn move_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
+        // BTTT picks the unit to move at random (a hash of the turn and the candidates: bttt.rs)
+        if let Some(u) = crate::bttt::move_pick(b, candidates) {
+            return Some(u);
+        }
         crate::hydra::picks_move_order(b, candidates).then(|| crate::hydra::move_pick(b, candidates))
     }
 
@@ -74,6 +81,9 @@ impl BotSet for GladiatorBots {
         crate::team_settings::with_unit(b, attacker, |b| {
             if b.units[attacker].is_princess_family() {
                 return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
+            }
+            if b.units[attacker].bot == "bttt" {
+                return crate::bttt::choose_declaration(b, ctx, attacker, target);
             }
             crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
         })
@@ -97,6 +107,9 @@ impl BotSet for GladiatorBots {
             let mut ties = Ties { recorded: None, missed: false };
             let (pick, note) = if b.units[mover].bot == "hydra" {
                 crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
+            } else if let Some(r) = (b.units[mover].bot == "bttt").then(|| crate::bttt::choose_movement(b, mover, standup_mp, entry_edge)).flatten() {
+                // BTTT's own walk (bttt.rs); a move it does not make itself (entering the map) falls to Gladiator's below
+                r
             } else if b.units[mover].is_princess_family() {
                 // CASPAR = Princess's whole movement ranker with the Mutual Support doctrine swapped in (caspar.rs)
                 crate::princess_modern::choose_as(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties, b.units[mover].bot == "caspar")
@@ -104,10 +117,14 @@ impl BotSet for GladiatorBots {
                 move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
             };
             let gate = match &pick {
-                Some(p) => {
-                    let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, p, standup_mp, entry_edge);
-                    PathGate { psrs, hazard }
-                }
+                Some(p) => match crate::drawn_route::route_gate(b, mover, p) {
+                    // a pick that carries its route (BTTT's walk): that route's own PSRs and hazard
+                    Some((psrs, hazard)) => PathGate { psrs: Some(psrs), hazard: Some(hazard) },
+                    None => {
+                        let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, p, standup_mp, entry_edge);
+                        PathGate { psrs, hazard }
+                    }
+                },
                 None => PathGate::default(),
             };
             (pick, note, gate)

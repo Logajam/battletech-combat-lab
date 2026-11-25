@@ -256,7 +256,7 @@ function classIcon(tons) {
 function teamPanel(t, ti) {
   const el = document.createElement("div");
   el.className = "win team";
-  const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
+  const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${botLabel(b)}</option>`).join("");
   const tons = t.units.reduce((s, u) => s + (u.tons || 0), 0);
   const bv = t.units.reduce((s, u, ui) => s + Math.floor((unitBv(u) || 0) * (1 + c3Increase(t, ui)) + 0.5), 0);
   el.innerHTML = `
@@ -889,7 +889,9 @@ function optionRow(o, store = OPTIONS_STORE) {
 // option. Put the Princess/CASPAR control sliders in there plus any other options or switches a bot may have. That will let us
 // remove those options from the options tab." Each team keeps its own bot settings (t.settings); a unit its ammunition per bin
 // (u.ammo = {"<location>:<slot>": munition}). The engine reads them as TEAM_SETTINGS and a FORCES entry's "ammo".
-const BOT_FOLDERS = { gladiator: ["Gladiator", "Legate"], princess: ["Princess"], caspar: ["Princess"], hydra: ["Hydra"] };
+const BOT_FOLDERS = { gladiator: ["Gladiator", "Legate"], princess: ["Princess"], caspar: ["Princess"], hydra: ["Hydra"], bttt: [] };
+// a bot's name for the team window: BTTT is an acronym (a re-implementation of the computer opponent of BTTT: BattleTech TableTop, bttt.rs)
+const botLabel = (b) => (b === "bttt" ? "BTTT" : b[0].toUpperCase() + b.slice(1));
 const isBotOption = (o) => o.top === "Bot features";
 // Princess's behaviour sliders (MegaMek's 0-10 scales), shown as sliders rather than a line of JSON
 const SLIDER_LABELS = { fall_shame: "Piloting caution (fall shame)", bravery: "Bravery", hyper_aggression: "Aggression", self_preservation: "Self-preservation",
@@ -938,7 +940,7 @@ function openTeamConfig(ti) {
   const body = d.querySelector(".dialog-body");
   const draw = () => {
     t.settings = t.settings || {};
-    const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
+    const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${botLabel(b)}</option>`).join("");
     body.innerHTML = `<div class="team-head">
         <label>Name <input type="text" data-f="name" value="${esc(t.name)}" maxlength="24"></label>
         <label>Colour <input type="color" data-f="colour" value="${t.colour}"></label>

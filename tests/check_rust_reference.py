@@ -76,6 +76,11 @@ VARIANTS = {
     "caspar_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "caspar:Blue"),
     "caspar_red__hy_8v8_valley": ("hy_8v8_valley", "caspar:Red"),
     "caspar_red__team_4v4_princess_v_gladiator": ("team_4v4_princess_v_gladiator", "caspar:Red"),
+    # BTTT's re-implemented bot (2026-11-25, bttt.rs): a team string "bttt:TEAMS" plays those teams as BTTT (btsim --bttt). One a duel (its
+    # walk, its value, its weapon dropping), one on hills (its routes up and down levels, walked as picked), one BTTT against itself.
+    "bttt_red__hy_duel_griffin": ("hy_duel_griffin", "bttt:Red"),
+    "bttt_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "bttt:Blue"),
+    "bttt_both__hy_2v2_grass": ("hy_2v2_grass", "bttt:Red,Blue"),
     # event coverage (2026-11-24, tools/make_event_scenarios.py): Hydra on both teams of two jump-'Mech scenarios, where a
     # death-from-above happens (rare: Gladiator never makes one)
     "hydra_both__ev_dfa_a": ("ev_dfa_a", "Red,Blue"),
@@ -84,11 +89,13 @@ VARIANTS = {
 
 
 def bot_args(teams):
-    """btsim's flags for a variant's team string: "Red" / "Red,Blue" = Hydra, "caspar:Red" = CASPAR."""
+    """btsim's flags for a variant's team string: "Red" / "Red,Blue" = Hydra, "caspar:Red" = CASPAR, "bttt:Red" = BTTT's bot."""
     if not teams:
         return []
     if teams.startswith("caspar:"):
         return ["--caspar", teams[len("caspar:"):]]
+    if teams.startswith("bttt:"):
+        return ["--bttt", teams[len("bttt:"):]]
     return ["--hydra", teams]
 
 
@@ -98,6 +105,8 @@ def bot_label(teams):
         return ""
     if teams.startswith("caspar:"):
         return f", CASPAR drives {teams[len('caspar:'):]}"
+    if teams.startswith("bttt:"):
+        return f", BTTT drives {teams[len('bttt:'):]}"
     return f", Hydra drives {teams}"
 
 

@@ -127,6 +127,20 @@ MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the mo
   The water test uses MegaMek's own hex line (`caspar::mm_intervening`, identical to MegaMek's on all 14,641 lines of an 11 x 11 board). Feel checks only (session 30): 4v4 v Gladiator, 40 battles, 17-23 both as
   Princess and as CASPAR; mirror `hy_4v4_heavy_hills`, 20 a seating, CASPAR 25 - Princess 15 (`tools/round_robin.py --bots princess,caspar`).
 
+## BTTT (a re-implementation of another game's opponent, Rust only, session 36)
+
+BTTT: BattleTech TableTop (Raptor007, github.com/Raptor007/BTTT) has a simple computer opponent. It has no licence, so this project does not copy it: `engine/core/src/bttt.rs` is written from the algorithm
+(PROJECT_MAP P8 has what was learned, P16 what was built). It is a BASELINE: one turn of greed, no team play, no look-ahead. `btsim --bttt TEAM`, or the bot "bttt" in `units.json` / the Lab's team window.
+- **Movement:** for each enemy, walk toward it one step at a time (`step_walk.rs`): an enemy in a side or rear arc turns the unit toward it, otherwise it steps forward; a blocked step tries to walk round (turn the way it last turned, up to
+  two sixths, then back the other way, trying a step from each facing not yet tried). Every position on the way, the start included, is valued; the best path over all enemies is the move and is walked exactly as picked (so every piloting roll and hazard
+  is taken where the path puts it). Never backward, never jumps.
+- **Value of a position against one enemy:** the expected damage of the weapons it would fire (to-hit as a straight line, `(11 - max(0, TN - 2)) / 11`, a number above 12 cannot hit), after dropping the weapon worth least per point of heat until the shot's heat plus net heat
+  is under 5, with the best torso twist of centre / left / right; divided by `1 + 0.25 x` the enemy's movement while it has yet to move; times 1.5 behind an enemy that cannot move; plus twice a bonus (0.1 a hex closer than the start, 0.01 a level, woods +1 / +2,
+  partial cover +0.5 or +1.25 once the enemy has moved, 0.0001 a degree of facing it, the unit's own movement modifier, less a penalty for running with a damaged gyro or hip).
+- **Firing:** the enemy with the best value now, the best twist, the same weapon dropping. **Which unit moves:** BTTT picks at random; here a hash of the turn and the candidates. **Physical attacks, deployment, spotting, heat equipment:** what a Gladiator gets.
+- **Not the same as BTTT:** the engine's to-hit numbers and expected damage per hit (not BTTT's 0.6 x cluster size); no jumping; a hex another unit stands in is never entered; a unit entering the map from its edge uses Gladiator's move.
+- **Results (a first look):** BTTT against each bot, both seatings of two mirror scenarios (`hy_duel_griffin`, `hy_4v4_lance_woods`), 20 battles a seating, seed 1, `tools/round_robin.py --bots bttt,gladiator,princess,hydra,caspar` (records `bttt_baseline_2026-11-25`): BTTT wins 18% of the decided battles against Gladiator (14 - 63, 3 undecided), 31% against Princess (25 - 55), 11% against Hydra (9 - 70, 1 undecided), 39% against CASPAR (31 - 49), and 19 - 21 against itself (Red - Blue); its strength-left margin is -0.12, -0.15, -0.18 and -0.07 against them. Two scenarios and 80 battles a pair: a first look, not a ranking (Daniel: 40 a seating for a decision, 400 a match-up for a fluke).
+
 ## What actually differs, and what the battles show
 
 Same 20 seeds, Gladiator with Legate (session 14):

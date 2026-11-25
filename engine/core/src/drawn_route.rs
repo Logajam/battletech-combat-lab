@@ -204,3 +204,13 @@ pub fn finish(b: &Battle, mover: UnitId, waypoints: &[(i64, i64)], facing: i64, 
         hazard: walked.hazard,
     })
 }
+
+/// The PSRs and hazard of the route a pick carries (None: it carries none), what `orchestrator::walk_path` is to roll: the route's own, not
+/// the search's cheapest to the same end.
+pub fn route_gate(b: &Battle, mover: UnitId, pick: &Pick) -> Option<(i64, f64)> {
+    let steps = pick.route.as_ref()?;
+    let uw = UnitWalk::of(b, mover)?;
+    let path = path_of_steps(b, &uw, steps)?;
+    let (walked, _) = replay(b, &uw, &path)?;
+    Some((walked.always_psrs + if pick.mode == "Run" { walked.run_psrs } else { 0 }, walked.hazard))
+}
