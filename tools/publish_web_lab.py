@@ -36,7 +36,7 @@ def main(argv):
     if not os.path.exists(os.path.join(WEB, "combatlab.wasm")):
         raise SystemExit("no build: run tools/build_web_lab.py")
     # the checks: text files carry no email address; nothing but the expected files
-    expected = {"index.html", "play.html", "play.js", "boardart.js", "playworker.js", "coi.js", "coi-sw.js", "lab.css", "lab.js", "engine.js", "wasmio.js", "worker.js", "combatlab.wasm", "catalog.json", "data.pack.gz",
+    expected = {"index.html", "play.html", "play.js", "boardart.js", "mapview.js", "playworker.js", "coi.js", "coi-sw.js", "lab.css", "lab.js", "engine.js", "wasmio.js", "worker.js", "combatlab.wasm", "catalog.json", "data.pack.gz",
                 "data.pack.b64.txt", "defaults.json", "options.json", "availability.json"}
     names = set(os.listdir(WEB))
     if names - expected:

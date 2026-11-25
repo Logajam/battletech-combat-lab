@@ -8,7 +8,7 @@ const qs = new URLSearchParams(location.search);
 let GAME = +qs.get("game");
 let COLOURS = {};
 try { COLOURS = JSON.parse(qs.get("colours") || "{}"); } catch (e) { /* default colours */ }
-const R = 34, SQ3 = Math.sqrt(3);
+const R = MapView.R, SQ3 = Math.sqrt(3);
 const NS = "http://www.w3.org/2000/svg";
 const DIR = { N: [0, -1], NE: [SQ3 / 2, -0.5], SE: [SQ3 / 2, 0.5], S: [0, 1], SW: [-SQ3 / 2, 0.5], NW: [-SQ3 / 2, -0.5] };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -39,8 +39,8 @@ const query = (q) => api("play_query", { query: q });
 
 // ---------------------------------------------------------------- geometry (flat-topped hexes, even columns half a hex lower, N up)
 const parse = (l) => [parseInt(l.slice(0, 2), 10), parseInt(l.slice(2), 10)];
-const centre = (l) => { const [c, r] = parse(l); return [R + (c - 1) * 1.5 * R, (SQ3 / 2) * R + (r - 1) * SQ3 * R + (c % 2 === 0 ? (SQ3 / 2) * R : 0)]; };
-const pts = (cx, cy, k = 1) => [0, 1, 2, 3, 4, 5].map((i) => `${(cx + R * k * Math.cos(Math.PI / 3 * i)).toFixed(1)},${(cy + R * k * Math.sin(Math.PI / 3 * i)).toFixed(1)}`).join(" ");
+const MV = MapView.create(svg, { rescale: () => { if (typeof redraw === "function" && S.board) redraw(); } });
+const centre = MV.centre, pts = MV.pts;   // where a hex is, and its six corners (the map view, mapview.js)
 const hexName = (c, r) => String(c).padStart(2, "0") + String(r).padStart(2, "0");
 function neighbours(l) { // in the order of polygon edges 0..5 (SE, S, SW, NW, N, NE)
   const [c, r] = parse(l), low = c % 2 === 0;
@@ -54,68 +54,12 @@ function dist(a, b) {
 const unit = (id) => S.units.find((u) => u.id === id);
 
 // ---------------------------------------------------------------- map
-let gMap, gDyn, gTop;
+let gDyn, gTop;   // the layers drawn into (the base map layer is the view's own)
 function buildMap() {
-  svg.innerHTML = "";
-  const W = S.board.width, H = S.board.height;
-  S.bounds = [0, 0, R * 2 + (W - 1) * 1.5 * R, SQ3 * R * H + (SQ3 / 2) * R];
-  gMap = el("g", {}, svg); gDyn = el("g", {}, svg); gTop = el("g", {}, svg);
-  // the terrain is painted by the same code as the Lab's map preview (boardart.js), into an image under the interactive layer
-  const hexes = new Map();
-  for (const label of Object.keys(S.board.hexes)) {
-    const h = S.board.hexes[label], f = {};
-    for (const [k, v] of Object.entries(h.f || {})) f[k] = [String(v)];
-    if (h.b) f.building = [];
-    hexes.set(`${+label.slice(0, 2)},${+label.slice(2)}`, { level: h.l || 0, f });
-  }
-  const SC = 2, cv = document.createElement("canvas");
-  cv.width = Math.ceil(S.bounds[2] * SC); cv.height = Math.ceil(S.bounds[3] * SC);
-  const g2 = cv.getContext("2d"); g2.scale(SC, SC);
-  BoardArt.paintHexes(g2, [{ board: { hexes }, ox: 0, oy: 0 }], R);
-  el("image", { href: cv.toDataURL("image/png"), x: 0, y: 0, width: S.bounds[2], height: S.bounds[3], "pointer-events": "none" }, gMap);
-  for (const label of Object.keys(S.board.hexes).sort()) {
-    const [x, y] = centre(label), g = el("g", { "data-hex": label }, gMap);
-    el("polygon", { points: pts(x, y), fill: "transparent" }, g);
-    if (O.labels) { const t = el("text", { x, y: y - R * 0.62, "text-anchor": "middle", "font-size": 8, fill: "#000", "fill-opacity": ".55", "font-family": "ui-monospace,monospace", "pointer-events": "none" }, g); t.textContent = label; }
-  }
-  fit();
+  MV.setBoard(S.board, { labels: O.labels }); gDyn = MV.layers.dyn; gTop = MV.layers.top;
 }
-let kLast = 0, kTimer = null;
-function applyView() {
-  const v = S.view; svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${v.h}`);
-  // the placards keep one size on the screen, so they are drawn again (after a pause) when the zoom changes
-  const k = v.w / (svg.getBoundingClientRect().width || 1);
-  if (kLast && Math.abs(k - kLast) / kLast > 0.08) { clearTimeout(kTimer); kTimer = setTimeout(() => { if (typeof redraw === "function" && S.board) redraw(); }, 120); }
-}
-// zoom in on a set of hexes (labels) with a margin, as the first view of a game: your own units, not the whole board
-function focusOn(labels, marginHexes) {
-  if (!S.bounds || !labels.length) return fit();
-  const r = svg.getBoundingClientRect(), ar = (r.width || 1) / (r.height || 1), m = (marginHexes || 4) * R * 1.5;
-  const pts = labels.map(centre), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-  let x0 = Math.min(...xs) - m, x1 = Math.max(...xs) + m, y0 = Math.min(...ys) - m, y1 = Math.max(...ys) + m;
-  let w = x1 - x0, h = y1 - y0;
-  if (w / h < ar) { const nw = h * ar; x0 -= (nw - w) / 2; w = nw; } else { const nh = w / ar; y0 -= (nh - h) / 2; h = nh; }
-  // keep the view on the board where the board is large enough to fill it
-  const B = S.bounds;
-  if (w <= B[2] + 8) x0 = Math.max(B[0] - 4, Math.min(x0, B[0] + B[2] + 4 - w));
-  if (h <= B[3] + 8) y0 = Math.max(B[1] - 4, Math.min(y0, B[1] + B[3] + 4 - h));
-  S.view = { x: x0, y: y0, w, h }; applyView();
-}
-function fit() {
-  if (!S.bounds) return;
-  const b = S.bounds, r = svg.getBoundingClientRect(), ar = (r.width || 1) / (r.height || 1);
-  let w = b[2] + 8, h = b[3] + 8;
-  if (w / h < ar) w = h * ar; else h = w / ar;
-  S.view = { x: b[0] - 4 - (w - b[2] - 8) / 2, y: b[1] - 4 - (h - b[3] - 8) / 2, w, h };
-  applyView();
-}
-function zoom(f, cx, cy) {
-  const v = S.view, r = svg.getBoundingClientRect();
-  const px = cx == null ? 0.5 : (cx - r.left) / r.width, py = cy == null ? 0.5 : (cy - r.top) / r.height;
-  const nw = Math.max(120, Math.min(S.bounds[2] * 3, v.w * f)), nh = nw * v.h / v.w;
-  S.view = { x: v.x + (v.w - nw) * px, y: v.y + (v.h - nh) * py, w: nw, h: nh };
-  applyView();
-}
+// zoom in on a set of hexes with a margin (the first view of a game), fit the whole board, zoom about a client point
+const focusOn = MV.focusOn, fit = MV.fit, zoom = MV.zoom;
 // drag to pan, wheel / pinch to zoom, press and hold for a card. PRESS AND HOLD (bug B13, Daniel 2026-11-22: "Long click to view detailed
 // information on the enemy is not working"): on a unit it opens the Inspector, the detail sheet of THAT unit, friend or enemy (Daniel's
 // ruling 2026-11-24: the data sheet's job moves to the Inspector on a long press); on a hex, the hex card. It used to open only the hex
@@ -145,7 +89,7 @@ const HOLD_SLOP = 10;
       // a press still waiting to become a hold does not pan until the finger has clearly left its spot
       if (timer && start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) <= HOLD_SLOP) return;
       if (Math.abs(dx) + Math.abs(dy) > 2) { moved = true; cancel(); }
-      S.view.x -= dx * S.view.w / r.width; S.view.y -= dy * S.view.h / r.height; applyView();
+      MV.panBy(dx, dy);
     } else if (ptrs.size === 2) {
       cancel();
       const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -242,7 +186,7 @@ function drawUnits(layer) {
   const placed = [], hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   const list = S.units.filter((u) => u.hex && !u.destroyed);
   // a placard is the same size on the screen at any zoom: k = map units per screen pixel
-  const k = (S.view ? S.view.w : svg.viewBox.baseVal.width || 1) / (svg.getBoundingClientRect().width || 1); kLast = k;
+  const k = MV.k(); MV.markScale();
   const W = 92 * k, H = 38 * k;
   for (const u of list) { const [x, y] = centre(u.hex); placed.push({ x: x - R * 0.7, y: y - R * 0.7, w: R * 1.4, h: R * 1.4 }); } // the sprites
   const baseCount = placed.length;
