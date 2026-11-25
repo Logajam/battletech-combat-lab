@@ -164,12 +164,30 @@ moving the mockup into the live game "was less than successful", so settle homes
     Reference battles `bttt_red__hy_duel_griffin`, `bttt_blue__hy_4v4_heavy_hills`, `bttt_both__hy_2v2_grass`, `bttt_red__ref_Asymptote_vs_HeatGear_maxheat30_seed2` (jumping), `bttt_both__cov_masc_always` (MASC), `bttt_both__cov_arrow_tag` (TAG). BTTT against each bot, both seatings of two mirror scenarios (`hy_duel_griffin`, `hy_4v4_lance_woods`), 20 battles a seating, seed 1, `tools/round_robin.py --bots bttt,gladiator,princess,hydra,caspar` (records `bttt_faithful_2026-11-25`, after its own speed, jump, MASC, Narc, TAG, spotting and piloting rules went in): BTTT wins 24% of the decided battles against Gladiator (19 - 60, 1 undecided), 30% against Princess (24 - 56), 9% against Hydra (7 - 71, 2 undecided), 51% against CASPAR (41 - 39), and 22 - 18 against itself (Red - Blue); its strength-left margin is -0.11, -0.12, -0.14 and -0.04. Before those rules (`bttt_baseline_2026-11-25`): 18%, 31%, 11% and 39%. Two scenarios and 80 battles a pair: a first look, not a ranking, and the changes are inside the noise (Daniel: 40 a seating for a decision, 400 a match-up for a fluke).
   - P9. Grand tournament: start an Elo ranking for all the mechs (`tools/round_robin.py` is the nearest existing tool; needs a
     plan for the bot used, scenario, and seeds, and a progress file per the long-set SOP).
-- P10. ISOMETRIC (tilted) 2D MAP VIEW, a toggle beside top-down (Daniel, 2026-11-24). Flat board, squashed hexes, NOTHING stands up:
-  everything fits inside its own hex, token size follows hex size, 'Mechs stay flat top-down tokens (no 3D until models are worth
-  it), buildings may be drawn face-on to look upright. No height for hills: a level shows by shade, contour edge lines and a small
-  number. Main payoff: more of the board visible at once. Part 2: free camera (rotate/tilt/zoom) by gesture (two-finger on touch,
-  right-drag and wheel on desktop), one corner reset-to-top-down button, presets in the P3 long-press menu. Pairs with P8's beveled
-  hexes. Build after P3.
+- P10. 3D TABLETOP MAP VIEW (REVERSES the 2026-11-24 "flat, squashed, nothing stands up" version; Daniel, 2026-11-25: "And yes it does reverse it.
+  You convinced me."). Goal (Daniel): the feel of sitting at a table looking at the map. Design record, step list and open points are in the
+  Change Record entry of 2026-11-25 (map mockups); mockups: `reference_art/battlerom_ui/battlerom_tabletop_mockup.html` (v2, SVG) and
+  `battlerom_holotable_mockup.html` (v3.1, WebGL / three.js r128, the real boards: 16x17 sheets, 2x1 / 1x2 / 2x2 splices up to 4x4, the 32x17
+  file, 50x50 blank). DECIDED: a real perspective camera; hexes rise by level as stacked tiles; HOLOTABLE skin (translucent sides, grid floor,
+  "reach into the scifi tropes") with a wood table as an option; units stand on a raised HEX base (a hex, so the facing shows as a side) that
+  takes no more than 3/4 of the hex and grows with the unit's weight (about 1/2 for a light 'Mech), two levels high as a stand-in for a 'Mech's
+  height until there is real art, with MegaMek's top-down sprite flat on top, turned to the facing; trees ring an occupied woods hex so the
+  terrain still shows; the placards become CARDS lying in front of the unit at a fixed size on the table, shrinking with the camera and collapsing
+  to a tag below a readable size; tiles that hide a unit, the route or the target fade to glass (cut-away); drop-lines from a raised base to a
+  ground footprint; every occupied hex outlined in its team colour, the selected one white. CAMERA: one finger pans; two fingers pinch, twist
+  and pan together with the ground held under the fingers; two fingers moving up or down together tilt (0-70 degrees); a tilt button; full 360
+  degree spin; mouse right-drag orbits, wheel zooms; presets. Renderer: WebGL (three.js, MIT, vendored, credited in `CREDITS.md`) with the
+  top-down SVG renderer kept as the fallback and the Top-down option. SCOPE (Daniel: "just the map display, with a bit of placard work"): unit
+  control, dock, weapon panel, report and strips stay; every `draw*` of `play.js` that paints on the map goes through a projection layer; the
+  browser tests call a picking function instead of clicking SVG shapes. BUILD ORDER: (1) a projection layer ("hex label to screen point and
+  scale", "screen point to hex"), the SVG renderer first, nothing changes visibly; (2) the WebGL board, terrain and camera, no units; (3) units,
+  outlines and the route / reach / arrows / range overlays; (4) cards, hex labels, cut-away; (5) gestures, looks, phone layouts. DATA (Daniel,
+  Galaxy S22 Ultra, 2026-11-25): 60 fps average and the slowest 1% at 16.8 ms at 2x pixels on both 32x34 (1,088 hexes) and 64x68 (4,352
+  hexes), 34 to 40 draw calls: map size does not matter; re-run with Motion smoothness on Adaptive / High to see headroom (the screen is
+  120 Hz). OPEN: one-finger pan against the planned drag-to-move preview (Section 4); the two-placard design (DECISION_HOMES Section 10); true
+  scale of the heights (check the library for hex size and level height before any "to scale" claim; the mockup's relief is exaggerated, so an
+  LOS line must come from the engine); the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
+  clear of the movement colours (Walk is cyan). Build after P3a.
 - P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
   tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
   the pool (all mechs, or filters: weight, era, BV band), format (round robin, or Swiss / adaptive pairing so thousands of
@@ -494,6 +512,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s36-map3d) 3D TABLETOP MAP MOCKUPS** (2026-11-25): `reference_art/battlerom_ui/battlerom_tabletop_mockup.html` and `battlerom_holotable_mockup.html` (design only, no
+  engine code, no `play.js` change; sample forces and numbers). Look at: the two-finger gesture solver (the ground pinned under the fingers at touch-down, four
+  iterations a frame; `twoTick`), the cut-away test (`computeGhost`), the drop-lines, that trees and buildings use the map's own `foliage_elev` / `bldg_elev` levels,
+  the splice rule (copied from `lab.js` `mapParts`), and the credits for the sprites and boards embedded in the page.
 - **(s36-bttt) BTTT'S BOT, RE-IMPLEMENTED** (2026-11-25): `engine/core/src/bttt.rs` (`choose_movement`, `plan_move`, `walk_toward`, `Limits`, `value_at`, `position_bonus`, `psr_modifiers`, `wants_boost`, `choose_weapons`, `choose_target`, `choose_declaration`, `choose_tag`, `choose_spot`, `move_pick`), `equipment_systems::resolve_movement_boosters` (asks `bttt::wants_boost` for a BTTT unit), the TAG and spot dispatch in `gladiator_bots.rs`, the dispatch in `gladiator_bots.rs`, `drawn_route::route_gate`,
   the route in the bridge's pick JSON (`bridge.rs` `pick_json` / `pick_back`; routes now survive a replayed answer), `Scenario::bttt_teams`, `btsim --bttt`, `lab/src/runs.rs` BOTS, `lab.js` (`botLabel`), `tests/bttt.rs`, the three `bttt_*` reference battles and their
   `check_rust_reference.py` variants. Look at: whether the position bonus's units (a level 0.01, woods +1 or +2, cover 0.5 / 1.25) mean here what they meant there; that damage per hit is the engine's expected value, not BTTT's 0.6 x cluster size; the hash that stands in for
@@ -1178,6 +1200,11 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **P10 reversed (Daniel, 2026-11-25):** the map view is a 3D tabletop, not a flat squashed one: hills rise, buildings and trees stand, units stand on
+  raised hex bases with MegaMek's top-down sprite ("Bases need to remain hexs. It helps with the concept of Front."; "the tall base seems a
+  reasonable fill in until we figure out better art"; bigger 'Mechs get bigger bases). MegaMek's sprites may be used: "sprites are licensed as allowed
+  to be used for non commercial purposes, which is us". Details: Section 0, P10.
 
 - **Daniel's list (2026-11-20):** Short-Short stays off ("Short-Short was worse than Short [Grid] and thus it has not been
   used since"; first mover 91.0% of range v Short Grid 96.1%, Change Record): the open call is closed. Princess v0.50.07 to
