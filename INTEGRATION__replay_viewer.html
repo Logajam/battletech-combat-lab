@@ -109,6 +109,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outl
 .map, .log, .sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
 .map { padding: 8px; }
 .map svg { display: block; width: 100%; height: auto; max-height: 78vh; }
+/* the 3D tabletop (tabletop.js, loaded from beside this page when it is there): the board is a canvas under the svg, which then only carries the marks */
+.map { position: relative; }
+.map.tt { height: 72vh; min-height: 420px; }
+.map.tt .tt-host { position: absolute; inset: 8px; overflow: hidden; border-radius: 4px; background: #0b121c; }
+.map.tt svg { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); max-height: none; z-index: 1; touch-action: none; }
+.map.tt .legend { display: none; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; padding: 6px 4px 0; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--hex-edge); }
 
@@ -191,6 +197,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
       <button id="play" title="Play / pause (Space)">Play</button>
       <button id="next" title="Next step (Right)">&#x25B6;</button>
       <button id="nextTurn" title="Next turn (Shift+Right)">&#x23ED;</button>
+      <button id="view3d" title="Look at the battle on a 3D tabletop (wheel zooms, drag pans, right-drag or two fingers turn)" hidden>3D</button>
     </div>
     <div class="step-label"><strong id="stepTitle"></strong><span id="stepCount"></span></div>
     <input type="range" id="scrub" min="0" value="0" aria-label="Step">
@@ -734,40 +741,101 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     var labels = Object.keys(map).filter(function (l) { return !here || hexDist(here, l) <= reach; });
     var top = Math.max.apply(null, Object.keys(map).map(function (l) { return map[l]; }));
     labels.forEach(function (l) {
-      var p = centre(l), a = 0.15 + 0.6 * map[l] / top;
-      el("polygon", { points: hexPoints(p[0], p[1]), fill: "rgb(230,90,20)", "fill-opacity": a.toFixed(2), stroke: "rgb(230,90,20)", "stroke-width": 0.8 }, heatLayer);
+      var a = 0.15 + 0.6 * map[l] / top;
+      el("polygon", { points: hexPts(l), fill: "rgb(230,90,20)", "fill-opacity": a.toFixed(2), stroke: "rgb(230,90,20)", "stroke-width": 0.8 * sc(l) }, heatLayer);
     });
-    if (here) { var c = centre(here); el("circle", { cx: c[0], cy: c[1], r: (reach * 1.5 * R).toFixed(0), fill: "none", stroke: sideVar(who), "stroke-dasharray": "4 3", "stroke-width": 1, opacity: 0.6 }, heatLayer); }
+    if (here) { var c = at(here), s0 = sc(here); el("circle", { cx: c[0], cy: c[1], r: (reach * 1.5 * R * s0).toFixed(0), fill: "none", stroke: sideVar(who), "stroke-dasharray": (4 * s0) + " " + (3 * s0), "stroke-width": 1 * s0, opacity: 0.6 }, heatLayer); }
   }
-  function drawUnits() {
+  // ---- the 3D tabletop (the same renderer as the play page: tabletop.js, three.js and the unit pictures, loaded from beside this page; where they
+  // are not there, as in a saved file opened alone, the 3D button stays hidden and the flat map is all there is)
+  var tt = null, is3d = false, host = null, flatBox = svg.getAttribute("viewBox"), camSig = "";
+  function at(l, up) {
+    if (!is3d) return centre(l);
+    var q = tt.project(l, 0, 0, up || 0);
+    return q && q.ok && Math.abs(q.x) < 50000 && Math.abs(q.y) < 50000 ? [q.x, q.y] : [-99999, -99999];
+  }
+  function sc(l) { if (!is3d) return 1; var q = tt.project(l, 0, 0, 0); return q ? q.scale * 34 / R : 1; }   // pixels per replay unit (the tabletop's hex is 34 across the middle, this page's 24)
+  function hexPts(l) {
+    if (!is3d) { var c = centre(l); return hexPoints(c[0], c[1]); }
+    var out = [];
+    for (var i = 0; i < 6; i++) { var q = tt.project(l, Math.cos(Math.PI / 3 * i), Math.sin(Math.PI / 3 * i), 0); if (!q || !q.ok) return "0,0 0,0 0,0"; out.push(q.x.toFixed(1) + "," + q.y.toFixed(1)); }
+    return out.join(" ");
+  }
+  function plain(c) { var s = document.createElement("span"); s.style.color = c; document.body.appendChild(s); var v = getComputedStyle(s).color; s.remove(); return v; }   // a css variable as a plain colour
+  function pref(k, d) { try { var v = localStorage.getItem("bm_" + k); return v == null ? d : v; } catch (e) { return d; } }   // the play page's looks (same device)
+  function loadScript(src) { return new Promise(function (ok, bad) { var s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = function () { bad(new Error(src)); }; document.head.appendChild(s); }); }
+  function pieces() {
+    var st = steps[idx].state, list = [];
+    SIDES.forEach(function (side) { var m = st[side]; if (m.hex && !m.destroyed) list.push({ id: side, hex: m.hex, facing: m.facing, tons: data.mechs[side].tons, colour: plain(sideVar(side)), mech: data.mechs[side].name, prone: !!m.prone }); });
+    tt.setUnits(list); tt.setOccupied(list.map(function (u) { return u.hex; }));
+  }
+  function set3d(on) {
+    var map = svg.parentElement;
+    if (!on) {
+      is3d = false; if (tt) { tt.dispose(); tt = null; } if (host) { host.remove(); host = null; }
+      map.classList.remove("tt"); svg.setAttribute("viewBox", flatBox); terrain.style.display = ""; $("view3d").classList.remove("on"); show(idx); return Promise.resolve();
+    }
+    return Promise.resolve().then(function () { return window.THREE || loadScript("three.min.js"); }).then(function () { return window.Tabletop || loadScript("tabletop.js"); })
+      .then(function () { return window.MECH_SPRITES || loadScript("mechsprites.js").catch(function () {}); }).then(function () {
+        var c = document.createElement("canvas"); var gl = c.getContext("webgl") || c.getContext("experimental-webgl"); if (!gl) throw new Error("no WebGL");
+        host = document.createElement("div"); host.className = "tt-host"; map.classList.add("tt"); map.insertBefore(host, svg);
+        tt = window.Tabletop.create(host, { settings: { relief: +pref("t_relief", 280), glass: +pref("t_glass", 40), bevel: pref("t_bevel", "1") === "1", trees: pref("t_trees", "cone"), skin: pref("t_skin", "holo") } });
+        is3d = true; terrain.style.display = "none"; $("view3d").classList.add("on");
+        tt.onRender = function () { var q = tt.camera, w = host.clientWidth, h = host.clientHeight, s = [q.tx, q.tz, q.yaw, q.tilt, q.dist, q.persp, w, h].map(function (v) { return Math.round(v * 100) / 100; }).join(","); if (s === camSig) return; camSig = s; svg.setAttribute("viewBox", "0 0 " + Math.max(1, w) + " " + Math.max(1, h)); drawUnits(true); };
+        svg.setAttribute("viewBox", "0 0 " + host.clientWidth + " " + host.clientHeight);
+        tt.setBoard(data.board); show(idx);
+      }).catch(function () { is3d = false; if (tt) { tt.dispose(); tt = null; } if (host) { host.remove(); host = null; } map.classList.remove("tt"); svg.setAttribute("viewBox", flatBox); terrain.style.display = ""; });
+  }
+  // the 3D button appears only when the tabletop's files are there beside this page
+  fetch("tabletop.js", { method: "HEAD" }).then(function (r) { if (r.ok) $("view3d").hidden = false; }).catch(function () {});
+  $("view3d").addEventListener("click", function () { set3d(!is3d); });
+  (function () {   // the camera: wheel zooms, a drag pans, a right-drag turns and tilts, two fingers pinch, twist and pan together
+    var ptrs = new Map(), moved = false;
+    svg.addEventListener("wheel", function (e) { if (!is3d) return; e.preventDefault(); tt.zoom(e.deltaY > 0 ? 1.12 : 1 / 1.12, e.clientX, e.clientY); }, { passive: false });
+    svg.addEventListener("pointerdown", function (e) { if (!is3d) return; ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; });
+    svg.addEventListener("pointermove", function (e) {
+      if (!is3d || !ptrs.has(e.pointerId)) return;
+      var prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+      if (ptrs.size === 1) { var dx = e.clientX - prev[0], dy = e.clientY - prev[1]; if (Math.abs(dx) + Math.abs(dy) > 2) moved = true; if (e.buttons & 2) tt.orbitBy(dx, dy); else if (moved) tt.panBy(dx, dy, e.clientX, e.clientY); }
+      else if (ptrs.size === 2) { var v = Array.from(ptrs.values()); tt.pinch({ x: v[0][0], y: v[0][1] }, { x: v[1][0], y: v[1][1] }); moved = true; }
+    });
+    function up(e) { ptrs.delete(e.pointerId); if (is3d) tt.pinchEnd(); }
+    svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
+    svg.addEventListener("click", function (e) { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    svg.addEventListener("contextmenu", function (e) { if (is3d) e.preventDefault(); });
+  })();
+  function drawUnits(cameraOnly) {
     trails.innerHTML = ""; units.innerHTML = "";
+    if (is3d && !cameraOnly) pieces();
     drawHeat();
-    var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
+    var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null, uh = is3d ? tt.unitHeight() : 0;
     var crowd = {};                                           // units sharing a hex for a moment (a charge's end): fan them out
     SIDES.forEach(function (side) { var h = st[side].hex; if (h && !st[side].destroyed) (crowd[h] = crowd[h] || []).push(side); });
     SIDES.forEach(function (side) {
       var m = st[side];
       if (!m.hex) return;
-      var p = centre(m.hex);
+      var s = sc(m.hex), p = at(m.hex, uh);
       var group = crowd[m.hex] || [side];
-      if (group.length > 1) p = [p[0] + (group.indexOf(side) - (group.length - 1) / 2) * 12, p[1]];
+      if (group.length > 1) p = [p[0] + (group.indexOf(side) - (group.length - 1) / 2) * 12 * s, p[1]];
       var colour = m.destroyed ? "var(--muted)" : sideVar(side);
       if (prev && prev[side].hex && prev[side].hex !== m.hex) {
-        var q = centre(prev[side].hex);
-        el("line", { x1: q[0], y1: q[1], x2: p[0], y2: p[1], stroke: colour, "stroke-width": 2, "stroke-dasharray": "4 3", opacity: 0.8 }, trails);
-        el("circle", { cx: q[0], cy: q[1], r: 3, fill: colour, opacity: 0.8 }, trails);
+        var q = at(prev[side].hex, uh);
+        el("line", { x1: q[0], y1: q[1], x2: p[0], y2: p[1], stroke: colour, "stroke-width": 2 * s, "stroke-dasharray": (4 * s) + " " + (3 * s), opacity: 0.8 }, trails);
+        el("circle", { cx: q[0], cy: q[1], r: 3 * s, fill: colour, opacity: 0.8 }, trails);
       }
       var g = el("g", {}, units);
       var f = COMPASS[m.facing] || 0;
-      var tip = point(p[0], p[1], f, 21), l = point(p[0], p[1], f - 0.45, 12), r = point(p[0], p[1], f + 0.45, 12);
-      el("polygon", { points: tip.join(",") + " " + l.join(",") + " " + r.join(","), fill: colour }, g);
-      el("circle", { cx: p[0], cy: p[1], r: 12.5, fill: colour, stroke: "var(--panel)", "stroke-width": 2,
-        "stroke-dasharray": m.prone ? "3 2" : "none", opacity: m.prone ? 0.75 : 1 }, g);
+      var tip = point(p[0], p[1], f, 21 * s), l = point(p[0], p[1], f - 0.45, 12 * s), r = point(p[0], p[1], f + 0.45, 12 * s);
+      if (!is3d || !m.destroyed) el("polygon", { points: tip.join(",") + " " + l.join(",") + " " + r.join(","), fill: colour }, g);
+      // flat map: the badge is the unit; 3D: the unit is a piece on the table and the badge a small tag above it
+      var bp = is3d ? [p[0], p[1] - 22 * s] : p, br = is3d ? 8 * s : 12.5 * s;
+      el("circle", { cx: bp[0], cy: bp[1], r: br, fill: colour, stroke: "var(--panel)", "stroke-width": 2 * s,
+        "stroke-dasharray": m.prone ? (3 * s) + " " + (2 * s) : "none", opacity: m.prone ? 0.75 : 1 }, g);
       if (m.twist) {
-        var tw = point(p[0], p[1], f + m.twist, 11);
-        el("line", { x1: p[0], y1: p[1], x2: tw[0], y2: tw[1], stroke: "var(--panel)", "stroke-width": 2.5, "stroke-linecap": "round" }, g);
+        var tw = point(p[0], p[1], f + m.twist, 11 * s);
+        el("line", { x1: p[0], y1: p[1], x2: tw[0], y2: tw[1], stroke: "var(--panel)", "stroke-width": 2.5 * s, "stroke-linecap": "round" }, g);
       }
-      var t = el("text", { x: p[0], y: p[1] + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "var(--panel)", "font-family": "Saira Condensed, sans-serif" }, g);
+      var t = el("text", { x: bp[0], y: bp[1] + (is3d ? 3.5 : 4) * s, "text-anchor": "middle", "font-size": (is3d ? 9 : 11) * s, "font-weight": 700, fill: "var(--panel)", "font-family": "Saira Condensed, sans-serif" }, g);
       t.textContent = m.destroyed ? "✕" : badge(side);
       var title = el("title", {}, g);
       title.textContent = side + " " + data.mechs[side].name + " at " + m.hex + " facing " + m.facing + (m.prone ? ", prone" : "") + (m.destroyed ? ", destroyed" : "");

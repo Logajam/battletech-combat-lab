@@ -107,7 +107,21 @@ const { chromium } = require('playwright');
   out.quiet = await page.evaluate(() => ({ mode: MV.mode, card: /needs WebGL/.test(document.getElementById('card').textContent), hexes: document.querySelectorAll('#map [data-hex]').length }));
   await page.close(); page = await open('?view=3d', true); await page.waitForTimeout(1500);
   out.nowebgl = await page.evaluate(() => ({ mode: MV.mode, canvas: !!document.getElementById('tabletop'), card: /needs WebGL/.test(document.getElementById('card').textContent), hexes: document.querySelectorAll('#map [data-hex]').length }));
-  await page.close(); await b.close();
+  await page.close();
+  // ---- 5: the replay page gets the same tabletop (the Lab shows a replay in an iframe built from the page's text, files taken from beside the Lab)
+  { const ctx = await b.newContext({ viewport: { width: 1100, height: 800 } }); const rp = await ctx.newPage(); rp.on('pageerror', (e) => out.errors.push('replay: ' + String(e)));
+    await rp.goto(base + '/index.html'); await rp.waitForFunction(() => window.crossOriginIsolated, null, { timeout: 20000 }).catch(() => {}); await rp.waitForLoadState('load');
+    out.replay = await rp.evaluate(async (setup) => {
+      const html = await LAB_WASM.replayHtml({ setup: { ...setup, teams: setup.teams.map((x) => ({ ...x, bot: 'gladiator' })) }, seed: 7, sim: 1 })   /* a replay is played by the bots: nobody plays the human seat */; const fr = document.createElement('iframe'); fr.style.cssText = 'width:1100px;height:800px'; fr.srcdoc = html; document.body.appendChild(fr);
+      await new Promise((r) => (fr.onload = r)); const d = fr.contentDocument, w = fr.contentWindow; await new Promise((r) => setTimeout(r, 800));
+      const btn = d.getElementById('view3d'), shown = btn && !btn.hidden; if (!shown) return { shown };
+      btn.click(); for (let i = 0; i < 60 && !d.querySelector('.tt-host canvas'); i++) await new Promise((r) => setTimeout(r, 200)); await new Promise((r) => setTimeout(r, 500));
+      const vb = d.getElementById('board').getAttribute('viewBox'); d.getElementById('next').click(); d.getElementById('next').click(); await new Promise((r) => setTimeout(r, 300));
+      const on = { shown, canvas: !!d.querySelector('.tt-host canvas'), vb, marks: d.querySelectorAll('#board g polygon').length };
+      btn.click(); await new Promise((r) => setTimeout(r, 300)); on.back = { canvas: !!d.querySelector('.tt-host canvas'), hexes: d.querySelectorAll('#board polygon').length };
+      return on; }, setup);
+    await ctx.close(); }
+  await b.close();
   console.log('RESULT ' + JSON.stringify(out));
 })();
 """
@@ -121,7 +135,7 @@ def main():
     if not os.path.isdir(os.path.join(node_path, "playwright")):
         print("SKIP: Playwright is not installed"); return 77
     stale = os.path.exists(os.path.join(WEB, "combatlab.wasm")) and any(
-        os.path.getmtime(os.path.join(REPO_ROOT, "engine", "lab", "web", n)) > os.path.getmtime(os.path.join(WEB, "combatlab.wasm")) for n in ("tabletop.js", "mapview.js", "play.js", "play.html"))
+        os.path.getmtime(os.path.join(REPO_ROOT, "engine", "lab", "web", n)) > os.path.getmtime(os.path.join(WEB, "combatlab.wasm")) for n in ("tabletop.js", "mapview.js", "play.js", "play.html", "../../../INTEGRATION__replay_viewer.html"))
     if a.rebuild or stale or not os.path.exists(os.path.join(WEB, "combatlab.wasm")):
         r = subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tools", "build_web_lab.py")], capture_output=True, text=True)
         if r.returncode != 0:
@@ -155,6 +169,8 @@ def main():
     ck(o["tiltBtn"][1] != o["tiltBtn"][0], f"the tilt button cycles {o['tiltBtn']}")
     ck(o["fit"]["dist"] > 100, f"the fit button fits ({o['fit']['dist']:.0f})")
     ck(o["hexAt"] is not None and o["card"] and o["card"].startswith("Hex "), f"the view finds the hex under a point and a long press opens its card ({o['hexAt']}, {o['card']})")
+    rp = o["replay"]
+    ck(rp.get("shown") and rp.get("canvas") and rp["marks"] > 0 and rp["vb"].startswith("0 0 ") and not rp["back"]["canvas"] and rp["back"]["hexes"] > 100, f"the replay page's 3D button opens the tabletop and goes back ({rp})")
     u = o["units"]
     ck(u["looks"] == 5 and u["relief"] == 400 and u["pieces"] >= 5 and u["sprites"] > 30 and u["hexPts"] == 6 and u["east"] > 5 and u["scale"] > 0.05 and u["k"] == 1, f"units stand on the table (bases and pictures) and the page's geometry is projected ({u})")
     ck(o["back"]["mode"] == "top" and not o["back"]["canvas"] and o["back"]["flatShown"] and o["back"]["pref"] == "top", f"the Menu item switches back to the flat view ({o['back']})")
