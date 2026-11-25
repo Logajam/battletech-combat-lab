@@ -889,9 +889,8 @@ function optionRow(o, store = OPTIONS_STORE) {
 // option. Put the Princess/CASPAR control sliders in there plus any other options or switches a bot may have. That will let us
 // remove those options from the options tab." Each team keeps its own bot settings (t.settings); a unit its ammunition per bin
 // (u.ammo = {"<location>:<slot>": munition}). The engine reads them as TEAM_SETTINGS and a FORCES entry's "ammo".
-const BOT_FOLDERS = { gladiator: ["Gladiator", "Legate"], princess: ["Princess"], caspar: ["Princess"], hydra: ["Hydra"], bttt: [] };
-// a bot's name for the team window: BTTT is an acronym (a re-implementation of the computer opponent of BTTT: BattleTech TableTop, bttt.rs)
-const botLabel = (b) => (b === "bttt" ? "BTTT" : b[0].toUpperCase() + b.slice(1));
+const BOT_FOLDERS = { gladiator: ["Gladiator", "Legate"], princess: ["Princess"], caspar: ["Princess"], hydra: ["Hydra"] };
+const botLabel = (b) => b[0].toUpperCase() + b.slice(1);
 const isBotOption = (o) => o.top === "Bot features";
 // Princess's behaviour sliders (MegaMek's 0-10 scales), shown as sliders rather than a line of JSON
 const SLIDER_LABELS = { fall_shame: "Piloting caution (fall shame)", bravery: "Bravery", hyper_aggression: "Aggression", self_preservation: "Self-preservation",

@@ -22,12 +22,6 @@ hydra_first_red__hy_4v4_lance_woods  # bot-switch variants on small scenarios (e
 hydra_nomoveorder_blue__hy_8v8_valley  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
 caspar_red__hy_duel_griffin  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
 caspar_red__team_4v4_princess_v_gladiator  # bot-switch variants on small scenarios (each Hydra / CASPAR code path stays played)
-bttt_red__hy_duel_griffin  # BTTT's bot (bttt.rs): its walk and weapon dropping on a duel
-bttt_blue__hy_4v4_heavy_hills  # BTTT's bot on hills: its picked routes walked as picked
-bttt_both__hy_2v2_grass  # BTTT's bot on both teams
-bttt_red__ref_Asymptote_vs_HeatGear_maxheat30_seed2  # BTTT's bot jumping (jump MP above run MP): its landing and its facing
-bttt_both__cov_masc_always  # BTTT's bot asking for its MASC only when the path needs it
-bttt_both__cov_arrow_tag  # BTTT's bot's own TAG phase
 zone_4v4_princess_v_caspar_hills  # deployment zones (walk-on zones; Princess v CASPAR)
 cov_mortar_indirect  # covers RESTART, SHUTDOWN
 cov_superheavy  # covers RESTART, SHUTDOWN

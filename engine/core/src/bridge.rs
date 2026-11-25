@@ -955,7 +955,6 @@ impl Session {
             }
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
             start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
-            start["bttt_teams"] = v.get("bttt_teams").cloned().unwrap_or(json!([]));
             let mut session = Session::start(&start);
             session.rules_notes = notes;
             return session;
@@ -966,7 +965,6 @@ impl Session {
         let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
         let mut units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&v["units"][n], &idx)).collect();
         let hydra: Vec<String> = v["hydra_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
-        let bttt: Vec<String> = v["bttt_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         let caspar: Vec<String> = v["caspar_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         for m in units.iter_mut() {
             if m.team.as_ref().is_some_and(|t| hydra.contains(t)) {
@@ -974,9 +972,6 @@ impl Session {
             }
             if m.team.as_ref().is_some_and(|t| caspar.contains(t)) {
                 m.bot = "caspar".to_string();
-            }
-            if m.team.as_ref().is_some_and(|t| bttt.contains(t)) {
-                m.bot = "bttt".to_string();
             }
         }
         let seed = v["seed"].as_u64().unwrap_or(1);

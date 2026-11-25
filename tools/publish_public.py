@@ -26,7 +26,9 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLIC_URL = "https://github.com/Logajam/battletech-combat-lab"
 # rules/ = the rulebook text that once lived here; reference_art/ = the TRO drawings and the low-poly models redrawn from them
 # (Daniel, 2026-11-16: redrawn images and models stay in the private repo)
-PRIVATE_PATHS = ["rules/", "reference_art/"]
+# BTTT (Daniel, 2026-11-25: not in public builds; removed from main 2026-11-25, `archive/bttt_restore.patch` puts it back): kept out of the
+# public copy's whole history too, in case it is ever in the private history under these names
+PRIVATE_PATHS = ["rules/", "reference_art/", "engine/core/src/bttt.rs", "engine/core/tests/bttt.rs", "engine/reference/logs/bttt_", "trial_records/2026-11-25_round_robin_bttt", "archive/"]
 DANIEL_PUBLIC = b"56737113+Logajam@users.noreply.github.com"
 PUBLIC_EMAILS = [b"noreply@anthropic.com", b"users.noreply.github.com", b"noreply@github.com"]
 
@@ -56,8 +58,8 @@ def public_files(cwd, rev):
     return files
 
 
-HOLD = ("HELD (Daniel, 2026-11-25): the BTTT bot (engine/core/src/bttt.rs) is not to be in any public copy or website build yet. "
-        "Remove this hold only when Daniel says BTTT may go public.")
+HOLD = ("HELD (Daniel, 2026-11-25): the BTTT bot (engine/core/src/bttt.rs) is not to be in any public copy or website build. "
+        "It was removed from main; if it is back (archive/bttt_restore.patch applied), this refuses until Daniel says BTTT may go public.")
 if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine", "core", "src", "bttt.rs")):
     sys.exit(HOLD)
 
