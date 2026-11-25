@@ -10,7 +10,7 @@
 (function () {
   const R = 34, SQ3 = Math.sqrt(3), D2R = Math.PI / 180;
   const tmpV = new THREE.Vector3(), tmpW = new THREE.Vector3();
-  const spriteTex = {};   // textures that outlive a rebuild (none yet: unit sprites come in step 3); disposeGroup keeps these
+  const spriteTex = {}, FACE = { N: 0, NE: 60, SE: 120, S: 180, SW: 240, NW: 300 };   // textures that outlive a rebuild (none yet: unit sprites come in step 3); disposeGroup keeps these
   const name = (c, r) => String(c).padStart(2, "0") + String(r).padStart(2, "0");
   const parse = (l) => [parseInt(l.slice(0, 2), 10), parseInt(l.slice(2), 10)];
   const centre = (c, r) => [R + (c - 1) * 1.5 * R, (SQ3 / 2) * R + (r - 1) * SQ3 * R + (c % 2 === 0 ? (SQ3 / 2) * R : 0)];
@@ -44,7 +44,7 @@
   function create(host, opts) {
     opts = opts || {};
     const ST = Object.assign({}, DEFAULTS, opts.settings || {});
-    const V = { host, w: 1, h: 1, cam: Object.assign({ tx: 0, tz: 0, yaw: 0, dist: 1000 }, PRESETS.seat), pending: false, ghostKey: "", disposed: false, occupied: null, focus: null };
+    const V = { host, w: 1, h: 1, baseH: R * 0.22, cam: Object.assign({ tx: 0, tz: 0, yaw: 0, dist: 1000 }, PRESETS.seat), pending: false, ghostKey: "", disposed: false, occupied: null, focus: null };
     V.canvas = document.createElement("canvas"); V.canvas.className = "tabletop-gl"; V.canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"; host.appendChild(V.canvas);
     V.renderer = new THREE.WebGLRenderer({ canvas: V.canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     V.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); V.renderer.setClearColor(0x000000, 0);
@@ -56,7 +56,8 @@
     V.P = (x, y, z, out) => { const o = out || {}; tmpW.set(x, y, z); o.ok = tmpW.clone().applyMatrix4(V.camera.matrixWorldInverse).z < -V.camera.near; tmpV.set(x, y, z).project(V.camera); o.x = (tmpV.x * 0.5 + 0.5) * V.w; o.y = (1 - (tmpV.y * 0.5 + 0.5)) * V.h; o.d = V.camera.position.distanceTo(tmpW); return o; };
     // the point of the ground plane under a host pixel
     V.groundAt = (px, py) => { V.ray.setFromCamera({ x: (px / V.w) * 2 - 1, y: -(py / V.h) * 2 + 1 }, V.camera); const o = new THREE.Vector3(); return V.ray.ray.intersectPlane(V.plane, o) ? o : null; };
-    V.applyCam = () => { const c = V.cam, th = c.tilt * D2R, ps = c.yaw * D2R, cam = V.camera; cam.fov = fovOf(c.persp);
+    V.applyCam = () => { const c = V.cam, sig = c.tx + "," + c.tz + "," + c.yaw + "," + c.tilt + "," + c.dist + "," + c.persp + "," + V.w + "," + V.h + "," + (V.M ? V.M.BW + "x" + V.M.BH : ""); if (sig === V.camSig) return; V.camSig = sig;
+      const th = c.tilt * D2R, ps = c.yaw * D2R, cam = V.camera; cam.fov = fovOf(c.persp);
       cam.position.set(c.tx + Math.sin(th) * Math.sin(ps) * c.dist, Math.cos(th) * c.dist, c.tz + Math.sin(th) * Math.cos(ps) * c.dist);
       cam.up.set(-Math.sin(ps), 0, -Math.cos(ps)); cam.lookAt(c.tx, 0, c.tz); cam.near = Math.max(1, c.dist * 0.04); cam.far = c.dist * 10 + (V.M ? Math.max(V.M.BW, V.M.BH) * 2 : 0); cam.aspect = V.w / V.h; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); };
     V.fxTick = (tm) => { for (const f of V.fx || []) f(tm); };
@@ -224,7 +225,27 @@
         if (Math.abs(a.x - b.x) < rp * 1.08 && a.y > b.y - rp * 0.9 && a.y < o.y + rp * 0.5) ghost.add(h.i); } }
     return ghost; };
 
-    V.render = () => { V.applyCam(); const gk = V.computeGhost(); V.applyGhost(gk); V.renderer.render(V.scene, V.camera); V.lastInfo = V.renderer.info.render; if (tt.onRender) tt.onRender(); };
+    // ---- units: bases and pictures (they change often, so they are a group of their own, apart from the board)
+    const spriteFor = (mech) => { const S = window.MECH_SPRITES || {}, m = String(mech || "").toLowerCase().replace(/[^a-z0-9 ]/g, ""), norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      let best = null; for (const k of Object.keys(S)) { const n = norm(k); if (n && norm(m).startsWith(n) && (!best || n.length > norm(best).length)) best = k; } return best; };
+    const texOf = (key) => { if (spriteTex[key]) return spriteTex[key]; const img = new Image(), tx = new THREE.Texture(img); tx.anisotropy = 4; img.onload = () => { tx.needsUpdate = true; V.request(); };
+      img.src = key === "_generic" ? genericSprite() : window.MECH_SPRITES[key]; spriteTex[key] = tx; return tx; };
+    // a plain top-down 'Mech for a unit with no picture: head, torso, arms and legs
+    const genericSprite = () => { const c = document.createElement("canvas"); c.width = 84; c.height = 72; const x = c.getContext("2d"); x.fillStyle = "#e8ebef"; x.strokeStyle = "#0c0f13"; x.lineWidth = 2;
+      for (const r of [[34, 8, 16, 10], [26, 26, 8, 26], [50, 26, 8, 26], [34, 24, 16, 30], [34, 54, 6, 14], [44, 54, 6, 14]]) { x.fillRect(...r); x.strokeRect(...r); } return c.toDataURL(); };
+    V.buildUnits = () => {
+      if (V.units) { V.scene.remove(V.units); V.disposeGroup(V.units); V.units = null; }
+      if (!V.M || !V.unitList || !V.unitList.length) return;
+      const g = (V.units = new THREE.Group()); V.scene.add(g);
+      for (const u of V.unitList) { const h = V.M.hexes.get(u.hex); if (!h) continue;
+        const r = R * (0.5 + 0.36 * Math.max(0, Math.min(1, ((u.tons || 50) - 20) / 80))), col = new THREE.Color(u.colour || "#888");
+        const geo = new THREE.CylinderGeometry(r, r, V.baseH, 6, 1); geo.rotateY(Math.PI / 2);   // flat-top like the tiles
+        const base = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: col })); base.position.set(h.x, h.top + V.baseH / 2, h.z); g.add(base);
+        const key = spriteFor(u.mech) || "_generic", w = r * 2.1, pg = new THREE.PlaneGeometry(w, w * 72 / 84); pg.rotateX(-Math.PI / 2);
+        const pic = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({ map: texOf(key), transparent: true, opacity: u.prone ? 0.55 : 1, depthWrite: false }));
+        pic.position.set(h.x, h.top + V.baseH + 0.6, h.z); pic.rotation.y = -(FACE[u.facing] || 0) * D2R; pic.renderOrder = 4; g.add(pic);
+        if (u.sel) { const rg = new THREE.Mesh(new THREE.RingGeometry(r * 1.02, r * 1.12, 6), new THREE.MeshBasicMaterial({ color: 0xffffff })); rg.geometry.rotateZ(Math.PI / 6); rg.rotation.x = -Math.PI / 2; rg.position.set(h.x, h.top + V.baseH + 0.4, h.z); g.add(rg); } } };
+    V.render = () => { V.applyCam(); if (V.M && V.unitList && !V.units) V.buildUnits(); const gk = V.computeGhost(); V.applyGhost(gk); V.renderer.render(V.scene, V.camera); V.lastInfo = V.renderer.info.render; if (tt.onRender) tt.onRender(); };
 
     // ---- the public calls (the map view, mapview.js, forwards to these). Client coordinates in, host pixels inside.
     const local = (x, y) => { const r = host.getBoundingClientRect(); return { x: x - r.left, y: y - r.top }; };
@@ -233,7 +254,7 @@
     const tt = {
       settings: ST, onRender: null,
       // the board: build it and look at all of it
-      setBoard(board) { V.M = normalise(board); V.size(); V.buildStatic(); tt.fit(); },
+      setBoard(board) { V.M = normalise(board); V.size(); V.buildStatic(); V.buildUnits(); tt.fit(); },
       // set a setting (relief, glass, bevel, trees, skin, props, fx, cut) and rebuild what depends on it
       set(patch) { Object.assign(ST, patch); if (V.M) { V.size(); V.buildStatic(); V.request(); } },
       // hexes (labels) with a unit on them: a woods hex then gets a ring of small trees round the base (step 3 fills this)
@@ -283,10 +304,14 @@
         return null; },
       // a point of a hex on the screen: dx, dy in hex radii from its centre (east, south), up in world units above the tile top. Host pixels, the scale of the hex there (pixels per board unit).
       project(label, dx, dy, up) { const h = V.M && V.M.hexes.get(label); if (!h) return null; V.applyCam(); const o = V.P(h.x + (dx || 0) * R, h.top + (up || 0), h.z + (dy || 0) * R), e = V.P(h.x + (dx || 0) * R + R, h.top + (up || 0), h.z + (dy || 0) * R); o.scale = Math.hypot(e.x - o.x, e.y - o.y) / R; return o; },
-      // the hex's centre on the screen relative to the page (for DOM marks laid over the map)
+      // the units: [{id, hex, facing, tons, colour, mech, mine, prone, sel}]. Each stands on a hex base (a hex, bigger for a heavier 'Mech, as thick as
+      // unitHeight()) in its team colour with MegaMek's top-down picture on top, turned to the facing. The page draws the placard, outline and arrows.
+      setUnits(list) { V.unitList = list || []; V.buildUnits(); V.request(); },
+      // the thickness of a unit's base (world units): marks that belong on top of a unit are drawn this far above its tile
+      unitHeight() { return V.baseH; },
       render() { V.render(); }, resize() { V.size(); V.request(); }, info() { return V.lastInfo; },
       camera: V.cam, three: V,
-      dispose() { V.disposed = true; V.animOn = false; ro.disconnect(); V.disposeGroup(V.stat); V.renderer.dispose(); try { V.renderer.forceContextLoss(); } catch (e) { /* already lost */ } V.canvas.remove(); },
+      dispose() { V.disposed = true; V.animOn = false; ro.disconnect(); V.disposeGroup(V.stat); V.disposeGroup(V.units); V.renderer.dispose(); try { V.renderer.forceContextLoss(); } catch (e) { /* already lost */ } V.canvas.remove(); },
     };
     return tt;
   }

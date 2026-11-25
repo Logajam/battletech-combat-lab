@@ -10,6 +10,7 @@
   const R = 34, SQ3 = Math.sqrt(3), NS = "http://www.w3.org/2000/svg";
   const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
   // hooks.rescale(): called (after a pause) when a zoom has changed the size of a screen pixel enough that screen-constant marks (placards) are redrawn
+  // hooks.camera(): called (at most once a frame) when the tabletop camera moved: what the page draws over the 3D board is projected, so it is drawn again
   function create(svg, hooks) {
     hooks = hooks || {};
     const mv = { R, svg, bounds: null, view: null, layers: null, mode: "top" };
@@ -50,7 +51,7 @@
     };
 
     // ---- the camera: a viewBox over the board (pan and zoom only)
-    mv.k = () => (mv.view ? mv.view.w : svg.viewBox.baseVal.width || 1) / (svg.getBoundingClientRect().width || 1);   // map units per screen pixel
+    mv.k = () => (mv.mode === "3d" && tt ? 1 : (mv.view ? mv.view.w : svg.viewBox.baseVal.width || 1) / (svg.getBoundingClientRect().width || 1));   // view units per screen pixel (1 over the 3D board)
     mv.markScale = () => { kLast = mv.k(); };                                                                          // placards were drawn at this scale
     const applyView = () => {
       const v = mv.view; svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${v.h}`);
@@ -97,7 +98,31 @@
     // ---- the two views behind one set of calls. The flat view's camera is above; the tabletop's is tabletop.js.
     const flat = { fit: mv.fit, focusOn: mv.focusOn, zoom: mv.zoom, panBy: mv.panBy };
     const is3d = () => mv.mode === "3d" && !!tt;
-    const hideFlat = () => { if (mv.layers) for (const k of ["map", "dyn", "top"]) mv.layers[k].style.display = "none"; };   // step 2: the 3D view is a board preview, the flat layers wait for step 3
+    const hideFlat = () => { if (mv.layers) mv.layers.map.style.display = "none"; };   // the flat terrain image and hex hit polygons; the layers the page draws into stay and are drawn projected
+    // ---- geometry for the page's drawing, the same calls in both views. Flat: board units (a hex is R = 34 across the middle). Tabletop: screen
+    // pixels of the svg, which is sized to the map there; a hex's points are projected at the top of its tile. Offsets are in hex radii (dx east,
+    // dy south) and `up` is world units above the tile top, so a point drawn on the ground follows the ground. `scale(label)` is view units per
+    // board unit at that hex (1 in the flat view): lengths that were written in board units (a stroke, a radius, a text size) are multiplied by it.
+    mv.at = (l, up) => { if (is3d()) { const p = tt.project(l, 0, 0, up || 0); return p ? [p.x, p.y] : [0, 0]; } return mv.centre(l); };
+    mv.pt = (l, dx, dy, up) => { if (is3d()) { const p = tt.project(l, dx, dy, up || 0); return p ? [p.x, p.y] : [0, 0]; } const c = mv.centre(l); return [c[0] + R * dx, c[1] + R * dy]; };
+    mv.is3d = is3d;
+    // the units, the hexes they stand on (woods get a ring of trees round the base) and the points the cut-away keeps in view. Kept here so that
+    // entering the 3D view later shows them too; the flat view draws units itself.
+    const keep = { units: [], occ: "", focus: [] };
+    mv.setUnits = (list) => { keep.units = list; if (tt) tt.setUnits(list); };
+    mv.setOccupied = (labels) => { const k = labels.slice().sort().join(","); if (k === keep.occ) return; keep.occ = k; keep.occL = labels; if (tt) tt.setOccupied(labels); };
+    mv.setFocus = (list) => { keep.focus = list; if (tt) tt.setFocus(list); };
+    mv.keep = keep;
+    mv.hexPts = (l, k = 1, up = 0) => {
+      if (!is3d()) { const c = mv.centre(l); return mv.pts(c[0], c[1], k); }
+      return [0, 1, 2, 3, 4, 5].map((i) => { const p = tt.project(l, k * Math.cos(Math.PI / 3 * i), k * Math.sin(Math.PI / 3 * i), up); return p ? `${p.x.toFixed(1)},${p.y.toFixed(1)}` : "0,0"; }).join(" ");
+    };
+    mv.scale = (l) => { if (!is3d()) return 1; const p = tt.project(l, 0, 0, 0); return p ? p.scale : 1; };
+    mv.unitHeight = () => (is3d() ? tt.unitHeight() : 0);                         // the height of a unit's base above its tile (world units)
+    // labels far to near (a polygon drawn later is on top, and takes the tap): the flat view keeps the order it was given
+    mv.order = (labels) => { if (!is3d()) return labels; return labels.map((l) => { const p = tt.project(l, 0, 0, 0); return [l, p ? p.d : 0]; }).sort((a, b) => b[1] - a[1]).map((a) => a[0]); };
+    // the svg over the 3D board has the size of the board's host: one view unit is one pixel
+    mv.syncView = () => { if (!is3d()) return; const r = svg.getBoundingClientRect(); svg.setAttribute("viewBox", `0 0 ${Math.max(1, r.width)} ${Math.max(1, r.height)}`); };
     mv.fit = () => (is3d() ? tt.fit() : flat.fit());
     mv.focusOn = (labels, m) => (is3d() ? tt.focusOn(labels, m) : flat.focusOn(labels, m));
     mv.zoom = (f, cx, cy) => (is3d() ? tt.zoom(f, cx, cy) : flat.zoom(f, cx, cy));
@@ -122,17 +147,18 @@
       if (mode === mv.mode) return mv.mode;
       if (mode === "3d") {
         try {
-          if (!loading) loading = (async () => { if (!window.THREE) await loadScript("three.min.js"); if (!window.Tabletop) await loadScript("tabletop.js"); })();
+          if (!loading) loading = (async () => { if (!window.THREE) await loadScript("three.min.js"); if (!window.Tabletop) await loadScript("tabletop.js"); if (!window.MECH_SPRITES) await loadScript("mechsprites.js").catch(() => {}); })();
           await loading;
           const host = document.createElement("div"); host.id = "tabletop"; host.style.cssText = "position:absolute;inset:0;overflow:hidden";
           svg.parentElement.insertBefore(host, svg); tt = window.Tabletop.create(host, { settings });
+          let sig = ""; tt.onRender = () => { const c = tt.camera, s = [c.tx, c.tz, c.yaw, c.tilt, c.dist, c.persp, host.clientWidth, host.clientHeight].map((v) => Math.round(v * 100) / 100).join(","); if (s === sig) return; sig = s; mv.syncView(); if (hooks.camera) hooks.camera(); };
         } catch (e) { loading = null; if (tt) { tt.dispose(); tt = null; } const h = document.getElementById("tabletop"); if (h) h.remove(); return mv.mode; }
         mv.mode = "3d"; svg.style.background = "transparent"; svg.style.position = "absolute"; svg.style.inset = "0"; svg.parentElement.classList.add("tabletop");
-        hideFlat(); if (board) tt.setBoard(board);
+        hideFlat(); mv.syncView(); if (board) tt.setBoard(board); if (board) { tt.setUnits(keep.units); if (keep.occL) tt.setOccupied(keep.occL); tt.setFocus(keep.focus); }
       } else {
         if (tt) { tt.dispose(); const h = document.getElementById("tabletop"); if (h) h.remove(); tt = null; }
         mv.mode = "top"; svg.style.background = ""; svg.style.position = ""; svg.style.inset = ""; svg.parentElement.classList.remove("tabletop");
-        if (mv.layers) for (const k of ["map", "dyn", "top"]) mv.layers[k].style.display = ""; flat.fit();
+        if (mv.layers) mv.layers.map.style.display = ""; flat.fit();
       }
       return mv.mode;
     };

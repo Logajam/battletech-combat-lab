@@ -22,7 +22,7 @@ const O = { look: pref("look", "slhisd"), cvd: pref("cvd", "0") === "1", rings: 
 // movement colours follow MegaMek's (walk cyan, run yellow, jump orange; NOT VERIFIED against its source); the colour-blind set
 // (Okabe-Ito) also gives each mode its own line pattern
 const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A7" } : { Walk: "#00e5ff", Run: "#ffd400", Jump: "#ff7a3c" })[m] || "#99a";
-const modeDash = (m) => (O.cvd ? { Walk: "", Run: "7 4", Jump: "2 4" }[m] || "" : "");
+const modeDash = (m, s = 1) => (O.cvd ? { Walk: "", Run: `${7 * s} ${4 * s}`, Jump: `${2 * s} ${4 * s}` }[m] || "" : "");
 const BAND = () => (O.cvd ? { short: "#56B4E9", medium: "#F0E442", long: "#CC79A7" } : { short: "#6fbf86", medium: "#dba94a", long: "#e07468" });
 
 const S = { way: [], wrIdx: null, wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
@@ -39,8 +39,12 @@ const query = (q) => api("play_query", { query: q });
 
 // ---------------------------------------------------------------- geometry (flat-topped hexes, even columns half a hex lower, N up)
 const parse = (l) => [parseInt(l.slice(0, 2), 10), parseInt(l.slice(2), 10)];
-const MV = MapView.create(svg, { rescale: () => { if (typeof redraw === "function" && S.board) redraw(); } });
-const centre = MV.centre, pts = MV.pts;   // where a hex is, and its six corners (the map view, mapview.js)
+const MV = MapView.create(svg, { rescale: () => { if (typeof redraw === "function" && S.board) redraw(); }, camera: () => onCamera() });
+const centre = MV.centre, pts = MV.pts;
+// label-based geometry, the same calls in the flat map and the 3D tabletop (mapview.js): at = a hex's centre (up = height above its tile),
+// P = a point of the hex in hex radii from the centre, HP = its outline, sc = view units per board unit there (1 in the flat map: every length
+// below is written in board units and multiplied by it, so the flat drawing is unchanged)
+const at = (l, up) => MV.at(l, up), P = (l, dx, dy, up) => MV.pt(l, dx, dy, up), HP = (l, k, up) => MV.hexPts(l, k, up), sc = (l) => MV.scale(l);   // where a hex is, and its six corners (the map view, mapview.js)
 const hexName = (c, r) => String(c).padStart(2, "0") + String(r).padStart(2, "0");
 function neighbours(l) { // in the order of polygon edges 0..5 (SE, S, SW, NW, N, NE)
   const [c, r] = parse(l), low = c % 2 === 0;
@@ -160,20 +164,20 @@ function attacksOfLatestTurn() {
 function drawAttackLines(layer) {
   if (!O.atk) return;
   S.atkList = attacksOfLatestTurn();
-  const byName = (n) => S.units.find((u) => u.name === n);
+  const byName = (n) => S.units.find((u) => u.name === n), uh = MV.unitHeight();
   S.atkList.forEach((a, i) => {
     const A = byName(a.a), T = byName(a.t); if (!A || !T || !A.hex || !T.hex) return;
-    const [x1, y1] = centre(A.hex), [x2, y2] = centre(T.hex), len = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / len * 4, ny = (x2 - x1) / len * 4;
+    const s = (sc(A.hex) + sc(T.hex)) / 2, [x1, y1] = at(A.hex, uh), [x2, y2] = at(T.hex, uh), len = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / len * 4 * s, ny = (x2 - x1) / len * 4 * s;
     const col = teamColour(A), g = el("g", { "data-atk": i, style: "cursor:pointer" }, layer);
-    const p = [x1 + nx, y1 + ny, x2 + nx - (x2 - x1) / len * R * 0.55, y2 + ny - (y2 - y1) / len * R * 0.55];
-    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "transparent", "stroke-width": 14 }, g);
-    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "#000", "stroke-width": 5.5, "stroke-opacity": ".55", "pointer-events": "none" }, g);
-    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: col, "stroke-width": 3.2, "stroke-dasharray": a.kind === "weapons" ? "" : "2 3", "pointer-events": "none" }, g);
+    const p = [x1 + nx, y1 + ny, x2 + nx - (x2 - x1) / len * R * s * 0.55, y2 + ny - (y2 - y1) / len * R * s * 0.55];
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "transparent", "stroke-width": 14 * s }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: "#000", "stroke-width": 5.5 * s, "stroke-opacity": ".55", "pointer-events": "none" }, g);
+    el("line", { x1: p[0], y1: p[1], x2: p[2], y2: p[3], stroke: col, "stroke-width": 3.2 * s, "stroke-dasharray": a.kind === "weapons" ? "" : `${2 * s} ${3 * s}`, "pointer-events": "none" }, g);
     const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-    el("polygon", { points: `${p[2] + ux * 7},${p[3] + uy * 7} ${p[2] - uy * 5},${p[3] + ux * 5} ${p[2] + uy * 5},${p[3] - ux * 5}`, fill: col, stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+    el("polygon", { points: `${p[2] + ux * 7 * s},${p[3] + uy * 7 * s} ${p[2] - uy * 5 * s},${p[3] + ux * 5 * s} ${p[2] + uy * 5 * s},${p[3] - ux * 5 * s}`, fill: col, stroke: "#000", "stroke-width": 1 * s, "pointer-events": "none" }, g);
     const lx = (p[0] + p[2]) / 2, ly = (p[1] + p[3]) / 2;
-    el("rect", { x: lx - 13, y: ly - 9, width: 26, height: 15, rx: 3, fill: "#0c0f13", "fill-opacity": ".85", stroke: col, "stroke-width": 1.2, "pointer-events": "none" }, g);
-    const tx = el("text", { x: lx, y: ly + 2.5, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5, "paint-order": "stroke", "pointer-events": "none" }, g);
+    el("rect", { x: lx - 13 * s, y: ly - 9 * s, width: 26 * s, height: 15 * s, rx: 3 * s, fill: "#0c0f13", "fill-opacity": ".85", stroke: col, "stroke-width": 1.2 * s, "pointer-events": "none" }, g);
+    const tx = el("text", { x: lx, y: ly + 2.5 * s, "text-anchor": "middle", "font-size": 11 * s, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5 * s, "paint-order": "stroke", "pointer-events": "none" }, g);
     tx.textContent = `${a.hits}/${a.shots}`;
     g.addEventListener("click", (e) => { e.stopPropagation(); attackCard(i); });
   });
@@ -182,45 +186,56 @@ function attackCard(i) {
   const a = (S.atkList || [])[i]; if (!a) return;
   showCard(`<b>${esc(a.a)} &rarr; ${esc(a.t)}</b> <small>turn ${a.turn}, ${a.hits} of ${a.shots} hit</small><div class="cardrep">${reportHtml(a.lines)}</div>`); document.body.classList.toggle("nodice", !O.dice);
 }
+// 3D: the placard is a flat card of a fixed size in the world, so it shrinks as the camera pulls back (s = screen pixels per board unit there);
+// its text drops to the name alone when it would be too small to read the bars
+const cardF = (s) => Math.max(0.45, Math.min(1.1, s / 1.2));
 function drawUnits(layer) {
   const placed = [], hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   const list = S.units.filter((u) => u.hex && !u.destroyed);
-  // a placard is the same size on the screen at any zoom: k = map units per screen pixel
-  const k = MV.k(); MV.markScale();
-  const W = 92 * k, H = 38 * k;
-  for (const u of list) { const [x, y] = centre(u.hex); placed.push({ x: x - R * 0.7, y: y - R * 0.7, w: R * 1.4, h: R * 1.4 }); } // the sprites
+  // a placard is the same size on the screen at any zoom in the flat map: k = map units per screen pixel
+  const d3 = MV.is3d(), uh = MV.unitHeight(), k0 = MV.k(); MV.markScale();
+  for (const u of list) { const [x, y] = at(u.hex, uh), r = R * sc(u.hex); placed.push({ x: x - r * 0.7, y: y - r * 0.7, w: r * 1.4, h: r * 1.4 }); } // the sprites
   const baseCount = placed.length;
-  for (const u of list) {
-    const [x, y] = centre(u.hex), col = teamColour(u), mine = u.team === S.myTeam, fr = fracs(u);
+  for (const u of MV.order(list.map((v) => v.hex)).map((h) => list.find((v) => v.hex === h))) {
+    const s = sc(u.hex), Rs = R * s, k = d3 ? cardF(s) : k0, W = 92 * k, H = 38 * k, small = d3 && k < 0.6;
+    const [x, y] = at(u.hex, uh), col = teamColour(u), mine = u.team === S.myTeam, fr = fracs(u);
     const g = el("g", { "data-unit": u.id, style: "cursor:pointer" }, layer);
-    el("polygon", { points: pts(x, y, 0.8), fill: col, "fill-opacity": ".5", stroke: S.sel === u.id ? "#fff" : col, "stroke-width": S.sel === u.id ? 3 : 1.8, "stroke-dasharray": mine ? "" : "5 3" }, g);
-    // sprite: head, torso, arms, legs
-    const sp = el("g", { transform: `translate(${x},${y - 1}) scale(${R / 34})`, fill: "#f4f6f8", stroke: "#0c0f13", "stroke-width": 1, "pointer-events": "none" }, g);
-    el("circle", { cx: 0, cy: -13, r: 4.2 }, sp); el("rect", { x: -7, y: -8, width: 14, height: 12, rx: 2 }, sp);
-    el("rect", { x: -12, y: -7, width: 4.5, height: 12, rx: 1.5 }, sp); el("rect", { x: 7.5, y: -7, width: 4.5, height: 12, rx: 1.5 }, sp);
-    el("rect", { x: -6, y: 5, width: 5, height: 10, rx: 1.5 }, sp); el("rect", { x: 1, y: 5, width: 5, height: 10, rx: 1.5 }, sp);
+    // the hex base: drawn here in the flat map; in 3D the base is a solid piece of the scene and only its outline is drawn
+    el("polygon", { points: d3 ? HP(u.hex, 0.8, uh) : pts(x, y, 0.8), fill: d3 ? "transparent" : col, "fill-opacity": ".5", stroke: S.sel === u.id ? "#fff" : col, "stroke-width": (S.sel === u.id ? 3 : 1.8) * s, "stroke-dasharray": mine ? "" : `${5 * s} ${3 * s}` }, g);
+    if (!d3) { // sprite: head, torso, arms, legs
+      const sp = el("g", { transform: `translate(${x},${y - 1}) scale(${R / 34})`, fill: "#f4f6f8", stroke: "#0c0f13", "stroke-width": 1, "pointer-events": "none" }, g);
+      el("circle", { cx: 0, cy: -13, r: 4.2 }, sp); el("rect", { x: -7, y: -8, width: 14, height: 12, rx: 2 }, sp);
+      el("rect", { x: -12, y: -7, width: 4.5, height: 12, rx: 1.5 }, sp); el("rect", { x: 7.5, y: -7, width: 4.5, height: 12, rx: 1.5 }, sp);
+      el("rect", { x: -6, y: 5, width: 5, height: 10, rx: 1.5 }, sp); el("rect", { x: 1, y: 5, width: 5, height: 10, rx: 1.5 }, sp);
+    }
+    // a triangle pointing along DIR facing d: tip at tipR radii, base at baseR radii, half width hw board units
+    const tri = (d, tipR, baseR, hw, fill, sw) => {
+      const q = (a, b) => P(u.hex, d[0] * a + d[1] * b / R * -1, d[1] * a + d[0] * b / R, uh).join(",");
+      return el("polygon", { points: `${q(tipR, 0)} ${q(baseR, -hw)} ${q(baseR, hw)}`, fill, stroke: "#000", "stroke-width": sw * s, "pointer-events": "none" }, g);
+    };
     const d = DIR[u.facing] || DIR.N;
-    el("polygon", { points: `${x + d[0] * R * 0.82},${y + d[1] * R * 0.82} ${x + d[0] * R * 0.58 - d[1] * 6},${y + d[1] * R * 0.58 + d[0] * 6} ${x + d[0] * R * 0.58 + d[1] * 6},${y + d[1] * R * 0.58 - d[0] * 6}`, fill: "#fff", stroke: "#0c0f13", "stroke-width": 1.2, "pointer-events": "none" }, g);
+    tri(d, 0.82, 0.58, 6, "#fff", 1.2);
     // TORSO TWIST, either side (Daniel, 2026-11-24: "a clear signal of torso twists made by both sides"): an amber arrow the way the torso faces
     if (u.twist) { const F = ["N", "NE", "SE", "S", "SW", "NW"], tf = F[(F.indexOf(u.facing) + u.twist + 6) % 6], t = DIR[tf] || DIR.N;
-      el("polygon", { points: `${x + t[0] * R * 0.62},${y + t[1] * R * 0.62} ${x + t[0] * R * 0.36 - t[1] * 5},${y + t[1] * R * 0.36 + t[0] * 5} ${x + t[0] * R * 0.36 + t[1] * 5},${y + t[1] * R * 0.36 - t[0] * 5}`, fill: "#ffb000", stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, g);
+      tri(t, 0.62, 0.36, 5, "#ffb000", 1);
       const tt = el("title", {}, g); tt.textContent = `torso twisted to face ${tf}`; }
     // moved this turn: a check mark on the hex base
-    if (movedMark(u)) { el("circle", { cx: x - R * 0.55, cy: y - R * 0.55, r: 7, fill: "#2e7d4f", stroke: "#fff", "stroke-width": 1.2, "pointer-events": "none" }, g); const ck = el("text", { x: x - R * 0.55, y: y - R * 0.55 + 3.5, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); ck.textContent = "\u2713"; }
+    if (movedMark(u)) { const [mx, my] = P(u.hex, -0.55, -0.55, uh); el("circle", { cx: mx, cy: my, r: 7 * s, fill: "#2e7d4f", stroke: "#fff", "stroke-width": 1.2 * s, "pointer-events": "none" }, g); const ck = el("text", { x: mx, y: my + 3.5 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); ck.textContent = "\u2713"; }
     // placard: the first spot that does not cover a sprite or another placard
     let spot = SPOTS[0];
-    for (const s of SPOTS) { const r = { x: x + s[0] * R - W / 2, y: y + s[1] * R - (s[1] < 0 ? H : 0), w: W, h: H }; if (!placed.slice(baseCount).some((p) => hit(p, r)) && !placed.slice(0, baseCount).some((p) => hit(p, r) && !(Math.abs(s[0]) < 0.01 && Math.abs(s[1]) < 0.9))) { spot = s; break; } }
-    const px = x + spot[0] * R - W / 2, py = y + spot[1] * R - (spot[1] < 0 ? H : 0);
+    for (const sp of SPOTS) { const r = { x: x + sp[0] * Rs - W / 2, y: y + sp[1] * Rs - (sp[1] < 0 ? H : 0), w: W, h: H }; if (!placed.slice(baseCount).some((p) => hit(p, r)) && !placed.slice(0, baseCount).some((p) => hit(p, r) && !(Math.abs(sp[0]) < 0.01 && Math.abs(sp[1]) < 0.9))) { spot = sp; break; } }
+    const px = x + spot[0] * Rs - W / 2, py = y + spot[1] * Rs - (spot[1] < 0 ? H : 0);
     placed.push({ x: px, y: py, w: W, h: H });
     const far = Math.abs(spot[0]) > 0.5 || Math.abs(spot[1]) > 0.8;
     if (far) el("line", { x1: x, y1: y, x2: px + W / 2, y2: py + (spot[1] < 0 ? H : 0), stroke: col, "stroke-width": 1.4 * k, "pointer-events": "none" }, g);
-    el("rect", { x: px, y: py, width: W, height: H, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, g);
+    const cardH = small ? 17 * k : H;
+    el("rect", { x: px, y: py, width: W, height: cardH, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, g);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, g); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
     // LEFT / RIGHT BARS (Section 24 item 24; the mockup's lrBar): armour and structure split at the centre, the unit's left side on the left
     // half and its right on the right, each wearing in from its outer edge, so the damaged side shows; heat stays one bar
     const sa = { l: sideFrac(u, "a", "Left"), r: sideFrac(u, "a", "Right") }, ss = { l: sideFrac(u, "s", "Left"), r: sideFrac(u, "s", "Right") };
     const aCol = (v) => (v > 0.5 ? "#6fbf86" : v > 0.25 ? "#dba94a" : "#e07468"), sCol = (v) => (v > 0.5 ? "#8fb2d4" : "#e07468");
-    [["A", sa, aCol], ["S", ss, sCol], ["H", fr.h, () => "#ff7a3c"]].forEach(([lab, v, cf], i) => {
+    if (!small) [["A", sa, aCol], ["S", ss, sCol], ["H", fr.h, () => "#ff7a3c"]].forEach(([lab, v, cf], i) => {
       const by = py + (17 + i * 6.8) * k, bx = px + 14 * k, bw = W - 19 * k, bh = 5.4 * k;
       const l = el("text", { x: px + 5 * k, y: by + 5.4 * k, "font-size": 7.5 * k, fill: "#aab", "pointer-events": "none" }, g); l.textContent = lab;
       el("rect", { x: bx, y: by, width: bw, height: bh, fill: "#2b333d" }, g);
@@ -230,8 +245,8 @@ function drawUnits(layer) {
       el("rect", { x: bx + hw, y: by, width: hw * v.r, height: bh, fill: cf(v.r) }, g);
       el("line", { x1: bx + hw, y1: by, x2: bx + hw, y2: by + bh, stroke: "#000", "stroke-width": 0.9 * k }, g);
     });
-    if (u.prone) { const p = el("text", { x: x + 16, y: y - 18, "font-size": 8, fill: "#ffd400", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "PRONE"; }
-    if (u.shutdown) { const p = el("text", { x: x + 16, y: y - 8, "font-size": 8, fill: "#e07468", "font-weight": 700, stroke: "#000", "stroke-width": 2, "paint-order": "stroke" }, g); p.textContent = "OFF"; }
+    if (u.prone) { const p = el("text", { x: x + 16 * s, y: y - 18 * s, "font-size": 8 * s, fill: "#ffd400", "font-weight": 700, stroke: "#000", "stroke-width": 2 * s, "paint-order": "stroke" }, g); p.textContent = "PRONE"; }
+    if (u.shutdown) { const p = el("text", { x: x + 16 * s, y: y - 8 * s, "font-size": 8 * s, fill: "#e07468", "font-weight": 700, stroke: "#000", "stroke-width": 2 * s, "paint-order": "stroke" }, g); p.textContent = "OFF"; }
   }
 }
 // armour, structure and heat as fractions (1 = untouched; heat 1 = at the unit's limit)
@@ -270,6 +285,23 @@ function infoBar() {
 // ---------------------------------------------------------------- drawing for the question
 function redraw() {
   if (!gDyn) return;
+  syncTabletop();
+  drawMap();
+  renderStrip(); infoBar(); dockRender();
+}
+// what the 3D tabletop shows besides the board: the unit pieces (hex bases with their pictures), the woods they stand in, and the points the
+// cut-away keeps in view (the units and the route being planned). Harmless in the flat view (mapview.js keeps it for when the 3D view opens).
+function syncTabletop() {
+  const live = S.units.filter((u) => u.hex && !u.destroyed);
+  MV.setUnits(live.map((u) => ({ id: u.id, hex: u.hex, facing: u.facing, tons: u.tons, colour: teamColour(u), mech: u.mech, prone: !!u.prone, sel: S.sel === u.id })));
+  MV.setOccupied(live.map((u) => u.hex));
+  const f = live.map((u) => ({ label: u.hex, up: 24 })); if (S.path) for (const st of S.path) f.push({ label: st.hex, up: 12 }); if (S.dest) f.push({ label: S.dest, up: 12 });
+  MV.setFocus(f);
+}
+// the marks over the map; in the 3D tabletop they are projected, so a camera move draws them again (a frame at most)
+let camQueued = false;
+function onCamera() { if (camQueued || !gDyn) return; camQueued = true; requestAnimationFrame(() => { camQueued = false; if (MV.is3d()) drawMap(); }); }
+function drawMap() {
   gDyn.innerHTML = ""; gTop.innerHTML = "";
   const r = S.req;
   if (r && (r.kind === "declaration" || r.kind === "target")) drawRings(gDyn);
@@ -284,7 +316,6 @@ function redraw() {
   if (r && r.kind === "stand_up" && S.prone) drawProneArrows(gTop);
   if (r && r.kind === "declaration") { drawAim(gDyn); drawShotLine(gTop, r.unit, r.target, r.distance); }
   if (r && r.kind === "target" && S.fire && S.fire.tcur != null) { drawAim(gDyn); drawShotLine(gTop, r.unit, S.fire.tcur, (r.enemies.find((e) => e.id === S.fire.tcur) || {}).distance); }
-  renderStrip(); infoBar(); dockRender();
 }
 function setPhase(t) { $("phase").textContent = t; $("phase").title = t; }
 // WHOSE TURN (Section 24 item 4, Daniel: "Who won initiative, how many units need to be activated, and where we're at in whose turn to activate
@@ -368,8 +399,8 @@ function proneSheet() {
 }
 function drawProneArrows(layer) {
   const r = S.req, u = unit(r.unit); if (!u || !u.hex) return;
-  const [x, y] = centre(u.hex), by = Object.fromEntries((r.prone_turns || []).map((t) => [t.facing, t]));
-  arrowRing(layer, x, y, Object.keys(by), S.prone.facing || u.facing, (f) => modeCol(by[f].mode), (f) => { S.prone.facing = f; proneSheet(); redraw(); });
+  const by = Object.fromEntries((r.prone_turns || []).map((t) => [t.facing, t]));
+  arrowRing(layer, u.hex, Object.keys(by), S.prone.facing || u.facing, (f) => modeCol(by[f].mode), (f) => { S.prone.facing = f; proneSheet(); redraw(); });
 }
 async function standPlan() {
   const r = S.req, seq = S.seq; if (!r || r.kind !== "stand_up") return;
@@ -391,7 +422,7 @@ HANDLERS.tag = (r) => {
   sheet(`<h3>${esc(r.name)}: TAG designation</h3>${errLine(r)}<div class="msg">TAG is its own short attack before the weapon attacks. Designating the 'Mech helps homing artillery; designating the hex works for the ground under it. Pick a target and what to light up, or skip.</div><table>${r.candidates.map((c) => `<tr><td>${esc(c.name)}</td><td>range ${c.distance}</td><td>${c.tn_mech != null ? `<button class="sm" data-act="tag" data-id="${c.id}" data-aim="mech">'Mech TN ${c.tn_mech}</button>` : ""}</td><td>${c.tn_hex != null ? `<button class="sm" data-act="tag" data-id="${c.id}" data-aim="hex">Hex TN ${c.tn_hex}</button>` : ""}</td></tr>`).join("")}</table><div class="row"><button class="go" data-act="tag" data-id="">Skip TAG</button></div>`);
 };
 function drawPickTargets(layer) {
-  for (const c of (S.req.candidates || [])) { const u = unit(c.id); if (!u || !u.hex) continue; const [x, y] = centre(u.hex); el("polygon", { points: pts(x, y, 0.95), fill: "#dba94a", "fill-opacity": ".2", stroke: "#dba94a", "stroke-width": 2.5, "pointer-events": "none" }, layer); }
+  for (const c of (S.req.candidates || [])) { const u = unit(c.id); if (!u || !u.hex) continue; el("polygon", { points: HP(u.hex, 0.95), fill: "#dba94a", "fill-opacity": ".2", stroke: "#dba94a", "stroke-width": 2.5 * sc(u.hex), "pointer-events": "none" }, layer); }
 }
 
 // ---- movement (also the planning done while choosing which unit moves, and placing units before turn 1)
@@ -415,17 +446,17 @@ function drawReach(layer) {
   for (const [h, os] of Object.entries(idx)) for (const o of os) if (sets[o.mode]) sets[o.mode].add(h);
   for (const mode of ["Jump", "Run", "Walk"]) {
     const col = modeCol(mode);
-    for (const h of sets[mode]) { const [x, y] = centre(h); el("polygon", { points: pts(x, y, 0.96), fill: col, "fill-opacity": mode === "Walk" ? ".22" : ".14", "pointer-events": "none" }, layer); }
+    for (const h of sets[mode]) el("polygon", { points: HP(h, 0.96), fill: col, "fill-opacity": mode === "Walk" ? ".22" : ".14", "pointer-events": "none" }, layer);
     for (const h of sets[mode]) { // only the outer border of each mode's reach (MegaMek's look)
-      const [x, y] = centre(h);
+      const s = sc(h);
       neighbours(h).forEach((n, i) => {
         if (sets[mode].has(n)) return;
-        const a = Math.PI / 3 * i, b2 = Math.PI / 3 * (i + 1);
-        el("line", { x1: x + R * Math.cos(a), y1: y + R * Math.sin(a), x2: x + R * Math.cos(b2), y2: y + R * Math.sin(b2), stroke: col, "stroke-width": 2.4, "stroke-dasharray": modeDash(mode), "pointer-events": "none" }, layer);
+        const a = Math.PI / 3 * i, b2 = Math.PI / 3 * (i + 1), [x1, y1] = P(h, Math.cos(a), Math.sin(a)), [x2, y2] = P(h, Math.cos(b2), Math.sin(b2));
+        el("line", { x1, y1, x2, y2, stroke: col, "stroke-width": 2.4 * s, "stroke-dasharray": modeDash(mode, s), "pointer-events": "none" }, layer);
       });
     }
   }
-  for (const h of Object.keys(idx)) { const [x, y] = centre(h); const p = el("polygon", { points: pts(x, y), fill: "transparent", "data-reach": h, style: "cursor:pointer" }, layer); p.addEventListener("click", () => pickDest(h)); }
+  for (const h of MV.order(Object.keys(idx))) { const p = el("polygon", { points: HP(h), fill: "transparent", "data-reach": h, style: "cursor:pointer" }, layer); p.addEventListener("click", () => pickDest(h)); }
 }
 // the unit being moved: its walking / running / jumping MP
 const mvBudget = (mode) => (mode === "Jump" ? S.mv.jump : mode === "Run" ? S.mv.run : S.mv.walk);
@@ -523,30 +554,30 @@ async function loadPath() {
 function drawPath(layer) {
   if (!S.path || !S.path.length) return;
   const u = unit(S.mv.unit), black = !!S.attackSel && !S.attackConfirm, col = black ? "#000" : modeCol(S.attackSel ? S.attackSel.mode : S.mode);
-  const pt = [u && u.hex ? centre(u.hex) : null, ...S.path.map((s) => centre(s.hex))].filter(Boolean);
-  el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: black ? "#fff" : "#000", "stroke-width": 7, "stroke-opacity": ".55", "pointer-events": "none" }, layer);
-  el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 3.5, "stroke-dasharray": modeDash(S.mode), "pointer-events": "none" }, layer);
-  S.path.forEach((s, i) => { if (s.k === "turn") return; const [x, y] = centre(s.hex); const t = el("text", { x, y: y - 10, "text-anchor": "middle", "font-size": 9, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5, "paint-order": "stroke", "pointer-events": "none" }, layer); t.textContent = s.mp; });
+  const pt = [u && u.hex ? at(u.hex) : null, ...S.path.map((s) => at(s.hex))].filter(Boolean), s0 = u && u.hex ? sc(u.hex) : 1;
+  el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: black ? "#fff" : "#000", "stroke-width": 7 * s0, "stroke-opacity": ".55", "pointer-events": "none" }, layer);
+  el("polyline", { points: pt.map((p) => p.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 3.5 * s0, "stroke-dasharray": modeDash(S.mode, s0), "pointer-events": "none" }, layer);
+  S.path.forEach((st, i) => { if (st.k === "turn") return; const s = sc(st.hex), [x, y] = at(st.hex); const t = el("text", { x, y: y - 10 * s, "text-anchor": "middle", "font-size": 9 * s, "font-weight": 700, fill: "#fff", stroke: "#000", "stroke-width": 2.5 * s, "paint-order": "stroke", "pointer-events": "none" }, layer); t.textContent = st.mp; });
 }
 function drawWayMarks(layer) {
-  S.way.forEach((h, i) => { const [x, y] = centre(h); el("circle", { cx: x - R * 0.5, cy: y - R * 0.5, r: 9, fill: "#fff", stroke: "#000", "stroke-width": 1.5, "pointer-events": "none" }, layer); const t = el("text", { x: x - R * 0.5, y: y - R * 0.5 + 3.5, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); t.textContent = i + 1; });
+  S.way.forEach((h, i) => { const s = sc(h), [x, y] = P(h, -0.5, -0.5); el("circle", { cx: x, cy: y, r: 9 * s, fill: "#fff", stroke: "#000", "stroke-width": 1.5 * s, "pointer-events": "none" }, layer); const t = el("text", { x, y: y + 3.5 * s, "text-anchor": "middle", "font-size": 11 * s, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); t.textContent = i + 1; });
 }
 function drawDestHex(layer) {
   if (!S.dest) return;
-  const [x, y] = centre(S.dest);
-  el("polygon", { points: pts(x, y, 0.98), fill: "none", stroke: modeCol(S.mode), "stroke-width": 3, "pointer-events": "none" }, layer);
+  el("polygon", { points: HP(S.dest, 0.98), fill: "none", stroke: modeCol(S.mode), "stroke-width": 3 * sc(S.dest), "pointer-events": "none" }, layer);
 }
 // The turn arrows: a ring of triangles hugging the hex, one for each facing the unit could end in, none on the side it already faces,
 // each coloured by the movement mode that facing needs. Drawn on the TOP layer with a generous tap area so that a unit standing in
 // the hex a turn points at can never take the tap.
-function arrowRing(layer, cx, cy, facings, current, colourOf, onPick) {
+function arrowRing(layer, hex, facings, current, colourOf, onPick) {
+  const s = sc(hex);
   for (const f of facings) {
     if (f === current) continue;
     const d = DIR[f], n = [-d[1], d[0]], col = colourOf(f);
-    const tip = [cx + d[0] * R * 1.1, cy + d[1] * R * 1.1], base = [cx + d[0] * R * 0.78, cy + d[1] * R * 0.78];
+    const tip = P(hex, d[0] * 1.1, d[1] * 1.1), c1 = P(hex, d[0] * 0.78 + n[0] * 0.26, d[1] * 0.78 + n[1] * 0.26), c2 = P(hex, d[0] * 0.78 - n[0] * 0.26, d[1] * 0.78 - n[1] * 0.26), tap = P(hex, d[0] * 0.95, d[1] * 0.95);
     const g = el("g", { "data-arrow": f, style: "cursor:pointer" }, layer);
-    el("circle", { cx: cx + d[0] * R * 0.95, cy: cy + d[1] * R * 0.95, r: R * 0.5, fill: "transparent" }, g);
-    el("polygon", { points: `${tip[0]},${tip[1]} ${base[0] + n[0] * R * 0.26},${base[1] + n[1] * R * 0.26} ${base[0] - n[0] * R * 0.26},${base[1] - n[1] * R * 0.26}`, fill: col, stroke: "#000", "stroke-width": 1.4, "stroke-linejoin": "round" }, g);
+    el("circle", { cx: tap[0], cy: tap[1], r: R * 0.5 * s, fill: "transparent" }, g);
+    el("polygon", { points: `${tip} ${c1} ${c2}`, fill: col, stroke: "#000", "stroke-width": 1.4 * s, "stroke-linejoin": "round" }, g);
     g.addEventListener("click", (e) => { e.stopPropagation(); onPick(f); });
   }
 }
@@ -556,17 +587,16 @@ function drawTurnArrows(layer) {
     S.reachIdx = S.reachIdx || reachIndex(S.mv);
     const here = S.reachIdx[u.hex] || [], cheap = {};
     for (const o of here) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
-    const [x, y] = centre(u.hex);
-    arrowRing(layer, x, y, Object.keys(cheap), u.facing, (f) => modeCol(cheap[f].mode), async (f) => {
+    arrowRing(layer, u.hex, Object.keys(cheap), u.facing, (f) => modeCol(cheap[f].mode), async (f) => {
       await pickDest(u.hex);
       const os = destOpts(), o = os.find((x) => x.facing === f && x.mode === S.mode) || os.filter((x) => x.facing === f).sort((a, b) => a.mp - b.mp)[0];
       if (o) { S.facing = f; S.mode = o.mode; moveSheet(); redraw(); loadPath(); }
     });
     return;
   }
-  const os = destOpts(), [x, y] = centre(S.dest), cheap = {};
+  const os = destOpts(), cheap = {};
   for (const o of os) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
-  arrowRing(layer, x, y, Object.keys(cheap), S.facing, (f) => modeCol((os.find((o) => o.facing === f && o.mode === S.mode) || cheap[f]).mode), (f) => {
+  arrowRing(layer, S.dest, Object.keys(cheap), S.facing, (f) => modeCol((os.find((o) => o.facing === f && o.mode === S.mode) || cheap[f]).mode), (f) => {
     const same = os.find((o) => o.facing === f && o.mode === S.mode);
     S.facing = f; if (!same) S.mode = cheap[f].mode;
     moveSheet(); redraw(); loadPath();
@@ -575,9 +605,9 @@ function drawTurnArrows(layer) {
 function drawAttackStops(layer) {
   if (!S.attackSel && !S.attackTarget) return;
   for (const a of S.mv.attacks.filter((x) => x.target === S.attackTarget)) {
-    const [x, y] = centre(a.hex), sel = S.attackSel && S.attackSel.hex === a.hex && S.attackSel.facing === a.facing && S.attackSel.kind === a.kind;
-    const p = el("polygon", { points: pts(x, y, 0.92), fill: "#000", "fill-opacity": sel ? ".5" : ".3", stroke: "#fff", "stroke-width": sel ? 3 : 1.5, style: "cursor:pointer" }, layer);
-    const t = el("text", { x, y: y + 4, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, layer); t.textContent = a.kind === "charge" ? "CHG" : "DFA";
+    const s = sc(a.hex), [x, y] = at(a.hex), sel = S.attackSel && S.attackSel.hex === a.hex && S.attackSel.facing === a.facing && S.attackSel.kind === a.kind;
+    const p = el("polygon", { points: HP(a.hex, 0.92), fill: "#000", "fill-opacity": sel ? ".5" : ".3", stroke: "#fff", "stroke-width": (sel ? 3 : 1.5) * s, style: "cursor:pointer" }, layer);
+    const t = el("text", { x, y: y + 4 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, layer); t.textContent = a.kind === "charge" ? "CHG" : "DFA";
     p.addEventListener("click", (e) => { e.stopPropagation(); chooseAttack(a); });
   }
 }
@@ -684,22 +714,22 @@ HANDLERS.deploy = (r) => {
 };
 function drawDeploy(layer) {
   const r = S.req, dp = S.dp; if (!r || r.kind !== "deploy") return;
-  for (const h of r.hexes) {
-    const [x, y] = centre(h), on = dp && dp.hex === h;
-    const p = el("polygon", { points: pts(x, y, 0.96), fill: "#3ddc84", "fill-opacity": on ? ".6" : ".38", stroke: "#eaffef", "stroke-width": on ? 3 : 1.6, "stroke-dasharray": on ? "" : "4 3", "data-deploy": h, style: "cursor:pointer" }, layer);
+  for (const h of MV.order(r.hexes)) {
+    const on = dp && dp.hex === h, s = sc(h);
+    const p = el("polygon", { points: HP(h, 0.96), fill: "#3ddc84", "fill-opacity": on ? ".6" : ".38", stroke: "#eaffef", "stroke-width": (on ? 3 : 1.6) * s, "stroke-dasharray": on ? "" : `${4 * s} ${3 * s}`, "data-deploy": h, style: "cursor:pointer" }, layer);
     p.addEventListener("click", () => { S.dp.hex = h; HANDLERS.deploy(S.req); redraw(); });
   }
 }
 function drawDeployMarker(layer, top) {
   const dp = S.dp, r = S.req; if (!dp || !dp.hex || !r || r.kind !== "deploy") return;
-  const [x, y] = centre(dp.hex), col = teamColour({ team: S.myTeam }) || "#4b8fd8";
+  const col = teamColour({ team: S.myTeam }) || "#4b8fd8", s = sc(dp.hex);
   if (!top) {
-    el("polygon", { points: pts(x, y, 0.8), fill: col, "fill-opacity": ".6", stroke: "#fff", "stroke-width": 2.5, "pointer-events": "none" }, layer);
-    const d = DIR[dp.facing] || DIR.N;
-    el("polygon", { points: `${x + d[0] * R * 0.78},${y + d[1] * R * 0.78} ${x + d[0] * R * 0.5 - d[1] * 5},${y + d[1] * R * 0.5 + d[0] * 5} ${x + d[0] * R * 0.5 + d[1] * 5},${y + d[1] * R * 0.5 - d[0] * 5}`, fill: "#fff", "pointer-events": "none" }, layer);
+    el("polygon", { points: HP(dp.hex, 0.8), fill: col, "fill-opacity": ".6", stroke: "#fff", "stroke-width": 2.5 * s, "pointer-events": "none" }, layer);
+    const d = DIR[dp.facing] || DIR.N, n = [-d[1], d[0]], w = 5 / R;
+    el("polygon", { points: `${P(dp.hex, d[0] * 0.78, d[1] * 0.78)} ${P(dp.hex, d[0] * 0.5 + n[0] * w, d[1] * 0.5 + n[1] * w)} ${P(dp.hex, d[0] * 0.5 - n[0] * w, d[1] * 0.5 - n[1] * w)}`, fill: "#fff", "pointer-events": "none" }, layer);
     return;
   }
-  arrowRing(layer, x, y, Object.keys(DIR), dp.facing, () => "#6fbf86", (f) => { dp.facing = f; HANDLERS.deploy(S.req); redraw(); });
+  arrowRing(layer, dp.hex, Object.keys(DIR), dp.facing, () => "#6fbf86", (f) => { dp.facing = f; HANDLERS.deploy(S.req); redraw(); });
 }
 
 // ---- target, weapons
@@ -812,18 +842,18 @@ function drawTargets(layer) {
   const F = S.fire, D = S.decl, w = D && D.rows.find((x) => x.id === D.focus), T = fireTotals();
   for (const t of S.req.enemies) {
     const u = unit(t.id); if (!u || !u.hex) continue;
-    const [x, y] = centre(u.hex), cur = F && t.id === F.tcur;
-    const p = el("polygon", { points: pts(x, y, 0.95), fill: "#e07468", "fill-opacity": cur ? ".35" : ".18", stroke: "#e07468", "stroke-width": cur ? 3.5 : 2, style: "cursor:pointer" }, layer);
+    const s = sc(u.hex), cur = F && t.id === F.tcur;
+    const p = el("polygon", { points: HP(u.hex, 0.95), fill: "#e07468", "fill-opacity": cur ? ".35" : ".18", stroke: "#e07468", "stroke-width": (cur ? 3.5 : 2) * s, style: "cursor:pointer" }, layer);
     p.addEventListener("click", () => setTcur(t.id));
     const e = F && F.pvt.get(t.id), req = e && e.req; let tn = null;
     if (req) tn = w ? (req.weapons.find((q) => q.id === w.id) || {}).tn : req.base_tn;
     if (F) { // the to-hit pill on the enemy's hex: the focused weapon's number against it; tap it for the line items
-      const txt = tn == null ? "-" : tn + "+", g = el("g", { style: "cursor:pointer", "data-tn-pill": t.id }, layer);
-      el("rect", { x: x + R * 0.3, y: y - R * 0.95, width: 28, height: 15, rx: 3, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2 }, g);
-      const tx = el("text", { x: x + R * 0.3 + 14, y: y - R * 0.95 + 11, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, g); tx.textContent = txt;
+      const txt = tn == null ? "-" : tn + "+", g = el("g", { style: "cursor:pointer", "data-tn-pill": t.id }, layer), [px, py] = P(u.hex, 0.3, -0.95, MV.unitHeight());
+      el("rect", { x: px, y: py, width: 28 * s, height: 15 * s, rx: 3 * s, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2 * s }, g);
+      const tx = el("text", { x: px + 14 * s, y: py + 11 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, g); tx.textContent = txt;
       g.addEventListener("click", (ev) => { ev.stopPropagation(); if (req && w) { const row = req.weapons.find((q) => q.id === w.id); if (row) tnCard(req, row); } });
       const n = T.per.get(t.id);
-      if (n) { el("circle", { cx: x - R * 0.55, cy: y - R * 0.8, r: 8, fill: "#e07468", stroke: "#000", "stroke-width": 1, "pointer-events": "none" }, layer); const nt = el("text", { x: x - R * 0.55, y: y - R * 0.8 + 3.5, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); nt.textContent = n.n; }
+      if (n) { const [cx, cy] = P(u.hex, -0.55, -0.8, MV.unitHeight()); el("circle", { cx, cy, r: 8 * s, fill: "#e07468", stroke: "#000", "stroke-width": 1 * s, "pointer-events": "none" }, layer); const nt = el("text", { x: cx, y: cy + 3.5 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); nt.textContent = n.n; }
     }
   }
 }
@@ -849,30 +879,30 @@ function drawRings(layer) {
   if (!me || !me.hex || !w || !w.ranges) return;
   const rg = w.ranges, col = BAND(), L = { short: "S", medium: "M", long: "L" };
   const inNow = new Set(w.arc || []), inTwist = new Set(w.arc_twist || []);
-  for (const label of Object.keys(S.board.hexes)) {
+  for (const label of MV.order(Object.keys(S.board.hexes))) {
     const d = dist(me.hex, label); if (d === 0 || d > rg.long) continue;
-    if (!inTwist.has(label)) { const [x, y] = centre(label); el("polygon", { points: pts(x, y, 0.98), fill: "#000", "fill-opacity": ".45", "pointer-events": "none" }, layer); continue; } // outside the weapon's arc
-    if (!inNow.has(label)) { const [x, y] = centre(label); el("polygon", { points: pts(x, y, 0.9), fill: "none", stroke: "#fff", "stroke-width": 1.2, "stroke-dasharray": "3 3", "pointer-events": "none" }, layer); } // in arc only after a torso twist / arm flip
+    const s = sc(label);
+    if (!inTwist.has(label)) { el("polygon", { points: HP(label, 0.98), fill: "#000", "fill-opacity": ".45", "pointer-events": "none" }, layer); continue; } // outside the weapon's arc
+    if (!inNow.has(label)) el("polygon", { points: HP(label, 0.9), fill: "none", stroke: "#fff", "stroke-width": 1.2 * s, "stroke-dasharray": `${3 * s} ${3 * s}`, "pointer-events": "none" }, layer); // in arc only after a torso twist / arm flip
     const band = d <= rg.short ? "short" : d <= rg.medium ? "medium" : "long";
-    const [x, y] = centre(label);
     const tooClose = rg.min && d < rg.min;
-    el("polygon", { points: pts(x, y, 0.96), fill: tooClose ? "#888" : col[band], "fill-opacity": tooClose ? ".12" : band === "short" ? ".2" : band === "medium" ? ".14" : ".09", "pointer-events": "none" }, layer);
-    if (O.cvd && (d === rg.short || d === rg.medium || d === rg.long)) { const t = el("text", { x, y: y + 3, "text-anchor": "middle", "font-size": 9, "font-weight": 700, fill: col[band], "pointer-events": "none" }, layer); t.textContent = L[band]; }
+    el("polygon", { points: HP(label, 0.96), fill: tooClose ? "#888" : col[band], "fill-opacity": tooClose ? ".12" : band === "short" ? ".2" : band === "medium" ? ".14" : ".09", "pointer-events": "none" }, layer);
+    if (O.cvd && (d === rg.short || d === rg.medium || d === rg.long)) { const [x, y] = at(label); const t = el("text", { x, y: y + 3 * s, "text-anchor": "middle", "font-size": 9 * s, "font-weight": 700, fill: col[band], "pointer-events": "none" }, layer); t.textContent = L[band]; }
   }
 }
 // the line from the attacker to the target with the range on it
 function drawShotLine(layer, from, to, range) {
   const a = unit(from), t = unit(to); if (!a || !t || !a.hex || !t.hex) return;
-  const [x1, y1] = centre(a.hex), [x2, y2] = centre(t.hex);
-  el("line", { x1, y1, x2, y2, stroke: "#e07468", "stroke-width": 1.8, "stroke-dasharray": "5 4", "pointer-events": "none" }, layer);
+  const s = (sc(a.hex) + sc(t.hex)) / 2, uh = MV.unitHeight(), [x1, y1] = at(a.hex, uh), [x2, y2] = at(t.hex, uh);
+  el("line", { x1, y1, x2, y2, stroke: "#e07468", "stroke-width": 1.8 * s, "stroke-dasharray": `${5 * s} ${4 * s}`, "pointer-events": "none" }, layer);
   const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, txt = String(range ?? "");
-  el("rect", { x: mx - 4 - txt.length * 3.5, y: my - 8, width: 8 + txt.length * 7, height: 16, rx: 8, fill: "#000", stroke: "#e07468", "stroke-width": 1.2, "pointer-events": "none" }, layer);
-  const tx = el("text", { x: mx, y: my + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, layer); tx.textContent = txt + "h";
+  el("rect", { x: mx - (4 + txt.length * 3.5) * s, y: my - 8 * s, width: (8 + txt.length * 7) * s, height: 16 * s, rx: 8 * s, fill: "#000", stroke: "#e07468", "stroke-width": 1.2 * s, "pointer-events": "none" }, layer);
+  const tx = el("text", { x: mx, y: my + 4 * s, "text-anchor": "middle", "font-size": 11 * s, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, layer); tx.textContent = txt + "h";
 }
 function drawAim(layer) {
   if (!S.decl) return;
-  for (const [wid, hex] of Object.entries(S.decl.aim)) { const [x, y] = centre(hex); el("circle", { cx: x, cy: y, r: R * 0.6, fill: "none", stroke: "#e07468", "stroke-width": 2.5, "stroke-dasharray": "4 3", "pointer-events": "none" }, layer); el("circle", { cx: x, cy: y, r: 3, fill: "#e07468", "pointer-events": "none" }, layer); }
-  if (S.decl.aimFor) for (const label of Object.keys(S.board.hexes)) { const [x, y] = centre(label); const p = el("polygon", { points: pts(x, y), fill: "transparent", style: "cursor:crosshair" }, layer); p.addEventListener("click", () => setAim(label)); }
+  for (const [wid, hex] of Object.entries(S.decl.aim)) { const s = sc(hex), [x, y] = at(hex); el("circle", { cx: x, cy: y, r: R * 0.6 * s, fill: "none", stroke: "#e07468", "stroke-width": 2.5 * s, "stroke-dasharray": `${4 * s} ${3 * s}`, "pointer-events": "none" }, layer); el("circle", { cx: x, cy: y, r: 3 * s, fill: "#e07468", "pointer-events": "none" }, layer); }
+  if (S.decl.aimFor) for (const label of MV.order(Object.keys(S.board.hexes))) { const p = el("polygon", { points: HP(label), fill: "transparent", style: "cursor:crosshair" }, layer); p.addEventListener("click", () => setAim(label)); }
 }
 HANDLERS.declaration = (r) => {
   S.sel = r.unit;

@@ -155,7 +155,7 @@ def main():
                "info": {"bots": info["bots"], "default_board": info["default_board"], "skill_table": info["skill_table"]}}
     json.dump(catalog, open(os.path.join(out, "catalog.json"), "w"), separators=(",", ":"))
     shutil.copy(os.path.join(engine, "defaults", "config.json"), os.path.join(out, "defaults.json"))
-    for n in ("index.html", "play.html", "play.js", "boardart.js", "mapview.js", "tabletop.js", "three.min.js", "lab.css", "lab.js", "options.json", "availability.json"):
+    for n in ("index.html", "play.html", "play.js", "boardart.js", "mapview.js", "tabletop.js", "mechsprites.js", "three.min.js", "lab.css", "lab.js", "options.json", "availability.json"):
         shutil.copy(os.path.join(engine, "lab", "web", n), os.path.join(out, n))
     for n in ("wasmio.js", "engine.js", "worker.js", "playworker.js", "coi.js", "coi-sw.js"):
         shutil.copy(os.path.join(engine, "wasm", "web", n), os.path.join(out, n))

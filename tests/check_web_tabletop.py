@@ -87,6 +87,13 @@ const { chromium } = require('playwright');
   out.hexAt = await page.evaluate(([x, y]) => MV.hexAt(x, y), [cx, cy]);
   await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(900); await page.mouse.up(); await page.waitForTimeout(200);
   out.card = await page.evaluate(() => { const c = document.getElementById('card'); return c.style.display === 'block' ? c.textContent.slice(0, 30) : null; });
+  // units: pieces in the scene, the page's marks projected over them, and redrawn when the camera moves
+  out.units = await page.evaluate(async () => {
+    MV.setUnits([{ id: 1, hex: '0909', facing: 'SE', tons: 100, colour: '#4b8fd8', mech: 'Atlas AS7-K', sel: true }, { id: 2, hex: '0910', facing: 'N', tons: 35, colour: '#d86a4b', mech: 'Nobody X' }]);
+    await new Promise((r) => setTimeout(r, 300)); const V = MV.tabletop().three, n0 = V.units ? V.units.children.length : 0;
+    const poly = () => document.querySelector('#map polygon[points]'); const at = MV.at('0909'), p = MV.pt('0909', 1, 0);
+    return { pieces: n0, sprites: Object.keys(window.MECH_SPRITES || {}).length, at, east: p[0] - at[0], scale: MV.scale('0909'), k: MV.k(), hexPts: MV.hexPts('0909').split(' ').length };
+  });
   await page.click('#menu-btn'); await page.locator('#menu [data-act="view3d"]').click(); await page.waitForTimeout(600);
   out.back = await page.evaluate(() => ({ mode: MV.mode, canvas: !!document.getElementById('tabletop'), flatShown: MV.layers.map.style.display !== 'none', pref: localStorage.getItem('bm_view') }));
   await page.close();
@@ -139,6 +146,8 @@ def main():
     ck(o["tiltBtn"][1] != o["tiltBtn"][0], f"the tilt button cycles {o['tiltBtn']}")
     ck(o["fit"]["dist"] > 100, f"the fit button fits ({o['fit']['dist']:.0f})")
     ck(o["hexAt"] is not None and o["card"] and o["card"].startswith("Hex "), f"the view finds the hex under a point and a long press opens its card ({o['hexAt']}, {o['card']})")
+    u = o["units"]
+    ck(u["pieces"] >= 5 and u["sprites"] > 30 and u["hexPts"] == 6 and u["east"] > 5 and u["scale"] > 0.05 and u["k"] == 1, f"units stand on the table (bases and pictures) and the page's geometry is projected ({u})")
     ck(o["back"]["mode"] == "top" and not o["back"]["canvas"] and o["back"]["flatShown"] and o["back"]["pref"] == "top", f"the Menu item switches back to the flat view ({o['back']})")
     ck(o["nowebgl"]["mode"] == "top" and not o["nowebgl"]["canvas"] and o["nowebgl"]["card"] and o["nowebgl"]["hexes"] > 200, f"with no WebGL the flat map stays and says so ({o['nowebgl']})")
     ck(not o["errors"], f"no page error ({o['errors'][:2]})")
