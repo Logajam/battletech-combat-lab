@@ -10,6 +10,7 @@
 (function () {
   const R = 34, SQ3 = Math.sqrt(3), D2R = Math.PI / 180;
   const tmpV = new THREE.Vector3(), tmpW = new THREE.Vector3();
+  const spriteTex = {};   // textures that outlive a rebuild (none yet: unit sprites come in step 3); disposeGroup keeps these
   const name = (c, r) => String(c).padStart(2, "0") + String(r).padStart(2, "0");
   const parse = (l) => [parseInt(l.slice(0, 2), 10), parseInt(l.slice(2), 10)];
   const centre = (c, r) => [R + (c - 1) * 1.5 * R, (SQ3 / 2) * R + (r - 1) * SQ3 * R + (c % 2 === 0 ? (SQ3 / 2) * R : 0)];
@@ -275,8 +276,11 @@
       },
       pinchEnd() { two = null; V.gesture = false; V.request(); },
       // the hex under a client point, or null
-      hexAt(cx, cy) { if (!V.M || !V.tilesS) return null; const p = local(cx, cy); V.applyCam(); V.ray.setFromCamera({ x: (p.x / V.w) * 2 - 1, y: -(p.y / V.h) * 2 + 1 }, V.camera);
-        const hit = V.ray.intersectObjects([V.tilesS, ...Object.values(V.caps)], false); if (!hit.length) return null; const i = hit[0].object.userData.ids[hit[0].instanceId]; return i === undefined ? null : V.M.list[i].l; },
+      hexAt(cx, cy) { if (!V.M || !V.tilesS) return null; const p = local(cx, cy); V.applyCam(); const meshes = [V.tilesS, ...Object.values(V.caps)];
+        // a ray through the exact centre of a hex can slip between the six triangles that meet there: try a fraction of a pixel to each side too
+        for (const [ox, oy] of [[0, 0], [0.7, 0], [-0.7, 0], [0, 0.7], [0, -0.7]]) { V.ray.setFromCamera({ x: ((p.x + ox) / V.w) * 2 - 1, y: -((p.y + oy) / V.h) * 2 + 1 }, V.camera);
+          const hit = V.ray.intersectObjects(meshes, false); if (hit.length) { const i = hit[0].object.userData.ids[hit[0].instanceId]; if (i !== undefined) return V.M.list[i].l; } }
+        return null; },
       // a point of a hex on the screen: dx, dy in hex radii from its centre (east, south), up in world units above the tile top. Host pixels, the scale of the hex there (pixels per board unit).
       project(label, dx, dy, up) { const h = V.M && V.M.hexes.get(label); if (!h) return null; V.applyCam(); const o = V.P(h.x + (dx || 0) * R, h.top + (up || 0), h.z + (dy || 0) * R), e = V.P(h.x + (dx || 0) * R + R, h.top + (up || 0), h.z + (dy || 0) * R); o.scale = Math.hypot(e.x - o.x, e.y - o.y) / R; return o; },
       // the hex's centre on the screen relative to the page (for DOM marks laid over the map)

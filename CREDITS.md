@@ -73,3 +73,7 @@ The programs are built with open-source Rust libraries (MIT, Apache-2.0 and simi
 licence and its licence text are in [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) (made by
 `tools/third_party_licenses.py`). The replay page loads the fonts Saira Condensed and IBM Plex from Google Fonts when it
 is viewed (SIL Open Font License); they are not part of the download.
+
+**three.js** (MIT, Copyright 2010-2021 three.js authors, <https://threejs.org>): `engine/lab/web/three.min.js`, release r128, unchanged,
+with its own licence notice in the file's first lines. It draws the 3D tabletop view of the map (`tabletop.js`) and is downloaded by the
+play page only when that view is asked for. It is JavaScript the page loads, not a Rust library, so it is not in `THIRD_PARTY_LICENSES.txt`.
