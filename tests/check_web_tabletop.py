@@ -28,6 +28,11 @@ def free_port():
     s = socket.socket(); s.bind(("127.0.0.1", 0)); p = s.getsockname()[1]; s.close(); return p
 
 
+class Quiet(http.server.ThreadingHTTPServer):
+    def handle_error(self, request, client_address):   # a browser closing a connection is not an error here
+        pass
+
+
 class Isolated(http.server.SimpleHTTPRequestHandler):
     """Static files plus the headers that make a page cross-origin isolated (what coi-sw.js adds on a real host)."""
     def end_headers(self):
@@ -108,7 +113,7 @@ def main():
         if r.returncode != 0:
             print("SKIP: the web build failed here (no wasm32 target?)\n", r.stderr[-400:]); return 77
     port = free_port()
-    httpd = http.server.ThreadingHTTPServer(("127.0.0.1", port), lambda *args, **kw: Isolated(*args, directory=WEB, **kw))
+    httpd = Quiet(("127.0.0.1", port), lambda *args, **kw: Isolated(*args, directory=WEB, **kw))
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     with tempfile.TemporaryDirectory() as tmp:
         sf = os.path.join(tmp, "setup.json"); json.dump(SETUP, open(sf, "w")); nf = os.path.join(tmp, "probe.js"); open(nf, "w").write(NODE)
