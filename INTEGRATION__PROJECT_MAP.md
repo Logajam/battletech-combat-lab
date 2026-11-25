@@ -193,7 +193,10 @@ moving the mockup into the live game "was less than successful", so settle homes
   the picture agrees with the rules at any scale (a 4-level building is twice a 'Mech's height). BEVEL (Daniel, 2026-11-25: "Bevel level changes slightly
   towards the lower level ... would also help say 'This way down' ... in 2D from above"): every tile edge with a lower neighbour (or the board edge) slopes down a
   little (cap slab per pattern of lower edges, `capGeo` in the mockup); the Top-down camera stays an option and shows the slope as shading. GLASS (Daniel, 2026-11-25: "hexes floating over other hexes"): tile sides were about 60% see-through;
-  now a Glass slider, default 20% (sides about 86% opaque and writing depth), so tiles read as solid blocks; the holo look comes from the grid lines, rim and floor. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
+  now a Glass slider, default 40% (Daniel: "at about 40% I can still see through them, but they also have presence"); the holo look comes from the grid lines, rim and floor. Relief and Glass are
+  DISPLAY preferences (the game's Menu, View, remembered on the device, like the looks), not rules Options. WOODS (Daniel, 2026-11-25: "heavy is both darker green with 3 trees. Light is lighter
+  green with 2 trees one smaller than the other"): light = lighter ground tint and two trees, one smaller; heavy = darker tint and three; ultra-heavy (level 3, none on the shipped boards) darker still
+  with four; an occupied woods hex gets a ring of small trees, 4 / 6 / 7 by weight. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
   clear of the movement colours (Walk is cyan). Build after P3a.
 - P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
   tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
