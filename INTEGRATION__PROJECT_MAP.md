@@ -190,7 +190,9 @@ moving the mockup into the live game "was less than successful", so settle homes
   their game"). HEIGHTS (Daniel, 2026-11-25): a hex is 1.25 in flat to flat, a level is 0.5 to 0.75 in in table terrain, a 'Mech is 2 levels tall and a
   table model fits the hex with little room to spare; our bases are deliberately smaller and the level height may be subdued. The mockup's relief
   slider is calibrated in inches a level (default 0.34 in, up to about 0.75); trees, buildings and the 2-level base all use the same level height, so
-  the picture agrees with the rules at any scale. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
+  the picture agrees with the rules at any scale (a 4-level building is twice a 'Mech's height). BEVEL (Daniel, 2026-11-25: "Bevel level changes slightly
+  towards the lower level ... would also help say 'This way down' ... in 2D from above"): every tile edge with a lower neighbour (or the board edge) slopes down a
+  little (cap slab per pattern of lower edges, `capGeo` in the mockup); the Top-down camera stays an option and shows the slope as shading. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
   clear of the movement colours (Walk is cyan). Build after P3a.
 - P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
   tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
