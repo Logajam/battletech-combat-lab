@@ -81,6 +81,8 @@ VARIANTS = {
     "bttt_red__hy_duel_griffin": ("hy_duel_griffin", "bttt:Red"),
     "bttt_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "bttt:Blue"),
     "bttt_both__hy_2v2_grass": ("hy_2v2_grass", "bttt:Red,Blue"),
+    # BTTT jumps only when its path runs past its running MP and fits its jump MP: Asymptote's jets outrun its legs (run 4, jump 5)
+    "bttt_red__ref_Asymptote_vs_HeatGear_maxheat30_seed2": ("ref_Asymptote_vs_HeatGear_maxheat30_seed2", "bttt:Red"),
     # event coverage (2026-11-24, tools/make_event_scenarios.py): Hydra on both teams of two jump-'Mech scenarios, where a
     # death-from-above happens (rare: Gladiator never makes one)
     "hydra_both__ev_dfa_a": ("ev_dfa_a", "Red,Blue"),
