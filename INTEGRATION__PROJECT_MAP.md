@@ -196,7 +196,14 @@ moving the mockup into the live game "was less than successful", so settle homes
   now a Glass slider, default 40% (Daniel: "at about 40% I can still see through them, but they also have presence"); the holo look comes from the grid lines, rim and floor. Relief and Glass are
   DISPLAY preferences (the game's Menu, View, remembered on the device, like the looks), not rules Options. WOODS (Daniel, 2026-11-25: "heavy is both darker green with 3 trees. Light is lighter
   green with 2 trees one smaller than the other"): light = lighter ground tint and two trees, one smaller; heavy = darker tint and three; ultra-heavy (level 3, none on the shipped boards) darker still
-  with four; an occupied woods hex gets a ring of small trees, 4 / 6 / 7 by weight. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
+  with four; an occupied woods hex gets a ring of small trees, 4 / 6 / 7 by weight.
+  TERRAIN ART (Daniel, 2026-11-25; built in the mockup v3.6, a "Terrain gallery" map shows every type): WATER is an anti-hill (the ground sits below the level by the depth, a translucent surface at the level, light
+  lines tie surface to ground); ROADS are continuous (the `road:1:36` exit mask, bits N, NE, SE, S, SW, NW, else joined to neighbouring road or pavement); PAVEMENT a slab with a curb where it ends; ROUGH and RUBBLE
+  low-poly rocks; MAGMA lava (animated) and crust (cracks); HAZARDOUS LIQUID a purple pool with bubbles; BUILDINGS "square greyish hills", a grey block at its `bldg_elev` levels, more opaque than hills (shade by
+  `bldg_cf`), nothing finer for now; JUNGLE round canopies; SAND dunes; SWAMP, MUD, ICE, SNOW tints; FIRE (slow low-poly flicker) and SMOKE (drifting, shifting transparency); MINES a flat sprite on the hex; a BLOWN-OFF
+  LIMB a symbol in the hex corner; unit bases are SOLID, not glass. ENGINE STATE (checked 2026-11-25): active = hazardous liquid (`hazards.rs`, a damage roll), jungle, sand, rubble, swamp, mud (`terrain_rules.rs`), smoke
+  (`smoke.rs`, light / heavy until a turn); NOT modelled = fire terrain, minefields, ice, snow, rapids, a limb lying on a hex, so that art is gallery-only until the rules exist. The shipped boards hold none of the
+  jungle / sand / swamp / mud / rubble / ice / snow / fire (the 346-board pack does). OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
   clear of the movement colours (Walk is cyan). Build after P3a.
 - P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
   tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
