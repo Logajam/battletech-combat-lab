@@ -103,9 +103,12 @@
     // pixels of the svg, which is sized to the map there; a hex's points are projected at the top of its tile. Offsets are in hex radii (dx east,
     // dy south) and `up` is world units above the tile top, so a point drawn on the ground follows the ground. `scale(label)` is view units per
     // board unit at that hex (1 in the flat view): lengths that were written in board units (a stroke, a radius, a text size) are multiplied by it.
-    mv.at = (l, up) => { if (is3d()) { const p = tt.project(l, 0, 0, up || 0); return p ? [p.x, p.y] : [0, 0]; } return mv.centre(l); };
-    mv.pt = (l, dx, dy, up) => { if (is3d()) { const p = tt.project(l, dx, dy, up || 0); return p ? [p.x, p.y] : [0, 0]; } const c = mv.centre(l); return [c[0] + R * dx, c[1] + R * dy]; };
+    // a point behind the camera (or absurdly far off the screen) has no place: it is sent far away, and a polygon with such a corner is left empty
+    const OFF = -99999, good = (p) => p && p.ok && Math.abs(p.x) < 50000 && Math.abs(p.y) < 50000;
+    mv.at = (l, up) => { if (is3d()) { const p = tt.project(l, 0, 0, up || 0); return good(p) ? [p.x, p.y] : [OFF, OFF]; } return mv.centre(l); };
+    mv.pt = (l, dx, dy, up) => { if (is3d()) { const p = tt.project(l, dx, dy, up || 0); return good(p) ? [p.x, p.y] : [OFF, OFF]; } const c = mv.centre(l); return [c[0] + R * dx, c[1] + R * dy]; };
     mv.is3d = is3d;
+    mv.dropDepth = (l) => (is3d() ? tt.dropDepth(l) : 0); mv.raised = (l) => (is3d() ? tt.raised(l) : false);
     // the units, the hexes they stand on (woods get a ring of trees round the base) and the points the cut-away keeps in view. Kept here so that
     // entering the 3D view later shows them too; the flat view draws units itself.
     const keep = { units: [], occ: "", focus: [] };
@@ -115,7 +118,8 @@
     mv.keep = keep;
     mv.hexPts = (l, k = 1, up = 0) => {
       if (!is3d()) { const c = mv.centre(l); return mv.pts(c[0], c[1], k); }
-      return [0, 1, 2, 3, 4, 5].map((i) => { const p = tt.project(l, k * Math.cos(Math.PI / 3 * i), k * Math.sin(Math.PI / 3 * i), up); return p ? `${p.x.toFixed(1)},${p.y.toFixed(1)}` : "0,0"; }).join(" ");
+      const ps = [0, 1, 2, 3, 4, 5].map((i) => tt.project(l, k * Math.cos(Math.PI / 3 * i), k * Math.sin(Math.PI / 3 * i), up));
+      return ps.every(good) ? ps.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ") : "0,0 0,0 0,0";
     };
     mv.scale = (l) => { if (!is3d()) return 1; const p = tt.project(l, 0, 0, 0); return p ? p.scale : 1; };
     mv.unitHeight = () => (is3d() ? tt.unitHeight() : 0);                         // the height of a unit's base above its tile (world units)

@@ -44,6 +44,12 @@ const centre = MV.centre, pts = MV.pts;
 // label-based geometry, the same calls in the flat map and the 3D tabletop (mapview.js): at = a hex's centre (up = height above its tile),
 // P = a point of the hex in hex radii from the centre, HP = its outline, sc = view units per board unit there (1 in the flat map: every length
 // below is written in board units and multiplied by it, so the flat drawing is unchanged)
+// the 3D looks (Menu, View, Tabletop looks), remembered on this device: height of a level, how clear the glass of a raised tile is, the bevel,
+// the kind of tree and the table (a holotable or wood)
+const T3 = { relief: [["Low", 170], ["Table", 280], ["Tall", 400]], glass: [["Solid", 0], ["Light", 20], ["Glass", 40], ["Clear", 60]], trees: [["Cones", "cone"], ["Balls", "round"], ["Mixed", "mixed"]], skin: [["Holotable", "holo"], ["Wood", "wood"]] };
+const t3get = () => ({ relief: +pref("t_relief", 280), glass: +pref("t_glass", 40), bevel: pref("t_bevel", "1") === "1", trees: pref("t_trees", "cone"), skin: pref("t_skin", "holo") });
+const t3name = (k) => { const v = t3get()[k]; return (T3[k].find((x) => x[1] === v) || [v])[0]; };
+const t3next = (k) => { const v = t3get()[k], i = T3[k].findIndex((x) => x[1] === v); return T3[k][(i + 1) % T3[k].length][1]; };
 const at = (l, up) => MV.at(l, up), P = (l, dx, dy, up) => MV.pt(l, dx, dy, up), HP = (l, k, up) => MV.hexPts(l, k, up), sc = (l) => MV.scale(l);   // where a hex is, and its six corners (the map view, mapview.js)
 const hexName = (c, r) => String(c).padStart(2, "0") + String(r).padStart(2, "0");
 function neighbours(l) { // in the order of polygon edges 0..5 (SE, S, SW, NW, N, NE)
@@ -289,6 +295,25 @@ function redraw() {
   drawMap();
   renderStrip(); infoBar(); dockRender();
 }
+// 3D only. Hex numbers: small on the tile, only where the hex is big enough to read and on the screen (a 4x4 splice has over a thousand).
+function drawHexNumbers(layer) {
+  if (!O.labels || !S.board) return;
+  const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+  for (const label of Object.keys(S.board.hexes)) {
+    const s = sc(label); if (s < 0.75) return;
+    const [x, y] = P(label, 0, -0.62); if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+    const t = el("text", { x, y, "text-anchor": "middle", "font-size": 8 * s, fill: "#000", "fill-opacity": ".55", "font-family": "ui-monospace,monospace", "pointer-events": "none" }, layer); t.textContent = label;
+  }
+}
+// 3D only. DROP-LINES: a thin line from a unit's base down to the table under a raised hex, so its place on the ground stays clear when the tiles
+// in front are glass (Daniel: "light outlines to keep track of surface to ground tethering").
+function drawDropLines(layer) {
+  for (const u of S.units) {
+    if (!u.hex || u.destroyed || !MV.raised(u.hex)) continue;
+    const [x1, y1] = at(u.hex, MV.unitHeight()), [x2, y2] = at(u.hex, -MV.dropDepth(u.hex));
+    el("line", { x1, y1, x2, y2, stroke: teamColour(u), "stroke-width": 1.2, "stroke-opacity": ".55", "stroke-dasharray": "3 3", "pointer-events": "none" }, layer);
+  }
+}
 // what the 3D tabletop shows besides the board: the unit pieces (hex bases with their pictures), the woods they stand in, and the points the
 // cut-away keeps in view (the units and the route being planned). Harmless in the flat view (mapview.js keeps it for when the 3D view opens).
 function syncTabletop() {
@@ -304,6 +329,7 @@ function onCamera() { if (camQueued || !gDyn) return; camQueued = true; requestA
 function drawMap() {
   gDyn.innerHTML = ""; gTop.innerHTML = "";
   const r = S.req;
+  if (MV.is3d()) { drawHexNumbers(gDyn); drawDropLines(gDyn); }
   if (r && (r.kind === "declaration" || r.kind === "target")) drawRings(gDyn);
   if (moving()) drawReach(gDyn);
   if (r && r.kind === "deploy") drawDeploy(gDyn);
@@ -1206,8 +1232,9 @@ function act(t) {
     case "dice": O.dice = !O.dice; setPref("dice", O.dice ? "1" : "0"); buildMenu(); if ($("report").firstChild) renderReport(); break;
     case "rings": O.rings = !O.rings; setPref("rings", O.rings ? "1" : "0"); buildMenu(); redraw(); break;
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
+    case "t3": { const k = d.k; if (k === "bevel") setPref("t_bevel", t3get().bevel ? "0" : "1"); else setPref("t_" + k, String(t3next(k))); MV.setting(t3get()); buildMenu(); break; }
     case "view3d": { $("menu").style.display = "none"; const want = MV.mode === "3d" ? "top" : "3d";
-      MV.setMode(want).then((got) => { setPref("view", got); buildMenu(); if (want === "3d" && got !== "3d") showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); }); break; }
+      MV.setMode(want, t3get()).then((got) => { setPref("view", got); buildMenu(); if (want === "3d" && got !== "3d") showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); }); break; }
     case "report": toggleReport(); $("menu").style.display = "none"; break;
     case "lab": location.href = "index.html"; break;
     case "get-results": getResults(); break;
@@ -1377,6 +1404,7 @@ function buildMenu() {
   const item = (label, act, extra, on) => `<div class="item ${on ? "on" : ""}" data-act="${act}" ${extra || ""}>${label}</div>`;
   m.innerHTML = `<div class="f" data-act="menu-folder" data-f="look">Look &#9656;</div><div class="sub open" data-f="look">${Object.entries(LOOKS).map(([k, n]) => item(n, "look", `data-v="${k}"`, O.look === k)).join("")}</div>
     <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}${item("Attack lines (the latest turn)", "atk", "", O.atk)}${item("Tabletop view (preview)", "view3d", "", MV.mode === "3d")}</div>
+    <div class="f" data-act="menu-folder" data-f="t3">Tabletop looks &#9656;</div><div class="sub" data-f="t3">${["relief", "glass", "trees", "skin"].map((k) => `<div class="item" data-act="t3" data-k="${k}">${{ relief: "Height of a level", glass: "Glass of raised tiles", trees: "Trees", skin: "Table" }[k]}: <b>${t3name(k)}</b></div>`).join("")}${item("Bevel toward lower hexes", "t3", 'data-k="bevel"', t3get().bevel)}</div>
     <div class="f" data-act="menu-folder" data-f="game">Game &#9656;</div><div class="sub open" data-f="game">${item("Report", "report")}${item("Back to the Lab", "lab")}</div>`;
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
@@ -1387,7 +1415,7 @@ window.addEventListener("resize", () => { if (S.board) fit(); });
 applyLook(); dockSize(+pref("dock", "1")); dockRender();
 // THE TABLETOP VIEW (P10, build step 2: a board preview, no units yet): chosen in the Menu, remembered on this device, or forced with ?view=3d / ?view=top
 $("ztilt").onclick = () => MV.cycleTilt();
-{ const want = qs.get("view") || pref("view", "top"); if (want === "3d") MV.setMode("3d").then((got) => { if (got !== "3d") { setPref("view", "top"); showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); } buildMenu(); }); }
+{ const want = qs.get("view") || pref("view", "top"); if (want === "3d") MV.setMode("3d", t3get()).then((got) => { if (got !== "3d") { setPref("view", "top"); showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); } buildMenu(); }); }
 // The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
 // starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
 async function boot() {

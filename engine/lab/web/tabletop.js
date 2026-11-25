@@ -309,6 +309,9 @@
       setUnits(list) { V.unitList = list || []; V.buildUnits(); V.request(); },
       // the thickness of a unit's base (world units): marks that belong on top of a unit are drawn this far above its tile
       unitHeight() { return V.baseH; },
+      // how far a hex's tile top stands above the table floor (world units): the length of its drop-line
+      dropDepth(label) { const h = V.M && V.M.hexes.get(label); return h ? Math.max(0, h.top - V.bot) : 0; },
+      raised(label) { const h = V.M && V.M.hexes.get(label); return !!h && h.top > R * 0.3; },
       render() { V.render(); }, resize() { V.size(); V.request(); }, info() { return V.lastInfo; },
       camera: V.cam, three: V,
       dispose() { V.disposed = true; V.animOn = false; ro.disconnect(); V.disposeGroup(V.stat); V.disposeGroup(V.units); V.renderer.dispose(); try { V.renderer.forceContextLoss(); } catch (e) { /* already lost */ } V.canvas.remove(); },
