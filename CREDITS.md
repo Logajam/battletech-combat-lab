@@ -36,6 +36,10 @@ the BattleTech community. This project would not exist without their work.
   `data/forcegenerator` era tables and `data/universe/factions`), reduced to a bit mask per 'Mech per era by
   `tools/make_availability.py`, following MegaMek's RAT generator (`RATGenerator.java`). Same licence as above
   (CC BY-NC-SA 4.0, non-commercial); the file carries MegaMek's notice in its `_license` field.
+- **Unit images (sprites)** (2026-11-25): MegaMek's top-down unit images (`reference_art/megamek_sprites/`, 36 of them) are used
+  in the private map mockup `reference_art/battlerom_ui/battlerom_holotable_mockup.html`, unchanged, as base art for the 3D play
+  view. They are CC BY-NC-SA 4.0 (Daniel, 2026-11-25: "licensed as allowed to be used for non commercial purposes, which is us").
+  Keep them as separate assets with this credit and never relicense them; a public download needs the same notice.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot and its "caspar" bot a translation of MegaMek's CASPAR bot (Mutual Support movement
   and deployment; `engine/core/src/caspar.rs`), both from MegaMek's source, and both deploy by a translation of MegaMek's bot
