@@ -185,9 +185,12 @@ moving the mockup into the live game "was less than successful", so settle homes
   Galaxy S22 Ultra, 2026-11-25): 60 fps average and the slowest 1% at 16.8 ms at 2x pixels on both 32x34 (1,088 hexes) and 64x68 (4,352
   hexes), 34 to 40 draw calls: map size does not matter. Re-run on Adaptive refresh (120 Hz screen), 64x68: 102 fps average, slowest 1% 16.8 ms
   (one missed frame in a hundred; likely the per-frame label / card updates and the layer rebuild on zoom: skip label updates mid-gesture and reuse the
-  elements in the build), so the headroom is real. OPEN: one-finger pan against the planned drag-to-move preview (Section 4); the two-placard design (DECISION_HOMES Section 10); true
-  scale of the heights (check the library for hex size and level height before any "to scale" claim; the mockup's relief is exaggerated, so an
-  LOS line must come from the engine); the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
+  elements in the build), so the headroom is real. DECIDED (Daniel, 2026-11-25): one finger pans when the thing touched is a hex (a drag that starts on a unit is the drag-to-move preview); the card
+  placard change is accepted; replay gets the same viewer later (a side quest: the focus is the human GUI, "so that people feel good about controlling
+  their game"). HEIGHTS (Daniel, 2026-11-25): a hex is 1.25 in flat to flat, a level is 0.5 to 0.75 in in table terrain, a 'Mech is 2 levels tall and a
+  table model fits the hex with little room to spare; our bases are deliberately smaller and the level height may be subdued. The mockup's relief
+  slider is calibrated in inches a level (default 0.34 in, up to about 0.75); trees, buildings and the 2-level base all use the same level height, so
+  the picture agrees with the rules at any scale. OPEN: the two-placard design (DECISION_HOMES Section 10); an LOS line must come from the engine; the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
   clear of the movement colours (Walk is cyan). Build after P3a.
 - P12. TOURNAMENT / BATTLE-SERIES SETUP IN THE LAB, no Claude needed (Daniel, 2026-11-24): set up a series of battles or a
   tournament to run in sequence, up to massive runs that sort every mech by Elo (feeds P9). Plan: a Lab "Tournament" page: pick
