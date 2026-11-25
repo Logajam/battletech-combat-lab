@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-25 (Claude, session 36), BTTT JUMPS OVER AN OBSTRUCTION (Daniel's addition; NOT in BTTT). REVIEW PENDING (higher-level model).**
+  **Daniel, 2026-11-25:** "If it walks the path, jump should happen if terrain gets in the way." BTTT itself walks round an obstruction and jumps only when its path outruns its running MP. **Built:** in `bttt.rs`, when a step forward is refused by terrain or a unit in the hex (`obstructed`: blocked or not allowed, not a lack of MP) and the unit has any jump MP,
+  `land_ahead` values the hexes straight ahead within jump range as jump landings (only where `combat::build_jump_states` lets the unit land; never in a hex another unit stands in); the best is kept if it beats everything the walk and its walking round found, and takes the best of its six facings. It is one more candidate, so a jump is made when it is worth more than going round, not
+  always. Units with jump MP at or under their run MP now jump too. **Seen:** the 8 v 8 valley, Reds 7 and 8 jumping 2 to 4 hexes. **Tests:** `tests/bttt.rs` (a unit whose jump MP does not exceed its run MP jumps on the valley in three seeds: it can only be an obstruction). **Reference battles changed on purpose:** `bttt_blue__hy_4v4_heavy_hills` and `bttt_both__hy_2v2_grass` (logs and events re-saved
+  with `--update`); the other 64 are identical; bridge parity 63 of 63. **Not done:** landing off the line ahead (only the straight line is tried), a jump that starts after a walk (a jump is flown from where the move began).
+
 - **2026-11-25 (Claude, session 36), BTTT JUMPS WHERE ITS PATH RUNS PAST ITS RUNNING MP. REVIEW PENDING (higher-level model).**
   **Daniel asked** "Is bttt supposed to jump?" and then "Yes" to adding it. In BTTT the bot never chooses to jump: the speed follows from the MP its path used, so it jumps only when the path runs past the running MP and fits the jump MP (jump MP above run MP). Done in `bttt.rs`: when
   jump MP > run MP the walk goes on to the jump MP; a position past the running MP is valued as a JUMP LANDING (mode Jump, hexes and MP = the distance flown, only where `combat::build_jump_states` lets the unit land with that facing); the best landing takes the best of its six facings (BTTT turns right six
