@@ -89,6 +89,29 @@ def play(lab, seed, kinds, wrong_once):
                 assert q.get("path") is not None, "a path query returns the route: " + json.dumps(q)[:100]
             best = max(r["options"], key=lambda o: (o["mode"] == "Walk", o["mp"]), default=None)
             ans = {"stay": True} if best is None else {"hex": best["hex"], "facing": best["facing"], "mode": best["mode"]}
+            walks = sorted((x for x in r["options"] if x["mode"] == "Walk" and x["mp"] >= 2), key=lambda x: x["mp"])
+            if "drawn" not in kinds and len(walks) > 3 and not r.get("standup_mp") and not r.get("entry"):
+                # a route drawn through waypoints is walked as drawn (Daniel, 2026-11-24): the way query's entries carry the numbers of the
+                # route they describe, an answer that does not end at the last waypoint is refused in words, and a right one is accepted
+                kinds.add("drawn")
+                # a waypoint the drawn route can reach: its legs go forward and turn only (the options above also use backward steps)
+                h1, w1, here = None, None, []
+                for cand in walks[len(walks) // 2:] + walks[: len(walks) // 2]:
+                    w = lab.api("play_query", {"game": gid, "query": {"q": "way", "unit": r["unit"], "waypoints": [cand["hex"]]}})
+                    got = [x for x in w.get("reach", []) if x["hex"] == cand["hex"] and x["mode"] == "Walk"]
+                    if got:
+                        h1, w1, here = cand["hex"], w, got
+                        break
+                assert here, "some waypoint among the Walk options can be drawn to"
+                assert all(k in here[0] for k in ("mp", "hexes", "tmm", "heat", "psrs", "hazard")), "a way entry carries the route's own numbers: " + json.dumps(here[0])
+                e = here[0]
+                other = next((x["hex"] for x in w1["reach"] if x["hex"] != h1), None)
+                if other:
+                    lab.api("play_answer", {"game": gid, "seq": seq, "answer": {"hex": other, "facing": e["facing"], "mode": "Walk", "waypoints": [h1]}})
+                    again = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
+                    assert "last waypoint" in (again["request"].get("error") or ""), "a drawn move that ends elsewhere is refused in words: " + str(again["request"].get("error"))
+                    seq = again["seq"]
+                ans = {"hex": h1, "facing": e["facing"], "mode": "Walk", "waypoints": [h1]}
         elif k == "target":
             if not wrong_once[0]:
                 wrong_once[0] = True
@@ -294,6 +317,7 @@ def main():
         end, ans1 = play(lab, 11, kinds, wrong)
         check({"move_order", "movement", "target", "declaration"} <= kinds, f"the questions that came up: {sorted(kinds)}", failures)
         check(len(wrong) == 2 and bool(wrong[1]), "an illegal answer is asked again with an error", failures)
+        check("drawn" in kinds, "a route drawn through a waypoint is accepted when it ends at the waypoint, refused in words when it does not, and its way entries carry the route's numbers (2026-11-24)", failures)
         check(end["winner"] in ("Red", "Blue", "Draw") and end["turns"] > 0, f"the battle ends: {end['winner']} after {end['turns']} turns, {end['decisions']} decisions", failures)
         end2, ans2 = play(lab, 11, set(), [True, None])
         check(ans1 == ans2 and end["winner"] == end2["winner"] and end["turns"] == end2["turns"], "the same seed and answers give the same battle", failures)

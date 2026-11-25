@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-25 (Claude, session 36), ROUTES ARE WALKED AS DRAWN (P15). REVIEW PENDING (higher-level model).**
+  **Daniel's call, 2026-11-24:** "Follow the route as drawn. I suspect the engine might not be avoiding hazards, simply accepting their cost to get to desired hexes instead of looking for a way around the hazard.
+  Follow as drawn lets the humans avoid hazards at least." This replaces his 2026-11-22 ruling (the engine's own best route to the last waypoint was fine, a known issue).
+  **What I found about the suspicion:** the movement DP (`pathfinder.rs`) does prefer the route with the least hazard, but only among routes that reach the same (hex, facing) for the same MP; and the play page lists only the cheapest
+  MP of each (hex, facing, mode), so a hazard-free route that costs one MP more is never offered. `tests/drawn_route.rs` finds such cases on the lava boards (Caustic Valley (Lava), Devil's Bath (magma)): 4 starts where the cheapest
+  way to a hex crosses magma and a waypoint gives a route of zero hazard within the unit's MP. I did NOT measure whether the bots' scorers weigh the hazard of the cheapest route against a detour: untested.
+  **Built:** `engine/core/src/drawn_route.rs`: the route through the waypoints (`chain`: the cheapest way to each in turn, any facing between, the cheapest total wins), what the move can end in from its last hex (`reach`), and the
+  finished move (`finish`); every number is read off a replay through `step_walk::Walker`. `Pick` gets `route: Option<Vec<Step>>` (None for every bot); the play page sends the waypoints with the move; `play_session.rs` rebuilds the route,
+  refuses an answer that does not end at the last waypoint ("the move must end at the last waypoint"), and gives the route's own PSRs and hazard as the `PathGate`; `orchestrator::walk_path` walks the route's steps (so each PSR and each
+  hazard is taken where the route puts it) and the MOVE_PATH event shows the route walked. The `way` query's entries now carry the route's own `hexes`, `tmm`, `heat`, `psrs` and `hazard` (before: the engine's best route's). **Tests:**
+  `tests/drawn_route.rs` (routes round a hazard found on two lava boards, with the walker accepting each; a scripted person's drawn route through a waypoint off the engine's cheapest way is walked and shows step for step in MOVE_PATH, ending
+  at its hex and MP), `check_play.py` (a way entry carries the numbers; a drawn move that ends elsewhere is refused in words; the right one is accepted), both added to `run_checks.py`. **No results changed:** all 62 reference logs and event files
+  identical (bots carry no route), bridge parity and every website check pass (the website check needs the wasm target: `rustup target add wasm32-unknown-unknown`, installed in this container for the run).
+  **Not done:** backward steps inside a waypoint leg (the tables are built without them: a hex cheapest to reach in reverse cannot be a waypoint), jumps / stand-ups / entries / charges (no waypoints), a typed order format for saved routes (P11).
+
 - **2026-11-24 (Claude, session 36), STEP WALKER AND THE MOVE_PATH EVENT (BTTT raid, P8 -> P15 / P16). REVIEW PENDING (higher-level model).**
   **Why:** Daniel asked what BTTT (github.com/Raptor007/BTTT) holds that is useful and what its bot is based on, then chose items 1 (step-by-step movement) and 2 (a BTTT-style bot). Reading showed
   the bot is original and weak (a one-turn greedy expected-damage bot; findings in PROJECT_MAP P8) and that BTTT has no licence, so the bot is to be re-implemented, never copied (P16, not built).

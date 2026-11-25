@@ -154,8 +154,7 @@ moving the mockup into the live game "was less than successful", so settle homes
     Other BTTT ideas filed in C7 (optional rules to check, 3+ teams, biome maps, UI ideas). See P15 (the step walker, built) and P16 (the bot, not built).
   - P15. STEP WALKER (BUILT 2026-11-24, session 36; REVIEW QUEUE `s36-stepwalk`): `engine/core/src/step_walk.rs`, one ground step at a time (forward, backward, turn left / right) with the
     DP's own rules; `tests/step_walk.rs` proves it agrees with `pathfinder.rs` on 41,952 routes and the whole step graph. It is the `walk_path` layer Section 4 asked for. NOT yet wired
-    into the play page: **Daniel's call needed**, whether a waypoint route is walked as drawn (exact hexes) or stays "destination and mode are what matter, the engine picks the route" (his
-    2026-11-22 ruling, kept as is). The engine also writes the route into a new event, MOVE_PATH (events list v2), for replays. Next uses: exact-route orders, the BTTT-style bot (P16), a
+    into the play page: **DONE 2026-11-25** (Daniel: "Follow the route as drawn"; `drawn_route.rs`, Section 4). The engine also writes the route into a new event, MOVE_PATH (events list v2), for replays. Next uses: exact-route orders, the BTTT-style bot (P16), a
     replay that shows a unit's actual path. Not covered: jumps, stand-ups, charges (their own code).
   - P16. BTTT-STYLE BASELINE BOT (not built; Daniel 2026-11-24 "interested in items 1 and 2"): re-implemented from the description in P8, never from their code. Cheap version (about half a day):
     our reachable-path generation + their scoring + their weapon-dropping, bot name `bttt` (scenario.rs, bridge.rs line ~969, `btsim --bttt TEAM`, Lab / website lists, `is_*family` checks stay
@@ -204,7 +203,7 @@ moving the mockup into the live game "was less than successful", so settle homes
   take-control in replay, declaration order, the mockup's look, the browser build, saving a game): `INTEGRATION__PLAYER_DECISIONS.md`
   Section 16 (second pass, Section 17: charge / DFA, stand up, route preview, weapon modes, ammo bins, equipment switches, End
   Phase question, spot, TAG, artillery aim, firing arcs, detail sheet, looks, colour-blind mode). Still not built: waypoint
-  steering (planned through waypoints since 2026-11-22; the unit walks its own route, known issue in Section 4), going prone, ejection / voluntary shutdown, hex-only artillery, placard placement, sprites, formatted combat report,
+  steering (DONE 2026-11-25: the unit walks the route as drawn, Section 4), going prone, ejection / voluntary shutdown, hex-only artillery, placard placement, sprites, formatted combat report,
   and (Daniel: skip) take-control / declaration order / option changes (5), the browser build (7); saving a game is "spare compute".
   The audit of every player decision and Daniel's answers: the same file, Sections 1-15.
 
@@ -493,6 +492,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s36-drawn) ROUTES WALKED AS DRAWN** (2026-11-25): `engine/core/src/drawn_route.rs` (`chain`, `reach`, `finish`, `replay`, `path_of_steps`), `ranged_combat::Pick.route`, `play_session.rs` (`way_query` rebuilt on it; the
+  movement answer's `waypoints`; `Chosen::Drawn`), `orchestrator.rs` (`walk_path` and `move_route` take `pick.route`), `engine/lab/web/play.js` (`doCommit` sends the waypoints; the waypoint texts), `tests/drawn_route.rs`,
+  `check_play.py` ("drawn"). Look at: the route is the cheapest way to each waypoint in turn, then turns, so a player's "detour" is only as detailed as their waypoints; a drawn route is saved in the decision list
+  with the pick (`Decision::Movement`), not yet in a typed order format (P11); backward steps are not drawable; the way entries' TMM / heat come from `move_options::prepare_options` on the route's (hexes, mode, MP).
 - **(s36-stepwalk) STEP WALKER AND MOVE_PATH** (2026-11-24): `engine/core/src/step_walk.rs`, `engine/core/tests/step_walk.rs`, `orchestrator.rs` (`move_route`, `emit_move_path`; the route is found BEFORE the unit
   moves, only with events on, and cut where a move stopped early), `events.rs` (MOVE_PATH, `EVENT_VERSION` 2), `INTEGRATION__EVENTS.md`, `check_events.py` (MOVE_PATH follows its MOVE), the 62 reference event
   files re-saved (logs unchanged; the only change is the added MOVE_PATH lines). Look at: whether `step_walk`'s backward-step rule (the DP's PSR builder's, a superset of its plain builder's) is the one
@@ -913,7 +916,7 @@ key from today's engine, or list each change). RESOLVED: `stage6_battles.rs` was
   deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
   When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
   Gladiator decision loop before changing anything.
-- **Waypoint routes are not walked as drawn** (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same, letting the auto route figure out how to get there while maximizing TMM is fine. It becomes a known issue rather than a bug"). The play page plans a move through numbered waypoints (the cost, and so the mode, is that of going through all of them, `play_session.rs` `way_query`), but the unit takes the engine's own best route to the last hex (most hexes moved, so the best TMM; `pathfinder.rs`), which may not pass through the waypoints, and the heat, TMM and hexes shown come from that engine route while the MP shown is the waypoint route's. A route that must avoid a hazard or a hex needs the engine to walk a chosen route (`walk_path` from a list of hexes). UPDATE 2026-11-24: the step layer exists now (`step_walk.rs`, P15); wiring a drawn route into a move is Daniel's call (exact route or not). Jumps and stand-up / entry moves take no waypoints.
+- **Waypoint routes are walked as drawn - FIXED 2026-11-25** (Daniel, 2026-11-24: "Follow the route as drawn ... Follow as drawn lets the humans avoid hazards at least"; this replaced his 2026-11-22 ruling that the engine's own route to the last hex was fine). The page sends the waypoints with the move; `drawn_route.rs` rebuilds the same route (the cheapest way to each waypoint in turn, then the turns to the chosen facing), the pick carries it (`Pick.route`) and `orchestrator::walk_path` walks exactly those steps, rolling each PSR and taking each hazard where the route puts it. Mode, hexes moved (TMM), heat, PSRs and hazard shown are those of that route. Still open: backward steps inside a waypoint leg (the tables are built without them, so a hex that is cheapest to reach in reverse cannot be a waypoint), jumps, stand-up and entry moves (no waypoints), charges. The 2026-11-22 text, for the record: the unit took the engine's own best route (most hexes moved).
 - **Ejection and voluntary shutdown are not modelled** (Daniel, 2026-11-21: "leave out for the moment ... make sure they're a known short fall"). UI plan: Shut down on the engine's critical-stats page, Eject on the cockpit (`INTEGRATION__PLAYER_DECISIONS.md` Section 12). Other unit types (vehicles, infantry) also later.
 
 **Known issues to fix later (found session 13, Claude):**

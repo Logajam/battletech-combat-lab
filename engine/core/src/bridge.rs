@@ -826,7 +826,7 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             // or entering it (it crashed here; session 30, Hydra v CASPAR game 2).
             if crate::forces::enemies_of(b, mover).is_empty() {
                 if let Some(h) = b.units[mover].hex.clone() {
-                    let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false };
+                    let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false, route: None };
                     return json!({"pick": pick_json(&stay), "note": "no enemy left: stands still", "gate": Value::Null});
                 }
             }
@@ -842,7 +842,7 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
                     None => (b.units[mover].facing.clone(), 0),
                 };
                 let mode = if turns > 0 { "Walk" } else { "Stand Still" };
-                let pick = Pick { hex: h, facing, mode: mode.into(), fc: 0, mp_spent: turns, charge: false, dfa: false };
+                let pick = Pick { hex: h, facing, mode: mode.into(), fc: 0, mp_spent: turns, charge: false, dfa: false, route: None };
                 return json!({"pick": pick_json(&pick), "note": "cannot stand: turns on the ground", "gate": Value::Null});
             }
             let set = mover_sees_others(b, mover);
@@ -1105,6 +1105,7 @@ fn pick_back(v: &Value) -> Pick {
         mp_spent: v["mp_spent"].as_i64().unwrap(),
         charge: v["charge"].as_bool().unwrap(),
         dfa: v["dfa"].as_bool().unwrap(),
+        route: None,
     }
 }
 

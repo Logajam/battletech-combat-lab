@@ -448,69 +448,32 @@ fn move_view(b: &mut Battle, mover: UnitId, standup_mp: Option<i64>, entry_edge:
     MoveView { req, opts, best, attacks }
 }
 
-/// WAYPOINTS (Daniel, 2026-11-22: "so long as the final destination and movement mode that the waypoint method selects is the same,
-/// letting the auto route figure out how to get there while maximizing TMM is fine"; a known issue, not a bug): the cost of getting to the
-/// last of `waypoints` through all the others, and what can be reached from there with the points left. Ground moves only. Returns
-/// {"reach": [{hex, facing, mode, mp}], "legs": [{hex, mp}...]} - the legs are the route through the waypoints (the drawn line); the unit,
-/// when it moves, takes its own best route to the destination, so its line may differ.
+/// WAYPOINTS (Daniel, 2026-11-24: "Follow the route as drawn"; before that, 2026-11-22, the unit took its own best route to the last
+/// hex): the route through `waypoints` (the cheapest way to each in turn, `drawn_route::chain`), what it costs, and everything the move can
+/// end in from its last hex with the points left, each with the numbers of the route it would walk. Ground moves only. Returns
+/// {"reach": [{hex, facing, mode, mp, hexes, tmm, heat, psrs, hazard}], "legs": [{hex, mp}...]}: the legs are the route drawn, and the
+/// unit walks exactly it (`drawn_route::finish`, `orchestrator::walk_path`).
 fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
     let hexes: Vec<(i64, i64)> = match q["waypoints"].as_array().map(|a| a.iter().map(|h| h.as_str().and_then(hex_geometry_parse)).collect::<Option<Vec<_>>>()) {
         Some(Some(h)) => h,
         _ => return json!({"error": "which waypoints?"}),
     };
-    let m = &b.units[mover];
-    let Some(label) = m.hex.as_deref() else { return json!({"error": "waypoints need a unit on the map"}) };
-    let Ok((sx, sy, f0)) = crate::hex_geometry::state_from_label(label, &m.facing) else { return json!({"error": "no start"}) };
-    let (walk, run) = (ms::compute_walk_mp(m), ms::compute_running_mp(m));
-    let blocked = crate::ranged_combat::blocked_set(&m.blocked_hex);
-    let level_limit = crate::terrain_rules::max_level_change(ms::ground_level_limited(m), ms::is_superheavy(m));
-    // where we stand at each stage: facing -> (points spent, the route so far as (hex, points))
-    type Route = Vec<(String, i64)>;
-    let mut at = (sx, sy);
-    let mut cur: std::collections::BTreeMap<i64, (i64, Route)> = Default::default();
-    cur.insert(f0, (0, vec![]));
-    let table = |x: i64, y: i64, f: i64, budget: i64| crate::pathfinder::build_movement_table(x, y, f, budget, Some(&b.board), None, level_limit, true, &blocked);
-    for &(wx, wy) in &hexes {
-        let mut next: std::collections::BTreeMap<i64, (i64, Route)> = Default::default();
-        for (f, (spent, route)) in &cur {
-            let Ok(t) = table(at.0, at.1, *f, run - spent) else { continue };
-            for f2 in 0..6 {
-                let state = (wx, wy, f2);
-                let Some(col) = t.entries.get(&state) else { continue };
-                let Some(&mp) = col.keys().min() else { continue };
-                if next.get(&f2).is_some_and(|(have, _)| *have <= spent + mp) {
-                    continue;
-                }
-                let mut r = route.clone();
-                r.extend(t.path(state, mp).into_iter().map(|(_, st, mm)| (crate::hex_geometry::hex_label(st.0, st.1).unwrap_or_default(), spent + mm)));
-                next.insert(f2, (spent + mp, r));
-            }
-        }
-        if next.is_empty() {
-            return json!({"error": "that hex cannot be reached through the waypoints with the points you have"});
-        }
-        cur = next;
-        at = (wx, wy);
-    }
-    // what is reachable from the last waypoint: the cheapest points per (hex, facing, mode)
-    let mut best: std::collections::BTreeMap<(i64, i64, i64, &'static str), i64> = Default::default();
-    for (f, (spent, _)) in &cur {
-        let Ok(t) = table(at.0, at.1, *f, run - spent) else { continue };
-        for (&(x, y, f2), col) in &t.entries {
-            for &mp in col.keys() {
-                let total = spent + mp;
-                let mode = crate::combat::classify_movement_mode(total, walk);
-                let e = best.entry((x, y, f2, mode)).or_insert(i64::MAX);
-                *e = (*e).min(total);
-            }
-        }
-    }
-    let reach: Vec<Value> = best
+    let Some(uw) = crate::drawn_route::UnitWalk::of(b, mover) else { return json!({"error": "waypoints need a unit on the map"}) };
+    let chain = match crate::drawn_route::chain(b, &uw, &hexes) {
+        Ok(c) => c,
+        Err(e) => return json!({"error": e}),
+    };
+    let reach: Vec<Value> = crate::drawn_route::reach(b, &uw, &chain)
         .iter()
-        .filter_map(|(&(x, y, f, mode), &mp)| Some(json!({"hex": crate::hex_geometry::hex_label(x, y).ok()?, "facing": crate::hex_geometry::facing_to_compass(f).ok()?, "mode": mode, "mp": mp})))
+        .filter_map(|e| {
+            let (x, y, f) = e.state;
+            let run = e.mode == "Run";
+            let opt = move_options::prepare_options(b, mover, &[(x, y, f, e.walked.forward_count, e.mode, e.mp)]).into_iter().next()?;
+            Some(json!({"hex": e.hex, "facing": e.facing, "mode": e.mode, "mp": e.mp, "hexes": e.walked.forward_count, "tmm": opt.tmm, "heat": opt.move_heat,
+                        "psrs": e.walked.always_psrs + if run { e.walked.run_psrs } else { 0 }, "hazard": e.walked.hazard}))
+        })
         .collect();
-    // the drawn route: the cheapest way to arrive at the last waypoint (any facing)
-    let legs = cur.values().min_by_key(|(sp, _)| *sp).map(|(_, r)| r.iter().map(|(h, mp)| json!({"k": "forward", "hex": h, "mp": mp})).collect::<Vec<_>>()).unwrap_or_default();
+    let legs: Vec<Value> = chain.path.iter().map(|(_, (x, y, _), mp)| json!({"k": "forward", "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "mp": mp})).collect();
     json!({"reach": reach, "legs": legs})
 }
 
@@ -933,6 +896,8 @@ impl Controller for Screen {
             Stay,
             End(usize),
             Attack(Pick),
+            /// a route drawn through waypoints: the pick (it carries the route) and its PSRs and hazard
+            Drawn(Pick, i64, f64),
         }
         // "prone": true in the answer: drop to the ground when the move is done (p.51; orchestrator::drop_to_ground)
         let drop = std::cell::Cell::new(false);
@@ -958,7 +923,7 @@ impl Controller for Screen {
                     }
                     view.route(b, mover, q, standup_mp, entry_edge)
                 },
-                |_, a| {
+                |b, a| {
                     drop.set(a["prone"].as_bool() == Some(true));
                     // ejecting is answered instead of a move: the unit stays where it is and the MechWarrior ejects (TO:AR p.164)
                     eject.set(a["eject"].as_bool() == Some(true) && entry_edge.is_none());
@@ -978,6 +943,19 @@ impl Controller for Screen {
                         }
                         return Ok(Chosen::Stay);
                     }
+                    // a route drawn through waypoints is walked exactly as drawn (drawn_route.rs)
+                    if let Some(ways) = a["waypoints"].as_array().filter(|w| !w.is_empty()) {
+                        if standup_mp.is_some() || entry_edge.is_some() {
+                            return Err("waypoints are not available for this move".to_string());
+                        }
+                        let hexes: Vec<(i64, i64)> = ways.iter().map(|h| h.as_str().and_then(hex_geometry_parse)).collect::<Option<Vec<_>>>().ok_or("which waypoints?")?;
+                        let facing = crate::hex_geometry::compass_to_facing(a["facing"].as_str().unwrap_or("")).map_err(|_| "which way does it face?".to_string())?;
+                        let d = crate::drawn_route::finish(b, mover, &hexes, facing, a["mode"].as_str().unwrap_or(""))?;
+                        if a["hex"].as_str() != Some(d.pick.hex.as_str()) {
+                            return Err("the move must end at the last waypoint".to_string());
+                        }
+                        return Ok(Chosen::Drawn(d.pick, d.psrs, d.hazard));
+                    }
                     let k = (a["hex"].as_str().unwrap_or("").to_string(), a["facing"].as_str().unwrap_or("").to_string(), a["mode"].as_str().unwrap_or("").to_string());
                     best_ref.get(&k).map(|(i, _)| Chosen::End(*i)).ok_or_else(|| format!("{} {} ({}) is not a legal end of move", k.0, k.1, k.2))
                 },
@@ -990,8 +968,13 @@ impl Controller for Screen {
             self.eject = Some(mover);
             self.drop = None;
         }
+        let mut drawn_gate: Option<PathGate> = None;
         let pick = match chosen {
             Chosen::End(i) => Some((opts[i].pick(), "chosen by the player")),
+            Chosen::Drawn(p, psrs, hazard) => {
+                drawn_gate = Some(PathGate { psrs: Some(psrs), hazard: Some(hazard) });
+                Some((p, "route drawn by the player"))
+            }
             Chosen::Attack(p) => Some((p, "charge / death from above, chosen by the player")),
             Chosen::Stay => match opts.iter().find(|o| o.mode == "Stand Still") {
                 // stay put: the option the engine lists as Stand Still, if it lists one
@@ -1001,8 +984,15 @@ impl Controller for Screen {
         };
         match pick {
             Some((pick, note)) => {
-                let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, &pick, standup_mp, entry_edge);
-                (Some(pick), note.into(), PathGate { psrs, hazard })
+                // a drawn route's own PSRs and hazard; any other pick's are the search's (the cheapest it knows)
+                let gate = match drawn_gate {
+                    Some(g) => g,
+                    None => {
+                        let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, &pick, standup_mp, entry_edge);
+                        PathGate { psrs, hazard }
+                    }
+                };
+                (Some(pick), note.into(), gate)
             }
             None => (None, "player stays put".into(), PathGate::default()),
         }

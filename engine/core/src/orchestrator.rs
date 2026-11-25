@@ -626,7 +626,11 @@ fn move_route(b: &Battle, mover: UnitId, pick: Option<&Pick>, standup_mp: Option
     if p.mode == "Jump" || p.charge || p.dfa {
         return None;
     }
-    let text = if entry_edge.is_some() {
+    let text = if let (Some(steps), None, None) = (&p.route, standup_mp, entry_edge) {
+        // the route the person drew: the steps it carries
+        let uw = crate::drawn_route::UnitWalk::of(b, mover)?;
+        crate::step_walk::route_text(&crate::drawn_route::path_of_steps(b, &uw, steps)?, uw.start.2)
+    } else if entry_edge.is_some() {
         crate::step_walk::route_text(&path_to(b, mover, p, standup_mp, entry_edge)?, 0)
     } else {
         let (start_facing, path) = path_to_with_start(b, mover, p, standup_mp)?;
@@ -685,7 +689,12 @@ fn walk_path(b: &mut Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>
         return None;
     }
     let nm = name(b, mover);
-    let Some(path) = path_to(b, mover, pick, standup_mp, entry_edge) else {
+    // a route drawn by a person is walked exactly as drawn (drawn_route.rs); any other pick takes the search's best route to its end state
+    let found = match (&pick.route, standup_mp, entry_edge) {
+        (Some(steps), None, None) => crate::drawn_route::UnitWalk::of(b, mover).and_then(|uw| crate::drawn_route::path_of_steps(b, &uw, steps)),
+        _ => path_to(b, mover, pick, standup_mp, entry_edge),
+    };
+    let Some(path) = found else {
         b.log(format!("  [Movement] {}: path to {} not found - moved there without terrain PSRs.", nm, pick.hex));
         return None;
     };

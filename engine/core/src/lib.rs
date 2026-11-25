@@ -33,6 +33,7 @@ pub mod hazards;
 pub mod mtf_parser;
 pub mod pathfinder;
 pub mod step_walk;
+pub mod drawn_route;
 pub mod electronics;
 pub mod heat;
 pub mod arcs;

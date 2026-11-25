@@ -407,10 +407,7 @@ Built from Section 3 of `INTEGRATION__BATTLEROM_UI.md`. REVIEW PENDING (higher-l
 last one with the points left; the cluster reads the points used out of the points allowed (counting the whole way through the waypoints, turns included), and
 the drawn line goes through them. The last waypoint is the destination; the turn arrows, mode buttons and Move! work on it as before; the x (or Esc) removes the last
 waypoint, then the destination. Engine: the query `way` {unit, waypoints} (`play_session.rs` `way_query`, ground moves only): stage by stage it finds the cheapest way to each
-waypoint from each facing the previous one could be left in, then lists what is reachable from the last, the cheapest points per hex, facing and mode. Because the
-answer to the movement question is still {hex, facing, mode}, the unit walks the engine's own route, the one with the most hexes moved (best target movement
-modifier, `pathfinder.rs`), which may not pass through the waypoints, and the TMM, hexes and heat shown are the engine route's; recorded as a known issue
-(PROJECT_MAP Section 4). Jumps, stand-up moves and entering the map take no waypoints (the destination alone). Not done: waypoint chains through a charge or
+waypoint from each facing the previous one could be left in, then lists what is reachable from the last, the cheapest points per hex, facing and mode. UPDATE 2026-11-25 (Daniel, 2026-11-24: "Follow the route as drawn"): the answer now carries the waypoints, and the unit WALKS THE ROUTE AS DRAWN (`drawn_route.rs`); the numbers shown (hexes, TMM, heat, piloting rolls, terrain damage) are those of the route drawn, and a route round a hazard avoids it (see PROJECT_MAP Section 4). Jumps, stand-up moves and entering the map take no waypoints (the destination alone). Not done: waypoint chains through a charge or
 death from above; backward steps inside a waypoint leg; illegal paths drawn grey (the lit range only shows legal ones).
 
 ## 22. The audit against the mockup (2026-11-22; Daniel: "Audit time. Compare the working version to the art version.")
