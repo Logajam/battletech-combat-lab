@@ -5,7 +5,7 @@ tests/check_web_tabletop.py - THE 3D TABLETOP VIEW IN THE BROWSER BUILD (PROJECT
 
 Needs node + Playwright and a built web_lab/ (built when missing; it needs the wasm32 target). Serves web_lab/ the way a real host does and
 drives the real play page (play.html) in headless Chromium with software WebGL:
-  1. the flat view is the default and does NOT download three.js (the page that never asks for 3D stays light);
+  1. the flat view (?view=top) does NOT download three.js; with no choice made the 3D view is the default (Daniel, 2026-11-25), and a browser without WebGL quietly keeps the flat map;
   2. ?view=3d loads three.js and tabletop.js, builds the board from the engine's own board data (one tile for every hex, the terrain art in
      place), and draws it (the canvas is not empty);
   3. the camera answers the page's gestures through the map view: the wheel zooms, one finger pans, a right-drag turns and tilts, two fingers
@@ -60,8 +60,11 @@ const { chromium } = require('playwright');
     return page;
   };
   // ---- 1: the flat view is the default and loads no three.js
-  let page = await open('');
+  let page = await open('?view=top');
   out.flat = await page.evaluate(() => ({ mode: MV.mode, three: typeof THREE !== 'undefined', tabletop: !!document.getElementById('tabletop'), hexes: document.querySelectorAll('#map [data-hex]').length }));
+  await page.close();
+  page = await open(''); await page.waitForFunction(() => MV.mode === '3d', null, { timeout: 20000 }).catch(() => {});
+  out.dflt = await page.evaluate(() => ({ mode: MV.mode }));
   await page.close();
   // ---- 2 and 3: ?view=3d
   page = await open('?view=3d');
@@ -100,6 +103,9 @@ const { chromium } = require('playwright');
   await page.close();
   // ---- 4: no WebGL
   page = await open('?view=3d', true); await page.waitForTimeout(1500);
+  out.quiet = null; await page.close(); page = await open('', true); await page.waitForTimeout(1500);
+  out.quiet = await page.evaluate(() => ({ mode: MV.mode, card: /needs WebGL/.test(document.getElementById('card').textContent), hexes: document.querySelectorAll('#map [data-hex]').length }));
+  await page.close(); page = await open('?view=3d', true); await page.waitForTimeout(1500);
   out.nowebgl = await page.evaluate(() => ({ mode: MV.mode, canvas: !!document.getElementById('tabletop'), card: /needs WebGL/.test(document.getElementById('card').textContent), hexes: document.querySelectorAll('#map [data-hex]').length }));
   await page.close(); await b.close();
   console.log('RESULT ' + JSON.stringify(out));
@@ -135,8 +141,10 @@ def main():
         nonlocal failures
         print(f"{'ok  ' if ok else 'FAIL'} {text}"); failures += 0 if ok else 1
 
-    ck(o["flat"]["mode"] == "top" and not o["flat"]["three"] and not o["flat"]["tabletop"] and o["flat"]["hexes"] > 200, f"the flat view is the default and loads no three.js ({o['flat']})")
+    ck(o["flat"]["mode"] == "top" and not o["flat"]["three"] and not o["flat"]["tabletop"] and o["flat"]["hexes"] > 200, f"the flat view (?view=top) loads no three.js ({o['flat']})")
     t = o["t3d"]
+    ck(o["dflt"]["mode"] == "3d", f"with no choice made the 3D view is the default ({o['dflt']})")
+    ck(o["quiet"]["mode"] == "top" and not o["quiet"]["card"] and o["quiet"]["hexes"] > 200, f"no WebGL and no choice made: the flat map stays, no card ({o['quiet']})")
     ck(t["mode"] == "3d" and t["hexes"] == 272 and t["tiles"] == 272 and t["caps"] > 3 and t["props"] > 3, f"?view=3d builds the board from the engine's data ({t})")
     ck(t["flatHidden"] and o["pixels"] > 150, f"the flat layers step aside and the picture is not empty ({o['pixels']} lit pixels of 2048)")
     ck(o["wheel"][1] < o["wheel"][0], f"the wheel zooms {o['wheel']}")

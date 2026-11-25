@@ -229,6 +229,7 @@ const POLICY = (r) => {
         if (near) {
           await page.locator(`[data-reach="${near}"]`).first().dispatchEvent('click');
           await page.waitForSelector('[data-arrow]');
+          await page.waitForTimeout(500);   // the 3D view draws the arrows again when its camera or size settles: let it
           const probe = await page.evaluate(() => {
             const f = [...document.querySelectorAll('[data-arrow]')][0]; if (!f) return null;
             const DIRS = { N: 4, NE: 5, SE: 0, S: 1, SW: 2, NW: 3 }; const facing = f.dataset.arrow;
@@ -238,6 +239,7 @@ const POLICY = (r) => {
             const g = document.querySelector(`[data-arrow="${facing}"]`).getBoundingClientRect();
             return { facing, x: g.x + g.width / 2, y: g.y + g.height / 2, before: __bm.facing, blocked: !!friend };
           });
+          await page.waitForTimeout(400);
           if (probe) { await page.mouse.click(probe.x, probe.y); await page.waitForTimeout(100); out.arrow = { ...probe, after: await page.evaluate(() => __bm.facing) }; }
         }
       }
@@ -251,7 +253,7 @@ const POLICY = (r) => {
           if (second) {
             await page.locator(`[data-reach="${second}"]`).first().dispatchEvent('click');
             await page.waitForFunction(() => __bm.way.length === 2, null, { timeout: 5000 }).catch(() => {});
-            out.way = await page.evaluate(() => ({ n: __bm.way.length, dest: __bm.dest, marks: document.querySelectorAll('#map circle[r="9"]').length }));
+            out.way = await page.evaluate(() => ({ n: __bm.way.length, dest: __bm.dest, marks: document.querySelectorAll('#map circle[fill="#fff"][stroke="#000"]').length }));
             await tap('undo');
             await page.waitForFunction(() => __bm.way.length === 1, null, { timeout: 5000 }).catch(() => {});
             out.way.afterUndo = await page.evaluate(() => __bm.way.length);

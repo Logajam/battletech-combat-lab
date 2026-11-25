@@ -1415,7 +1415,8 @@ window.addEventListener("resize", () => { if (S.board) fit(); });
 applyLook(); dockSize(+pref("dock", "1")); dockRender();
 // THE TABLETOP VIEW (P10, build step 2: a board preview, no units yet): chosen in the Menu, remembered on this device, or forced with ?view=3d / ?view=top
 $("ztilt").onclick = () => MV.cycleTilt();
-{ const want = qs.get("view") || pref("view", "top"); if (want === "3d") MV.setMode("3d", t3get()).then((got) => { if (got !== "3d") { setPref("view", "top"); showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); } buildMenu(); }); }
+// 3D is the default (Daniel, 2026-11-25: "3D is the way to go. 2D is the fallback"); a device without WebGL keeps the flat map and says so only when 3D was asked for
+{ const asked = qs.get("view") || pref("view", ""), want = asked || "3d"; if (want === "3d") MV.setMode("3d", t3get()).then((got) => { if (got !== "3d" && asked) { setPref("view", "top"); showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); } buildMenu(); }); }
 // The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
 // starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
 async function boot() {
