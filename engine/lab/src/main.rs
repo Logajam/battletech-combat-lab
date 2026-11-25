@@ -40,7 +40,9 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 9] = [
+const PAGES: [(&str, &str, &str); 11] = [
+    ("three.min.js", "text/javascript; charset=utf-8", include_str!("../web/three.min.js")),
+    ("tabletop.js", "text/javascript; charset=utf-8", include_str!("../web/tabletop.js")),
     ("boardart.js", "text/javascript; charset=utf-8", include_str!("../web/boardart.js")),
     ("mapview.js", "text/javascript; charset=utf-8", include_str!("../web/mapview.js")),
     ("play.html", "text/html; charset=utf-8", include_str!("../web/play.html")),

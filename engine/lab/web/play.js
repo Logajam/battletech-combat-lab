@@ -75,7 +75,7 @@ const HOLD_SLOP = 10;
       if (al) { timer = setTimeout(() => { timer = null; moved = true; attackCard(+al.dataset.atk); }, 650); return; }
       const t = e.target.closest("[data-unit],[data-hex],[data-reach]");
       const uid = t && t.dataset.unit != null ? +t.dataset.unit : null;
-      const hex = t && (t.dataset.hex || t.dataset.reach);
+      const hex = (t && (t.dataset.hex || t.dataset.reach)) || (MV.mode === "3d" && uid == null ? MV.hexAt(e.clientX, e.clientY) : null);   // the 3D view has no hex elements: ask it which hex is there
       if (uid != null && unit(uid)) timer = setTimeout(() => { timer = null; moved = true; inspect(uid); }, 650);
       else if (hex) timer = setTimeout(() => { timer = null; moved = true; showHexCard(hex); }, 650);
     }
@@ -89,17 +89,17 @@ const HOLD_SLOP = 10;
       // a press still waiting to become a hold does not pan until the finger has clearly left its spot
       if (timer && start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) <= HOLD_SLOP) return;
       if (Math.abs(dx) + Math.abs(dy) > 2) { moved = true; cancel(); }
-      MV.panBy(dx, dy);
+      if (e.buttons & 2) MV.orbitBy(dx, dy); else MV.panBy(dx, dy, e.clientX, e.clientY);   // right-drag turns and tilts the 3D view
     } else if (ptrs.size === 2) {
       cancel();
-      const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      if (lastDist) zoom(lastDist / d, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-      lastDist = d; moved = true;
+      const [a, b] = [...ptrs.values()];
+      MV.pinch({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }); moved = true;
     }
   });
-  const up = (e) => { ptrs.delete(e.pointerId); lastDist = 0; cancel(); };
+  const up = (e) => { ptrs.delete(e.pointerId); lastDist = 0; MV.pinchEnd(); cancel(); };
   svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
   svg.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  svg.addEventListener("contextmenu", (e) => { if (MV.mode === "3d") e.preventDefault(); });   // right-drag orbits the 3D view: no browser menu there
   svg.addEventListener("wheel", (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15, e.clientX, e.clientY); }, { passive: false });
 })();
 $("zin").onclick = () => zoom(1 / 1.3); $("zout").onclick = () => zoom(1.3); $("zfit").onclick = fit;
@@ -1176,6 +1176,8 @@ function act(t) {
     case "dice": O.dice = !O.dice; setPref("dice", O.dice ? "1" : "0"); buildMenu(); if ($("report").firstChild) renderReport(); break;
     case "rings": O.rings = !O.rings; setPref("rings", O.rings ? "1" : "0"); buildMenu(); redraw(); break;
     case "labels": O.labels = !O.labels; setPref("labels", O.labels ? "1" : "0"); buildMenu(); if (S.board) { buildMap(); redraw(); } break;
+    case "view3d": { $("menu").style.display = "none"; const want = MV.mode === "3d" ? "top" : "3d";
+      MV.setMode(want).then((got) => { setPref("view", got); buildMenu(); if (want === "3d" && got !== "3d") showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); }); break; }
     case "report": toggleReport(); $("menu").style.display = "none"; break;
     case "lab": location.href = "index.html"; break;
     case "get-results": getResults(); break;
@@ -1344,7 +1346,7 @@ function buildMenu() {
   const m = $("menu");
   const item = (label, act, extra, on) => `<div class="item ${on ? "on" : ""}" data-act="${act}" ${extra || ""}>${label}</div>`;
   m.innerHTML = `<div class="f" data-act="menu-folder" data-f="look">Look &#9656;</div><div class="sub open" data-f="look">${Object.entries(LOOKS).map(([k, n]) => item(n, "look", `data-v="${k}"`, O.look === k)).join("")}</div>
-    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}${item("Attack lines (the latest turn)", "atk", "", O.atk)}</div>
+    <div class="f" data-act="menu-folder" data-f="view">View &#9656;</div><div class="sub open" data-f="view">${item("Colour-blind mode", "cvd", "", O.cvd)}${item("Range bands for the weapon", "rings", "", O.rings)}${item("Hex numbers", "labels", "", O.labels)}${item("Dice details in the report", "dice", "", O.dice)}${item("Attack lines (the latest turn)", "atk", "", O.atk)}${item("Tabletop view (preview)", "view3d", "", MV.mode === "3d")}</div>
     <div class="f" data-act="menu-folder" data-f="game">Game &#9656;</div><div class="sub open" data-f="game">${item("Report", "report")}${item("Back to the Lab", "lab")}</div>`;
 }
 $("menu-btn").onclick = () => { buildMenu(); const m = $("menu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
@@ -1353,6 +1355,9 @@ $("rec-btn").onclick = () => showCard("<b>REC: timeline and branching</b><div cl
 $("det-btn").onclick = () => { if (DOCK.size === 2) closeDetail(); else openDetail("stats"); };
 window.addEventListener("resize", () => { if (S.board) fit(); });
 applyLook(); dockSize(+pref("dock", "1")); dockRender();
+// THE TABLETOP VIEW (P10, build step 2: a board preview, no units yet): chosen in the Menu, remembered on this device, or forced with ?view=3d / ?view=top
+$("ztilt").onclick = () => MV.cycleTilt();
+{ const want = qs.get("view") || pref("view", "top"); if (want === "3d") MV.setMode("3d").then((got) => { if (got !== "3d") setPref("view", "top"); buildMenu(); }); }
 // The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
 // starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
 async function boot() {
