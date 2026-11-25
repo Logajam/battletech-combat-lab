@@ -183,8 +183,9 @@ moving the mockup into the live game "was less than successful", so settle homes
   scale", "screen point to hex"), the SVG renderer first, nothing changes visibly; (2) the WebGL board, terrain and camera, no units; (3) units,
   outlines and the route / reach / arrows / range overlays; (4) cards, hex labels, cut-away; (5) gestures, looks, phone layouts. DATA (Daniel,
   Galaxy S22 Ultra, 2026-11-25): 60 fps average and the slowest 1% at 16.8 ms at 2x pixels on both 32x34 (1,088 hexes) and 64x68 (4,352
-  hexes), 34 to 40 draw calls: map size does not matter; re-run with Motion smoothness on Adaptive / High to see headroom (the screen is
-  120 Hz). OPEN: one-finger pan against the planned drag-to-move preview (Section 4); the two-placard design (DECISION_HOMES Section 10); true
+  hexes), 34 to 40 draw calls: map size does not matter. Re-run on Adaptive refresh (120 Hz screen), 64x68: 102 fps average, slowest 1% 16.8 ms
+  (one missed frame in a hundred; likely the per-frame label / card updates and the layer rebuild on zoom: skip label updates mid-gesture and reuse the
+  elements in the build), so the headroom is real. OPEN: one-finger pan against the planned drag-to-move preview (Section 4); the two-placard design (DECISION_HOMES Section 10); true
   scale of the heights (check the library for hex size and level height before any "to scale" claim; the mockup's relief is exaggerated, so an
   LOS line must come from the engine); the Lab map preview and the replay viewer could share the renderer later; the holo palette must keep
   clear of the movement colours (Walk is cyan). Build after P3a.
