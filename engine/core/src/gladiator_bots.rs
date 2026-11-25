@@ -151,11 +151,22 @@ impl BotSet for GladiatorBots {
         crate::bot_heat_equipment::manage_owned_units(b);
     }
 
+    fn choose_tag(&mut self, b: &mut Battle, attacker: UnitId, cands: &[crate::tag::TagCandidate]) -> Option<Option<(UnitId, &'static str)>> {
+        // BTTT has a TAG phase of its own: TAG weapons only, the best enemy by its value (bttt.rs); every other bot: the engine's stub
+        if b.units[attacker].bot == "bttt" {
+            return crate::bttt::choose_tag(b, attacker, cands);
+        }
+        None
+    }
+
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
         // this unit's team settings while it decides (team_settings.rs)
         crate::team_settings::with_unit(b, u, |b| {
             if b.units[u].bot == "hydra" {
                 return crate::hydra::choose_spot(b, u); // Hydra prices a spot (hydra.rs, 2026-11-21)
+            }
+            if b.units[u].bot == "bttt" {
+                return crate::bttt::choose_spot(b, u); // BTTT spots when it has nothing to shoot (bttt.rs)
             }
             if !b.units[u].is_princess_family() {
                 return crate::stubs::stub_spot(b, u); // Gladiator: the stub (Daniel: stub markers for what it can't do yet)
