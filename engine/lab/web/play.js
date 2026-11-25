@@ -530,9 +530,10 @@ function moveIntro(unavailable) {
   stayCluster();
 }
 // WAYPOINTS: each tap inside the lit range adds a waypoint and the range re-lights from there with the points left; the last tap is the
-// destination. The cost (and so the mode) is that of going through them all. When the unit moves it takes its own best route to the
-// destination (the one with the most hexes moved, so the best target movement modifier), which may not pass through the waypoints: a
-// known issue, not a bug (Daniel, 2026-11-22); the destination, facing and mode are what the answer carries.
+// destination. The unit WALKS THE ROUTE AS DRAWN (Daniel, 2026-11-24, replacing the 2026-11-22 ruling): the cheapest way to each waypoint
+// in turn, then the turns to the chosen facing. The cost, mode, hexes moved, TMM, heat, piloting rolls and terrain damage shown are those
+// of that route, and the answer carries the waypoints so the engine walks the same one (`drawn_route.rs`), rolling each piloting skill
+// roll and taking each hazard where the route puts it. A route round a hazard therefore avoids it.
 const enrich = (o) => { const e = ((S.reachIdx || {})[o.hex] || []).find((x) => x.facing === o.facing && x.mode === o.mode) || ((S.reachIdx || {})[o.hex] || [])[0] || {}; return { tmm: 0, hexes: 0, heat: 0, ...e, ...o }; };
 async function setWay(way) {
   const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: way });
@@ -664,7 +665,7 @@ const doCommit = () => {
   if (!S.dest) { commitMove({ stay: true }); return; }
   const o = optNow(), hz = o ? hazardList(o) : [];
   if (hz.length && !S.hazardOk) { showCard(`<b>Hazards on this move</b><ul>${hz.map((h) => `<li>${esc(h)}</li>`).join("")}</ul><div class="msg">Moving on accepts them.</div><div class="row"><button class="go" data-act="hazard-ok">Move anyway</button></div>`); return; }
-  S.hazardOk = false; commitMove({ hex: S.dest, facing: S.facing, mode: S.mode });
+  S.hazardOk = false; commitMove({ hex: S.dest, facing: S.facing, mode: S.mode, ...(S.way.length ? { waypoints: S.way.slice() } : {}) });
 };
 // the action cluster over the map: the move readout, the commit button, undo
 function clearCluster() { $("cluster").innerHTML = ""; $("cluster").style.display = "none"; }
@@ -681,7 +682,7 @@ function moveSheet() {
     <div class="row">${modes.map((m) => `<button data-act="mode" data-m="${m}" class="${m === S.mode ? "on" : ""}" style="border-color:${modeCol(m)}">${m === "Stand Still" ? "Stand still" : m + " " + mvBudget(m)}</button>`).join("")}</div>
     <div class="msg">${o.mp} MP (turns included) &middot; ${o.hexes} hex${o.hexes === 1 ? "" : "es"} &middot; target movement modifier +${o.tmm} &middot; movement heat ${o.heat}</div>
     ${warns.length ? `<div class="warnt">&#9888; ${warns.join("; ")}. Moving on accepts the warning.</div>` : ""}
-    ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The cost counts the whole way round. The unit ends at the last hex in the mode shown, taking its own best route there (the one that moves the most hexes), which may not pass through the waypoints.</div>` : ""}
+    ${S.way.length > 1 ? `<div class="msg">Waypoints: ${S.way.map((h, i) => i + 1 + " " + h).join(" &rarr; ")}. The unit walks exactly this route, so the cost, hexes moved and piloting rolls shown are those of the route drawn.</div>` : ""}
     ${dropRow(o)}
     <div class="msg">Tap another tinted hex to add a waypoint (the lit range is what is left from here). Tap an arrow around the hex to turn. &times; or Esc removes the last waypoint.</div>
     `);

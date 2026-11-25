@@ -386,7 +386,9 @@ pub fn resolve_movement_boosters(b: &mut Battle, u: UnitId) -> Vec<&'static str>
     if !(system_live(&b.units[u], "masc") || system_live(&b.units[u], "supercharger")) {
         return vec![];
     }
-    if !use_escalating(b, u, "MASC / supercharger", None, true) {
+    // BTTT's bot uses a MASC / supercharger when the path it walks needs it (bttt.rs `wants_boost`); every other bot follows the stub's policy
+    let wants = if b.units[u].bot == "bttt" { crate::bttt::wants_boost(b, u) } else { use_escalating(b, u, "MASC / supercharger", None, true) };
+    if !wants {
         return vec![];
     }
     let mut worked = 0;

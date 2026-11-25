@@ -277,6 +277,7 @@ impl BotSet for ReplayBots {
                 mp_spent: p["mp_spent"].as_i64().unwrap(),
                 charge: p.get("charge").and_then(|x| x.as_bool()).unwrap_or(false),
                 dfa: p.get("dfa").and_then(|x| x.as_bool()).unwrap_or(false),
+                route: None,
             })
         };
         if self.check_princess && b.units[mover].bot == "princess" {

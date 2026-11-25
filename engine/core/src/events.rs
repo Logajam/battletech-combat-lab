@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use crate::battle::{Battle, UnitId};
 
 /// The event list's version. Bump it when a kind is added, removed or changes meaning; stored records carry it.
-pub const EVENT_VERSION: i64 = 1;
+pub const EVENT_VERSION: i64 = 2;
 
 /// Every event kind: (name, what its fields mean). `tools/search_events.py` and the coverage check read this list through
 /// `btsim --events-list`.
@@ -22,6 +22,7 @@ pub const KINDS: &[(&str, &str)] = &[
     ("INITIATIVE_ROLL", "one team's Initiative throw: sub = team, roll = the 2D6, n = round (1 = first throw, 2+ = a tie re-roll among the tied teams)"),
     // movement
     ("MOVE", "a unit's move: sub = mode (walk, run, jump, ...), n = MP used, what = destination hex"),
+    ("MOVE_PATH", "the route of the MOVE just before it, for a ground move (not a jump or a charge): what = the steps as \"HEX/S/MP\" entries joined by spaces (the hex after the step, S = F forward, B backward, L or R a turn, E entering the board; MP spent so far), n = number of steps, sub = the mode. The engine's own best route to the destination (most hexes moved, so the best TMM): only the ends of a move are checked by the rules"),
     ("STAND_ATTEMPT", "a prone unit tries to stand: tn, roll, ok = it stood"),
     ("FALL", "a unit falls: sub = cause (movement, hit, pilot, ...), n = fall damage"),
     ("WATER_ENTER", "a unit's move ends in water after starting out of it: n = depth, what = hex (only the move's two ends are compared)"),

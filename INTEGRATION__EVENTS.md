@@ -1,6 +1,6 @@
 # INTEGRATION__EVENTS.md - event records and search
 
-**Event list version 1** (`btsim --events-list` prints it; the code is `engine/core/src/events.rs`).
+**Event list version 2** (`btsim --events-list` prints it; the code is `engine/core/src/events.rs`).
 Daniel, 2026-11-24: "I want a way to search sets of battles for events" - for example a turn where a 'Mech took four engine
 hits in one phase, or a 1v1 where both 'Mechs destroyed each other's gyro on the same turn.
 
@@ -43,6 +43,7 @@ A battle's file also carries `teams` ({unit: team}) so a search can say "a Blue 
 |---|---|
 | `INITIATIVE_ROLL` | one team's Initiative throw: sub = team, roll = the 2D6, n = round (1 = first throw, 2+ = a tie re-roll among the tied teams) |
 | `MOVE` | a unit's move: sub = mode (walk, run, jump, ...), n = MP used, what = destination hex |
+| `MOVE_PATH` | (version 2) the route of the MOVE just before it, for a ground move (not a jump or a charge): what = the steps as "HEX/S/MP" entries joined by spaces (the hex after the step, S = F forward, B backward, L or R a turn, E entering the board; MP spent so far), n = number of steps, sub = the mode. The engine's own best route to the destination (most hexes moved, so the best TMM): the rules check only the two ends of a move. Written only when events are on; found with the read-only `step_walk::route_text` before the unit moves |
 | `STAND_ATTEMPT` | a prone unit tries to stand: tn, roll, ok = it stood |
 | `FALL` | a unit falls: sub = cause (movement, hit, pilot, ...), n = fall damage |
 | `WATER_ENTER` | a unit's move ends in water after starting out of it: n = depth, what = hex (only the move's two ends are compared) |

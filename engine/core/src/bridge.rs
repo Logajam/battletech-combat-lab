@@ -688,7 +688,12 @@ fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -
 // =============================================================================================================
 
 fn pick_json(p: &Pick) -> Value {
-    json!({"hex": p.hex, "facing": p.facing, "mode": p.mode, "fc": p.fc, "mp_spent": p.mp_spent, "charge": p.charge, "dfa": p.dfa})
+    let mut v = json!({"hex": p.hex, "facing": p.facing, "mode": p.mode, "fc": p.fc, "mp_spent": p.mp_spent, "charge": p.charge, "dfa": p.dfa});
+    // a pick that carries its route (BTTT's walk, a route drawn by a person): the steps, so a replayed answer walks the same route
+    if let Some(r) = &p.route {
+        v["route"] = json!(r.iter().map(|s| s.name()).collect::<Vec<_>>());
+    }
+    v
 }
 
 fn action_json(a: &ArcAction) -> Value {
@@ -826,7 +831,7 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             // or entering it (it crashed here; session 30, Hydra v CASPAR game 2).
             if crate::forces::enemies_of(b, mover).is_empty() {
                 if let Some(h) = b.units[mover].hex.clone() {
-                    let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false };
+                    let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false, route: None };
                     return json!({"pick": pick_json(&stay), "note": "no enemy left: stands still", "gate": Value::Null});
                 }
             }
@@ -842,7 +847,7 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
                     None => (b.units[mover].facing.clone(), 0),
                 };
                 let mode = if turns > 0 { "Walk" } else { "Stand Still" };
-                let pick = Pick { hex: h, facing, mode: mode.into(), fc: 0, mp_spent: turns, charge: false, dfa: false };
+                let pick = Pick { hex: h, facing, mode: mode.into(), fc: 0, mp_spent: turns, charge: false, dfa: false, route: None };
                 return json!({"pick": pick_json(&pick), "note": "cannot stand: turns on the ground", "gate": Value::Null});
             }
             let set = mover_sees_others(b, mover);
@@ -950,6 +955,7 @@ impl Session {
             }
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
             start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
+            start["bttt_teams"] = v.get("bttt_teams").cloned().unwrap_or(json!([]));
             let mut session = Session::start(&start);
             session.rules_notes = notes;
             return session;
@@ -960,6 +966,7 @@ impl Session {
         let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
         let mut units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&v["units"][n], &idx)).collect();
         let hydra: Vec<String> = v["hydra_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
+        let bttt: Vec<String> = v["bttt_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         let caspar: Vec<String> = v["caspar_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         for m in units.iter_mut() {
             if m.team.as_ref().is_some_and(|t| hydra.contains(t)) {
@@ -967,6 +974,9 @@ impl Session {
             }
             if m.team.as_ref().is_some_and(|t| caspar.contains(t)) {
                 m.bot = "caspar".to_string();
+            }
+            if m.team.as_ref().is_some_and(|t| bttt.contains(t)) {
+                m.bot = "bttt".to_string();
             }
         }
         let seed = v["seed"].as_u64().unwrap_or(1);
@@ -1105,6 +1115,7 @@ fn pick_back(v: &Value) -> Pick {
         mp_spent: v["mp_spent"].as_i64().unwrap(),
         charge: v["charge"].as_bool().unwrap(),
         dfa: v["dfa"].as_bool().unwrap(),
+        route: v.get("route").and_then(|r| r.as_array()).map(|r| r.iter().filter_map(|s| s.as_str().and_then(crate::step_walk::Step::from_name)).collect()),
     }
 }
 

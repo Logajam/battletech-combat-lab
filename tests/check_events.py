@@ -75,6 +75,16 @@ def main():
         check(all(e.get("s") for e in dead), "UNIT_DESTROYED carries its cause", failures)
         moves = [e for e in ev if e["k"] == "MOVE"]
         check(len(moves) > 0 and all(m["p"] == "movement" and m.get("s") for m in moves), f"{len(moves)} MOVE events carry a mode", failures)
+        # a MOVE_PATH follows its MOVE: same unit, the route ends at the MOVE's hex having spent the MOVE's MP, n counts the steps,
+        # every step is one of F B L R E and the MP never goes down
+        paths = [(i, e) for i, e in enumerate(ev) if e["k"] == "MOVE_PATH"]
+        def path_ok(i, e):
+            mv = ev[i - 1] if i else {}
+            steps = [x.split("/") for x in e["w"].split(" ")]
+            mps = [int(x[2]) for x in steps]
+            return (mv.get("k") == "MOVE" and mv.get("u") == e.get("u") and mv.get("s") == e.get("s") and steps[-1][0] == mv["w"] and mps[-1] == mv["n"]
+                    and e["n"] == len(steps) and all(x[1] in "FBLRE" for x in steps) and mps == sorted(mps))
+        check(len(paths) > 0 and all(path_ok(i, e) for i, e in paths), f"{len(paths)} MOVE_PATH events follow their MOVE (same unit, ending at its hex and MP)", failures)
         check(max(e["t"] for e in ev) <= res["turns"], "no event is dated after the battle's last turn", failures)
 
         # 3. the doc names every kind
@@ -129,7 +139,7 @@ def main():
     # the reference check's coverage rule: a type with no event fails, a thin one is only a note
     sys.path.insert(0, os.path.join(ROOT, "tests"))
     import check_rust_reference as ref
-    header = '{"events_version":1,"teams":{}}\n'
+    header = '{"events_version":2,"teams":{}}\n'
     some = header + "".join(json.dumps({"k": k, "t": 1, "p": "movement"}) + "\n" for k in sorted(listed))
     import io, contextlib
     with contextlib.redirect_stdout(io.StringIO()):

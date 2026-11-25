@@ -81,7 +81,7 @@ impl Opt {
     }
     /// The pick dict {hex, facing, mode, fc, mp_spent}.
     pub fn pick(&self) -> crate::ranged_combat::Pick {
-        crate::ranged_combat::Pick { hex: self.label.clone(), facing: self.facing_compass.to_string(), mode: self.mode.to_string(), fc: self.fc, mp_spent: self.mp_spent, charge: false, dfa: false }
+        crate::ranged_combat::Pick { hex: self.label.clone(), facing: self.facing_compass.to_string(), mode: self.mode.to_string(), fc: self.fc, mp_spent: self.mp_spent, charge: false, dfa: false, route: None }
     }
 }
 

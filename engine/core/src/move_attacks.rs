@@ -158,7 +158,7 @@ impl MoverIndex {
                 }
             }
         }
-        best.into_iter().map(|((n, f, m), (fc, neg))| Pick { hex: n, facing: hex_geometry::facing_to_compass(f).unwrap().to_string(), mode: m.to_string(), fc, mp_spent: -neg, charge: true, dfa: false }).collect()
+        best.into_iter().map(|((n, f, m), (fc, neg))| Pick { hex: n, facing: hex_geometry::facing_to_compass(f).unwrap().to_string(), mode: m.to_string(), fc, mp_spent: -neg, charge: true, dfa: false, route: None }).collect()
     }
 
     /// A jump that can land on the target's hex, stopping in the hex next to it along the path.
@@ -188,7 +188,7 @@ impl MoverIndex {
             return vec![]; // the jump would end on another unit's hex (stacking, p.49)
         }
         let facing = crate::combat::direction_facing(stop, pose.xy).unwrap();
-        vec![Pick { hex: label, facing: hex_geometry::facing_to_compass(facing).unwrap().to_string(), mode: "Jump".to_string(), fc: dist, mp_spent: dist, charge: false, dfa: true }]
+        vec![Pick { hex: label, facing: hex_geometry::facing_to_compass(facing).unwrap().to_string(), mode: "Jump".to_string(), fc: dist, mp_spent: dist, charge: false, dfa: true, route: None }]
     }
 }
 

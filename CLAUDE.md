@@ -121,6 +121,8 @@ GitHub logistics.
   `legate_probe.py`) went with the Python engine. Daniel wants "general
   feel, not full stats": only the interesting series, few battles, unless he
   asks for a full run.
+- **A fifth, "bttt"** (Rust only, session 36, Daniel 2026-11-24): a from-scratch re-implementation of the computer opponent of Raptor007's BTTT (no licence: nothing copied; `engine/core/src/bttt.rs`, `INTEGRATION__BOTS.md`, PROJECT_MAP P16;
+  `btsim --bttt TEAM`; six `bttt_*` reference battles). A weak BASELINE opponent for A/Bs, not a bot to improve unless Daniel asks.
 - **Four bots now:** "caspar" (Rust only, session 29, Daniel 2026-11-18) is MegaMek's CASPAR: the Princess clone with the Mutual Support
   movement ranker and zone deployment swapped in (`engine/core/src/caspar.rs`, `princess_modern::choose_as`; `btsim --caspar TEAM`; in
   the Lab / website team bot list). Anywhere that asks "is this Princess?" uses `Mech::is_princess_family`. Reviewed against MegaMek's

@@ -22,6 +22,9 @@ pub struct Pick {
     pub mp_spent: i64,
     pub charge: bool,
     pub dfa: bool,
+    /// A route drawn by a person (waypoints): the unit walks exactly these steps, rolling each PSR and hazard where the route puts it
+    /// (`drawn_route.rs`, `orchestrator::walk_path`). None: the engine picks its own best route to the end state (every bot).
+    pub route: Option<Vec<crate::step_walk::Step>>,
 }
 
 /// pathfinder._blocked_set(mover.blocked_hex): None, one (x, y), or a set of them.
