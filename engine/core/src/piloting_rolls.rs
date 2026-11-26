@@ -322,13 +322,25 @@ pub fn check_movement_psr(b: &mut Battle, u: UnitId, mode: &str, cause: Option<&
 
 /// Movement Phase stand-up retry loop; returns the running MP left (0 if still prone).
 pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) -> i64 {
+    stand_up_tries(b, u, mp_available, false).0
+}
+
+/// ONE attempt to stand, for a person's unit (Daniel, 2026-11-26, INTEGRATION__UI_SYNC.md Section 14 G3: a failed roll is reported and the
+/// player decides again from where the 'Mech lies; Core p.51 allows repeated attempts while the MP last). Returns (running MP left, stood):
+/// after a failed attempt the MP left are those after the 2 it cost, and the unit is prone.
+pub fn resolve_stand_attempt(b: &mut Battle, u: UnitId, mp_available: Option<i64>) -> (i64, bool) {
+    stand_up_tries(b, u, mp_available, true)
+}
+
+/// The stand-up attempts: until one succeeds or the MP run out (the bots), or just one (`once`, a person's unit).
+fn stand_up_tries(b: &mut Battle, u: UnitId, mp_available: Option<i64>, once: bool) -> (i64, bool) {
     if !can_stand(&b.units[u]) {
         b.log("Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.");
-        return 0;
+        return (0, false);
     }
     if b.units[u].pilot_hits >= 5 {
         b.log("Pilot has 5+ hits - remaining prone rather than risk a stand attempt.");
-        return 0;
+        return (0, false);
     }
     let mut running_mp = match mp_available {
         None => compute_running_mp(&b.units[u]),
@@ -336,7 +348,7 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
     };
     if running_mp <= 0 {
         b.log("No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.");
-        return 0;
+        return (0, false);
     }
     let mut attempt = 0;
     loop {
@@ -344,11 +356,11 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
         if attempt > 1 {
             if running_mp < 2 {
                 b.log("Insufficient MP (<2) remaining for another stand attempt. Remains prone.");
-                return 0;
+                return (0, false);
             }
             if b.units[u].pilot_hits >= 5 {
                 b.log("Pilot reached 5 hits from a failed stand attempt - stopping, remains prone.");
-                return 0;
+                return (0, false);
             }
         }
         running_mp = 0.max(running_mp - 2);
@@ -372,7 +384,10 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
                 b.log("  Failed to stand.");
                 resolve_fall(b, u, "failed to stand", 0, None);
                 if b.is_destroyed(u) {
-                    return 0;
+                    return (0, false);
+                }
+                if once {
+                    return (running_mp, false);
                 }
                 continue;
             }
@@ -384,12 +399,57 @@ pub fn resolve_stand_up(b: &mut Battle, u: UnitId, mp_available: Option<i64>) ->
             b.units[u].movement_mode_this_turn = "running".to_string();
             if !check_movement_psr(b, u, "running", Some("fell again after standing")) {
                 b.log("  Will not attempt to stand again this round.");
-                return 0;
+                return (0, false);
             }
         }
-        return running_mp;
+        return (running_mp, true);
     }
 }
+
+/// CAREFUL STAND (TO:AR p.22, "Careful Stand"): the 'Mech spends its whole Movement Phase standing, ONE attempt,
+/// and counts as having walked. With more than 2 Walking MP the Piloting Skill Roll is -2; with 1 or 2 there is no modifier.
+/// A failed roll is a fall (no second try this turn). Returns true if the 'Mech is standing afterwards. The caller sets the mode and
+/// leaves no MP to spend.
+pub fn resolve_careful_stand(b: &mut Battle, u: UnitId) -> bool {
+    if !can_stand(&b.units[u]) {
+        b.log("Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.");
+        return false;
+    }
+    if b.units[u].pilot_hits >= 5 {
+        b.log("Pilot has 5+ hits - remaining prone rather than risk a stand attempt.");
+        return false;
+    }
+    let walk = compute_walk_mp(&b.units[u]);
+    if walk <= 0 {
+        b.log("No Walking MP - cannot attempt a careful stand. Remains prone.");
+        return false;
+    }
+    if is_quad(&b.units[u]) && destroyed_leg_count(&b.units[u]) == 0 {
+        b.log("Careful stand: a quad with no leg destroyed stands without a PSR (p.238).");
+        b.ev("STAND_ATTEMPT").unit(u).ok(true).emit(b);
+    } else {
+        let m = &b.units[u];
+        let careful = if walk > CAREFUL_STAND_FREE_MP { CAREFUL_STAND_MODIFIER } else { 0 };
+        let modifier = preexisting_modifier(m) + special_case_modifier(m) + STAND_UP_MODIFIER + careful;
+        let needed = b.piloting + modifier;
+        let r = b.roll_2d6();
+        b.log(format!("Careful stand: needs {} (Piloting {} + {:+}, incl. -1 for standing{}). Rolled {}.", needed, b.piloting, modifier, if careful != 0 { " and -2 for taking its time (TO:AR p.22)" } else { "" }, r));
+        b.ev("STAND_ATTEMPT").unit(u).tn(needed).roll(r).ok(r >= needed).emit(b);
+        if r < needed {
+            b.log("  Failed to stand.");
+            resolve_fall(b, u, "failed to stand", 0, None);
+            return false;
+        }
+    }
+    b.units[u].prone = false;
+    let (chassis, model) = (b.units[u].chassis.clone(), b.units[u].model.clone());
+    b.log(format!("  Success - {} {} is standing (it walked: the whole Movement Phase was spent).", chassis, model));
+    true
+}
+
+/// A careful stand with more Walking MP than this earns the -2 (TO:AR: "more than 2 Walking MP").
+pub const CAREFUL_STAND_FREE_MP: i64 = 2;
+pub const CAREFUL_STAND_MODIFIER: i64 = -2;
 
 /// Called once per turn before the attack loop; returns this turn's TMM.
 pub fn resolve_movement_phase(b: &mut Battle, u: UnitId) -> i64 {

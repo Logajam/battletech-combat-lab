@@ -113,6 +113,10 @@ pub fn movement_heat(mech: &Mech, mode: &str, hexes_moved: i64) -> i64 {
     let ijj = mech.has_improved_jump_jets;
     let xxl = mech.has_xxl_engine;
     if mode == "Jump" {
+        // mechanical jump boosters make no heat (TO:AUE p.105, Mechanical Jump Boosters)
+        if mech.jump_boosters_on {
+            return extra;
+        }
         if xxl && !ijj {
             return extra + XXL_JUMP_MIN_HEAT.max(2 * hexes_moved);
         }

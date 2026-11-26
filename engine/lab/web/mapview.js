@@ -59,32 +59,32 @@
       const k = v.w / (svg.getBoundingClientRect().width || 1);
       if (kLast && Math.abs(k - kLast) / kLast > 0.08) { clearTimeout(kTimer); kTimer = setTimeout(() => { if (hooks.rescale) hooks.rescale(); }, 120); }
     };
+    // THE CLEAR AREA (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Section 14, A4): the page's panels lie over the map's edges; `ins` is how far
+    // they reach in from each side (screen pixels), and a fit or a focus frames the rest. The flat view puts a box of the board in that rectangle.
+    mv.ins = { l: 0, r: 0, t: 0, b: 0 };
+    const clearRect = () => { const r = svg.getBoundingClientRect(), I = mv.ins, W = r.width || 1, H = r.height || 1; return { W, H, l: I.l, t: I.t, w: Math.max(40, W - I.l - I.r), h: Math.max(40, H - I.t - I.b) }; };
+    const showBox = (x0, y0, w, h) => {
+      const c = clearRect(), k = Math.max(w / c.w, h / c.h), cx = x0 + w / 2, cy = y0 + h / 2;
+      mv.view = { x: cx - (c.l + c.w / 2) * k, y: cy - (c.t + c.h / 2) * k, w: c.W * k, h: c.H * k }; applyView();
+    };
     // zoom in on a set of hexes (labels) with a margin, as the first view of a game: your own units, not the whole board
     mv.focusOn = (labels, marginHexes) => {
       if (!mv.bounds || !labels.length) return mv.fit();
-      const r = svg.getBoundingClientRect(), ar = (r.width || 1) / (r.height || 1), m = (marginHexes || 4) * R * 1.5;
+      const m = (marginHexes || 4) * R * 1.5;
       const pts = labels.map(mv.centre), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-      let x0 = Math.min(...xs) - m, x1 = Math.max(...xs) + m, y0 = Math.min(...ys) - m, y1 = Math.max(...ys) + m;
-      let w = x1 - x0, h = y1 - y0;
-      if (w / h < ar) { const nw = h * ar; x0 -= (nw - w) / 2; w = nw; } else { const nh = w / ar; y0 -= (nh - h) / 2; h = nh; }
-      // keep the view on the board where the board is large enough to fill it
-      const B = mv.bounds;
-      if (w <= B[2] + 8) x0 = Math.max(B[0] - 4, Math.min(x0, B[0] + B[2] + 4 - w));
-      if (h <= B[3] + 8) y0 = Math.max(B[1] - 4, Math.min(y0, B[1] + B[3] + 4 - h));
-      mv.view = { x: x0, y: y0, w, h }; applyView();
+      const x0 = Math.min(...xs) - m, x1 = Math.max(...xs) + m, y0 = Math.min(...ys) - m, y1 = Math.max(...ys) + m;
+      showBox(x0, y0, x1 - x0, y1 - y0);
     };
     mv.fit = () => {
       if (!mv.bounds) return;
-      const b = mv.bounds, r = svg.getBoundingClientRect(), ar = (r.width || 1) / (r.height || 1);
-      let w = b[2] + 8, h = b[3] + 8;
-      if (w / h < ar) w = h * ar; else h = w / ar;
-      mv.view = { x: b[0] - 4 - (w - b[2] - 8) / 2, y: b[1] - 4 - (h - b[3] - 8) / 2, w, h };
-      applyView();
+      const b = mv.bounds; showBox(b[0] - 4, b[1] - 4, b[2] + 8, b[3] + 8);
     };
+    // bring a hex to the middle of the clear area at the same zoom
+    mv.centreOn = (l) => { if (!mv.view) return; const c = clearRect(), k = mv.view.w / c.W, p = mv.centre(l); mv.view = { ...mv.view, x: p[0] - (c.l + c.w / 2) * k, y: p[1] - (c.t + c.h / 2) * k }; applyView(); };
     // zoom by factor f (below 1 zooms in) about a client point (the middle of the map when none is given)
     mv.zoom = (f, cx, cy) => {
       const v = mv.view, r = svg.getBoundingClientRect();
-      const px = cx == null ? 0.5 : (cx - r.left) / r.width, py = cy == null ? 0.5 : (cy - r.top) / r.height;
+      const I = mv.ins, px = cx == null ? (I.l + (r.width - I.l - I.r) / 2) / r.width : (cx - r.left) / r.width, py = cy == null ? (I.t + (r.height - I.t - I.b) / 2) / r.height : (cy - r.top) / r.height;
       const nw = Math.max(120, Math.min(mv.bounds[2] * 3, v.w * f)), nh = nw * v.h / v.w;
       mv.view = { x: v.x + (v.w - nw) * px, y: v.y + (v.h - nh) * py, w: nw, h: nh };
       applyView();
@@ -96,7 +96,7 @@
     };
 
     // ---- the two views behind one set of calls. The flat view's camera is above; the tabletop's is tabletop.js.
-    const flat = { fit: mv.fit, focusOn: mv.focusOn, zoom: mv.zoom, panBy: mv.panBy };
+    const flat = { fit: mv.fit, focusOn: mv.focusOn, zoom: mv.zoom, panBy: mv.panBy, centreOn: mv.centreOn };
     const is3d = () => mv.mode === "3d" && !!tt;
     const hideFlat = () => { if (mv.layers) mv.layers.map.style.display = "none"; };   // the flat terrain image and hex hit polygons; the layers the page draws into stay and are drawn projected
     // ---- geometry for the page's drawing, the same calls in both views. Flat: board units (a hex is R = 34 across the middle). Tabletop: screen
@@ -128,6 +128,10 @@
     // the svg over the 3D board has the size of the board's host: one view unit is one pixel
     mv.syncView = () => { if (!is3d()) return; const r = svg.getBoundingClientRect(); svg.setAttribute("viewBox", `0 0 ${Math.max(1, r.width)} ${Math.max(1, r.height)}`); };
     mv.fit = () => (is3d() ? tt.fit() : flat.fit());
+    mv.centreOn = (l) => (is3d() ? tt.centreOn(l) : flat.centreOn(l));
+    // the panels' reach over the map (pixels from each edge of the map's box); true when it changed
+    mv.setInsets = (ins) => { const n = { l: Math.round(ins.l || 0), r: Math.round(ins.r || 0), t: Math.round(ins.t || 0), b: Math.round(ins.b || 0) }, o = mv.ins;
+      const changed = n.l !== o.l || n.r !== o.r || n.t !== o.t || n.b !== o.b; mv.ins = n; if (tt) tt.setInsets(n); return changed; };
     mv.focusOn = (labels, m) => (is3d() ? tt.focusOn(labels, m) : flat.focusOn(labels, m));
     mv.zoom = (f, cx, cy) => (is3d() ? tt.zoom(f, cx, cy) : flat.zoom(f, cx, cy));
     // a finger moved the map by (dx, dy) and is now at client (x, y)
@@ -154,7 +158,7 @@
           if (!loading) loading = (async () => { if (!window.THREE) await loadScript("three.min.js"); if (!window.Tabletop) await loadScript("tabletop.js"); if (!window.MECH_SPRITES) await loadScript("mechsprites.js").catch(() => {}); })();
           await loading;
           const host = document.createElement("div"); host.id = "tabletop"; host.style.cssText = "position:absolute;inset:0;overflow:hidden";
-          svg.parentElement.insertBefore(host, svg); tt = window.Tabletop.create(host, { settings });
+          svg.parentElement.insertBefore(host, svg); tt = window.Tabletop.create(host, { settings }); tt.setInsets(mv.ins);
           let sig = ""; tt.onRender = () => { const c = tt.camera, s = [c.tx, c.tz, c.yaw, c.tilt, c.dist, c.persp, host.clientWidth, host.clientHeight].map((v) => Math.round(v * 100) / 100).join(","); if (s === sig) return; sig = s; mv.syncView(); if (hooks.camera) hooks.camera(); };
         } catch (e) { loading = null; if (tt) { tt.dispose(); tt = null; } const h = document.getElementById("tabletop"); if (h) h.remove(); return mv.mode; }
         mv.mode = "3d"; svg.style.background = "transparent"; svg.style.position = "absolute"; svg.style.inset = "0"; svg.parentElement.classList.add("tabletop");

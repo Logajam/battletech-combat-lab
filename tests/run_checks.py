@@ -153,9 +153,9 @@ def main(argv):
         heavy.append(("rust       check_events.py",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_events.py"),)))
         # CL1 settings, stage-6 attach, CL2 histories, BV skills, charge targets, walk-on zones
-        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + human_bots + play_session + step_walk + drawn_route + core unit tests",
+        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + human_bots + play_session + step_walk + drawn_route + bttt + core unit tests",
                       run_command, (["cargo", "test", "--release", "-q", "-p", "btsim_core", "--lib", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
-                                     "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry", "--test", "human_bots", "--test", "play_session", "--test", "step_walk", "--test", "drawn_route"], os.path.join(REPO_ROOT, "engine"))))
+                                     "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry", "--test", "human_bots", "--test", "play_session", "--test", "step_walk", "--test", "drawn_route", "--test", "bttt"], os.path.join(REPO_ROOT, "engine"))))
     if want & {"engine", "pages"} and has_cargo:
         # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed
         heavy.append(("rust       check_bv_megamek.py",

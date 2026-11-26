@@ -82,6 +82,18 @@ pub trait BotSet {
     fn wants_stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
         true
     }
+    /// After a FAILED attempt to stand, or a fall partway through a move: does the player decide again (Daniel, 2026-11-26,
+    /// INTEGRATION__UI_SYNC.md Section 14 G3: "Inform the player of the failure and consequences, and then allow them to plan what remains
+    /// of their move from that state"; Core p.51: repeated attempts while the MP last)? Then each attempt is ONE roll and `wants_stand_up`
+    /// is asked again with the MP left. Default: no, the engine tries again by itself (the bots). Not a bot decision for the bridge.
+    fn decides_each_stand(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
+    /// A unit that is going to stand: does it stand CAREFULLY (TO:AR p.22: one attempt, the whole Movement Phase, walked, -2 with more
+    /// than 2 Walking MP)? Asked only after `wants_stand_up` said yes; only a person is asked, bots stand the normal way (2 MP).
+    fn careful_stand(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
+    }
     /// BattleROM: the Heat Phase is about to start for this unit; `weapon_heat` is what its weapons added this turn. A
     /// person's controller sets coolant pod / radical heat sink / heat sink / Blue Shield / unjam switches here.
     fn end_phase(&mut self, _b: &mut Battle, _u: UnitId, _weapon_heat: i64) {}
@@ -151,6 +163,7 @@ fn name(b: &Battle, u: UnitId) -> String {
 
 pub fn reset_movement_state(m: &mut Mech) {
     equip::reset_movement_boost(m);
+    m.jump_boosters_on = false;
     m.move_mode = "Stand Still".into();
     m.move_fc = 0;
     m.mp_spent = 0;
@@ -206,11 +219,26 @@ pub fn prone_turn_cost(m: &crate::mech_state::Mech, to: &str) -> Option<(i64, &'
     let (from, to) = (hex_geometry::compass_to_facing(&m.facing).ok()?, hex_geometry::compass_to_facing(to).ok()?);
     let d = (to - from).rem_euclid(6);
     let sides = d.min(6 - d);
-    let (walk, run) = (compute_walk_mp(m), crate::mech_state::compute_running_mp(m));
-    if sides == 0 || sides > run {
+    let walk = compute_walk_mp(m);
+    if sides == 0 || sides > prone_mp_left(m) {
         return None;
     }
+    // after a failed stand or a fall the mode is already declared (p.51); before anything, Walk if the turn fits the walking MP
+    if m.mp_spent > 0 && m.move_mode != "Stand Still" {
+        return Some((sides, if m.move_mode == "Walk" { "Walk" } else { "Run" }));
+    }
     Some((sides, if sides <= walk { "Walk" } else { "Run" }))
+}
+
+/// The MP a prone unit has left this Movement Phase: its running MP before it has done anything; after a failed attempt to stand, or a fall
+/// partway through a move, what its declared mode leaves (G3).
+pub fn prone_mp_left(m: &crate::mech_state::Mech) -> i64 {
+    let budget = match m.move_mode.as_str() {
+        "Walk" => compute_walk_mp(m),
+        "Jump" => 0,
+        _ => crate::mech_state::compute_running_mp(m),
+    };
+    (budget - m.mp_spent).max(0)
 }
 
 /// Can `m` drop to the ground now, and in what mode: it has 1 MP left (walking if its move fits, else running) and did not jump.
@@ -293,12 +321,51 @@ fn drop_to_ground(b: &mut Battle, mover: UnitId) {
     b.log(line);
 }
 
+/// A PERSON'S STAND (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Section 14 G3): one attempt; a failure is reported (the log says the roll and
+/// the fall) and, while the 'Mech still has the 2 MP an attempt costs (Core p.51), its player is asked again: stand again, or stay prone and
+/// perhaps turn on the ground with the MP left. `wants_stand_up` was already answered yes for the first attempt; when `mp` is given (a fall
+/// partway through a move) the player is asked first. Returns the running MP left after standing (0 while prone).
+fn stand_deciding(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, mp: Option<i64>) -> i64 {
+    let nm = name(b, mover);
+    if mp.is_some() && !bots.wants_stand_up(b, mover) {
+        if let Some(to) = bots.prone_turn(b, mover) {
+            prone_turn(b, mover, &to);
+        }
+        return 0;
+    }
+    let mut avail = mp.unwrap_or_else(|| crate::mech_state::compute_running_mp(&b.units[mover]));
+    loop {
+        let (left, stood) = b.with_piloting(mover, |b| pr::resolve_stand_attempt(b, mover, Some(avail)));
+        if stood || b.is_destroyed(mover) {
+            return left;
+        }
+        // the attempt cost 2 MP; a 'Mech that tries to stand at the start of its move runs (p.51). The MP spent are set so that the MP
+        // left to the declared mode (prone_mp_left, which the next question offers) are exactly those the attempts leave.
+        if mp.is_none() {
+            b.units[mover].move_mode = "Run".into();
+        }
+        let budget = prone_mp_left(&b.units[mover]) + b.units[mover].mp_spent;
+        b.units[mover].mp_spent = (budget - left).max(0);
+        if left < 2 || !pr::can_stand(&b.units[mover]) || b.units[mover].pilot_hits >= 5 {
+            return 0;
+        }
+        b.log(format!("  [Movement] {}: did not stand, {} MP left: its player decides again (p.51).", nm, left));
+        if !bots.wants_stand_up(b, mover) {
+            if let Some(to) = bots.prone_turn(b, mover) {
+                prone_turn(b, mover, &to);
+            }
+            return 0;
+        }
+        avail = left;
+    }
+}
+
 /// A person's unit that stays prone turns to `to` (p.51).
 fn prone_turn(b: &mut Battle, mover: UnitId, to: &str) {
     let Some((sides, mode)) = prone_turn_cost(&b.units[mover], to) else { return };
     b.units[mover].facing = to.to_string();
     b.units[mover].move_mode = mode.into();
-    b.units[mover].mp_spent = sides;
+    b.units[mover].mp_spent += sides;
     let line = format!("  [Movement] {}: turns {} hexside(s) on the ground to face {} ({}, {} MP; p.51).", name(b, mover), sides, to, mode, sides);
     b.log(line);
 }
@@ -403,10 +470,22 @@ fn do_move(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, other: UnitId, 
                 prone_turn(b, mover, &to);
             }
         }
-        let remaining = if stays { 0 } else { b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, None)) };
+        // careful stand (TO:AR p.22): a person may spend the whole phase on one better-odds attempt; the unit counts as having walked
+        let careful = tries && !stays && bots.careful_stand(b, mover);
+        let remaining = if stays {
+            0
+        } else if careful {
+            // one attempt, no MP left either way (a failed roll is a fall, and `prone` stays set for the checks below)
+            b.with_piloting(mover, |b| pr::resolve_careful_stand(b, mover));
+            0
+        } else if bots.decides_each_stand(b, mover) {
+            stand_deciding(b, bots, mover, None)
+        } else {
+            b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, None))
+        };
         let tries = tries && !stays;
         if tries {
-            b.units[mover].move_mode = "Run".into();
+            b.units[mover].move_mode = if careful { "Walk" } else { "Run" }.into();
         }
         if b.units[mover].prone && !b.is_destroyed(mover) && !pr::can_stand(&b.units[mover]) {
             turn_while_down(b, mover, other);
@@ -576,7 +655,7 @@ fn needs_backward_move(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Optio
     let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
     let facing = hex_geometry::compass_to_facing(&pick.facing).unwrap();
     let (sx, sy, start_facing) = hex_geometry::state_from_label(m.hex.as_deref().unwrap(), &m.facing).unwrap();
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     let blocked = crate::ranged_combat::blocked_set(&m.blocked_hex);
     let table = b.movement_table(sx, sy, start_facing, compute_running_mp(m), None, level_limit, &blocked);
     let in_forward = table.entries.get(&(x, y, facing)).and_then(|c| c.get(&pick.mp_spent)) == Some(&pick.fc);
@@ -715,11 +794,13 @@ fn walk_path(b: &mut Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>
             fall_dir = None;
         } else {
             let from_info = if step == "enter" { None } else { Some(b.board.hexes[here.as_deref().unwrap()].clone()) };
-            causes = terrain_rules::step_psr_causes(from_info.as_ref(), &b.board.hexes[&label], step == "backward", running);
+            // a lateral shift is a step into that hex (the rear ones backward moves, Core pp.236, 238)
+            let step_back = step == "backward" || step.ends_with("_back");
+            causes = terrain_rules::step_psr_causes(from_info.as_ref(), &b.board.hexes[&label], step_back, running);
             fall_at = label.clone();
             // the way it was heading into `label` (a domino it sets off by falling there goes on that way)
             fall_dir = here.as_deref().filter(|h| b.board.hexes.contains_key(*h)).map(|h| crate::domino::combat_dir(h, &label));
-            if step == "backward" {
+            if step_back {
                 if let Some(f) = &from_info {
                     if f.level < b.board.hexes[&label].level {
                         fall_at = here.clone().unwrap();
@@ -766,12 +847,23 @@ fn after_fall_midmove(b: &mut Battle, bots: &mut dyn BotSet, mover: UnitId, othe
     b.units[mover].move_fc = moved;
     b.units[mover].mp_spent = used;
     b.log(format!("  [Movement] {}: {} -> fell at {} {} after {} MP ({} hexes) of a planned {} to {} {}.", nm, start, label, facing, used, moved, pick.mode, pick.hex, pick.facing));
+    let person = bots.decides_each_stand(b, mover);
     while !b.is_destroyed(mover) && b.units[mover].prone {
         let remaining = budget - b.units[mover].mp_spent;
         if remaining <= 0 || !pr::can_stand(&b.units[mover]) || b.units[mover].pilot_hits >= 5 {
             break;
         }
-        let left = b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, Some(remaining)));
+        let left = if person {
+            // a person's unit: the fall is reported and its player decides whether to stand (G3)
+            b.log(format!("  [Movement] {}: fell, {} MP left: its player decides (p.51).", nm, remaining));
+            let l = stand_deciding(b, bots, mover, Some(remaining));
+            if b.units[mover].prone {
+                break;
+            }
+            l
+        } else {
+            b.with_piloting(mover, |b| pr::resolve_stand_up(b, mover, Some(remaining)))
+        };
         b.units[mover].mp_spent = if !b.units[mover].prone { budget - left } else { budget };
         if b.units[mover].prone || b.is_destroyed(mover) || left <= 0 {
             break;

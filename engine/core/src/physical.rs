@@ -102,11 +102,14 @@ pub struct PhysOption {
     pub push: bool,
     pub fumble: bool,
     pub tn: Option<i64>,
+    /// the attack's own target when it is not the one the unit was asked about: a person's punch at a SECONDARY target (Daniel,
+    /// 2026-11-26; Core p.82: each arm may punch a target in its own side arc). The bots never set it.
+    pub target: Option<UnitId>,
 }
 
 impl PhysOption {
     fn new(name: String, mod_: i64, damage: i64, table: &str, limb: Vec<String>) -> PhysOption {
-        PhysOption { name, mod_, damage: Num::I(damage), table: table.to_string(), limb, kick: false, club: false, weapon: false, lance: false, heat: 0, blade: None, flail: false, whip: false, push: false, fumble: false, tn: None }
+        PhysOption { name, mod_, damage: Num::I(damage), table: table.to_string(), limb, kick: false, club: false, weapon: false, lance: false, heat: 0, blade: None, flail: false, whip: false, push: false, fumble: false, tn: None, target: None }
     }
 }
 
@@ -420,7 +423,7 @@ pub fn reachable(diff: i64, target_superheavy: bool) -> bool {
     if target_superheavy { (-2..=1).contains(&diff) } else { diff.abs() <= 1 }
 }
 
-type Opts = IndexMap<&'static str, Vec<PhysOption>>;
+pub type Opts = IndexMap<&'static str, Vec<PhysOption>>;
 
 fn keep(opts: Opts) -> Opts {
     opts.into_iter().filter(|(_, v)| !v.is_empty()).collect()
@@ -744,10 +747,19 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
         let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
         let side = crate::attack_resolution::attack_side(b, a_hex, t_hex, tf, crate::attack_resolution::standing(), crate::attack_resolution::standing()).to_string();
-        if picks.iter().any(|o| o.push) {
-            b.pushed_this_phase.push(target);
+        if let Some(o) = picks.iter().find(|o| o.push) {
+            b.pushed_this_phase.push(o.target.unwrap_or(target));
         }
         for mut o in picks {
+            // an attack at another target than the one asked about (a person's secondary punch): its own base number and side
+            let target = o.target.unwrap_or(target);
+            let (base, side) = if Some(target) == o.target {
+                let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+                let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
+                (base_tn_for(b, attacker, target), crate::attack_resolution::attack_side(b, a_hex, t_hex, tf, crate::attack_resolution::standing(), crate::attack_resolution::standing()).to_string())
+            } else {
+                (base, side.clone())
+            };
             let (an, tname) = (name_of(b, attacker), name_of(b, target));
             if o.heat != 0 {
                 let blade = o.blade.clone().unwrap();
@@ -790,7 +802,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
                 }
                 e.emit(b);
             }
-            declared.push((attacker, target, o, hit, side.clone()));
+            declared.push((attacker, target, o, hit, side));
         }
     }
     let mut triggers: Triggers = crate::fasthash::IndexMap::default();

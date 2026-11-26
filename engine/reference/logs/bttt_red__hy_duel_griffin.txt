@@ -1,0 +1,527 @@
+# scenario hy_duel_griffin, BTTT drives Red
+# seed 1: winner Blue, 24 turns
+#   Red: 121.0 of 243.0 armor + structure left, team destroyed True, units 1, 3 hits of 21 attacks, 30.0 damage dealt
+#   Blue: 213.0 of 243.0 armor + structure left, team destroyed False, units 1, 7 hits of 20 attacks, 100.0 damage dealt
+# log
+  Deployment: Blue home edge W (0101-0117).
+  Deployment: Blue placed at 0105.
+  Deployment: Red home edge E (1601-1617).
+  Deployment: Red placed at 1609.
+  Deployment roll: Red 5, Blue 4 - Blue chose its edge.
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 3).
+  [Movement select] Blue: score 334.000 = dealt 0.00 x1.00 + (HP 334.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.05 x my future 3.05 [two-ply, 108 of 684 spots (grid search) x 739 replies (short list); modeled reply Red -> 1313 NW Run]
+  [Movement] Blue: 0105 SE -> 0112 S, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 8 steps toward Blue (value 7.43), Run 8 MP
+  [Movement] Red: 1609 SW -> 0913 NW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 8, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 1: Red @ 0913 NW: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 1: Blue @ 0112 S: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 2 ===
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 10).
+  [Movement select] Red: BTTT: 8 steps toward Blue (value 9.11), Run 8 MP
+  [Movement] Red: 0913 NW -> 0210 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 337.218 = dealt 5.98 x1.25 + (HP 334.0 - received 4.24 x1.01 - PSR 0.00) / enemy future 3.05 x my future 3.05 [enemy held at 0210; 215 spots with LOS]
+  [Movement] Blue: 0112 S -> 0310 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 2.73)
+    PPC: needs 10 (range mod +3), rolled 9 -> miss
+  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 0.83)
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 11 (range mod +3), rolled 4 -> miss
+    LRM 10: needs 14 (range mod +6), rolled 2 -> miss [IS Ammo LRM-10: 11 shots left]
+  [Physical] Blue -> Red: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 8 -> HIT (11 dmg, rear side)
+    kick (Left Leg) hits Red's Left Leg for 11.
+11 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 11 armor pts destroyed at armor (18 -> 7 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 14 + engine 0 - sinks 12 -> 3
+  -- end of turn 2: Red @ 0210 SW: HP 232, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0310 S: HP 243, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 3 ===
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 12).
+  [Movement select] Red: BTTT: 8 steps toward Blue (value 3.42), Run 8 MP
+  [Movement] Red: 0210 SW -> 0409 S, Run (8 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 781.565 = dealt 11.76 x1.24 + (HP 334.0 - received 4.24 x1.01 - PSR 0.00) / enemy future 2.29 x my future 5.33 [enemy held at 0409; 218 spots with LOS]
+  [Movement] Blue: 0310 S -> 0408 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['PPC'] (weapon heat 10 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 2.73)
+    PPC: needs 10 (range mod +3), rolled 9 -> miss
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +3), rolled 10 -> HIT
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 4 (rear table): Right Arm.
+10 damage (ENERGY) incoming to Right Arm (rear_armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+  [Physical] Blue -> Red: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 6 -> HIT (11 dmg, rear side)
+    kick (Left Leg) hits Red's Left Leg for 11.
+11 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (7 -> 0 remaining). 4 damage applied to structure [STANDARD] (13 -> 9/13 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Left Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Lower Leg Actuator (slot 3)
+    4: Foot Actuator (slot 4)
+    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
+    1/1 Criticals: Hip hit.
+      Current crit slots in Left Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 4.
+      Hip specifically destroyed at Left Leg - running-mode Movement Phase PSR trigger now active.
+PSR trigger: 1 leg actuator(s) destroyed at Left Leg this phase -> +1, one roll.
+PSR trigger: kicked -> +0.
+Attack Phase PSR 1/2: needs 6 (Piloting 5 + +1). Rolled 7.
+Attack Phase PSR 2/2: needs 6 (Piloting 5 + +1). Rolled 11.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 3: Red @ 0409 S: HP 211, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 0408 SW: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 10; tie re-rolled Red 8, Blue 5).
+  [Movement select] Blue: score 1859.690 = dealt 4.94 x1.00 + (HP 334.0 - received 5.93 x1.01 - PSR 0.00) / enemy future 1.83 x my future 10.36 [two-ply, 207 of 928 spots (grid search) x 750 replies (short list); modeled reply Red -> 0111 N Walk]
+  [Movement] Blue: 0408 SW -> 0306 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 6.49), Walk 4 MP
+  [Movement] Red: 0409 S -> 0208 NW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 4.17)
+    PPC: needs 8 (range mod +1), rolled 5 -> miss
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 4.18)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +1), rolled 3 -> miss
+    LRM 10: needs 12 (range mod +4), rolled 7 -> miss [IS Ammo LRM-10: 11 shots left]
+  [Heat] Red: 0 + movement 1 + weapons 14 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 4: Red @ 0208 NW: HP 211, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 4: Blue @ 0306 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 5 ===
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 3.93), Walk 4 MP
+  [Movement] Red: 0208 NW -> 0205 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
+  [Movement select] Blue: score 1884.708 = dealt 0.97 x0.95 + (HP 334.0 - received 0.84 x1.01 - PSR 0.00) / enemy future 1.53 x my future 8.63 [enemy held at 0205; 223 spots with LOS]
+  [Movement] Blue: 0306 NE -> 0710 S, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 7, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 1.82)
+    PPC: needs 11 (range mod +2), rolled 6 -> miss
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 7, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 0.83)
+    PPC: needs 11 (range mod +2), rolled 8 -> miss
+  [Heat] Red: 3 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 5: Red @ 0205 N: HP 211, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 5: Blue @ 0710 S: HP 243, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 6 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 7).
+  [Movement select] Blue: score 1889.136 = dealt 0.60 x1.00 + (HP 334.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.31 x my future 7.40 [two-ply, 217 of 1176 spots (grid search) x 583 replies (short list); modeled reply Red -> 0404 S Walk]
+  [Movement] Blue: 0710 S -> 0814 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 0.43), Walk 4 MP
+  [Movement] Red: 0205 N -> 0406 SE, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Ranged] Blue picks up a tree club in 0814 instead of firing (p.79).
+  [Heat] Red: 2 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 2 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 6: Red @ 0406 SE: HP 211, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 6: Blue @ 0814 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 7 ===
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 5.07), Walk 4 MP
+  [Movement] Red: 0406 SE -> 0808 SE, Walk (4 MP, 4 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
+  [Movement select] Blue: score 1880.949 = dealt 1.95 x0.95 + (HP 334.0 - received 1.67 x1.00 - PSR 0.00) / enemy future 1.15 x my future 6.48 [enemy held at 0808; 166 spots with LOS]
+  [Movement] Blue: 0814 N -> 0710 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 2.73)
+    PPC: needs 10 (range mod +2), rolled 12 -> HIT
+  [Ranged] Blue -> Red: range 2, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 1.67)
+    PPC: needs 10 (range mod +2), rolled 3 -> miss
+  [Resolve] Red -> Blue: PPC
+    PPC hit for 10:
+      Hit location roll 7 (front table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 7: Red @ 0808 SE: HP 211, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 0710 NE: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 8 ===
+  Initiative: Red lost the roll, moves first (rolled Red 8, Blue 12).
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 2.87), Stand Still 0 MP
+  [Movement] Red: 0808 SE -> 0808 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 5)
+  [Movement select] Blue: score 893.709 = dealt 9.79 x1.18 + (HP 324.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 2.11 x my future 5.76 [enemy held at 0808; 319 spots with LOS]
+  [Movement] Blue: 0710 NE -> 0506 SW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; expected dmg 7.22)
+    PPC: needs 6 (range mod +0), rolled 8 -> HIT
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 8 (rear table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (rear_armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (6 -> 0 remaining). 4 damage applied to structure [STANDARD] (13 -> 9/13 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: Jump Jet (slot 1)
+    2: Jump Jet (slot 2)
+    Slot roll: 2 on 1D2 (one die over the 2 slots that can take the hit; p.94).
+    1/1 Criticals: Jump Jet slot hit.
+      Current crit slots in Left Torso: ['Jump Jet', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Jump jet destroyed (Jump Jet) - jump MP reduced (now 4).
+  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 8: Red @ 0808 SE: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 8: Blue @ 0506 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 9 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 3).
+  [Movement select] Blue: score 1236.106 = dealt 0.00 x1.00 + (HP 324.0 - received 0.84 x0.99 - PSR 0.00) / enemy future 1.90 x my future 7.28 [two-ply, 198 of 1021 spots (grid search) x 669 replies (short list); modeled reply Red -> 0408 N Jump]
+  [Movement] Blue: 0506 SW -> 0402 SW, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 0.43), Walk 4 MP
+  [Movement] Red: 0808 SE -> 0806 N, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 4 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 9: Red @ 0806 N: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 0402 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 10 ===
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 2.43), Walk 4 MP
+  [Movement] Red: 0806 N -> 0803 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 1241.545 = dealt 2.05 x1.11 + (HP 324.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.73 x my future 6.62 [enemy held at 0803; 88 spots with LOS]
+  [Movement] Blue: 0402 SW -> 0905 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 1.67)
+    PPC: needs 10 (range mod +2), rolled 7 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 10: Red @ 0803 NW: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 10: Blue @ 0905 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 11 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 3).
+  [Movement select] Blue: score 1232.126 = dealt 1.19 x1.00 + (HP 324.0 - received 2.20 x0.99 - PSR 0.00) / enemy future 1.59 x my future 6.06 [two-ply, 182 of 1064 spots (grid search) x 605 replies (short list); modeled reply Red -> 1005 NW Walk]
+  [Movement] Blue: 0905 NW -> 0403 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 2.43), Walk 4 MP
+  [Movement] Red: 0803 NW -> 0502 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 8 = max 4 + sink 12 - current 3 - movement 5 - other 0; expected dmg 0.00)
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 11: Red @ 0502 SW: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 11: Blue @ 0403 N: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 12 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 5).
+  [Movement select] Blue: score 1230.146 = dealt 1.76 x1.00 + (HP 324.0 - received 2.39 x1.19 - PSR 0.00) / enemy future 1.46 x my future 5.60 [two-ply, 241 of 744 spots (grid search) x 441 replies (short list); modeled reply Red -> 0605 NW Jump]
+  [Movement] Blue: 0403 N -> 0505 NW, Jump (5 MP, 2 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 3 steps toward Blue (value 4.05), Walk 4 MP
+  [Movement] Red: 0502 SW -> 0403 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 2, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; expected dmg 0.83)
+    PPC: needs 11 (range mod +2), rolled 9 -> miss
+  [Ranged] Red -> Blue: range 2, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 1.82)
+    PPC: needs 11 (range mod +2), rolled 10 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 1
+  -- end of turn 12: Red @ 0403 S: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 12: Blue @ 0505 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 1
+
+=== TURN 13 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 3).
+  [Movement select] Blue: score 1229.647 = dealt 4.94 x1.00 + (HP 324.0 - received 3.84 x0.99 - PSR 0.00) / enemy future 1.36 x my future 5.20 [two-ply, 178 of 990 spots (grid search) x 523 replies (short list); modeled reply Red -> 0504 SE Walk]
+  [Movement] Blue: 0505 NW -> 1007 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 7.16), Walk 4 MP
+  [Movement] Red: 0403 S -> 0506 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 1 - movement 5 - other 0; expected dmg 4.17)
+    PPC: needs 8 (range mod +0), rolled 10 -> HIT
+  [Ranged] Red -> Blue: range 5, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 4.73)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +0), rolled 7 -> miss
+    LRM 10: needs 11 (range mod +2), rolled 10 -> miss [IS Ammo LRM-10: 10 shots left]
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 6 (front table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 14 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 1 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 13: Red @ 0506 SE: HP 191, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 13: Blue @ 1007 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 14 ===
+  Initiative: Red lost the roll, moves first (rolled Red 6, Blue 8).
+  [Movement select] Red: BTTT: 3 steps toward Blue (value 4.15), Walk 3 MP
+  [Movement] Red: 0506 SE -> 0807 SE, Walk (3 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 1405.295 = dealt 7.16 x1.10 + (HP 324.0 - received 0.00 x1.19 - PSR 0.00) / enemy future 1.27 x my future 5.47 [enemy held at 0807; 333 spots with LOS]
+  [Movement] Blue: 1007 SW -> 0604 N, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 4 - movement 2 - other 0; expected dmg 5.83)
+    PPC: needs 7 (range mod +0), rolled 7 -> HIT
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 7 (left table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Heat] Red: 3 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 14: Red @ 0807 SE: HP 181, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 14: Blue @ 0604 N: HP 233, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 15 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 4).
+  [Movement select] Blue: score 1549.414 = dealt 0.99 x1.00 + (HP 324.0 - received 0.84 x0.99 - PSR 0.00) / enemy future 1.19 x my future 5.70 [two-ply, 210 of 970 spots (grid search) x 648 replies (short list); modeled reply Red -> 0408 N Jump]
+  [Movement] Blue: 0604 N -> 0402 SW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 0.43), Walk 4 MP
+  [Movement] Red: 0807 SE -> 0805 N, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 15: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 15: Blue @ 0402 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 16 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 8).
+  [Movement select] Blue: score 1536.935 = dealt 6.92 x1.00 + (HP 324.0 - received 4.70 x0.99 - PSR 0.00) / enemy future 1.12 x my future 5.36 [two-ply, 132 of 655 spots (grid search) x 658 replies (short list); modeled reply Red -> 0805 SW Stand Still]
+  [Movement] Blue: 0402 SW -> 0407 SE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 5.65), Stand Still 0 MP
+  [Movement] Red: 0805 N -> 0805 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 5.83)
+    PPC: needs 7 (range mod +0), rolled 6 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; expected dmg 5.64)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 8 (range mod +0), rolled 5 -> miss
+    LRM 10: needs 11 (range mod +3), rolled 8 -> miss [IS Ammo LRM-10: 9 shots left]
+  [Heat] Red: 0 + movement 0 + weapons 14 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 16: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 16: Blue @ 0407 SE: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 17 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 8, Blue 5).
+  [Movement select] Blue: score 1544.210 = dealt 0.60 x1.00 + (HP 324.0 - received 1.85 x0.99 - PSR 0.00) / enemy future 1.06 x my future 5.06 [two-ply, 178 of 1008 spots (grid search) x 658 replies (short list); modeled reply Red -> 0805 NW Stand Still]
+  [Movement] Blue: 0407 SE -> 0303 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 3.30), Stand Still 0 MP
+  [Movement] Red: 0805 N -> 0805 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 5, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 8 = max 4 + sink 12 - current 3 - movement 5 - other 0; expected dmg 0.53)
+    LRM 10: needs 11 (range mod +2), rolled 5 -> miss [IS Ammo LRM-10: 10 shots left]
+  [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 3 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 14 = max 4 + sink 12 - current 2 - movement 0 - other 0; expected dmg 3.27)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 10 (range mod +0), rolled 10 -> HIT
+    LRM 10: needs 12 (range mod +2), rolled 9 -> miss [IS Ammo LRM-10: 8 shots left]
+  [Resolve] Red -> Blue: PPC
+    PPC hit for 10:
+      Hit location roll 6 (right table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Heat] Red: 2 + movement 0 + weapons 14 + engine 0 - sinks 12 -> 4
+  [Heat] Blue: 3 + movement 5 + weapons 4 + engine 0 - sinks 12 -> 0
+  -- end of turn 17: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 17: Blue @ 0303 NE: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 18 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 3).
+  [Movement select] Blue: score 995.384 = dealt 4.94 x1.00 + (HP 314.0 - received 2.89 x1.03 - PSR 0.00) / enemy future 1.51 x my future 4.80 [two-ply, 170 of 709 spots (grid search) x 658 replies (short list); modeled reply Red -> 0809 N Walk]
+  [Movement] Blue: 0303 NE -> 0505 SE, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 3.66), Stand Still 0 MP
+  [Movement] Red: 0805 N -> 0805 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; expected dmg 4.17)
+    PPC: needs 8 (range mod +1), rolled 4 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 4 - movement 0 - other 0; expected dmg 3.64)
+    PPC: needs 9 (range mod +1), rolled 9 -> HIT
+  [Resolve] Red -> Blue: PPC
+    PPC hit for 10:
+      Hit location roll 7 (front table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining).
+  [Heat] Red: 4 + movement 0 + weapons 10 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 0 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 1
+  -- end of turn 18: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 18: Blue @ 0505 SE: HP 213, pilot hits 0, engine 0, gyro 0, heat 1
+
+=== TURN 19 ===
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 6).
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 2.38), Stand Still 0 MP
+  [Movement] Red: 0805 N -> 0805 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 708.353 = dealt 10.29 x1.23 + (HP 304.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.99 x my future 4.56 [enemy held at 0805; 278 spots with LOS]
+  [Movement] Blue: 0505 SE -> 0709 NW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 1 - movement 2 - other 0; expected dmg 7.22)
+    PPC: needs 6 (range mod +0), rolled 5 -> miss
+  [Heat] Red: 2 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 1 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 1
+  -- end of turn 19: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 19: Blue @ 0709 NW: HP 213, pilot hits 0, engine 0, gyro 0, heat 1
+
+=== TURN 20 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 6, Blue 6; tie re-rolled Red 6, Blue 4).
+  [Movement select] Blue: score 679.506 = dealt 4.94 x1.00 + (HP 304.0 - received 2.52 x0.95 - PSR 0.00) / enemy future 1.94 x my future 4.34 [two-ply, 204 of 1137 spots (grid search) x 658 replies (short list); modeled reply Red -> 0807 S Walk]
+  [Movement] Blue: 0709 NW -> 0813 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 0 steps toward Blue (value 1.82), Stand Still 0 MP
+  [Movement] Red: 0805 N -> 0805 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 1 - movement 5 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +2), rolled 2 -> miss
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; expected dmg 1.82)
+    PPC: needs 11 (range mod +2), rolled 7 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 1 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 20: Red @ 0805 N: HP 181, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 20: Blue @ 0813 NE: HP 213, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 21 ===
+  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 8).
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 1.97), Walk 4 MP
+  [Movement] Red: 0805 N -> 0906 S, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 683.560 = dealt 18.31 x1.00 + (HP 304.0 - received 6.55 x1.00 - PSR 0.00) / enemy future 1.85 x my future 4.14 [enemy held at 0906; 131 spots with LOS]
+  [Movement] Blue: 0813 NE -> 0907 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 1.82)
+    PPC: needs 11 (range mod +3), rolled 2 -> miss
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 4 - movement 2 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +3), rolled 10 -> HIT
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 6 (front table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining).
+  [Physical] Red -> Blue: punch (Left Arm) needs 8 (piloting 5 + base 4 + attack -1), rolled 7 -> miss (6 dmg, front side)
+  [Physical] Blue -> Red: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 5 -> miss (11 dmg, front side)
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 21: Red @ 0906 S: HP 171, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 21: Blue @ 0907 N: HP 213, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 22 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 3).
+  [Movement select] Blue: score 738.188 = dealt 9.57 x1.00 + (HP 304.0 - received 7.17 x1.00 - PSR 0.00) / enemy future 1.77 x my future 4.35 [two-ply, 217 of 967 spots (grid search) x 645 replies (short list); modeled reply Red -> 0705 SE Walk]
+  [Movement] Blue: 0907 N -> 1109 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Movement select] Red: BTTT: 4 steps toward Blue (value 6.61), Walk 4 MP
+  [Movement] Red: 0906 S -> 0909 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 4 - movement 1 - other 0; expected dmg 4.17)
+    PPC: needs 8 (range mod +2), rolled 9 -> HIT
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 4.18)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +2), rolled 6 -> miss
+    LRM 10: needs 12 (range mod +5), rolled 9 -> miss [IS Ammo LRM-10: 7 shots left]
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 5 (front table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (18 -> 8 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 14 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 4 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 22: Red @ 0909 SE: HP 161, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 22: Blue @ 1109 NW: HP 213, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 23 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 10).
+  [Movement select] Blue: score 854.919 = dealt 9.73 x1.00 + (HP 304.0 - received 6.72 x0.95 - PSR 0.00) / enemy future 1.66 x my future 4.71 [two-ply, 183 of 1159 spots (grid search) x 666 replies (short list); modeled reply Red -> 0909 NW Stand Still]
+  [Movement] Blue: 1109 NW -> 0405 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 3 steps toward Blue (value 7.04), Walk 3 MP
+  [Movement] Red: 0909 SE -> 0908 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; expected dmg 7.22)
+    PPC: needs 6 (range mod +0), rolled 4 -> miss
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 4.55)
+    PPC: needs 8 (range mod +0), rolled 6 -> miss
+  [Heat] Red: 3 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 3 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 23: Red @ 0908 N: HP 161, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 23: Blue @ 0405 SW: HP 213, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 24 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
+  [Movement select] Blue: score 860.368 = dealt 2.25 x1.00 + (HP 304.0 - received 1.92 x0.95 - PSR 0.00) / enemy future 1.59 x my future 4.52 [two-ply, 246 of 899 spots (grid search) x 641 replies (short list); modeled reply Red -> 0906 NW Walk]
+  [Movement] Blue: 0405 SW -> 0303 SW, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: BTTT: 2 steps toward Blue (value 6.15), Walk 2 MP
+  [Movement] Red: 0908 N -> 0906 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 3 - movement 3 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +0), rolled 12 -> HIT
+  [Ranged] Red -> Blue: range 6, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 13 = max 4 + sink 12 - current 2 - movement 1 - other 0; expected dmg 3.82)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 10 (range mod +0), rolled 8 -> miss
+    LRM 10: needs 11 (range mod +1), rolled 7 -> miss [IS Ammo LRM-10: 6 shots left]
+  [Resolve] Blue -> Red: PPC
+    PPC hit for 10:
+      Hit location roll 9 (left table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (13 -> 3/13 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Jump Jet (slot 1)
+    2: Jump Jet (slot 2)
+    3: LRM 10 (slot 3)
+    4: LRM 10 (slot 4)
+    5: IS Ammo LRM-10 (slot 5)
+    6: IS Ammo LRM-10 (slot 6)
+    Slot roll: 1 on 1D6 (one die over the 6 slots that can take the hit; p.94).
+    1/2 Criticals: Jump Jet slot hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'Jump Jet', 'LRM 10', 'LRM 10', 'IS Ammo LRM-10', 'IS Ammo LRM-10', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Jump jet destroyed (Jump Jet) - jump MP reduced (now 3).
+  Critical hit pool at Right Torso:
+    1: Jump Jet (slot 2)
+    2: LRM 10 (slot 3)
+    3: LRM 10 (slot 4)
+    4: IS Ammo LRM-10 (slot 5)
+    5: IS Ammo LRM-10 (slot 6)
+    Slot roll: 5 on 1D5 (one die over the 5 slots that can take the hit; p.94).
+    2/2 Criticals: IS Ammo LRM-10 slot hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'Jump Jet', 'LRM 10', 'LRM 10', 'IS Ammo LRM-10', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    IS Ammo LRM-10 destroyed at Right Torso - EXPLOSION (120 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
+    3 structure damage taken (0/13 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+    1/1 Criticals: IS Ammo LRM-10 slot hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'Jump Jet', 'LRM 10', 'LRM 10', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    IS Ammo LRM-10 destroyed at Right Torso - EXPLOSION (60 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
+    0 structure damage taken (0/13 remaining).
+    Right Torso DESTROYED! (explosion)
+    Jump jet destroyed (Jump Jet) from Right Torso destruction - jump MP reduced (now 2).
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+    20 explosion damage remains, transfers to Center Torso.
+    Explosion reaches Center Torso. No CASE present - 20 damage to structure.
+    18 structure damage taken (0/18 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+    Center Torso DESTROYED! (explosion)
+    Engine hit (1/3) from Center Torso destruction.
+    Engine hit (2/3) from Center Torso destruction.
+    Engine hit (3/3) from Center Torso destruction.
+    Gyro hit (1/2) from Center Torso destruction.
+    Gyro hit (2/2) from Center Torso destruction.
+    Gyro hit (3/2) from Center Torso destruction.
+    Gyro hit (4/2) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Engine hit (5/3) from Center Torso destruction.
+    Engine hit (6/3) from Center Torso destruction.
+    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 11).
+    Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 1).
+  All critical slots in Center Torso marked DESTROYED.
+    Right Torso DESTROYED! (explosion)
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  [Heat] Blue: 3 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 24: Red @ 0906 N: HP 121, pilot hits 2, engine 6, gyro 4, heat 2 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 24: Blue @ 0303 SW: HP 213, pilot hits 0, engine 0, gyro 0, heat 4
+
+>>> Battle over on turn 24: Red destroyed. <<<

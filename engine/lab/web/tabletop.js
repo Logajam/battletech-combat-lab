@@ -44,7 +44,7 @@
   function create(host, opts) {
     opts = opts || {};
     const ST = Object.assign({}, DEFAULTS, opts.settings || {});
-    const V = { host, w: 1, h: 1, baseH: R * 0.22, cam: Object.assign({ tx: 0, tz: 0, yaw: 0, dist: 1000 }, PRESETS.seat), pending: false, ghostKey: "", disposed: false, occupied: null, focus: null };
+    const V = { host, w: 1, h: 1, ins: { l: 0, r: 0, t: 0, b: 0 }, baseH: R * 0.22, cam: Object.assign({ tx: 0, tz: 0, yaw: 0, dist: 1000 }, PRESETS.seat), pending: false, ghostKey: "", disposed: false, occupied: null, focus: null };
     V.canvas = document.createElement("canvas"); V.canvas.className = "tabletop-gl"; V.canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"; host.appendChild(V.canvas);
     V.renderer = new THREE.WebGLRenderer({ canvas: V.canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     V.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); V.renderer.setClearColor(0x000000, 0);
@@ -56,10 +56,14 @@
     V.P = (x, y, z, out) => { const o = out || {}; tmpW.set(x, y, z); o.ok = tmpW.clone().applyMatrix4(V.camera.matrixWorldInverse).z < -V.camera.near; tmpV.set(x, y, z).project(V.camera); o.x = (tmpV.x * 0.5 + 0.5) * V.w; o.y = (1 - (tmpV.y * 0.5 + 0.5)) * V.h; o.d = V.camera.position.distanceTo(tmpW); return o; };
     // the point of the ground plane under a host pixel
     V.groundAt = (px, py) => { V.ray.setFromCamera({ x: (px / V.w) * 2 - 1, y: -(py / V.h) * 2 + 1 }, V.camera); const o = new THREE.Vector3(); return V.ray.ray.intersectPlane(V.plane, o) ? o : null; };
-    V.applyCam = () => { const c = V.cam, sig = c.tx + "," + c.tz + "," + c.yaw + "," + c.tilt + "," + c.dist + "," + c.persp + "," + V.w + "," + V.h + "," + (V.M ? V.M.BW + "x" + V.M.BH : ""); if (sig === V.camSig) return; V.camSig = sig;
+    V.applyCam = () => { const c = V.cam, sig = c.tx + "," + c.tz + "," + c.yaw + "," + c.tilt + "," + c.dist + "," + c.persp + "," + V.w + "," + V.h + "," + (V.M ? V.M.BW + "x" + V.M.BH : "") + "," + V.ins.l + "," + V.ins.r + "," + V.ins.t + "," + V.ins.b; if (sig === V.camSig) return; V.camSig = sig;
       const th = c.tilt * D2R, ps = c.yaw * D2R, cam = V.camera; cam.fov = fovOf(c.persp);
       cam.position.set(c.tx + Math.sin(th) * Math.sin(ps) * c.dist, Math.cos(th) * c.dist, c.tz + Math.sin(th) * Math.cos(ps) * c.dist);
-      cam.up.set(-Math.sin(ps), 0, -Math.cos(ps)); cam.lookAt(c.tx, 0, c.tz); cam.near = Math.max(1, c.dist * 0.04); cam.far = c.dist * 10 + (V.M ? Math.max(V.M.BW, V.M.BH) * 2 : 0); cam.aspect = V.w / V.h; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); };
+      cam.up.set(-Math.sin(ps), 0, -Math.cos(ps)); cam.lookAt(c.tx, 0, c.tz); cam.near = Math.max(1, c.dist * 0.04); cam.far = c.dist * 10 + (V.M ? Math.max(V.M.BW, V.M.BH) * 2 : 0); cam.aspect = V.w / V.h;
+      // OVERLAY LAYOUT (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Section 14, A4): the panels cover the screen's sides (or top and bottom); the image
+      // centre is moved to the middle of the clear area between them, so the camera's target sits there and taps still line up
+      { const I = V.ins, dx = (I.l - I.r) / 2, dy = (I.t - I.b) / 2; if (dx || dy) cam.setViewOffset(V.w, V.h, -dx, -dy, V.w, V.h); else cam.clearViewOffset(); }
+      cam.updateProjectionMatrix(); cam.updateMatrixWorld(); };
     V.fxTick = (tm) => { for (const f of V.fx || []) f(tm); };
     // lava, magma cracks and hazardous liquid move slowly: a light loop at 30 frames a second, only while there is something to move
     V.startAnim = () => { if (V.animOn || V.disposed) return; V.animOn = true; let last = 0; const loop = (now) => { if (V.disposed || !ST.fx || !(V.fx && V.fx.length)) { V.animOn = false; return; } if (now - last > 33 && !V.gesture && !V.pending && !document.hidden) { last = now; V.fxTick(now / 1000); V.renderer.render(V.scene, V.camera); } requestAnimationFrame(loop); }; requestAnimationFrame(loop); };
@@ -67,10 +71,10 @@
     const clampT = () => { const c = V.cam; if (!V.M) return; c.tx = Math.max(-R, Math.min(V.M.BW + R, c.tx)); c.tz = Math.max(-R, Math.min(V.M.BH + R, c.tz)); c.tilt = Math.max(0, Math.min(70, c.tilt)); c.dist = Math.max(R * 5, Math.min(Math.max(V.M.BW, V.M.BH) * 4, c.dist)); };
 
     // ---- fit the camera to a rectangle of the board (world units), leaving room for the info bar and the action cluster
-  V.fitRegion = (x0, z0, x1, z1) => { const c = V.cam, padT = Math.min(44, V.h * 0.1), padB = Math.min(70, V.h * 0.2), top = V.maxTop + R * 2.2, pts = [];
+  V.fitRegion = (x0, z0, x1, z1) => { const c = V.cam, I = V.ins, padT = I.t + Math.min(40, V.h * 0.08), padB = I.b + Math.min(40, V.h * 0.08), top = V.maxTop + R * 2.2, pts = [];
     for (const x of [x0, x1]) for (const z of [z0, z1]) for (const y of [V.bot, top]) pts.push([x, y, z]);
     c.tx = (x0 + x1) / 2; c.tz = (z0 + z1) / 2; let d = 200; const o = {};
-    const fits = () => { V.cam.dist = d; V.applyCam(); return pts.every((p) => { V.P(p[0], p[1], p[2], o); return o.ok && o.x > 6 && o.x < V.w - 6 && o.y > padT && o.y < V.h - padB; }); };
+    const fits = () => { V.cam.dist = d; V.applyCam(); return pts.every((p) => { V.P(p[0], p[1], p[2], o); return o.ok && o.x > I.l + 6 && o.x < V.w - I.r - 6 && o.y > padT && o.y < V.h - padB; }); };
     while (!fits() && d < 1e7) d *= 1.1; V.dist0 = d; };
 
     V.fitAll = () => V.fitRegion(-R, -R, V.M.BW + R, V.M.BH + R);
@@ -146,7 +150,7 @@
     if (hazM) V.fx.push((tm) => { hazM.material.opacity = 0.55 + 0.12 * Math.sin(tm * 1.3); });
     // hex grid lines on the tile tops
     const lp = [], lpw = []; for (const h of list) for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i, b = Math.PI / 3 * (i + 1); const yy = (h.water ? h.surf : h.top) + 0.3 - (!h.water && (h.mask >> i) & 1 ? D0 : 0); (h.water ? lpw : lp).push(h.x + R * Math.cos(a), yy, h.z + R * Math.sin(a), h.x + R * Math.cos(b), yy, h.z + R * Math.sin(b)); }
-    const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(lp, 3)); const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial(holo ? { color: 0xa8cfdc, transparent: true, opacity: 0.34, blending: THREE.AdditiveBlending, depthWrite: false } : { color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false })); lines.frustumCulled = false; lines.renderOrder = 2; g.add(lines); lineMesh(lpw, 0xcfe6ff, 0.07, false);
+    const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(lp, 3)); const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial(holo ? { color: 0xa8cfdc, transparent: true, opacity: 0.34, blending: THREE.AdditiveBlending, depthWrite: false } : { color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false })); lines.frustumCulled = false; lines.renderOrder = 2; g.add(lines); V.gridMat = lines.material; V.gridOp0 = lines.material.opacity; lineMesh(lpw, 0xcfe6ff, 0.07, false);
     // standing props, instanced; each knows its hex so a tile that fades to glass takes them with it
     V.propSets = []; const addProps = (geo, mat, items) => { if (!items.length) return; const mesh = new THREE.InstancedMesh(geo, mat, items.length); mesh.frustumCulled = false; g.add(mesh); V.propSets.push({ mesh, items }); return mesh; };
     const occ = (V.occupied || new Set()), HZt = Math.max(R * 0.12, HZh), Cc = (x) => new THREE.Color(x);
@@ -240,12 +244,28 @@
       for (const u of V.unitList) { const h = V.M.hexes.get(u.hex); if (!h) continue;
         const r = R * (0.5 + 0.36 * Math.max(0, Math.min(1, ((u.tons || 50) - 20) / 80))), col = new THREE.Color(u.colour || "#888");
         const geo = new THREE.CylinderGeometry(r, r, V.baseH, 6, 1); geo.rotateY(Math.PI / 2);   // flat-top like the tiles
-        const base = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: col })); base.position.set(h.x, h.top + V.baseH / 2, h.z); g.add(base);
+        const base = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: col })); base.position.set(h.x, h.top + V.baseH / 2, h.z); g.add(base); frontFace(g, h, u, r, V.baseH);
         const key = spriteFor(u.mech) || "_generic", w = r * 2.1, pg = new THREE.PlaneGeometry(w, w * 72 / 84); pg.rotateX(-Math.PI / 2);
         const pic = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({ map: texOf(key), transparent: true, opacity: u.prone ? 0.55 : 1, depthWrite: false }));
         pic.position.set(h.x, h.top + V.baseH + 0.6, h.z); pic.rotation.y = -(FACE[u.facing] || 0) * D2R; pic.renderOrder = 4; g.add(pic);
         if (u.sel) { const rg = new THREE.Mesh(new THREE.RingGeometry(r * 1.02, r * 1.12, 6), new THREE.MeshBasicMaterial({ color: 0xffffff })); rg.geometry.rotateZ(Math.PI / 6); rg.rotation.x = -Math.PI / 2; rg.position.set(h.x, h.top + V.baseH + 0.4, h.z); g.add(rg); } } };
-    V.render = () => { V.applyCam(); if (V.M && V.unitList && !V.units) V.buildUnits(); const gk = V.computeGhost(); V.applyGhost(gk); V.renderer.render(V.scene, V.camera); V.lastInfo = V.renderer.info.render; if (tt.onRender) tt.onRender(); };
+    // THE BASE'S FRONT (Daniel, 2026-11-26: "texture the facings of the hex bases to say this side front"; Section 14, L3): a light panel with a
+    // chevron on the side the unit faces, and a white notch on the top edge pointing out
+    let frontTex = null;
+    const frontFace = (group, h, u, r, bh) => {
+      if (!frontTex) { const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d"); x.fillStyle = "#f4f6f8"; x.fillRect(0, 0, 64, 32);
+        x.fillStyle = "#0c0f13"; x.beginPath(); x.moveTo(32, 5); x.lineTo(47, 27); x.lineTo(39, 27); x.lineTo(32, 17); x.lineTo(25, 27); x.lineTo(17, 27); x.closePath(); x.fill(); frontTex = new THREE.CanvasTexture(c); spriteTex._front = frontTex; }
+      const an = (FACE[u.facing] || 0) * D2R, d = [Math.sin(an), -Math.cos(an)], a = r * Math.cos(Math.PI / 6) + 0.5;
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(r * 0.96, bh * 0.92), new THREE.MeshBasicMaterial({ map: frontTex, side: THREE.DoubleSide }));
+      pl.position.set(h.x + d[0] * a, h.top + bh / 2, h.z + d[1] * a); pl.rotation.y = Math.atan2(d[0], d[1]); pl.renderOrder = 4; group.add(pl);
+      const n = [-d[1], d[0]], y = h.top + bh + 0.7, tip = [h.x + d[0] * r * 0.98, h.z + d[1] * r * 0.98], b0 = [h.x + d[0] * r * 0.62, h.z + d[1] * r * 0.62], w = r * 0.2;
+      const tri = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+      tri.geometry.setAttribute("position", new THREE.Float32BufferAttribute([tip[0], y, tip[1], b0[0] + n[0] * w, y, b0[1] + n[1] * w, b0[0] - n[0] * w, y, b0[1] - n[1] * w], 3)); tri.renderOrder = 6; group.add(tri);
+    };
+    // THE GRID FADES as the map zooms out, so the lines do not take over (Daniel, 2026-11-26; Section 14, L4)
+    const gridFade = () => { if (!V.gridMat) return; const o1 = {}, o2 = {}; V.P(V.cam.tx, 0, V.cam.tz, o1); V.P(V.cam.tx + R, 0, V.cam.tz, o2); const rpx = Math.hypot(o2.x - o1.x, o2.y - o1.y);
+      V.gridMat.opacity = V.gridOp0 * Math.max(0.12, Math.min(1, (rpx - 6) / 26)); };
+    V.render = () => { V.applyCam(); gridFade(); if (V.M && V.unitList && !V.units) V.buildUnits(); const gk = V.computeGhost(); V.applyGhost(gk); V.renderer.render(V.scene, V.camera); V.lastInfo = V.renderer.info.render; if (tt.onRender) tt.onRender(); };
 
     // ---- the public calls (the map view, mapview.js, forwards to these). Client coordinates in, host pixels inside.
     const local = (x, y) => { const r = host.getBoundingClientRect(); return { x: x - r.left, y: y - r.top }; };
@@ -262,6 +282,10 @@
       // points the cut-away keeps visible: tiles in front of them fade to glass (step 3 fills this)
       setFocus(list) { V.focus = (list || []).map((f) => { const h = V.M.hexes.get(f.label); return h ? { x: h.x, y: h.top + (f.up || 0), z: h.z, hex: f.label } : null; }).filter(Boolean); V.request(); },
       fit() { if (!V.M) return; V.size(); V.fitAll(); V.request(); },
+      // the panels' cover of the host (pixels from each edge): the camera frames what is left (Section 14, A4)
+      setInsets(ins) { const I = V.ins, n = { l: Math.round(ins.l || 0), r: Math.round(ins.r || 0), t: Math.round(ins.t || 0), b: Math.round(ins.b || 0) }; if (n.l === I.l && n.r === I.r && n.t === I.t && n.b === I.b) return false; V.ins = n; V.request(); return true; },
+      // bring a hex to the middle of the clear area, keeping the zoom (a weapon turned on: Section 14, I3)
+      centreOn(label) { const h = V.M && V.M.hexes.get(label); if (!h) return; V.cam.tx = h.x; V.cam.tz = h.z; clampT(); V.request(); },
       // fit the hexes (labels) with a margin of marginHexes, never closer than about twelve hexes across
       focusOn(labels, marginHexes) {
         if (!V.M || !labels.length) return tt.fit();
@@ -273,7 +297,7 @@
       preset(nameKey) { const p = PRESETS[nameKey]; if (!p) return; Object.assign(V.cam, p); clampT(); V.request(); },
       cycleTilt() { const a = [0, 34, 56], n = a.find((x) => x > V.cam.tilt + 3); V.cam.tilt = n === undefined ? a[0] : n; V.request(); },
       // zoom by f (below 1 zooms in) about a client point, keeping the ground under it
-      zoom(f, cx, cy) { V.applyCam(); const p = cx == null ? { x: V.w / 2, y: V.h / 2 } : local(cx, cy), g0 = V.groundAt(p.x, p.y); V.cam.dist *= f; clampT(); V.applyCam(); const g1 = V.groundAt(p.x, p.y); if (g0 && g1) { V.cam.tx += g0.x - g1.x; V.cam.tz += g0.z - g1.z; } clampT(); V.request(); },
+      zoom(f, cx, cy) { V.applyCam(); const p = cx == null ? { x: V.ins.l + (V.w - V.ins.l - V.ins.r) / 2, y: V.ins.t + (V.h - V.ins.t - V.ins.b) / 2 } : local(cx, cy), g0 = V.groundAt(p.x, p.y); V.cam.dist *= f; clampT(); V.applyCam(); const g1 = V.groundAt(p.x, p.y); if (g0 && g1) { V.cam.tx += g0.x - g1.x; V.cam.tz += g0.z - g1.z; } clampT(); V.request(); },
       // a finger (or the mouse) at client (x, y) has moved by (dx, dy): the ground follows it
       panBy(dx, dy, x, y) { V.applyCam(); const p = local(x, y), g0 = V.groundAt(p.x - dx, p.y - dy), g1 = V.groundAt(p.x, p.y); if (g0 && g1) { V.cam.tx += g0.x - g1.x; V.cam.tz += g0.z - g1.z; clampT(); } V.request(); },
       // right-drag: turn and tilt

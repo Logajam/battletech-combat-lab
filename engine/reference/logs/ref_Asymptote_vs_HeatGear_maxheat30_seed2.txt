@@ -13,7 +13,7 @@
   Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 3).
     Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 10 - works.
-  [Movement select] Blue: score 153.199 = dealt 8.97 x1.02 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 14.14 x my future 5.42 [two-ply, 173 of 935 spots (grid search) x 381 replies (short list); modeled reply Red -> 1410 SW Walk]
+  [Movement select] Blue: score 153.199 = dealt 8.97 x1.02 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 14.14 x my future 5.42 [two-ply, 173 of 935 spots (grid search) x 445 replies (short list); modeled reply Red -> 1410 SW Walk]
   [Movement] Blue: 0105 SE -> 0510 SE, Run (13 MP, 9 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1609 SW -> 1410 SW, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
@@ -34,7 +34,7 @@
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first (rolled Red 7, Blue 12).
-  [Movement select] Red: score 1077.781 = dealt 0.00 x1.00 + (HP 674.0 - received 1.01 x1.00 - PSR 0.00) / enemy future 8.83 x my future 14.14 [two-ply, 97 of 512 spots (grid search) x 896 replies (short list); modeled reply Blue -> 1310 S Run]
+  [Movement select] Red: score 1077.781 = dealt 0.00 x1.00 + (HP 674.0 - received 1.01 x1.00 - PSR 0.00) / enemy future 8.83 x my future 14.14 [two-ply, 105 of 605 spots (grid search) x 896 replies (short list); modeled reply Blue -> 1310 S Run]
   [Movement] Red: 1410 SW -> 1515 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 235.793 = dealt 1.01 x1.00 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 14.14 x my future 8.83 [enemy held at 1515; 22 spots with LOS]
   [Movement] Blue: 0510 SE -> 1310 NE, Run (9 MP, 8 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
@@ -58,7 +58,7 @@
   Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 5).
     Blue: MASC (turn 1 in a row) needs 3, rolled 8 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 10 - works.
-  [Movement select] Blue: score 240.403 = dealt 5.62 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 14.14 x my future 8.83 [two-ply, 214 of 1189 spots (grid search) x 376 replies (short list); modeled reply Red -> 1513 N Walk]
+  [Movement select] Blue: score 240.403 = dealt 5.62 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 14.14 x my future 8.83 [two-ply, 214 of 1189 spots (grid search) x 458 replies (short list); modeled reply Red -> 1513 N Walk]
   [Movement] Blue: 1310 NE -> 1305 S, Run (13 MP, 9 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1515 N -> 1513 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
@@ -84,9 +84,9 @@
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 9, Blue 6).
-  [Movement select] Blue: score 287.477 = dealt 8.97 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.61 x my future 7.86 [two-ply, 171 of 559 spots (grid search) x 437 replies (short list); modeled reply Red -> 1511 N Walk]
+  [Movement select] Blue: score 287.477 = dealt 8.97 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.61 x my future 7.86 [two-ply, 171 of 559 spots (grid search) x 510 replies (short list); modeled reply Red -> 1511 N Walk]
   [Movement] Blue: 1305 S -> 1104 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Movement select] Red: score 903.194 = dealt 0.00 x1.00 + (HP 669.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 7.86 x my future 10.61 [enemy held at 1104; 50 spots with LOS]
+  [Movement select] Red: score 903.194 = dealt 0.00 x1.00 + (HP 669.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 7.86 x my future 10.61 [enemy held at 1104; 58 spots with LOS]
   [Movement] Red: 1513 N -> 1616 NE, Jump (5 MP, 4 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 15, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 1); firing ['ISPPC'] (weapon heat 10 of budget 26 = max 30 + sink 14 - current 11 - movement 1 - other 6; expected dmg 0.00)
     ISPPC: needs 14 (range mod +4), rolled 6 -> miss
@@ -100,7 +100,7 @@
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first (rolled Red 4, Blue 9).
-  [Movement select] Red: score 1336.523 = dealt 0.83 x1.00 + (HP 669.0 - received 3.00 x1.00 - PSR 0.00) / enemy future 4.23 x my future 8.49 [two-ply, 66 of 248 spots (grid search) x 1134 replies (short list); modeled reply Blue -> 0913 SE Run]
+  [Movement select] Red: score 1336.523 = dealt 0.83 x1.00 + (HP 669.0 - received 3.00 x1.00 - PSR 0.00) / enemy future 4.23 x my future 8.49 [two-ply, 73 of 301 spots (grid search) x 1134 replies (short list); modeled reply Blue -> 0913 SE Run]
   [Movement] Red: 1616 NE -> 1115 NW, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
     Blue: MASC (turn 1 in a row) needs 3, rolled 12 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 3 - works.
@@ -136,9 +136,9 @@
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 5).
-  [Movement select] Blue: score 278.571 = dealt 0.84 x1.00 + (HP 376.0 - received 8.33 x1.01 - PSR 0.00) / enemy future 7.07 x my future 5.34 [two-ply, 62 of 310 spots (grid search) x 530 replies (short list); modeled reply Red -> 0613 N Jump]
+  [Movement select] Blue: score 278.571 = dealt 0.84 x1.00 + (HP 376.0 - received 8.33 x1.01 - PSR 0.00) / enemy future 7.07 x my future 5.34 [two-ply, 62 of 310 spots (grid search) x 609 replies (short list); modeled reply Red -> 0613 N Jump]
   [Movement] Blue: 0711 SE -> 0510 SE, Walk (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 888.736 = dealt 8.33 x1.01 + (HP 666.0 - received 0.84 x1.00 - PSR 0.00) / enemy future 5.34 x my future 7.07 [enemy held at 0510; 91 spots with LOS]
+  [Movement select] Red: score 888.736 = dealt 8.33 x1.01 + (HP 666.0 - received 0.84 x1.00 - PSR 0.00) / enemy future 5.34 x my future 7.07 [enemy held at 0510; 95 spots with LOS]
   [Movement] Red: 1115 NW -> 0613 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 4, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 3); firing ['ISSRM6', 'ISPPC'] (weapon heat 14 +1 damaged radical of budget 16 = max 30 + sink 14 - current 19 - movement 2 - other 7; expected dmg 0.83)
   [Ranged] Blue fires in order: ['ISPPC', 'ISSRM6'].
@@ -195,7 +195,7 @@ Heat Phase (inferno explosion) consciousness check (pilot, 1 pilot hits): needs 
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 4, Blue 10).
-  [Movement select] Red: score 15506.620 = dealt 63.21 x1.82 + (HP 666.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.14 x my future 26.41 [two-ply, 117 of 611 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0510 SE Stand Still]
+  [Movement select] Red: score 15506.620 = dealt 63.21 x1.82 + (HP 666.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.14 x my future 26.41 [two-ply, 125 of 705 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0510 SE Stand Still]
   [Movement] Red: 0613 N -> 0409 SW, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement] Blue: shut down - skips movement (immobile).
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).

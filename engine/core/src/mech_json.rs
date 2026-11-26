@@ -156,6 +156,7 @@ impl Mech {
         put!("base_mechanical_jump_booster_mp", json!(self.base_mechanical_jump_booster_mp));
         put!("mechanical_jump_booster_disabled", json!(self.mechanical_jump_booster_disabled));
         put!("partial_wing_active", json!(self.partial_wing_active));
+        // `jump_boosters_on` is a per-move choice, reset every turn: not part of the saved state (the frozen fixtures have no such key)
         put!("pilot_hits", json!(self.pilot_hits));
         put!(
             "crew",
@@ -533,6 +534,7 @@ impl Mech {
         m.base_mechanical_jump_booster_mp = v["base_mechanical_jump_booster_mp"].as_i64().unwrap();
         m.mechanical_jump_booster_disabled = v["mechanical_jump_booster_disabled"].as_bool().unwrap();
         m.partial_wing_active = v["partial_wing_active"].as_bool().unwrap();
+        m.jump_boosters_on = v.get("jump_boosters_on").and_then(|x| x.as_bool()).unwrap_or(false);
         m.pilot_hits = v["pilot_hits"].as_i64().unwrap();
         m.crew = v["crew"]
             .as_object()

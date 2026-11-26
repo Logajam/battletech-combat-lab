@@ -1,0 +1,615 @@
+# scenario cov_arrow_tag, BTTT drives Red,Blue
+# seed 1: winner Red, 9 turns
+#   Red: 322.0 of 406.0 armor + structure left, team destroyed False, units 2, 17 hits of 27 attacks, 76.0 damage dealt
+#   Blue: 116.0 of 296.0 armor + structure left, team destroyed True, units 1, 9 hits of 14 attacks, 57.0 damage dealt
+# log
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
+  [Movement select] Blue: BTTT: 6 steps toward Red 2 (value 7.11), Run 6 MP
+  [Movement] Blue: 0510 N -> 0605 NE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 2: BTTT: 6 steps toward Blue (value 13.48), Walk 6 MP
+  [Movement] Red 2: 0705 S -> 0506 N, Walk (6 MP, 3 hexes, 1 heat; budget walk 6 / run 9 / jump 0)
+  [Movement select] Red 1: BTTT: 1 steps toward Blue (value 4.04), Walk 1 MP
+  [Movement] Red 1: 0505 S -> 0505 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 7 / run 11 / jump 0)
+  [TAG] Blue can't designate Red 1 (no LOS, range or arc).
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 7.2).
+  [Ranged] Blue twists its torso 1 hexside right (Red 2 is in its torso's right side arc after that).
+  [Ranged] Blue -> Red 2: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Heavy PPC'] (weapon heat 15 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 4.09)
+    Heavy PPC: needs 10 (range mod +3), rolled 7 -> miss
+  [Ranged] Red 2 -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.64)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 9 -> HIT
+    ISUltraAC5 x2: needs 9 (range mod +2), rolled 7 -> miss [ISUltraAC5 Ammo: 18 shots left]
+    ISFlamer: needs 7 (range mod +0), rolled 3 -> miss
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 10 (rear table): Left Arm.
+6 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (15 -> 9 remaining).
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 10 -> HIT (5 dmg, left side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 6 -> miss (5 dmg, left side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 3 -> miss (8 dmg, rear side)
+    punch (Left Arm) hits Blue's Left Torso for 5.
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (22 -> 17 remaining).
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 1 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 1 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 15 + engine 0 - sinks 20 -> 0
+  -- end of turn 1: Red 1 @ 0505 SE: HP 219, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 1: Red 2 @ 0506 N: HP 187, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 1: Blue @ 0605 NE: HP 285, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 2 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 6).
+  [Movement select] Blue: BTTT: 5 steps toward Red 1 (value 2.99), Run 6 MP
+  [Movement] Blue: 0605 NE -> 0504 SW, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 2: BTTT: 5 steps toward Blue (value 17.58), Walk 6 MP
+  [Movement] Red 2: 0506 N -> 0603 N, Walk (6 MP, 3 hexes, 1 heat; budget walk 6 / run 9 / jump 0)
+  [Movement select] Red 1: BTTT: 1 steps toward Blue (value 4.02), Walk 1 MP
+  [Movement] Red 1: 0505 SE -> 0505 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 7 / run 11 / jump 0)
+  [TAG] Blue's ISTAG -> Red 1: needs 8 (range 1; gunnery 4 + AMM 2 [Run] + LOS 2 + heat 0 + TMM 0 + range 0), rolled 9 -> DESIGNATED for this turn (p.200)
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 7.3).
+  [Ranged] Blue -> Red 1: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISAntiMissileSystem', 'Heavy PPC'] (weapon heat 16 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 3.64)
+  [Ranged] Blue fires in order: ['Heavy PPC', 'ISAntiMissileSystem'].
+    Heavy PPC: needs 11 (range mod +3), rolled 9 -> miss
+    ISAntiMissileSystem: needs 8 (range mod +0), rolled 9 -> HIT [ISAMS Ammo: 11 shots left]
+  [Ranged] Red 2 twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 10 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 4 -> miss [ISUltraAC5 Ammo: 16 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red 1: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 10 (left table): Right Arm.
+2 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (12 -> 10 remaining).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 6 (rear table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (rear_armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (7 -> 1 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 7 (rear table): Center Torso.
+2 damage (ENERGY) incoming to Center Torso (rear_armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at rear_armor (10 -> 8 remaining).
+  [Physical] Blue -> Red 1: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 11 -> HIT (13 dmg, left side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 10 -> HIT (5 dmg, left side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 10 -> HIT (5 dmg, left side)
+    kick (Left Leg) hits Red 1's Left Leg for 13.
+13 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 13 armor pts destroyed at armor (19 -> 6 remaining).
+    punch (Left Arm) hits Blue's Center Torso for 5.
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (31 -> 26 remaining).
+    punch (Right Arm) hits Blue's Left Torso for 5.
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (17 -> 12 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 1 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 1 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 16 + engine 0 + outside 2 - sinks 20 -> 0
+  -- end of turn 2: Red 1 @ 0505 NE: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Red 2 @ 0603 N: HP 187, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0504 SW: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 3 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 3).
+  [Movement select] Blue: BTTT: 4 steps toward Red 2 (value 5.62), Run 6 MP
+  [Movement] Blue: 0504 SW -> 0503 NE, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 1: BTTT: 6 steps toward Blue (value 4.22), Run 8 MP
+  [Movement] Red 1: 0505 NE -> 0403 N, Run (8 MP, 3 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Red 2: BTTT: 6 steps toward Blue (value 13.48), Walk 6 MP
+  [Movement] Red 2: 0603 N -> 0402 S, Walk (6 MP, 3 hexes, 1 heat; budget walk 6 / run 9 / jump 0)
+  [TAG] Blue can't designate Red 1 (no LOS, range or arc).
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 7.2).
+  [Ranged] Blue twists its torso 1 hexside left (Red 2 is in its torso's forward arc after that).
+  [Ranged] Blue -> Red 2: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISAntiMissileSystem', 'Heavy PPC'] (weapon heat 16 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 5.18)
+  [Ranged] Blue fires in order: ['Heavy PPC', 'ISAntiMissileSystem'].
+    Heavy PPC: needs 10 (range mod +3), rolled 7 -> miss
+    ISAntiMissileSystem: needs 7 (range mod +0), rolled 5 -> miss [ISAMS Ammo: 10 shots left]
+  [Ranged] Red 2 -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.64)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 6 -> HIT
+    ISUltraAC5 x2: needs 9 (range mod +2), rolled 6 -> miss [ISUltraAC5 Ammo: 14 shots left]
+    ISFlamer: needs 7 (range mod +0), rolled 8 -> HIT
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 10 (left table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (15 -> 9 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 7 (left table): Left Torso.
+2 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (12 -> 10 remaining).
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 9 (piloting 5 + base 4 + attack +0), rolled 2 -> miss (7 dmg, right side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 8 (piloting 5 + base 4 + attack -1), rolled 6 -> miss (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 8 (piloting 5 + base 4 + attack -1), rolled 12 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 8 -> HIT (8 dmg, left side)
+    punch (Right Arm) hits Blue's Right Arm for 5.
+5 damage (PHYSICAL) incoming to Right Arm (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (9 -> 4 remaining).
+    kick (Left Leg) hits Blue's Left Leg for 8.
+8 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 8 armor pts destroyed at armor (27 -> 19 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 2 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 1 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 16 + engine 0 + outside 2 - sinks 20 -> 0
+  -- end of turn 3: Red 1 @ 0403 N: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Red 2 @ 0402 S: HP 187, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 0503 NE: HP 246, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 7).
+  [Movement select] Blue: BTTT: 0 steps toward Red 2 (value 7.03), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 1: BTTT: 1 steps toward Blue (value 2.04), Walk 1 MP
+  [Movement] Red 1: 0403 N -> 0403 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Red 2: BTTT: 0 steps toward Blue (value 13.39), Stand Still 0 MP
+  [Movement] Red 2: 0402 S -> 0402 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [TAG] Blue can't designate Red 1 (no LOS, range or arc).
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 9.5).
+  [Ranged] Blue twists its torso 1 hexside left (Red 2 is in its torso's forward arc after that).
+  [Ranged] Blue -> Red 2: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISAntiMissileSystem', 'Heavy PPC'] (weapon heat 16 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 9.82)
+  [Ranged] Blue fires in order: ['Heavy PPC', 'ISAntiMissileSystem'].
+    Heavy PPC: needs 7 (range mod +3), rolled 8 -> HIT
+    ISAntiMissileSystem: needs 4 (range mod +0), rolled 8 -> HIT [ISAMS Ammo: 9 shots left]
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 11 -> HIT [ISUltraAC5 Ammo: 12 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 2 -> miss
+  [Resolve] Blue -> Red 2: Heavy PPC
+    Heavy PPC hit for 15:
+      Hit location roll 6 (left table): Left Leg.
+15 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 14 armor pts destroyed at armor (14 -> 0 remaining). 1 damage applied to structure [STANDARD] (10 -> 9/10 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  [Resolve] Blue -> Red 2: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 8 (left table): Center Torso.
+2 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (17 -> 15 remaining).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 11 (left table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (27 -> 21 remaining).
+  [Resolve] Red 2 -> Blue: ISUltraAC5
+    ISUltraAC5 hit: cluster roll 5 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
+      Group 1/1: Hit location roll 6 (left table): Left Leg.
+5 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 6 (piloting 5 + base 1 + attack +0), rolled 3 -> miss (7 dmg, front side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 6 -> miss (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 5 -> miss (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 9 -> HIT (8 dmg, left side)
+    kick (Left Leg) hits Blue's Left Leg for 8.
+8 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 8 armor pts destroyed at armor (14 -> 6 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 1 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 0 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 16 + engine 0 - sinks 20 -> 0
+  -- end of turn 4: Red 1 @ 0403 NE: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Red 2 @ 0402 S: HP 170, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 0503 NE: HP 227, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 5 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 7).
+  [Movement select] Blue: BTTT: 0 steps toward Red 2 (value 7.03), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 2: BTTT: 0 steps toward Blue (value 13.39), Stand Still 0 MP
+  [Movement] Red 2: 0402 S -> 0402 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Movement select] Red 1: BTTT: 0 steps toward Blue (value 2.04), Stand Still 0 MP
+  [Movement] Red 1: 0403 NE -> 0403 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
+  [TAG] Blue can't designate Red 1 (no LOS, range or arc).
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 9.5).
+  [Ranged] Blue twists its torso 1 hexside left (Red 2 is in its torso's forward arc after that).
+  [Ranged] Blue -> Red 2: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISAntiMissileSystem', 'Heavy PPC'] (weapon heat 16 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 9.82)
+  [Ranged] Blue fires in order: ['Heavy PPC', 'ISAntiMissileSystem'].
+    Heavy PPC: needs 7 (range mod +3), rolled 10 -> HIT
+    ISAntiMissileSystem: needs 4 (range mod +0), rolled 7 -> HIT [ISAMS Ammo: 8 shots left]
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 10 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 6 -> miss [ISUltraAC5 Ammo: 10 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 6 -> HIT
+  [Resolve] Blue -> Red 2: Heavy PPC
+    Heavy PPC hit for 15:
+      Hit location roll 8 (left table): Center Torso.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (15 -> 0 remaining).
+  [Resolve] Blue -> Red 2: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 3 (left table): Left Leg.
+2 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/10 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 9 (left table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (22 -> 16 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 7 (left table): Left Torso.
+2 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (10 -> 8 remaining).
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 6 (piloting 5 + base 1 + attack +0), rolled 5 -> miss (7 dmg, front side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 11 -> HIT (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 6 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 6 -> HIT (8 dmg, left side)
+    punch (Left Arm) hits Blue's Center Torso for 5.
+5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (8 -> 3 remaining).
+    punch (Right Arm) hits Blue's Right Torso for 5.
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: ISTAG (slot 4)
+    5: ISArrowIVAmmo (slot 5)
+    6: ISArrowIVAmmo (slot 6)
+    7: ISArrowIVAmmo (slot 7)
+    8: ISArrowIVAmmo (slot 8)
+    9: ISAMS Ammo (slot 9)
+    Slot roll: 4 on 1D9 (one die over the 9 slots that can take the hit; p.94).
+    1/1 Criticals: ISTAG slot hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'ISArrowIVAmmo', 'ISArrowIVAmmo', 'ISArrowIVAmmo', 'ISArrowIVAmmo', 'ISAMS Ammo', 'IS Endo Steel', 'IS Endo Steel', 'ISCASE']
+    kick (Left Leg) hits Blue's Left Leg for 8.
+8 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 6 armor pts destroyed at armor (6 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 0 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 16 + engine 0 + outside 2 - sinks 20 -> 0
+  -- end of turn 5: Red 1 @ 0403 NE: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Red 2 @ 0402 S: HP 153, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 0503 NE: HP 201, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 6 ===
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 6).
+  [Movement select] Red 1: BTTT: 0 steps toward Blue (value 2.04), Stand Still 0 MP
+  [Movement] Red 1: 0403 NE -> 0403 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Red 2: BTTT: 8 steps toward Blue (value 6.57), Run 9 MP
+  [Movement] Red 2: 0402 S -> 0603 SW, Run (9 MP, 3 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
+  [Movement select] Blue: BTTT: 0 steps toward Red 1 (value 10.82), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 4.9).
+  [Ranged] Red 2 -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 6.36)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 7 -> HIT
+    ISUltraAC5 x2: needs 10 (range mod +2), rolled 10 -> HIT [ISUltraAC5 Ammo: 8 shots left]
+    ISFlamer: needs 8 (range mod +0), rolled 6 -> miss
+  [Ranged] Blue twists its torso 1 hexside right (Red 1 is in its torso's right side arc after that).
+  [Ranged] Blue -> Red 1: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Heavy PPC'] (weapon heat 15 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 6.82)
+    Heavy PPC: needs 8 (range mod +3), rolled 9 -> HIT
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 7 (right table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
+  [Resolve] Red 2 -> Blue: ISUltraAC5
+    ISUltraAC5 hit: cluster roll 7 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
+      Group 1/1: Hit location roll 4 (right table): Right Arm.
+5 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (10 -> 9/10 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Right Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Heavy PPC (slot 4)
+    5: Heavy PPC (slot 5)
+    6: Heavy PPC (slot 6)
+    7: Heavy PPC (slot 7)
+    Slot roll: 3 on 1D7 (one die over the 7 slots that can take the hit; p.94).
+    1/1 Criticals: Lower Arm Actuator hit.
+      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
+  [Resolve] Blue -> Red 1: Heavy PPC
+    Heavy PPC hit for 15:
+      Hit location roll 6 (front table): Right Torso.
+15 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (15 -> 0 remaining).
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 7 -> HIT (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 6 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 5 -> miss (8 dmg, right side)
+    punch (Left Arm) hits Blue's Right Torso for 5.
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/15 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    punch (Right Arm) hits Blue's Left Torso for 5.
+5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (7 -> 2 remaining).
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 2 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 15 + engine 0 - sinks 20 -> 0
+  -- end of turn 6: Red 1 @ 0403 NE: HP 189, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 6: Red 2 @ 0603 SW: HP 153, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 6: Blue @ 0503 NE: HP 180, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 7 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 4, Blue 2).
+  [Movement select] Blue: BTTT: 0 steps toward Red 2 (value 6.57), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 1: BTTT: 0 steps toward Blue (value 2.04), Stand Still 0 MP
+  [Movement] Red 1: 0403 NE -> 0403 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Red 2: BTTT: 0 steps toward Blue (value 10.93), Stand Still 0 MP
+  [Movement] Red 2: 0603 SW -> 0603 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 9.5).
+  [Ranged] Blue -> Red 2: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['ISAntiMissileSystem', 'Heavy PPC'] (weapon heat 16 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.27)
+  [Ranged] Blue fires in order: ['Heavy PPC', 'ISAntiMissileSystem'].
+    Heavy PPC: needs 8 (range mod +3), rolled 7 -> miss
+    ISAntiMissileSystem: needs 5 (range mod +0), rolled 7 -> HIT [ISAMS Ammo: 7 shots left]
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 2 -> miss [ISUltraAC5 Ammo: 6 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 10 -> HIT
+  [Resolve] Blue -> Red 2: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 6 (right table): Right Leg.
+2 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (14 -> 12 remaining).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 7 (right table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (10 -> 4 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 5 (right table): Right Arm.
+2 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/10 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Right Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Heavy PPC (slot 4)
+    4: Heavy PPC (slot 5)
+    5: Heavy PPC (slot 6)
+    6: Heavy PPC (slot 7)
+    Slot roll: 5 on 1D6 (one die over the 6 slots that can take the hit; p.94).
+    1/1 Criticals: Heavy PPC slot hit.
+      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Heavy PPC', 'Heavy PPC', 'DESTROYED', 'Heavy PPC', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
+  [Physical] Blue twists its torso 1 hexside left to reach Red 1.
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 6 (piloting 5 + base 1 + attack +0), rolled 5 -> miss (7 dmg, front side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 5 -> miss (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 11 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 4 -> miss (8 dmg, right side)
+    punch (Right Arm) hits Blue's Head for 5.
+5 damage (PHYSICAL) incoming to Head (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (9 -> 4 remaining).
+Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 5.
+  Pilot stays conscious.
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
+  Succeeded - remains standing.
+  [Heat] Red 1: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 0 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 16 + engine 0 + outside 2 - sinks 20 -> 0
+  -- end of turn 7: Red 1 @ 0403 NE: HP 189, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Red 2 @ 0603 SW: HP 151, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 0503 NE: HP 167, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 8 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 4).
+  [Movement select] Blue: BTTT: 0 steps toward Red 2 (value 4.47), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red 1: BTTT: 0 steps toward Blue (value 2.04), Stand Still 0 MP
+  [Movement] Red 1: 0403 NE -> 0403 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Red 2: BTTT: 0 steps toward Blue (value 10.93), Stand Still 0 MP
+  [Movement] Red 2: 0603 SW -> 0603 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 9.5).
+  [Ranged] Blue -> Red 2: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['ISAntiMissileSystem'] (weapon heat 1 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 1.45)
+    ISAntiMissileSystem: needs 5 (range mod +0), rolled 6 -> HIT [ISAMS Ammo: 6 shots left]
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 5 -> miss [ISUltraAC5 Ammo: 4 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 11 -> HIT
+  [Resolve] Blue -> Red 2: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (1/6), regardless of armor.
+2 damage (BALLISTIC) incoming to Head (armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (9 -> 7 remaining).
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 4 (right table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (7 -> 1/10 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Right Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Heavy PPC (slot 4)
+    4: Heavy PPC (slot 5)
+    5: Heavy PPC (slot 7)
+    Slot roll: 3 on 1D5 (one die over the 5 slots that can take the hit; p.94).
+    1/2 Criticals: Heavy PPC slot hit.
+      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'DESTROYED', 'Heavy PPC', 'DESTROYED', 'Heavy PPC', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
+  Critical hit pool at Right Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Heavy PPC (slot 5)
+    4: Heavy PPC (slot 7)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
+    2/2 Criticals: Heavy PPC slot hit.
+      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Heavy PPC', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel']
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 7 (right table): Right Torso.
+2 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (4 -> 2 remaining).
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
+  Pilot stays conscious.
+  [Physical] Blue twists its torso 1 hexside left to reach Red 1.
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 6 (piloting 5 + base 1 + attack +0), rolled 8 -> HIT (7 dmg, front side)
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 11 -> HIT (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 9 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 7 -> HIT (8 dmg, right side)
+    punch (Left Arm) hits Red 1's Right Arm for 7.
+7 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (10 -> 3 remaining).
+    punch (Left Arm) hits Blue's Head for 5.
+5 damage (PHYSICAL) incoming to Head (rear_armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    punch (Right Arm) hits Blue's Right Torso for 5.
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (6 -> 1/15 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    kick (Left Leg) hits Blue's Right Leg for 8.
+8 damage (PHYSICAL) incoming to Right Leg (armor).
+  [STANDARD/PHYSICAL] 8 armor pts destroyed at armor (21 -> 13 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
+  Succeeded - remains standing.
+Physical Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
+  Pilot stays conscious.
+  [Heat] Red 1: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 0 + weapons 9 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 1 + engine 0 + outside 2 - sinks 20 -> 0
+  -- end of turn 8: Red 1 @ 0403 NE: HP 182, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 8: Red 2 @ 0603 SW: HP 149, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 8: Blue @ 0503 NE: HP 141, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 9 ===
+  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 10).
+  [Movement select] Red 2: BTTT: 0 steps toward Blue (value 5.59), Stand Still 0 MP
+  [Movement] Red 2: 0603 SW -> 0603 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Movement select] Red 1: BTTT: 0 steps toward Blue (value 2.04), Stand Still 0 MP
+  [Movement] Red 1: 0403 NE -> 0403 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 0)
+  [Movement select] Blue: BTTT: 0 steps toward Red 2 (value 5.48), Stand Still 0 MP
+  [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Firing order: Red 2 declares next (big guns first: expected 9.5).
+  [Ranged] Red 2 -> Blue: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISUltraAC5', 'ISFlamer', 'ISMediumPulseLaser'] (weapon heat 9 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 8.91)
+    [Red 2 fire control] ISUltraAC5: rapid fire x2
+  [Ranged] Red 2 fires in order: ['ISMediumPulseLaser', 'ISUltraAC5', 'ISFlamer'].
+    ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
+    ISUltraAC5 x2: needs 8 (range mod +2), rolled 5 -> miss [ISUltraAC5 Ammo: 2 shots left]
+    ISFlamer: needs 6 (range mod +0), rolled 11 -> HIT
+  [Ranged] Blue -> Red 2: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['ISAntiMissileSystem'] (weapon heat 1 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 1.45)
+    ISAntiMissileSystem: needs 5 (range mod +0), rolled 6 -> HIT [ISAMS Ammo: 5 shots left]
+  [Resolve] Red 2 -> Blue: ISMediumPulseLaser
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 6 (right table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (13 -> 7 remaining).
+  [Resolve] Red 2 -> Blue: ISFlamer
+      ISFlamer: +2 heat to Blue (outside heat, p.102).
+    ISFlamer hit for 2:
+      Hit location roll 9 (right table): Left Torso.
+2 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (8 -> 6 remaining).
+  [Resolve] Blue -> Red 2: ISAntiMissileSystem
+    ISAntiMissileSystem hit for 2:
+      Hit location roll 10 (right table): Left Arm.
+2 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (11 -> 9 remaining).
+  [Physical] Red 1 -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 8 -> HIT (5 dmg, rear side)
+  [Physical] Red 1 -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 11 -> HIT (5 dmg, rear side)
+  [Physical] Red 2 -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 10 -> HIT (8 dmg, right side)
+  [Physical] Blue twists its torso 1 hexside left to reach Red 1.
+  [Physical] Blue -> Red 1: punch (Left Arm) needs 6 (piloting 5 + base 1 + attack +0), rolled 7 -> HIT (7 dmg, front side)
+    punch (Left Arm) hits Blue's Left Arm for 5.
+5 damage (PHYSICAL) incoming to Left Arm (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (9 -> 4 remaining).
+    punch (Right Arm) hits Blue's Right Arm for 5.
+5 damage (PHYSICAL) incoming to Right Arm (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/10 remaining).
+  Right Arm destroyed with no live explosive components - no critical roll.
+  Right Arm DESTROYED!
+  All critical slots in Right Arm marked DESTROYED.
+  4 damage remains, transfers to Right Torso.
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (2 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/15 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+  Right Torso DESTROYED!
+    Engine hit (1/3) from Right Torso destruction.
+    Engine hit (2/3) from Right Torso destruction.
+    Engine hit (3/3) from Right Torso destruction.
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  1 damage remains, transfers to Center Torso.
+    kick (Left Leg) hits Blue's Right Leg for 8.
+8 damage (PHYSICAL) incoming to Right Leg (armor).
+  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (7 -> 0 remaining). 1 damage applied to structure [STANDARD] (15 -> 14/15 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Right Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Lower Leg Actuator (slot 3)
+    4: Foot Actuator (slot 4)
+    Slot roll: 3 on 1D4 (one die over the 4 slots that can take the hit; p.94).
+    1/2 Criticals: Lower Leg Actuator hit.
+      Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'IS Endo Steel', 'IS Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
+  Critical hit pool at Right Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Foot Actuator (slot 4)
+    Slot roll: 1 on 1D3 (one die over the 3 slots that can take the hit; p.94).
+    2/2 Criticals: Hip hit.
+      Current crit slots in Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', 'IS Endo Steel', 'IS Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 2.
+      Hip specifically destroyed at Right Leg - running-mode Movement Phase PSR trigger now active.
+    punch (Left Arm) hits Red 1's Left Arm for 7.
+7 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (12 -> 5 remaining).
+  [Heat] Red 1: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  [Heat] Red 2: 0 + movement 0 + weapons 9 + engine 0 - sinks 20 -> 0
+  -- end of turn 9: Red 1 @ 0403 NE: HP 175, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Red 2 @ 0603 SW: HP 147, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 0503 NE: HP 116, pilot hits 2, engine 3, gyro 0, heat 0 [DESTROYED (Engine Destroyed)]
+
+>>> Battle over on turn 9: Blue destroyed. <<<

@@ -84,7 +84,7 @@ impl MoverIndex {
         let m = &b.units[mover];
         let walk = compute_walk_mp(m);
         let budget = if standup_mp.is_none() { compute_running_mp(m) } else { standup_mp.unwrap() };
-        let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+        let level_limit = crate::mech_state::ground_limit(m);
         let mut ground: IndexMap<(i64, i64, i64), Vec<(i64, i64)>> = IndexMap::default();
         for (x, y, facing, fc, mode, mp) in move_options::movement_options(b, mover, standup_mp, None, false, notes) {
             if mode != "Jump" {
@@ -164,6 +164,10 @@ impl MoverIndex {
     /// A jump that can land on the target's hex, stopping in the hex next to it along the path.
     pub fn dfa_states(&self, b: &Battle, pose: &Pose) -> Vec<Pick> {
         if self.jump_hexes.is_empty() || !self.jump_hexes.contains(&pose.xy) {
+            return vec![];
+        }
+        // mechanical jump boosters may not be used for a Death From Above (TO:AUE p.105)
+        if b.units[self.mover].jump_boosters_on {
             return vec![];
         }
         if water::state_at(&b.board, Some(&pose.label), pose.prone, pose.superheavy) == water::SUBMERGED {

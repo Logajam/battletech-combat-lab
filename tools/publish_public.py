@@ -26,9 +26,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLIC_URL = "https://github.com/Logajam/battletech-combat-lab"
 # rules/ = the rulebook text that once lived here; reference_art/ = the TRO drawings and the low-poly models redrawn from them
 # (Daniel, 2026-11-16: redrawn images and models stay in the private repo)
-# BTTT (Daniel, 2026-11-25: not in public builds; removed from main 2026-11-25, `archive/bttt_restore.patch` puts it back): kept out of the
-# public copy's whole history too, in case it is ever in the private history under these names
-PRIVATE_PATHS = ["rules/", "reference_art/", "engine/core/src/bttt.rs", "engine/core/tests/bttt.rs", "engine/reference/logs/bttt_", "trial_records/2026-11-25_round_robin_bttt", "archive/"]
+PRIVATE_PATHS = ["rules/", "reference_art/"]
 DANIEL_PUBLIC = b"56737113+Logajam@users.noreply.github.com"
 PUBLIC_EMAILS = [b"noreply@anthropic.com", b"users.noreply.github.com", b"noreply@github.com"]
 
@@ -58,10 +56,7 @@ def public_files(cwd, rev):
     return files
 
 
-HOLD = ("HELD (Daniel, 2026-11-25): the BTTT bot (engine/core/src/bttt.rs) is not to be in any public copy or website build. "
-        "It was removed from main; if it is back (archive/bttt_restore.patch applied), this refuses until Daniel says BTTT may go public.")
-if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine", "core", "src", "bttt.rs")):
-    sys.exit(HOLD)
+# (The BTTT hold was lifted 2026-11-25: Daniel, "We have permission to use BTTT live now." BTTT ships in public builds.)
 
 def main(argv):
     push = "--push" in argv
@@ -72,8 +67,9 @@ def main(argv):
     git(["init", "-q", "-b", "scratch"], work)
     git(["fetch", "-q", REPO_ROOT, "refs/remotes/origin/main:refs/heads/main"], work)
     git(["checkout", "-q", "main"], work)
-    cmd = ["git", "filter-repo", "--force", "--invert-paths"] + sum([["--path", p] for p in PRIVATE_PATHS], []) + ["--commit-callback", CALLBACK]
-    subprocess.run(cmd, cwd=work, check=True, capture_output=True)
+    cmd = ["git", "filter-repo", "--force", "--invert-paths"] + sum([["--path-glob", p + "*"] if not p.endswith("/") and not p.endswith(".rs") else ["--path", p] for p in PRIVATE_PATHS], []) + ["--commit-callback", CALLBACK]
+    r = subprocess.run(cmd, cwd=work, capture_output=True, text=True)
+    if r.returncode: sys.exit('filter-repo failed: ' + r.stderr[-600:])
 
     # the checks
     objects = git(["rev-list", "--all", "--objects"], work)

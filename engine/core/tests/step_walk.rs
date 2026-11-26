@@ -61,8 +61,9 @@ fn walker_and_dp_agree() {
         let blocked: HashSet<(i64, i64)> = HashSet::default();
         for (i, (sx, sy)) in starts(&b).into_iter().enumerate() {
             let f = (i as i64 * 2 + 1) % 6;
-            for &(budget, backward) in &[(5, None), (6, Some(3)), (8, Some(4)), (10, None)] {
-                let limit = GroundLimit { value: 2, superheavy: false };
+            // a biped, a quad (lateral shifts) and a tripod (lateral shifts, one-MP facing changes)
+            for &(budget, backward, lateral, free_facing) in &[(5, None, false, false), (6, Some(3), false, false), (8, Some(4), false, false), (10, None, false, false), (6, Some(3), true, false), (5, None, true, false), (6, Some(4), true, true), (5, None, true, true)] {
+                let limit = GroundLimit { value: 2, superheavy: false, lateral, free_facing };
                 let table = build_movement_table(sx, sy, f, budget, Some(&b), backward, limit, true, &blocked).unwrap();
                 let w = Walker { board: &b, blocked: &blocked, level_limit: limit, budget, backward_mp: backward };
                 let start = w.start(sx, sy, f).unwrap();
@@ -111,7 +112,7 @@ fn walker_and_dp_agree() {
 #[test]
 fn refusals_say_why() {
     let b = board("AGoAC Maps__16x17 Desert 2.board").expect("a playable board");
-    let limit = GroundLimit { value: 2, superheavy: false };
+    let limit = GroundLimit { value: 2, superheavy: false, lateral: false, free_facing: false };
     // a hex of open ground whose neighbour straight ahead (facing 0) is also open: block it
     let empty: HashSet<(i64, i64)> = HashSet::default();
     let (sx, sy) = starts(&b)

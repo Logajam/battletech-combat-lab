@@ -47,6 +47,7 @@ use crate::gladiator_bots::GladiatorBots;
 use crate::human_bots::{Controller, HumanBots, PhysicalChoice};
 use crate::mech_state as ms;
 use crate::mech_state::ArcAction;
+use crate::physical::PhysOption;
 use crate::move_options::{self, PathNotes};
 use crate::orchestrator::{play_on, start_battle_with, with_move_context, BotSet, PathGate};
 use crate::ranged_combat::Pick;
@@ -199,7 +200,7 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None, drop: None, eject: None };
+    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None, drop: None, eject: None, careful: None };
     let mut bots = HumanBots::new(screen, human);
     // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
@@ -212,6 +213,39 @@ pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams:
 
 fn name(b: &Battle, u: UnitId) -> String {
     b.units[u].side_name.clone().unwrap_or_default()
+}
+
+/// Why the usual physical attack `kind` with `limbs` cannot be made at `target` (the blacked-out boxes, Section 14 J3): the first reason that
+/// applies of those the book gives (Core pp.77, 81-83), else a general one. For the page only: the engine's own list of options decides.
+fn physical_blocked_why(b: &Battle, attacker: UnitId, target: UnitId, kind: &str, limbs: &[&str]) -> String {
+    let (a, t) = (&b.units[attacker], &b.units[target]);
+    let (ah, th) = (a.hex.clone().unwrap_or_default(), t.hex.clone().unwrap_or_default());
+    let same_level = b.board.hexes.get(&ah).map(|h| h.level) == b.board.hexes.get(&th).map(|h| h.level);
+    if limbs.iter().any(|l| a.locations.get(*l).is_none_or(|x| x.destroyed)) {
+        return "the limb is gone".into();
+    }
+    if t.prone && same_level && kind != "kick" {
+        return "a prone 'Mech at the same level can only be kicked, clubbed or hit by a death from above (p.77)".into();
+    }
+    let fired: Vec<ItemId> = a.weapons_fired_this_turn.clone().map(|s| s.into_iter().collect()).unwrap_or_default();
+    let locs = crate::attack_resolution::weapon_locations(a);
+    let fired_in = |l: &str| fired.iter().any(|w| locs.get(w).is_some_and(|ls| ls.iter().any(|x| x == l)));
+    match kind {
+        "punch" if fired_in(limbs[0]) => return "this arm fired a weapon this turn (p.82)".into(),
+        "kick" if fired_in(limbs[0]) => return "this leg fired a weapon this turn (p.81)".into(),
+        "push" if fired_in("Left Arm") || fired_in("Right Arm") => return "an arm-mounted weapon fired this turn (p.83)".into(),
+        _ => {}
+    }
+    let (Ok(a_xy), Ok(t_xy), Ok(f)) = (crate::hex_geometry::parse_hex_label(&ah), crate::hex_geometry::parse_hex_label(&th), crate::hex_geometry::compass_to_facing(&a.facing)) else { return "not possible here".into() };
+    let arc = crate::arcs::arcs_between(a_xy, t_xy)[f as usize];
+    match kind {
+        "punch" if arc == crate::arcs::REAR || (arc == crate::arcs::LEFT && limbs[0] == "Right Arm") || (arc == crate::arcs::RIGHT && limbs[0] == "Left Arm") =>
+            "the target is not in this arm's arc: the forward arc, or its own side (p.82)".into(),
+        "kick" if arc != crate::arcs::FORWARD => "a kick needs the target in the forward arc (p.81)".into(),
+        "push" if crate::combat::direction_facing(a_xy, t_xy).ok() != Some(f) => "a push needs the target directly in front (p.83)".into(),
+        "push" if !same_level || t.prone => "a push needs a standing target at the same level (p.83)".into(),
+        _ => "not possible from here: a level difference, damaged actuators or the target's state (pp.77, 81-83)".into(),
+    }
 }
 
 fn units_json(b: &Battle, with_names: bool) -> Value {
@@ -229,6 +263,8 @@ fn units_json(b: &Battle, with_names: bool) -> Value {
                 s["run"] = json!(ms::compute_running_mp(m));
                 s["jump"] = json!(ms::compute_jump_mp(m));
                 s["max_heat"] = json!(m.max_heat);
+                // the heat it sheds a turn (the overlay UI's heat display: "current (dissipation): end of the turn")
+                s["sinks"] = json!(ms::active_heat_sinks(m));
                 s["move_mode"] = json!(m.move_mode);
                 // has it moved this turn (the map's moved mark and the title bar's count of units still to move)
                 s["moved"] = json!(m.moved_this_turn);
@@ -291,6 +327,8 @@ fn equipment_json(b: &Battle, u: UnitId) -> Value {
     json!({
         "masc": equip::system_live(m, "masc"), "supercharger": equip::system_live(m, "supercharger"),
         "boost": {"has": equip::system_live(m, "masc") || equip::system_live(m, "supercharger"), "on": on(BOOST_LABEL), "tn": escalating_tn(m, if equip::system_live(m, "masc") { "masc" } else { "supercharger" })},
+        // mechanical jump boosters (TO:AUE p.105): which MP they give, and this turn's choice
+        "jump_boosters": {"has": ms::compute_mechanical_jump_booster_mp(m) > 0, "mp": ms::compute_mechanical_jump_booster_mp(m), "jets": ms::compute_jump_mp(m), "on": m.jump_boosters_on},
         "radical": {"has": equip::has_system(m, "radical"), "live": equip::system_live(m, "radical"), "on": on(RADICAL_LABEL), "tn": escalating_tn(m, "radical")},
         "coolant": {"pods": equip::unused_coolant_pods(m).len(), "mode": match ch.and_then(|c| c.coolant) { None => "auto", Some(false) => "hold", Some(true) => "now" }},
         "sinks": {"working": ms::working_heat_sinks(m), "off": ch.and_then(|c| c.sinks_off).unwrap_or(m.deactivated_heat_sinks), "chosen": ch.is_some_and(|c| c.sinks_off.is_some())},
@@ -374,6 +412,8 @@ struct Screen {
     prone_facing: Option<(UnitId, String)>,
     /// the unit whose movement answer asked to drop to the ground at the end (the answer's "prone": true; p.51)
     drop: Option<UnitId>,
+    /// the unit whose stand_up answer said "careful": true (TO:AR p.22), read once by `careful_stand`
+    careful: Option<UnitId>,
     /// the unit whose movement answer was to eject (TO:AR p.164)
     eject: Option<UnitId>,
 }
@@ -557,6 +597,12 @@ fn hex_of(label: &str) -> Option<(i64, i64)> {
 /// The queries the target question (the first, or a secondary one) answers while it waits: `preview` and `set`.
 fn target_query(b: &mut Battle, attacker: UnitId, enemies: &[UnitId], q: &Value, default_primary: Option<UnitId>) -> Option<Value> {
     let primary = q["primary"].as_u64().map(|p| p as usize).filter(|p| enemies.contains(p)).or(default_primary);
+    // the aimed shot the fire screen has chosen, if any ({"aimed": {"<target>": "<location>"}}): every preview and set says it again
+    if matches!(q["q"].as_str(), Some("preview") | Some("set")) {
+        let aimed = q["aimed"].as_object().and_then(|o| o.iter().next()).and_then(|(t, l)| Some((t.parse::<usize>().ok()?, l.as_str()?.to_string())));
+        let nm = name(b, attacker);
+        b.player.unit_mut(&nm).aimed = aimed;
+    }
     match q["q"].as_str() {
         Some("preview") => Some(target_preview(b, attacker, enemies, primary)),
         // a mode / ammunition / rate change made on the fire screen before the target is chosen (the settings belong to the unit)
@@ -580,7 +626,9 @@ fn decl_req_json(b: &Battle, ctx: &DeclCtx, rows: Vec<Value>, attacker: UnitId, 
     json!({"kind": "declaration", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
            "base_tn": ctx.sel_pre_tn, "breakdown": breakdown, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat,
            "dissipation": ctx.dissipation, "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary,
-           "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len()})
+           "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len(),
+           // an aimed shot is open to a person at an immobile target (p.70; Section 14 I7), and the one in force
+           "aimable": ms::is_immobile(&b.units[target]) && !ctx.indirect, "aimed": ctx.aim})
 }
 
 /// The target question's `preview` query (and the answer to a `set` there): everything the fire screen needs to plan a whole turn's fire
@@ -759,6 +807,11 @@ fn apply_weapon_settings(b: &mut Battle, attacker: UnitId, target: UnitId, a: &V
 }
 
 impl Controller for Screen {
+    // the person decides again after a failed stand or a fall (G3)
+    fn decides_each_stand(&self) -> bool {
+        true
+    }
+
     fn move_order(&mut self, b: &mut Battle, candidates: &[UnitId], _inner: &mut GladiatorBots) -> UnitId {
         let cands: Vec<UnitId> = candidates.to_vec();
         let req = json!({"kind": "move_order", "candidates": cands});
@@ -810,8 +863,11 @@ impl Controller for Screen {
             b.piloting + crate::piloting_rolls::preexisting_modifier(m) + crate::piloting_rolls::special_case_modifier(m) + crate::piloting_rolls::STAND_UP_MODIFIER
         });
         let m = &b.units[mover];
-        let run = ms::compute_running_mp(m);
-        let req = json!({"kind": "stand_up", "unit": mover, "name": name(b, mover), "tn": tn, "run": run, "pilot_hits": m.pilot_hits, "hex": m.hex});
+        // the MP it has left: all its running MP at the start of its move; fewer after a failed attempt or a fall partway through a move,
+        // when the question is asked AGAIN (G3, Daniel 2026-11-26): "spent" is then above 0 and the page reports the failure from the log
+        let run = crate::orchestrator::prone_mp_left(m);
+        let again = m.mp_spent > 0;
+        let req = json!({"kind": "stand_up", "unit": mover, "name": name(b, mover), "tn": tn, "run": run, "spent": m.mp_spent, "again": again, "pilot_hits": m.pilot_hits, "hex": m.hex});
         // Standing is part of the move (bug A2, Daniel 2026-11-22: "I should be able to undo a plan of stand"): while this question
         // waits the page may ask "reach" / "path" for the moves the unit would have after standing at the first attempt (2 MP spent,
         // p.51; any facing free, the engine's start facings), and answer with the stand and the move together ("plan"). Nothing is
@@ -827,7 +883,10 @@ impl Controller for Screen {
             .collect();
         let mut req = req;
         req["prone_turns"] = json!(turns);
-        let (stand, plan, facing) = self.ask(
+        // the careful stand (TO:AR p.22): one attempt, the whole Movement Phase (counts as walked); -2 with more than 2 Walking MP
+        let walk = ms::compute_walk_mp(&b.units[mover]);
+        req["careful"] = json!({"available": walk > 0 && !again, "tn": tn + if walk > crate::piloting_rolls::CAREFUL_STAND_FREE_MP { crate::piloting_rolls::CAREFUL_STAND_MODIFIER } else { 0 }, "walk": walk});
+        let (stand, plan, facing, careful) = self.ask(
             b,
             req,
             |b, q| match q["q"].as_str() {
@@ -845,12 +904,17 @@ impl Controller for Screen {
                     }
                     _ => None,
                 };
-                Ok((stand, a.get("plan").filter(|p| stand && p.is_object()).cloned(), facing))
+                Ok((stand, a.get("plan").filter(|p| stand && p.is_object()).cloned(), facing, stand && a["careful"].as_bool() == Some(true)))
             },
         );
         self.stand_plan = plan.map(|p| (mover, p));
         self.prone_facing = facing.map(|f| (mover, f));
+        self.careful = if careful { Some(mover) } else { None };
         stand
+    }
+
+    fn careful_stand(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
+        self.careful.take() == Some(mover)
     }
 
     fn eject(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
@@ -869,6 +933,12 @@ impl Controller for Screen {
     }
 
     fn before_move(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
+        // jump on the mechanical jump boosters this turn? (TO:AUE p.105: no heat, same facing, no DFA, never together with the jets)
+        if !b.units[mover].prone && ms::compute_mechanical_jump_booster_mp(&b.units[mover]) > 0 {
+            let req = json!({"kind": "jump_boost", "unit": mover, "name": name(b, mover), "equipment": equipment_json(b, mover)});
+            let on: bool = self.ask(b, req, |_, _| None, |_, a| a["use"].as_bool().ok_or("jump on the boosters this turn?".to_string()));
+            b.units[mover].jump_boosters_on = on;
+        }
         let m = &b.units[mover];
         if m.prone || !(equip::system_live(m, "masc") || equip::system_live(m, "supercharger")) {
             return None;
@@ -1129,27 +1199,85 @@ impl Controller for Screen {
         if b.is_destroyed(attacker) || b.is_destroyed(target) || b.units[attacker].hex == b.units[target].hex {
             return None;
         }
-        let groups = crate::physical::attack_options(b, attacker, target, None);
-        if groups.is_empty() {
+        // THE PHYSICAL ATTACK BOXES (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Section 14, J): every attack the unit could make on EVERY
+        // adjacent enemy (a punch may go at a secondary target: Core p.82 lets each arm punch a target in its own side arc), and the usual
+        // ones it cannot make with the reason (pp.77, 81-83). The engine asked about `target`; the answer may name others.
+        let mut foes: Vec<UnitId> = crate::forces::enemies_of(b, attacker).into_iter().filter(|&e| !b.is_destroyed(e) && crate::forces::distance(b, attacker, e) == Some(1)).collect();
+        if !foes.contains(&target) {
+            foes.insert(0, target);
+        }
+        let mut by_target: Vec<(UnitId, i64, crate::physical::Opts)> = Vec::new();
+        for &e in &foes {
+            if b.units[e].dfa.is_some() {
+                continue;
+            }
+            let g = crate::physical::attack_options(b, attacker, e, None);
+            let base = crate::physical::base_tn_for(b, attacker, e);
+            by_target.push((e, base, g));
+        }
+        if by_target.iter().all(|(_, _, g)| g.is_empty()) {
             return None;
         }
-        let base = crate::physical::base_tn_for(b, attacker, target);
+        let (groups, base) = by_target.iter().find(|(e, _, _)| *e == target).map(|(_, base, g)| (g.clone(), *base)).unwrap_or_default();
         let kinds: Vec<Value> = groups
             .iter()
             .map(|(k, opts)| {
-                json!({"kind": k, "options": opts.iter().map(|o| json!({"name": o.name, "tn": base + o.mod_, "damage": o.damage.f(), "table": o.table, "heat": o.heat})).collect::<Vec<_>>()})
+                json!({"kind": k, "options": opts.iter().map(|o| json!({"name": o.name, "tn": base + o.mod_, "damage": o.damage.f(), "table": o.table, "heat": o.heat, "limb": o.limb})).collect::<Vec<_>>()})
             })
             .collect();
-        let req = json!({"kind": "physical", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "base_tn": base, "kinds": kinds});
-        let pick: Option<String> = self.ask(b, req, |_, _| None, |_, a| match a["kind"].as_str() {
-            None => Ok(None),
-            Some(k) if groups.contains_key(k) => Ok(Some(k.to_string())),
-            Some(k) => Err(format!("no '{}' attack is possible", k)),
+        let mut attacks: Vec<Value> = Vec::new();
+        let mut blocked: Vec<Value> = Vec::new();
+        for (e, base_e, g) in &by_target {
+            for (k, opts) in g {
+                for o in opts {
+                    attacks.push(json!({"kind": k, "name": o.name, "limb": o.limb, "target": e, "tn": base_e + o.mod_, "damage": o.damage.f(), "heat": o.heat}));
+                }
+            }
+            for (k, limbs, name) in [("punch", vec!["Left Arm"], "punch (Left Arm)"), ("punch", vec!["Right Arm"], "punch (Right Arm)"), ("push", vec!["Left Arm", "Right Arm"], "push"), ("kick", vec!["Left Leg"], "kick (Left Leg)"), ("kick", vec!["Right Leg"], "kick (Right Leg)")] {
+                let offered = g.get(k).is_some_and(|os| os.iter().any(|o| limbs.iter().all(|l| o.limb.iter().any(|x| x == l))));
+                if !offered && b.units[attacker].locations.contains_key(limbs[0]) {
+                    blocked.push(json!({"kind": k, "name": name, "limb": limbs, "target": e, "why": physical_blocked_why(b, attacker, *e, k, &limbs)}));
+                }
+            }
+        }
+        let req = json!({"kind": "physical", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "base_tn": base, "kinds": kinds, "attacks": attacks, "blocked": blocked});
+        let pick: Option<Vec<PhysOption>> = self.ask(b, req, |_, _| None, |_, a| {
+            // the overlay page: {"attacks": [{kind, name, target}]}; the older answer {"kind": "punch" | ...} is still taken
+            if let Some(list) = a["attacks"].as_array() {
+                if list.is_empty() {
+                    return Ok(None);
+                }
+                let mut out: Vec<PhysOption> = Vec::new();
+                for x in list {
+                    let (k, nm, t) = (x["kind"].as_str().unwrap_or(""), x["name"].as_str().unwrap_or(""), x["target"].as_u64().map(|t| t as UnitId).unwrap_or(target));
+                    let g = by_target.iter().find(|(e, _, _)| *e == t).map(|(_, _, g)| g).ok_or_else(|| format!("unit {} is not in reach", t))?;
+                    let mut o = g.get(k).and_then(|os| os.iter().find(|o| o.name == nm)).cloned().ok_or_else(|| format!("no '{}' attack on that unit", nm))?;
+                    if t != target {
+                        o.target = Some(t);
+                    }
+                    if out.iter().any(|p| p.limb.iter().any(|l| o.limb.contains(l))) {
+                        return Err(format!("{} uses a limb that already attacks", o.name));
+                    }
+                    out.push(o);
+                }
+                // one type of physical attack a turn, except punching with one or both arms (Core p.77)
+                let first = list[0]["kind"].as_str().unwrap_or("");
+                if list.iter().any(|x| x["kind"].as_str() != Some(first)) || (first != "punch" && out.len() > 1) {
+                    return Err("only one type of physical attack a turn, except punching with both arms (p.77)".into());
+                }
+                return Ok(Some(out));
+            }
+            match a["kind"].as_str() {
+                None => Ok(None),
+                Some(k) if groups.contains_key(k) => {
+                    let opts = groups.get(k).unwrap().clone();
+                    // punches may use both arms; any other kind swings once (the best of its options by damage)
+                    Ok(Some(if k == "punch" { opts } else { vec![opts.iter().max_by(|x, y| x.damage.f().partial_cmp(&y.damage.f()).unwrap()).unwrap().clone()] }))
+                }
+                Some(k) => Err(format!("no '{}' attack is possible", k)),
+            }
         });
-        let k = pick?;
-        let opts = groups.get(k.as_str())?.clone();
-        // punches may use both arms; any other kind swings once (the best of its options by damage)
-        let chosen = if k == "punch" { opts } else { vec![opts.iter().max_by(|x, y| x.damage.f().partial_cmp(&y.damage.f()).unwrap()).unwrap().clone()] };
+        let chosen = pick?;
         Some((base, chosen, ArcAction { ..crate::arcs::current_action(&b.units[attacker]) }))
     }
 

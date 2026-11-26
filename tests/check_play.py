@@ -207,12 +207,13 @@ def after_stand(r, k, kinds, pending):
 KIT = {"teams": [
     {"name": "Red", "colour": "#4b8fd8", "bot": "human", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("meks/3050U/Caesar CES-4R.mtf", "meks/3055U/Stealth STH-2D2.mtf", "meks/Golden Century/Minsk 2.mtf", "meks/3058Uu/Spartan SPT-N1.mtf")]},
     {"name": "Blue", "colour": "#d86a4b", "bot": "gladiator", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("Atlas AS7-K.mtf", "Awesome AWS-8Q.mtf")]}],
-    "board": "16x17_Grassland_1.board", "battles": 1, "seed": 7, "max_turns": 100}
+    "board": "16x17_Grassland_1.board", "battles": 1, "seed": 5, "max_turns": 100}
 
 
 def kit_game(lab, kinds):
-    """A game with MASC, TAG, coolant pods and AMS on the person's side: the rarer questions, every mode and switch answered."""
-    gid = lab.api("play_start", {"setup": KIT, "seed": 7})["game"]
+    """(Seed 5 since 2026-11-26: a person now decides again after a failed stand, G3, so seed 7's battle ended before the shutdown and
+    ejection checks were reached.) A game with MASC, TAG, coolant pods and AMS on the person's side: the rarer questions, every mode and switch answered."""
+    gid = lab.api("play_start", {"setup": KIT, "seed": 5})["game"]
     pending = []
     power_unit = []
     eject_unit = []

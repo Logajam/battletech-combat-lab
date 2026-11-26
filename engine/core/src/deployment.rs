@@ -75,7 +75,7 @@ fn moves(b: &Battle, u: UnitId, label: &str, level_limit: terrain_rules::GroundL
 /// Can this unit get from `start` to any hex in `goal`, over as many turns as it likes?
 pub fn reaches(b: &Battle, u: UnitId, start: &str, goal: &HashSet<String>, cache: &mut HashMap<(String, bool), HashSet<String>>) -> bool {
     let m = &b.units[u];
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     for jumping in [false, true] {
         if jumping && compute_jump_mp(m) <= 0 {
             break;

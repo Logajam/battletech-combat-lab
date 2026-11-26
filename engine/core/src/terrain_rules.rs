@@ -152,11 +152,16 @@ pub fn is_paved(info: &Hex) -> bool {
 pub struct GroundLimit {
     pub value: i64,
     pub superheavy: bool,
+    /// May shift sideways without turning (Core p.236 tripods, p.238 quads, no leg destroyed): a step into one of the four hexes that are
+    /// neither directly ahead nor directly behind, +1 MP, the facing kept. The two rear ones count as backward movement (walking only).
+    pub lateral: bool,
+    /// May change facing any number of hexsides for 1 MP (Core p.237, tripods with no leg destroyed).
+    pub free_facing: bool,
 }
 
 /// Most levels ground movement may climb or drop per hex (pp.46-47).
 pub fn max_level_change(hip_destroyed: bool, superheavy: bool) -> GroundLimit {
-    GroundLimit { value: if hip_destroyed { MAX_LEVEL_CHANGE_HIP_DESTROYED } else { MAX_LEVEL_CHANGE }, superheavy }
+    GroundLimit { value: if hip_destroyed { MAX_LEVEL_CHANGE_HIP_DESTROYED } else { MAX_LEVEL_CHANGE }, superheavy, lateral: false, free_facing: false }
 }
 
 /// MP for a ground step from `from_info`'s hex into `to_info`'s, or None if not allowed. from None = entering the

@@ -195,6 +195,10 @@ pub fn jump_mp_lost(b: &Battle, u: UnitId, water_state: Option<&str>) -> Option<
 }
 
 pub fn jump_mp(b: &Battle, u: UnitId) -> i64 {
+    // on its mechanical jump boosters the unit jumps by those alone, even under water (TO:AUE p.105, Mechanical Jump Boosters)
+    if b.units[u].jump_boosters_on {
+        return compute_mechanical_jump_booster_mp(&b.units[u]);
+    }
     match jump_mp_lost(b, u, None) {
         None => 0,
         Some(lost) => 0.max(compute_jump_mp(&b.units[u]) - lost),

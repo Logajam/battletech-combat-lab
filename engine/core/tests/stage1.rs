@@ -173,7 +173,7 @@ fn terrain_rules_match_python() {
         let b = get(s(&c[0]));
         let from = if c[1].is_null() { None } else { Some(&b.hexes[s(&c[1])]) };
         let to = &b.hexes[s(&c[2])];
-        let limit = GroundLimit { value: i(&c[3]), superheavy: c[4].as_bool().unwrap() };
+        let limit = GroundLimit { value: i(&c[3]), superheavy: c[4].as_bool().unwrap(), lateral: false, free_facing: false };
         let got = step_cost(from, to, limit, c[5].as_bool().unwrap());
         let want = if c[6].is_null() { None } else { Some(i(&c[6])) };
         assert_eq!(got, want, "step_cost {:?}", c);

@@ -92,7 +92,7 @@ pub fn path_to_with_start(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option
     let blocked = blocked_set(&m.blocked_hex);
     let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
     let state: State = (x, y, hex_geometry::compass_to_facing(&pick.facing).unwrap());
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     for f0 in 0..6 {
         let table = build_movement_table(sx, sy, f0, standup_mp.unwrap(), Some(&b.board), None, level_limit, true, &blocked).unwrap();
         if table.entries.get(&state).and_then(|c| c.get(&pick.mp_spent)) == Some(&pick.fc) {
@@ -109,7 +109,7 @@ pub fn path_to_cached(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64
     let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
     let state: State = (x, y, hex_geometry::compass_to_facing(&pick.facing).unwrap());
     let (fc, mp) = (pick.fc, pick.mp_spent);
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     let mut table_for = |x0: i64, y0: i64, f0: i64, budget: i64, backward_mp: Option<i64>| -> *const crate::pathfinder::MovementTable {
         let e = cache.entry((x0, y0, f0, budget, backward_mp)).or_insert_with(|| build_movement_table(x0, y0, f0, budget, Some(&b.board), backward_mp, level_limit, true, &blocked).unwrap());
         e as *const _
@@ -169,7 +169,7 @@ pub fn path_notes(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, e
     let blocked = blocked_set(&m.blocked_hex);
     let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
     let facing = hex_geometry::compass_to_facing(&pick.facing).unwrap();
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     let (mut psrs, mut hazard): (Option<i64>, Option<f64>) = (None, None);
     let note = |psrs: &mut Option<i64>, hazard: &mut Option<f64>, a: i64, r: i64, hz: f64| {
         let n = a + if pick.mode == "Run" { r } else { 0 };

@@ -24,10 +24,43 @@ pub enum Step {
     Backward,
     TurnLeft,
     TurnRight,
+    /// Lateral shifts (tripod Core p.236, quad p.238; MegaMek LATERAL_*): into the hex at the front-left / front-right hexside, or
+    /// (the "back" ones, backward movement) the rear-left / rear-right one, +1 MP, the facing kept.
+    LateralLeft,
+    LateralRight,
+    BackLateralLeft,
+    BackLateralRight,
+    /// A tripod turns any number of hexsides for the one MP (Core p.237): two left, two right, or right round.
+    TurnLeft2,
+    TurnRight2,
+    TurnAbout,
 }
 
 impl Step {
-    pub const ALL: [Step; 4] = [Step::Forward, Step::Backward, Step::TurnLeft, Step::TurnRight];
+    pub const ALL: [Step; 11] = [
+        Step::Forward,
+        Step::Backward,
+        Step::TurnLeft,
+        Step::TurnRight,
+        Step::LateralLeft,
+        Step::LateralRight,
+        Step::BackLateralLeft,
+        Step::BackLateralRight,
+        Step::TurnLeft2,
+        Step::TurnRight2,
+        Step::TurnAbout,
+    ];
+
+    /// For a lateral shift: (hexside offset from the facing, is it backward movement).
+    fn lateral(self) -> Option<(i64, bool)> {
+        match self {
+            Step::LateralLeft => Some((-1, false)),
+            Step::LateralRight => Some((1, false)),
+            Step::BackLateralLeft => Some((-2, true)),
+            Step::BackLateralRight => Some((2, true)),
+            _ => None,
+        }
+    }
 
     /// The names the MegaMek bridge uses.
     pub fn name(self) -> &'static str {
@@ -36,6 +69,13 @@ impl Step {
             Step::Backward => "backward",
             Step::TurnLeft => "turn_left",
             Step::TurnRight => "turn_right",
+            Step::LateralLeft => "lateral_left",
+            Step::LateralRight => "lateral_right",
+            Step::BackLateralLeft => "lateral_left_backwards",
+            Step::BackLateralRight => "lateral_right_backwards",
+            Step::TurnLeft2 => "turn_left_2",
+            Step::TurnRight2 => "turn_right_2",
+            Step::TurnAbout => "turn_about",
         }
     }
 
@@ -55,6 +95,10 @@ pub enum StepError {
     OutOfMp { needed: i64, left: i64 },
     /// no backward movement budget was given for this unit
     NoBackward,
+    /// this unit cannot make a lateral shift (only a tripod or quad with no leg destroyed can)
+    NoLateral,
+    /// this unit cannot turn several hexsides for one MP (only a tripod with no leg destroyed can)
+    NoFreeFacing,
 }
 
 impl std::fmt::Display for StepError {
@@ -64,6 +108,8 @@ impl std::fmt::Display for StepError {
             StepError::NotAllowed => write!(f, "the terrain does not allow that step"),
             StepError::OutOfMp { needed, left } => write!(f, "that step costs {} MP and only {} are left", needed, left),
             StepError::NoBackward => write!(f, "this unit cannot move backward"),
+            StepError::NoLateral => write!(f, "this unit cannot shift sideways"),
+            StepError::NoFreeFacing => write!(f, "this unit cannot turn more than one hexside for 1 MP"),
         }
     }
 }
@@ -139,18 +185,29 @@ impl<'a> Walker<'a> {
         let budget = if st.used_back { self.backward_mp.unwrap_or(self.budget) } else { self.budget };
         let (dx, dy) = FACING_DELTAS[st.facing as usize];
         match step {
-            Step::Forward | Step::Backward => {
-                let backward = step == Step::Backward;
+            Step::Forward | Step::Backward | Step::LateralLeft | Step::LateralRight | Step::BackLateralLeft | Step::BackLateralRight => {
+                let lateral = step.lateral();
+                if lateral.is_some() && !self.level_limit.lateral {
+                    return Err(StepError::NoLateral);
+                }
+                let backward = step == Step::Backward || lateral.is_some_and(|l| l.1);
                 let limit = if backward {
                     // backward moves have their own, smaller budget; none given means none allowed
                     self.backward_mp.ok_or(StepError::NoBackward)?
                 } else {
                     budget
                 };
-                let (tx, ty) = if backward { (st.x - dx, st.y - dy) } else { (st.x + dx, st.y + dy) };
+                let (tx, ty) = match lateral {
+                    Some((k, _)) => {
+                        let (lx, ly) = FACING_DELTAS[((st.facing + k).rem_euclid(6)) as usize];
+                        (st.x + lx, st.y + ly)
+                    }
+                    None if backward => (st.x - dx, st.y - dy),
+                    None => (st.x + dx, st.y + dy),
+                };
                 let there = self.open(tx, ty).ok_or(StepError::Blocked)?;
                 let here = self.board.info_xy(st.x, st.y);
-                let cost = terrain_rules::step_cost(here, there, self.level_limit, backward).ok_or(StepError::NotAllowed)?;
+                let cost = terrain_rules::step_cost(here, there, self.level_limit, backward).ok_or(StepError::NotAllowed)? + if lateral.is_some() { crate::pathfinder::LATERAL_SHIFT_EXTRA_MP } else { 0 };
                 if st.mp + cost > limit {
                     return Err(StepError::OutOfMp { needed: cost, left: (limit - st.mp).max(0) });
                 }
@@ -169,15 +226,27 @@ impl<'a> Walker<'a> {
                     hazard: st.hazard + terrain_rules::step_hazard(there, 2),
                 })
             }
-            Step::TurnLeft | Step::TurnRight => {
-                if st.mp + 1 > budget {
+            Step::TurnLeft | Step::TurnRight | Step::TurnLeft2 | Step::TurnRight2 | Step::TurnAbout => {
+                // turning more than one hexside for the 1 MP is a tripod's (Core p.237)
+                let sides: i64 = match step {
+                    Step::TurnLeft => -1,
+                    Step::TurnRight => 1,
+                    Step::TurnLeft2 => -2,
+                    Step::TurnRight2 => 2,
+                    _ => 3,
+                };
+                if sides.abs() > 1 && !self.level_limit.free_facing {
+                    return Err(StepError::NoFreeFacing);
+                }
+                let cost = 1;
+                if st.mp + cost > budget {
                     return Err(StepError::OutOfMp { needed: 1, left: (budget - st.mp).max(0) });
                 }
                 let (always, run_only) = terrain_rules::turn_psrs(self.board.info_xy(st.x, st.y).ok_or(StepError::Blocked)?);
-                let facing = if step == Step::TurnRight { (st.facing + 1).rem_euclid(6) } else { (st.facing - 1).rem_euclid(6) };
+                let facing = (st.facing + sides).rem_euclid(6);
                 Ok(WalkState {
                     facing,
-                    mp: st.mp + 1,
+                    mp: st.mp + cost,
                     always_psrs: st.always_psrs + always,
                     run_psrs: st.run_psrs + run_only,
                     ..st.clone()
@@ -208,23 +277,29 @@ impl<'a> Walker<'a> {
 /// the DP's "turn" has no direction, so it is read from the change of facing.
 pub fn steps_of_path(start_facing: i64, path: &[(&'static str, crate::hex_geometry::State, i64)]) -> Vec<Step> {
     let mut facing = start_facing;
-    path.iter()
-        .map(|&(name, (_, _, f), _)| {
-            let step = match name {
-                "forward" => Step::Forward,
-                "backward" => Step::Backward,
-                _ => {
-                    if f == (facing + 1).rem_euclid(6) {
-                        Step::TurnRight
-                    } else {
-                        Step::TurnLeft
-                    }
-                }
-            };
-            facing = f;
-            step
-        })
-        .collect()
+    let mut out = Vec::with_capacity(path.len());
+    for &(name, (_, _, f), _) in path {
+        match name {
+            "forward" => out.push(Step::Forward),
+            "backward" => out.push(Step::Backward),
+            "lateral_left" => out.push(Step::LateralLeft),
+            "lateral_right" => out.push(Step::LateralRight),
+            "lateral_left_back" => out.push(Step::BackLateralLeft),
+            "lateral_right_back" => out.push(Step::BackLateralRight),
+            _ => {
+                // a turn: the DP's "turn" has no direction, so it is read from the change of facing (a tripod's may be 2 or 3 hexsides)
+                out.push(match (f - facing).rem_euclid(6) {
+                    1 => Step::TurnRight,
+                    2 => Step::TurnRight2,
+                    3 => Step::TurnAbout,
+                    4 => Step::TurnLeft2,
+                    _ => Step::TurnLeft,
+                });
+            }
+        }
+        facing = f;
+    }
+    out
 }
 
 /// A route as text for the MOVE_PATH event: one entry per step, "HEX/S/MP" - the hex after the step, the step (F forward, B backward,
@@ -239,8 +314,14 @@ pub fn route_text(path: &[(&'static str, crate::hex_geometry::State, i64)], star
             "forward" => "F",
             "backward" => "B",
             "enter" => "E",
+            // lateral shifts: SL / SR forward, SBL / SBR the backward ones
+            "lateral_left" => "SL",
+            "lateral_right" => "SR",
+            "lateral_left_back" => "SBL",
+            "lateral_right_back" => "SBR",
+            // a turn; a tripod's several hexsides are one entry (R / L by the shorter way round)
             _ => {
-                if f == (facing + 1).rem_euclid(6) {
+                if (f - facing).rem_euclid(6) <= 3 {
                     "R"
                 } else {
                     "L"

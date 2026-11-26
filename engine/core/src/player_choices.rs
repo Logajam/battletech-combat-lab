@@ -36,6 +36,9 @@ pub struct UnitChoices {
     pub power_request: Option<bool>,
     /// shut down by choice: no restart is tried until the person asks for one (then the usual heat checks, p.105)
     pub held_off: bool,
+    /// AN AIMED SHOT the person chose (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Section 14 I7; Core p.70): (target, location), at an
+    /// immobile target only. Set by the fire screen's queries before the target is answered; the declaration at that target uses it.
+    pub aimed: Option<(usize, String)>,
 }
 
 #[derive(Clone, Debug, Default)]

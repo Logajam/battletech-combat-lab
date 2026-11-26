@@ -112,7 +112,7 @@ fn unit_elevation(h: &crate::board_parser::Hex) -> i64 {
 /// neighbours is within its limit. `leveled`: the destruction-aware version (a building it would have to plow through counts
 /// as passable, MegaMek's "terrain reduction"). Returns (cluster of each hex, members of each cluster).
 fn generate_clusters(b: &Battle, u: UnitId, leveled: bool) -> (HashMap<(i64, i64), usize>, Vec<Vec<(i64, i64)>>) {
-    let limit = terrain_rules::max_level_change(ground_level_limited(&b.units[u]), is_superheavy(&b.units[u])).value;
+    let limit = crate::mech_state::ground_limit(&b.units[u]).value;
     let mut of: HashMap<(i64, i64), usize> = HashMap::default();
     let mut members: Vec<Vec<(i64, i64)>> = Vec::new();
     for x in 0..b.board.width {
@@ -407,7 +407,7 @@ fn kernel_rank(b: &Battle, u: UnitId, start: &str) -> f64 {
         }
     } else {
         // the cheapest walk to every (hex, facing) with 3 MP: forward steps at this engine's terrain cost, turns at 1 MP
-        let limit = terrain_rules::max_level_change(ground_level_limited(&b.units[u]), is_superheavy(&b.units[u]));
+        let limit = crate::mech_state::ground_limit(&b.units[u]);
         let facing0 = 0i64; // the unit stands facing north, as it was ranked (MegaMek's undeployed facing)
         let mut best: HashMap<((i64, i64), i64), (i64, u64)> = HashMap::default();
         let mut came: HashMap<((i64, i64), i64), ((i64, i64), i64)> = HashMap::default();

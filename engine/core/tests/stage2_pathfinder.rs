@@ -57,7 +57,7 @@ fn movement_tables_match_python() {
             for c in group[1].as_array().unwrap() {
                 let st = &c[0];
                 let t = build_movement_table(st[0].as_i64().unwrap(), st[1].as_i64().unwrap(), st[2].as_i64().unwrap(), c[1].as_i64().unwrap(),
-                    None, None, GroundLimit { value: 2, superheavy: false }, false, &HashSet::default()).unwrap();
+                    None, None, GroundLimit { value: 2, superheavy: false, lateral: false, free_facing: false }, false, &HashSet::default()).unwrap();
                 assert_eq!(table_json(&t), c[2], "flat {:?}", c);
                 n += 1;
             }
@@ -67,7 +67,7 @@ fn movement_tables_match_python() {
         for c in group[1].as_array().unwrap() {
             let st = &c["start"];
             let blocked: HashSet<(i64, i64)> = c["blocked"].as_array().unwrap().iter().map(|h| (h[0].as_i64().unwrap(), h[1].as_i64().unwrap())).collect();
-            let limit = GroundLimit { value: c["limit"][0].as_i64().unwrap(), superheavy: c["limit"][1].as_bool().unwrap() };
+            let limit = GroundLimit { value: c["limit"][0].as_i64().unwrap(), superheavy: c["limit"][1].as_bool().unwrap(), lateral: false, free_facing: false };
             let got = build_movement_table(st[0].as_i64().unwrap(), st[1].as_i64().unwrap(), st[2].as_i64().unwrap(),
                 c["budget"].as_i64().unwrap(), Some(&b), c["backward"].as_i64(), limit, c["keep"].as_bool().unwrap(), &blocked);
             match (got, c.get("table"), c.get("error")) {

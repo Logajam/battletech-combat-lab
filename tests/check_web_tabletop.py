@@ -89,16 +89,18 @@ const { chromium } = require('playwright');
   await page.locator('#zfit').click(); await page.waitForTimeout(300); out.fit = await cam();
   out.hexAt = await page.evaluate(([x, y]) => MV.hexAt(x, y), [cx, cy]);
   await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(900); await page.mouse.up(); await page.waitForTimeout(200);
-  out.card = await page.evaluate(() => { const c = document.getElementById('card'); return c.style.display === 'block' ? c.textContent.slice(0, 30) : null; });
+  // the overlay UI (Section 14, L5): a long press opens the inspector on that hex
+  out.card = await page.evaluate(() => { const c = document.getElementById('insp'); return c.classList.contains('open') ? c.querySelector('.t2').textContent.replace(/^Hex · /, "").replace(/^hex/, "Hex").slice(0, 30) : null; });
+  await page.keyboard.press('Escape');
   // units: pieces in the scene, the page's marks projected over them, and redrawn when the camera moves
   out.units = await page.evaluate(async () => {
     MV.setUnits([{ id: 1, hex: '0909', facing: 'SE', tons: 100, colour: '#4b8fd8', mech: 'Atlas AS7-K', sel: true }, { id: 2, hex: '0910', facing: 'N', tons: 35, colour: '#d86a4b', mech: 'Nobody X' }]);
     await new Promise((r) => setTimeout(r, 300)); const V = MV.tabletop().three, n0 = V.units ? V.units.children.length : 0;
     const poly = () => document.querySelector('#map polygon[points]'); const at = MV.at('0909'), p = MV.pt('0909', 1, 0);
-    const tl = document.querySelectorAll('#menu [data-act="t3"]').length; localStorage.setItem('bm_t_relief', '400'); MV.setting({ relief: 400 }); await new Promise((r) => setTimeout(r, 200));
+    const tl = (() => { const d = document.createElement('div'); d.innerHTML = pageHtml('Options', {}); return d.querySelectorAll('[data-act="t3"]').length; })(); localStorage.setItem('bm_t_relief', '400'); MV.setting({ relief: 400 }); await new Promise((r) => setTimeout(r, 200));
     return { looks: tl, relief: MV.tabletop().settings.relief, pieces: n0, sprites: Object.keys(window.MECH_SPRITES || {}).length, at, east: p[0] - at[0], scale: MV.scale('0909'), k: MV.k(), hexPts: MV.hexPts('0909').split(' ').length };
   });
-  await page.click('#menu-btn'); await page.locator('#menu [data-act="view3d"]').click(); await page.waitForTimeout(600);
+  await page.click('#pnE [data-act="menu"]'); await page.locator('#menu [data-act="view3d"]').click(); await page.waitForTimeout(600);
   out.back = await page.evaluate(() => ({ mode: MV.mode, canvas: !!document.getElementById('tabletop'), flatShown: MV.layers.map.style.display !== 'none', pref: localStorage.getItem('bm_view') }));
   await page.close();
   // ---- 4: no WebGL
@@ -168,7 +170,7 @@ def main():
     ck(o["tilt"][1] != o["tilt"][0], f"two fingers together tilt {o['tilt']}")
     ck(o["tiltBtn"][1] != o["tiltBtn"][0], f"the tilt button cycles {o['tiltBtn']}")
     ck(o["fit"]["dist"] > 100, f"the fit button fits ({o['fit']['dist']:.0f})")
-    ck(o["hexAt"] is not None and o["card"] and o["card"].startswith("Hex "), f"the view finds the hex under a point and a long press opens its card ({o['hexAt']}, {o['card']})")
+    ck(o["hexAt"] is not None and o["card"] and o["card"].startswith("Hex "), f"the view finds the hex under a point and a long press opens the inspector on it ({o['hexAt']}, {o['card']})")
     rp = o["replay"]
     ck(rp.get("shown") and rp.get("canvas") and rp["marks"] > 0 and rp["vb"].startswith("0 0 ") and not rp["back"]["canvas"] and rp["back"]["hexes"] > 100, f"the replay page's 3D button opens the tabletop and goes back ({rp})")
     u = o["units"]

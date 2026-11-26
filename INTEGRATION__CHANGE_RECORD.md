@@ -6,6 +6,34 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-26 (Claude, session 37), THE OVERLAY UI BUILT ON THE LIVE PLAY PAGE. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and begin. The Job is done when that checklist is complete and the public website is updated." The play page
+  (`engine/lab/web/play.html`, `play.js`) now has every item of `INTEGRATION__UI_SYNC.md` Section 14: the map fills the screen; enemy side
+  left / yours right (upright: above / below); the camera frames the clear area (`mapview.js` / `tabletop.js` insets and a view offset);
+  title line (Menu, BattleROM, REC); strips with arrows; Last and Active lines; MP / heat display, the extra button, Commit held 650 ms with
+  labels, colours and the warning, Undo / Clear; weapons in the critical-table layout round the middle with split fire, long press for
+  modes / to-hit; physical attacks as boxes in the limbs; attack lines dashed / solid / muted; placards fade; the base's front panel; the
+  grid fades; the inspector (top half, flicks, nine tabs) and the two wings (per-phase pages). The dock is gone. Engine (human units only;
+  68/68 reference battles unchanged): a failed stand is reported and the player decides again with the MP left (Daniel's G3 ruling; Core
+  p.51), also after a fall partway through a move; the physical question lists every adjacent enemy's attacks and the blocked ones with
+  reasons (pp.77, 81-83), and a punch may go at a secondary target (p.82); a person's aimed shot at an immobile target (p.70). Not possible
+  yet: attacking a hex or a building (no such engine feature; checklist H2-H4 marked [~], the page says so). Tests:
+  `tests/check_web_play.py` part 3 taps the new controls; `tests/play_page_e2e.js` takes screenshots in three sizes.
+- **2026-11-26 (Claude, session 37), THE OVERLAY UI: DESIGNED WITH DANIEL, MOCKED UP, CHECKLISTED. REVIEW PENDING (higher-level model).**
+  Design only (no engine or live-page code). Daniel's rulings for the play UI, round by round, in `INTEGRATION__UI_SYNC.md` Sections 10-12e:
+  the map fills the screen and the UI lies on top of it (enemy side left / above, yours right / below, the square between kept clear), the
+  unit sheet is removed (the inspector and the wings show the rest when needed), weapons and physical attacks as boxes at fixed places in the
+  active unit's critical-table layout, paired punches with a secondary target, the title line (Menu, BattleROM, REC), the map's top line
+  (camera controls, turn), rounded shiny action buttons, base fronts, heat as "current (dissipation): end". A first mockup built from
+  scratch was turned down ("too much like a fresh rebuild"); an attempt to run the real page in an artifact was scrapped ("a blind
+  alley"). Frame mockup version 2.5 is built from the holotable mockup (`reference_art/battlerom_ui/battlerom_frame_mockup.html`, source
+  `frame_build/`). Rules checked in the library for physical attacks (Core pp.77, 81-83). The build checklist is Section 14; ideas for later
+  are Sections 13 / 13a (PROJECT_MAP P3d). Merged earlier the same day: the previous session's 2026-11-25 batch (PR 339) and the first
+  rulings and mockup (PR 340).
+
+- **2026-11-25 (Claude, session 36), ENGINE PASS BATCH: TRIPOD / QUAD MOVES, CAREFUL STAND, MECHANICAL JUMP BOOSTERS. REVIEW PENDING (higher-level model).**
+  **Daniel, 2026-11-25:** "Tripod turns and Lateral shifts are likely to be the next items to add." / "Add careful stand and mechanical jump boosters." / "We won't push to live yet, just get the fixes in." **Built:** (1) TRIPOD facing changes (any number of hexsides for 1 MP, Core p.237) and TRIPOD / QUAD lateral shifts (+1 MP into one of the four hexes not ahead or behind, facing kept; the two rear ones are backward moves, walking only; Core pp.236-238; a destroyed leg takes them away): `terrain_rules::GroundLimit` gains `lateral` and `free_facing` (set by `mech_state::ground_limit`, used at every mover site), the DP (`pathfinder.rs`, both builds) gains the edges, `step_walk.rs` gains the steps (`LateralLeft/Right`, `BackLateralLeft/Right`, `TurnLeft2/Right2/TurnAbout`), the bridge sends MegaMek's `lateral_*` steps (and one turn step per hexside), MOVE_PATH route text gains SL / SR / SBL / SBR. Walker and DP agree on every state (tests/step_walk.rs now also runs a quad and a tripod); tests/lateral_moves.rs: an Asymptote II facing S going SW then S costs 3 MP (a Walk; as a biped it cost 4). Bots use the new moves, so 8 reference battles changed (the tripod / quad ones): `check_rust_reference.py --update`. (2) CAREFUL STAND (TO:AR p.22): one attempt, the whole Movement Phase, counted as walked, -2 with more than 2 Walking MP; a person's choice (stand_up answer `careful`, a play-page button); bots stand as before. tests/careful_stand.rs. (3) MECHANICAL JUMP BOOSTERS (TO:AUE p.105) for a person's units: asked before the move (`jump_boost` question); on them the jump budget is the booster MP (also under water), no heat, same facing, no Death From Above, never together with the jets. Bots do not use them. tests/jump_boosters.rs. **Not built:** ground targeting (see PROJECT_MAP Section 0). **Page:** a Stand carefully button and a jump-boost sheet; lateral shifts have no page control of their own yet (UI session).
+
 - **2026-11-25 (Claude, session 36), P10: THE REPLAY VIEWER GETS THE 3D TABLETOP; 3D IS THE PLAY PAGE'S DEFAULT; BTTT OUT OF MAIN. REVIEW PENDING (higher-level model).**
   **Daniel, 2026-11-25:** "3D is the way to go. 2D is the fallback." / "May as well bite the bullet and get it done." (the replay viewer) / "BTTT Needs to be removed from public facing builds ... remove it from the main branch so long as it can be reinstalled later." **Built:** (1) `INTEGRATION__replay_viewer.html`: a 3D button (hidden unless `tabletop.js` is beside the page), the same renderer and unit pictures, its drawing (units, trails, heat map) done through `at / sc / hexPts` so the flat view is unchanged; camera by wheel, drag, right-drag, two fingers. (2) The play page opens in 3D when nothing was chosen; no WebGL keeps the flat map without a card. (3) BTTT removed from the engine, the Lab, the reference list (62 battles now) and the credits; `archive/bttt_removal.patch` puts it back (`git apply -R`), the publish tools still refuse while `bttt.rs` exists. (4) Sprites credited as shipped (`CREDITS.md`). (5) `tabletop.js`: `flatShading` moved to a Phong material (r128's Lambert ignored it and warned on every build). **Checked:** full run 8 of 8 (868 s) after the BTTT removal; `check_web_tabletop.py` 17 checks incl. the replay's 3D round trip; `check_web_play`, `check_web_ui`, `check_web_lab`, `check_lab_server`, `check_events`.
 

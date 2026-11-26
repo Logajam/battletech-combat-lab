@@ -166,7 +166,7 @@ fn movement_options_all(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_ed
         if standup { "Run" } else { classify_movement_mode(spent, walk) }
     };
     let standup_flag = standup_mp.is_some();
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     let mut seen: HashSet<StateKey> = HashSet::default();
     let blocked = blocked_hexes(b, u);
     let mut mode_standup_flag = standup_flag;
@@ -208,12 +208,17 @@ fn movement_options_all(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_ed
             out.push((key, notes.psrs.get(&key).copied().unwrap_or(0), notes.hazard.get(&key).copied().unwrap_or(0.0)));
         }
     }
+    // on mechanical jump boosters the unit cannot steer in flight: it lands facing the way it took off (TO:AUE p.105)
+    let boosters = m.jump_boosters_on;
     if jump_mp > 0 {
         for ((x, y, facing), fc) in crate::combat::build_jump_states(&b.board, sx, sy, jump_mp).unwrap() {
+            if boosters && facing != start_facing {
+                continue;
+            }
             let k = (x, y, facing, fc, "Jump", jump_mp);
             out.push((k, notes.psrs.get(&k).copied().unwrap_or(0), notes.hazard.get(&k).copied().unwrap_or(0.0)));
         }
-        for facing in 0..6 {
+        for facing in (0..6).filter(|f| !boosters || *f == start_facing) {
             let k = (sx, sy, facing, 0, "Jump", 1);
             out.push((k, notes.psrs.get(&k).copied().unwrap_or(0), notes.hazard.get(&k).copied().unwrap_or(0.0)));
         }
@@ -227,7 +232,7 @@ fn entry_options(b: &Battle, u: UnitId, edge: &[String], notes: &mut PathNotes) 
     let mut seen: HashSet<StateKey> = HashSet::default();
     let mut out = Vec::new();
     let blocked = blocked_hexes(b, u);
-    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    let level_limit = crate::mech_state::ground_limit(m);
     for label in edge {
         let Some(info) = b.board.hexes.get(label) else { continue };
         let (ex, ey) = hex_geometry::parse_hex_label(label).unwrap();

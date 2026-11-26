@@ -592,7 +592,7 @@ fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -
         // INTO the target counted. The steps are the route to that hex; the bridge adds MegaMek's CHARGE step (session 30).
         let Some(target) = crate::movement_attacks::neighbour(&pick.hex, crate::hex_geometry::compass_to_facing(&pick.facing).unwrap()) else { return Value::Null };
         let m = &b.units[mover];
-        let level_limit = crate::terrain_rules::max_level_change(crate::mech_state::ground_level_limited(m), crate::mech_state::is_superheavy(m));
+        let level_limit = crate::mech_state::ground_limit(m);
         let (Some(from), Some(into)) = (b.board.hexes.get(&pick.hex), b.board.hexes.get(&target)) else { return Value::Null };
         let Some(cost) = crate::terrain_rules::step_cost(Some(from), into, level_limit, false) else { return Value::Null };
         let route = Pick { fc: pick.fc - 1, mp_spent: pick.mp_spent - cost, charge: false, ..pick.clone() };
@@ -672,11 +672,21 @@ fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -
         match step {
             "turn" => {
                 // the path's first state may already be a different facing (standing up facing anywhere)
-                steps.push(if (f - facing).rem_euclid(6) == 1 { "turn_right" } else { "turn_left" });
+                // a tripod turns several hexsides as one DP step (Core p.237): one MegaMek turn per hexside, the short way round
+                let turn = (f - facing).rem_euclid(6);
+                let (name, n) = if turn <= 3 { ("turn_right", turn) } else { ("turn_left", 6 - turn) };
+                for _ in 0..n.max(1) {
+                    steps.push(name);
+                }
                 facing = f;
             }
             "forward" => steps.push("forward"),
             "backward" => steps.push("backward"),
+            // lateral shifts (tripod, quad): MegaMek's LATERAL_LEFT / RIGHT and the two backwards ones
+            "lateral_left" => steps.push("lateral_left"),
+            "lateral_right" => steps.push("lateral_right"),
+            "lateral_left_back" => steps.push("lateral_left_backwards"),
+            "lateral_right_back" => steps.push("lateral_right_backwards"),
             other => return json!({"unsupported_step": other}),
         }
     }
@@ -955,6 +965,7 @@ impl Session {
             }
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
             start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
+            start["bttt_teams"] = v.get("bttt_teams").cloned().unwrap_or(json!([]));
             let mut session = Session::start(&start);
             session.rules_notes = notes;
             return session;
@@ -965,6 +976,7 @@ impl Session {
         let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
         let mut units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&v["units"][n], &idx)).collect();
         let hydra: Vec<String> = v["hydra_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
+        let bttt: Vec<String> = v["bttt_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         let caspar: Vec<String> = v["caspar_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         for m in units.iter_mut() {
             if m.team.as_ref().is_some_and(|t| hydra.contains(t)) {
@@ -972,6 +984,9 @@ impl Session {
             }
             if m.team.as_ref().is_some_and(|t| caspar.contains(t)) {
                 m.bot = "caspar".to_string();
+            }
+            if m.team.as_ref().is_some_and(|t| bttt.contains(t)) {
+                m.bot = "bttt".to_string();
             }
         }
         let seed = v["seed"].as_u64().unwrap_or(1);

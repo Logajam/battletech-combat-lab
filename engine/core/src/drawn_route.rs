@@ -46,7 +46,7 @@ impl UnitWalk {
         let start = hex_geometry::state_from_label(m.hex.as_deref()?, &m.facing).ok()?;
         Some(UnitWalk {
             blocked: blocked_set(&m.blocked_hex),
-            level_limit: max_level_change(ground_level_limited(m), is_superheavy(m)),
+            level_limit: crate::mech_state::ground_limit(m),
             walk: compute_walk_mp(m),
             run: compute_running_mp(m),
             start,
@@ -73,12 +73,25 @@ pub fn replay(b: &Battle, uw: &UnitWalk, path: &Path) -> Option<(WalkState, Vec<
     Some((states.last().cloned().unwrap_or(start), steps))
 }
 
+/// The DP's name for a step (`MovementTable::path`): "turn" has no direction, the lateral shifts name their side.
+fn step_name(s: Step) -> &'static str {
+    match s {
+        Step::Forward => "forward",
+        Step::Backward => "backward",
+        Step::LateralLeft => "lateral_left",
+        Step::LateralRight => "lateral_right",
+        Step::BackLateralLeft => "lateral_left_back",
+        Step::BackLateralRight => "lateral_right_back",
+        Step::TurnLeft | Step::TurnRight | Step::TurnLeft2 | Step::TurnRight2 | Step::TurnAbout => "turn",
+    }
+}
+
 /// A route given as steps, back in the DP's shape ((name, state after, MP so far)): what `walk_path` walks. None if a step is refused.
 pub fn path_of_steps(b: &Battle, uw: &UnitWalk, steps: &[Step]) -> Option<Path> {
     let w = uw.walker(b);
     let start = w.start(uw.start.0, uw.start.1, uw.start.2).ok()?;
     let states = w.walk(&start, steps).ok()?;
-    Some(steps.iter().zip(states.iter()).map(|(s, st)| (match s { Step::Forward => "forward", Step::Backward => "backward", _ => "turn" }, st.state(), st.mp)).collect())
+    Some(steps.iter().zip(states.iter()).map(|(s, st)| (step_name(*s), st.state(), st.mp)).collect())
 }
 
 /// The route through the waypoints: where it ends, how it faces, what it has cost and every step.

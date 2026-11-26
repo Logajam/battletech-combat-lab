@@ -134,6 +134,18 @@ pub fn aimed_shot_location(b: &Battle, target: UnitId, partial_cover: bool) -> O
     Some(loc)
 }
 
+/// The location a person aims at this target (Section 14 I7), if they chose one and the shot is allowed: an immobile target (p.70), a
+/// location it still has, and no leg behind partial cover. None for every bot and every simulated battle.
+pub fn person_aim(b: &Battle, attacker: UnitId, target: UnitId, partial_cover: bool) -> Option<String> {
+    let name = b.units[attacker].side_name.clone()?;
+    let (t, loc) = b.player.unit(&name)?.aimed.clone()?;
+    let m = &b.units[target];
+    if t != target || !is_immobile(m) || !m.locations.contains_key(&loc) || m.locations[&loc].destroyed || (partial_cover && m.leg_locations.contains(&loc)) {
+        return None;
+    }
+    Some(loc)
+}
+
 pub fn aimed_tn_adjust(aim: &str, cover_modifier: i64) -> i64 {
     -cover_modifier + if aim == "Head" { AIMED_HEAD_ADJUST } else { 0 }
 }
@@ -1305,6 +1317,9 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
             aim = Some(loc);
             aim_destruction = Some(destruction);
         }
+    } else if let Some(loc) = person_aim(b, attacker, target, cover > 0) {
+        // a person's own aimed shot (Section 14 I7)
+        aim = Some(loc);
     } else if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
         aim = aimed_shot_location(b, target, cover > 0);
     }

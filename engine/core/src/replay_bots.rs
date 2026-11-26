@@ -148,6 +148,7 @@ fn phys_option(v: &Value) -> PhysOption {
         flail: flag("flail"),
         whip: flag("whip"),
         push: flag("push"),
+        target: None,
         fumble: false,
         tn: None,
     }

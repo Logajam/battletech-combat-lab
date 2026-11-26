@@ -152,15 +152,49 @@ fn build_terrain_aware(
                     }
                 }
             }
-            // 3. / 4. Turning
+            // 3. / 4. Turning (a tripod turns any number of hexsides for the same 1 MP, Core p.237)
             if mp + 1 <= budget {
-                for new_facing in [(facing - 1).rem_euclid(6), (facing + 1).rem_euclid(6)] {
+                for new_facing in turn_targets(facing, level_limit) {
                     push(&mut buckets, mp + 1, (x, y, new_facing, last, used_back), fc);
+                }
+            }
+            // 5. Lateral shifts (tripod, quad: Core pp.236, 238): +1 MP, the facing kept; the two rear ones are backward moves
+            if level_limit.lateral {
+                for (k, backward, step_name) in LATERAL_OFFSETS {
+                    let (lx, ly) = FACING_DELTAS[((facing + k).rem_euclid(6)) as usize];
+                    let (tx, ty) = (x + lx, y + ly);
+                    let limit = if backward { match backward_mp { Some(b) => b, None => continue } } else { budget };
+                    let Some(dest) = hex_info(board, blocked, tx, ty) else { continue };
+                    if backward && dest.level != current_info.level {
+                        continue;
+                    }
+                    let Some(cost) = terrain_rules::step_cost(board.info_xy(x, y), dest, level_limit, backward) else { continue };
+                    let cost = cost + LATERAL_SHIFT_EXTRA_MP;
+                    if mp + cost <= limit {
+                        let (dir, same) = if backward { (-1, last <= 0) } else { (1, last >= 0) };
+                        push(&mut buckets, mp + cost, (tx, ty, facing, dir, used_back || backward), if same { fc + 1 } else { 1 });
+                    }
                 }
             }
         }
     }
     Ok(table)
+}
+
+/// A lateral shift costs this much more than a step ahead into the same hex (Core p.236, p.238).
+pub const LATERAL_SHIFT_EXTRA_MP: i64 = 1;
+
+/// The four hexes a lateral shift can reach, as (offset of the hexside from the facing, is it backward movement): front-left (-1) and
+/// front-right (+1) are forward shifts; rear-left (-2) and rear-right (+2) are backward ones (a 'Mech must walk to make them).
+pub const LATERAL_OFFSETS: [(i64, bool, &str); 4] = [(-1, false, "lateral_left"), (1, false, "lateral_right"), (-2, true, "lateral_left_back"), (2, true, "lateral_right_back")];
+
+/// The facings one turn step may reach: the two neighbours, or (a tripod, Core p.237) every other facing.
+pub fn turn_targets(facing: i64, limit: GroundLimit) -> Vec<i64> {
+    if limit.free_facing {
+        (1..6).map(|k| (facing + k).rem_euclid(6)).collect()
+    } else {
+        vec![(facing - 1).rem_euclid(6), (facing + 1).rem_euclid(6)]
+    }
 }
 
 type PsrValue = (f64, i64, i64, i64, i64); // (-hazard, forward_count, -total PSRs, always, run_only)
@@ -324,7 +358,7 @@ fn build_terrain_psr(
             // 3. / 4. Turning (mud: a PSR if running, p.124).
             if mp + 1 <= budget {
                 let (a, r) = terrain_rules::turn_psrs(board.info_xy(x, y).unwrap());
-                for new_facing in [(facing - 1).rem_euclid(6), (facing + 1).rem_euclid(6)] {
+                for new_facing in turn_targets(facing, level_limit) {
                     push(
                         &mut buckets,
                         &mut table.parents,
@@ -335,6 +369,33 @@ fn build_terrain_psr(
                         mp,
                         "turn",
                     );
+                }
+            }
+            // 5. Lateral shifts (tripod, quad: Core pp.236, 238): as a step into that hex, +1 MP, the facing kept
+            if level_limit.lateral {
+                for (k, backward, step_name) in LATERAL_OFFSETS {
+                    let (lx, ly) = FACING_DELTAS[((facing + k).rem_euclid(6)) as usize];
+                    let (tx, ty) = (x + lx, y + ly);
+                    let limit = if backward { match backward_mp { Some(b) => b, None => continue } } else { budget };
+                    if hex_info(board, blocked, tx, ty).is_none() {
+                        continue;
+                    }
+                    let (cost, a, r) = board_extra(x, y, tx, ty, backward);
+                    let Some(cost) = cost else { continue };
+                    let cost = cost + LATERAL_SHIFT_EXTRA_MP;
+                    if mp + cost <= limit {
+                        let (dir, same) = if backward { (-1, last <= 0) } else { (1, last >= 0) };
+                        push(
+                            &mut buckets,
+                            &mut table.parents,
+                            mp + cost,
+                            (tx, ty, facing, dir, used_back || backward),
+                            (hz - board_hazard(tx, ty), if same { fc + 1 } else { 1 }, neg - a - r, always + a, run_only + r),
+                            key,
+                            mp,
+                            step_name,
+                        );
+                    }
                 }
             }
         }

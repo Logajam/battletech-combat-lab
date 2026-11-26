@@ -6,9 +6,9 @@
 
 === TURN 1 ===
   Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 4).
-  [Movement select] Blue: score 347.590 = dealt 19.40 x1.00 + (HP 394.0 - received 24.63 x1.09 - PSR 0.00) / enemy future 16.41 x my future 14.67 [two-ply, 92 of 538 spots (grid search) x 568 replies (short list); modeled reply Red -> 0505 NE Stand Still]
+  [Movement select] Blue: score 346.589 = dealt 12.49 x1.00 + (HP 394.0 - received 18.56 x1.09 - PSR 0.00) / enemy future 16.41 x my future 14.67 [two-ply, 140 of 769 spots (grid search) x 766 replies (short list); modeled reply Red -> 0807 NE Run]
   [Movement] Blue: 0508 N -> 1104 NE, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Red: score 585.465 = dealt 24.63 x1.09 + (HP 519.0 - received 19.40 x1.01 - PSR 0.00) / enemy future 14.67 x my future 16.41 [enemy held at 1104; 155 spots with LOS]
+  [Movement select] Red: score 585.465 = dealt 24.63 x1.09 + (HP 519.0 - received 19.40 x1.01 - PSR 0.00) / enemy future 14.67 x my future 16.41 [enemy held at 1104; 195 spots with LOS]
   [Movement] Red: 0505 S -> 0505 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Blue twists its torso 2 hexsides left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISRISCHyperLaser', 'ISRISCHyperLaser', 'CLSRM6', 'CLSRM6'] (weapon heat 56 of budget 58 = max 30 + sink 30 - current 0 - movement 2 - other 0; expected dmg 19.33)
@@ -70,9 +70,10 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first (rolled Red 11, Blue 10).
   [Movement] Blue: shut down - skips movement (immobile).
-  [Movement select] Red: score 2926.992 = dealt 68.89 x1.16 + (HP 499.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 5.00 x my future 28.53 [enemy held at 1104; 96 spots with LOS]
-  [Movement] Red: 0505 S -> 1004 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Red: score 2926.992 = dealt 68.89 x1.16 + (HP 499.0 - received 0.00 x1.06 - PSR 0.00) / enemy future 5.00 x my future 28.53 [enemy held at 1104; 141 spots with LOS]
+  [Movement] Red: 0505 S -> 1004 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Blue: shut down - no attacks.
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 0 + heat 0); firing ['CLLRM15', 'CLLRM15', 'CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (aimed at Center Torso) (weapon heat 30 of budget 58 = max 30 + sink 30 - current 0 - movement 2 - other 0; expected dmg 52.83)
     [Red fire control] CLLRM15: Artemis V
   [Ranged] Red fires in order: ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLLRM15', 'CLLRM15'].
@@ -213,7 +214,7 @@ FALL (auto-fail (shut down)): 'Battle Tripod' R/H3L-2X takes 6 falling damage (1
   All critical slots in Left Arm marked DESTROYED.
   1 damage remains, transfers to Left Torso.
   [Heat] Red: 0 + movement 2 + weapons 30 + engine 0 - sinks 30 -> 2
-  -- end of turn 2: Red @ 1004 N: HP 369, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 2: Red @ 1004 S: HP 369, pilot hits 0, engine 0, gyro 0, heat 2
   -- end of turn 2: Blue @ 1104 NE: HP 183, pilot hits 4, engine 4, gyro 0, heat 28 [SHUT DOWN, PRONE, DESTROYED (Engine Destroyed)]
 
 >>> Battle over on turn 2: Blue destroyed. <<<

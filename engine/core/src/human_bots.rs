@@ -48,6 +48,11 @@ pub trait Controller {
     #[allow(clippy::too_many_arguments)]
     fn movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, inner: &mut GladiatorBots) -> (Option<Pick>, String, PathGate);
     fn target(&mut self, b: &mut Battle, attacker: UnitId, inner: &mut GladiatorBots) -> Option<UnitId>;
+    /// Does this controller decide again after each failed stand and after a fall partway through a move (G3, Daniel 2026-11-26)? The
+    /// play page does (`Screen`); a controller that says no leaves the engine's own retries, so a pass-through person plays the plain battle.
+    fn decides_each_stand(&self) -> bool {
+        false
+    }
     /// A further (secondary) target after the primary and the ones in `done`; None: no more (the default: a person's unit fires at one target).
     fn secondary(&mut self, _b: &mut Battle, _attacker: UnitId, _primary: UnitId, _done: &[UnitId], _inner: &mut GladiatorBots) -> Option<UnitId> {
         None
@@ -73,6 +78,10 @@ pub trait Controller {
     /// May a prone unit that can stand try to?
     fn stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
         true
+    }
+    /// A unit that stands: carefully (TO:AR p.22)?
+    fn careful_stand(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        false
     }
     /// The Heat Phase is about to start for this unit.
     fn end_phase(&mut self, _b: &mut Battle, _u: UnitId, _weapon_heat: i64) -> Option<String> {
@@ -248,6 +257,21 @@ impl<C: Controller> BotSet for HumanBots<C> {
         }
         let r = self.ctl.stand_up(b, mover);
         self.log.push(Decision::Choice { unit: mover, kind: "stand_up", answer: r.to_string() });
+        r
+    }
+
+    fn decides_each_stand(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
+        self.human.contains(&mover) && self.ctl.decides_each_stand()
+    }
+
+    fn careful_stand(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        if !self.human.contains(&mover) {
+            return false;
+        }
+        let r = self.ctl.careful_stand(b, mover);
+        if r {
+            self.log.push(Decision::Choice { unit: mover, kind: "careful_stand", answer: "true".into() });
+        }
         r
     }
 

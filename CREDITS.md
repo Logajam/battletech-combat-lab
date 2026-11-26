@@ -49,6 +49,12 @@ the BattleTech community. This project would not exist without their work.
   MegaMek's source (cited "MegaMek" in the code), and `megamek_bridge/` is built against MegaMek (see its README). MegaMek
   is never copied into or changed by this project.
 
+## BTTT
+
+**BTTT: BattleTech TableTop** by Raptor007 (Blair Sherman), <https://github.com/Raptor007/BTTT>, a fan-made computer game of tabletop BattleTech.
+It has no licence, so this project copies none of its code, sounds, textures or other files. Its game and its computer opponent were studied
+for ideas (how a simple one-turn bot weighs damage, cover and heat), and anything built from them is written from scratch. With thanks to the author.
+
 ## BattleTech
 
 This is an unofficial fan project. It is not affiliated with, endorsed by, or licensed by Microsoft Corporation, The

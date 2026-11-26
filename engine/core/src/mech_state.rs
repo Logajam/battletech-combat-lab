@@ -276,6 +276,10 @@ pub struct Mech {
     pub base_mechanical_jump_booster_mp: i64,
     pub mechanical_jump_booster_disabled: bool,
     pub partial_wing_active: bool,
+    /// This turn a person's unit jumps on its MECHANICAL JUMP BOOSTERS (TO:AUE p.105, 'Mech Mechanical Jump Boosters), not its jets: set before the move
+    /// (`play_session::before_move`), cleared by `reset_movement_state`. While set the jump budget is the booster MP, makes no heat, keeps the
+    /// facing and cannot be a DFA.
+    pub jump_boosters_on: bool,
     pub pilot_hits: i64,
     pub crew: IndexMap<String, Crew>,
     pub engine_hits: i64,
@@ -613,6 +617,7 @@ impl Mech {
             base_mechanical_jump_booster_mp: 0,
             mechanical_jump_booster_disabled: false,
             partial_wing_active: false,
+            jump_boosters_on: false,
             pilot_hits: 0,
             crew,
             engine_hits: 0,
@@ -781,6 +786,16 @@ pub fn ground_level_limited(mech: &Mech) -> bool {
         return !mech.destroyed_hip_locations.is_empty();
     }
     hip_effects(mech) > 0 || destroyed_leg_count(mech) >= 3
+}
+
+/// What this 'Mech's ground move may do: the level limit (`ground_level_limited`) and, for a tripod or quad with no leg destroyed,
+/// the lateral shift (Core p.236, p.238) and, for the tripod, the one-MP facing change (p.237).
+pub fn ground_limit(mech: &Mech) -> crate::terrain_rules::GroundLimit {
+    let mut limit = crate::terrain_rules::max_level_change(ground_level_limited(mech), is_superheavy(mech));
+    let sound = destroyed_leg_count(mech) == 0;
+    limit.lateral = sound && (is_quad(mech) || mech.mech_type == "tripod");
+    limit.free_facing = sound && mech.mech_type == "tripod";
+    limit
 }
 
 pub fn has_hd_gyro(mech: &Mech) -> bool {
