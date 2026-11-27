@@ -109,12 +109,19 @@ pub struct HumanBots<C: Controller> {
     pub human: HashSet<UnitId>,
     /// the decision list, in the order the answers were given
     pub log: Vec<Decision>,
+    /// the branches of the order list (timeline.rs): who decides from which replay step on; empty in an ordinary game
+    pub timeline: std::rc::Rc<std::cell::RefCell<crate::timeline::Control>>,
 }
 
 impl<C: Controller> HumanBots<C> {
+    /// Does the person decide for unit `u` in `phase` ("move", "fire", "phys")? The person's own units, as a branch of the order list changes it.
+    fn is_h(&self, b: &Battle, u: UnitId, phase: &str) -> bool {
+        self.timeline.borrow().is_human(b, u, phase, self.human.contains(&u))
+    }
+
     /// The deployment hook (`orchestrator::DeployHook`): a person's units are placed by the controller, the rest by the engine.
     pub fn deploy(&mut self, b: &mut Battle, u: UnitId, good: &[String]) -> Option<(String, String)> {
-        if !self.human.contains(&u) {
+        if !self.is_h(b, u, "deploy") {
             return None;
         }
         let placed = self.ctl.deploy(b, u, good);
@@ -125,7 +132,7 @@ impl<C: Controller> HumanBots<C> {
     }
 
     pub fn new(ctl: C, human: impl IntoIterator<Item = UnitId>) -> Self {
-        HumanBots { inner: GladiatorBots, ctl, human: human.into_iter().collect(), log: Vec::new() }
+        HumanBots { inner: GladiatorBots, ctl, human: human.into_iter().collect(), log: Vec::new(), timeline: Default::default() }
     }
 }
 
@@ -135,7 +142,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
-        if !self.human.contains(&attacker) {
+        if !self.is_h(b, attacker, "fire") {
             return self.inner.choose_target(b, attacker);
         }
         let target = self.ctl.target(b, attacker, &mut self.inner);
@@ -144,7 +151,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn next_secondary(&mut self, b: &mut Battle, attacker: UnitId, primary: UnitId, done: &[UnitId]) -> Option<Option<UnitId>> {
-        if !self.human.contains(&attacker) {
+        if !self.is_h(b, attacker, "fire") {
             return None;
         }
         let t = self.ctl.secondary(b, attacker, primary, done, &mut self.inner);
@@ -162,7 +169,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
 
     /// A side with a person's unit among the units still to move lets the person choose which moves next.
     fn move_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
-        if !candidates.iter().any(|u| self.human.contains(u)) {
+        if !candidates.iter().any(|u| self.is_h(b, *u, "move")) {
             return self.inner.move_pick(b, candidates);
         }
         let chosen = self.ctl.move_order(b, candidates, &mut self.inner);
@@ -173,14 +180,14 @@ impl<C: Controller> BotSet for HumanBots<C> {
 
     /// The forecast of the move queue never asks a person: the engine's own order stands in.
     fn move_pick_forecast(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
-        if candidates.iter().any(|u| self.human.contains(u)) {
+        if candidates.iter().any(|u| self.is_h(b, *u, "move")) {
             return None;
         }
         self.inner.move_pick(b, candidates)
     }
 
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
-        if !self.human.contains(&attacker) {
+        if !self.is_h(b, attacker, "fire") {
             return self.inner.choose_declaration(b, ctx, planner, attacker, target);
         }
         let choice = self.ctl.declaration(b, ctx, planner, attacker, target, &mut self.inner);
@@ -189,7 +196,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> PhysicalChoice {
-        if !self.human.contains(&attacker) {
+        if !self.is_h(b, attacker, "phys") {
             return self.inner.choose_physical(b, attacker, target);
         }
         let choice = self.ctl.physical(b, attacker, target, &mut self.inner);
@@ -198,7 +205,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return self.inner.choose_movement(b, mover, other, moves_first, standup_mp, entry_edge);
         }
         let answer = self.ctl.movement(b, mover, other, moves_first, standup_mp, entry_edge, &mut self.inner);
@@ -235,7 +242,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
-        if !self.human.contains(&u) {
+        if !self.is_h(b, u, "fire") {
             return self.inner.choose_spot(b, u);
         }
         let r = self.ctl.spot(b, u, &mut self.inner);
@@ -244,7 +251,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn before_move(&mut self, b: &mut Battle, mover: UnitId) {
-        if self.human.contains(&mover) {
+        if self.is_h(b, mover, "move") {
             if let Some(a) = self.ctl.before_move(b, mover) {
                 self.log.push(Decision::Choice { unit: mover, kind: "before_move", answer: a });
             }
@@ -252,7 +259,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn wants_stand_up(&mut self, b: &mut Battle, mover: UnitId) -> bool {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return true;
         }
         let r = self.ctl.stand_up(b, mover);
@@ -260,12 +267,12 @@ impl<C: Controller> BotSet for HumanBots<C> {
         r
     }
 
-    fn decides_each_stand(&mut self, _b: &mut Battle, mover: UnitId) -> bool {
-        self.human.contains(&mover) && self.ctl.decides_each_stand()
+    fn decides_each_stand(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        self.is_h(b, mover, "move") && self.ctl.decides_each_stand()
     }
 
     fn careful_stand(&mut self, b: &mut Battle, mover: UnitId) -> bool {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return false;
         }
         let r = self.ctl.careful_stand(b, mover);
@@ -276,7 +283,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn eject(&mut self, b: &mut Battle, mover: UnitId) -> bool {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return false;
         }
         let r = self.ctl.eject(b, mover);
@@ -287,7 +294,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn drop_prone(&mut self, b: &mut Battle, mover: UnitId) -> bool {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return false;
         }
         let r = self.ctl.drop_prone(b, mover);
@@ -298,7 +305,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn prone_turn(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
-        if !self.human.contains(&mover) {
+        if !self.is_h(b, mover, "move") {
             return None;
         }
         let r = self.ctl.prone_turn(b, mover);
@@ -309,7 +316,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn end_phase(&mut self, b: &mut Battle, u: UnitId, weapon_heat: i64) {
-        if self.human.contains(&u) {
+        if self.is_h(b, u, "heat") {
             if let Some(a) = self.ctl.end_phase(b, u, weapon_heat) {
                 self.log.push(Decision::Choice { unit: u, kind: "end_phase", answer: a });
             }
@@ -317,7 +324,7 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_tag(&mut self, b: &mut Battle, attacker: UnitId, cands: &[crate::tag::TagCandidate]) -> Option<Option<(UnitId, &'static str)>> {
-        if !self.human.contains(&attacker) {
+        if !self.is_h(b, attacker, "fire") {
             return None;
         }
         let r = self.ctl.tag(b, attacker, cands);

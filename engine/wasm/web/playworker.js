@@ -11,7 +11,7 @@ importScripts("wasmio.js");
 
 onmessage = async (e) => {
   if (e.data.cmd !== "start") return;
-  const { module, defaults, files, setup, seed, sab } = e.data;
+  const { module, defaults, files, setup, seed, sab, resume, sim } = e.data;
   const ctl = new Int32Array(sab, 0, 2), data = new Uint8Array(sab, 8);
   const enc = new TextEncoder(), dec = new TextDecoder();
   let taken = null, mem = null;
@@ -32,7 +32,7 @@ onmessage = async (e) => {
       };
     });
     engine.call("files", { defaults, files });
-    const r = engine.call("play_run", { setup, seed });
+    const r = engine.call("play_run", { setup, seed, resume, sim });
     if (r.error) postMessage({ ev: "failed", error: r.error }); else postMessage({ ev: "done", end: r.end });
   } catch (err) {
     postMessage({ ev: "failed", error: (engine && engine.panic) || String(err && err.message || err) });

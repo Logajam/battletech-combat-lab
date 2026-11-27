@@ -30,7 +30,70 @@ const S = { way: [], wrIdx: null, wlist: {}, seq: 0, req: null, board: null, uni
 const svg = $("map");
 const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
 
+// THE SAVED GAME (P15, INTEGRATION__ORDER_FORMAT.md): this page writes down, in order, every question it is shown (kind, unit) and every answer or
+// query it sends, exactly as the engine's RecordingLink does. That list is the save: played back, the engine reaches the same point; from there
+// the person goes on. It is kept in this browser (localStorage "bm_save") after every answer and when the page is hidden or closed, and can be
+// written to a file (Menu: Save game to a file) and opened again from the Lab.
+const SAVE_KEY = "bm_save";
+const phaseKey_ = (k) => (["target", "declaration", "spot", "tag"].includes(k) ? "fire" : k === "physical" ? "phys" : k === "end_phase" ? "end" : "move");
+const SAVE = { events: [], seed: null, setup: null, human: [], marks: [], parent: null, child: null };
+function saveFile(whenOver) {
+  if (!SAVE.setup || SAVE.seed == null || (S.over && !whenOver)) return null;
+  return { combatlab_game: 1, marks: SAVE.marks, parent: SAVE.parent, child: SAVE.child, saved: new Date().toISOString(), title: (SAVE.setup.teams || []).map((t) => t.name).join(" vs "), setup: SAVE.setup, seed: String(SAVE.seed),
+           orders: { order_format: 1, engine: "browser", seed: String(SAVE.seed), human: SAVE.human, events: SAVE.events } };
+}
+function saveNow() {
+  if (SAVE.frozen || SAVE.candidate) return;   // a candidate timeline (REC layer: Meddle here) is not kept until its first answer is held   // leaving for another timeline: the page's pagehide must not write this game over the one just stored
+  const f = saveFile(); if (!f) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(f)); } catch (e) { /* storage full or off: the game goes on, unsaved */ }
+}
+function saveSoon() { clearTimeout(saveSoon.t); saveSoon.t = setTimeout(saveNow, 250); }
+function dropSave() { clearTimeout(saveSoon.t); if (SAVE.candidate) return; try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* storage off */ } }
+addEventListener("pagehide", saveNow);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveNow(); });
+// TIME TRAVEL (P4, P15 step 3; Daniel: "Time to start on the ability to meddle"): the REC button lists every question of this game, newest first; "Go back here" makes a
+// NEW TIMELINE: the list cut just before that question, a fresh dice seed written into it ({"reseed": n}, Daniel 2026-11-19: a branch gets its own seed, recorded),
+// and the game resumed from there, so the same question is asked again and you can answer it differently. The game you leave is kept as the branch's
+// "parent": Menu > "Back to the earlier timeline" returns to it (where it stood when you left).
+function timeTravelCard() {
+  if (!SAVE.setup) { toast("Time travel needs a game started from this browser's Lab."); return; }
+  const rows = SAVE.marks.filter((m) => m.at < SAVE.events.length).slice().reverse().map((m) => `<div class="row"><span class="msg">${esc(m.label)}</span> <button class="sm" data-act="branch" data-at="${m.at}">Go back here</button></div>`).join("");
+  showCard(`<b>Time travel</b><div class="msg">Pick a question to answer again. The game from there on is a new timeline with new dice; this one is kept (Menu: Back to the earlier timeline).${SAVE.parent ? " This game is already a branch." : ""}</div><div style="max-height:46vh;overflow:auto">${rows || '<div class="msg">No questions recorded yet.</div>'}</div>`);
+}
+function branchFrom(at) {
+  const f = saveFile(true); if (!f) return;
+  const mark = SAVE.marks.find((m) => m.at === at); if (!mark) return;
+  const seed = Math.floor(Math.random() * 0xFFFFFFFE) + 1;
+  const ev = SAVE.events.slice(0, at); ev.push({ reseed: String(seed) });
+  const branch = { ...f, parent: f, marks: SAVE.marks.filter((m) => m.at < at), title: f.title + " (branch)", orders: { ...f.orders, events: ev }, branched_at: mark.label, reseed: String(seed) };
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(branch)); } catch (e) { toast("This browser will not keep the new timeline (storage is full or off): save the game to a file first."); return; }
+  SAVE.frozen = true;   // after the write: the page's pagehide must not store this game over the new timeline
+  location.href = "play.html?resume=1";
+}
+function backToParent() {
+  if (!SAVE.parent) return;
+  saveNow();
+  // the timeline left behind stays with the earlier one, so "On to the later timeline" can come back to it
+  const later = { ...saveFile(true), parent: null }, earlier = { ...SAVE.parent, child: later };   // no cycles: each file carries the other once
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(earlier)); } catch (e) { toast("This browser will not keep the earlier timeline."); return; }
+  SAVE.frozen = true;
+  location.href = "play.html?resume=1";
+}
+function forwardToChild() {
+  if (!SAVE.child) return;
+  saveNow();
+  const earlier = { ...saveFile(true), child: null }, later = { ...SAVE.child, parent: earlier };
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(later)); } catch (e) { toast("This browser will not keep the later timeline."); return; }
+  SAVE.frozen = true;
+  location.href = "play.html?resume=1";
+}
+function saveToFile() {
+  saveNow(); const f = saveFile(); if (!f) { toast("Nothing to save yet."); return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(f)], { type: "application/json" }));
+  a.download = `${(f.title || "game").replace(/[^A-Za-z0-9_.-]+/g, "_")}_turn_save.combatlab-game.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
 async function api(name, body) {
+  if (name === "play_query" && SAVE.setup && !(body.query && body.query.q === "history")) { SAVE.events.push({ query: body.query }); }   // the REC layer's look at the record is not part of the game
   if (window.LAB_WASM) return window.LAB_WASM.api(name, { game: GAME, ...body });   // the browser build (engine/wasm): this page plays the battle
   const r = await fetch("api/" + name, { method: "POST", body: JSON.stringify({ game: GAME, ...body }) });
   return r.json();
@@ -391,7 +454,8 @@ function commitState() {
   return { lab: stand ? "Stand + " + o.mode : o.mode === "Stand Still" ? "Stand still" : o.mode, sub: `${o.mp} MP${S.drop ? " · drop prone" : ""}`, col, warn: stand || hazardList(o).length > 0 };
 }
 function commitHtml() {
-  const c = commitState(), light = ["#00e5ff", "#ffd400", "#8795a5"].includes(c.col);
+  const c = commitState(); if (SAVE.candidate) c.lab = "Meddle";   // the first answer held in a candidate timeline creates it (REC layer)
+  const light = ["#00e5ff", "#ffd400", "#8795a5"].includes(c.col);
   return `<button class="commit ${light ? "lt" : "dk"}" data-act="commit" data-hold="1" style="background-color:${c.col}" ${c.dis ? "disabled" : ""}><span class="fill"></span><span class="warn">${c.warn ? "&#9888;" : ""}</span><span class="lab">${esc(c.lab)}</span><span class="sub">${esc(c.sub || "")}</span></button>`;
 }
 function canUndo() { const k = phaseKey(); if (!S.req) return false; if (k === "fire") return !!(S.fire ? S.fire.assign.size : S.decl && S.decl.sel.size); if (k === "phys") return physOn().length > 0;
@@ -408,7 +472,7 @@ function chrome() {
   const app = $("app"), W = app.clientWidth, H = app.clientHeight, wide = W >= H, k = phaseKey(), u = activeUnit();
   UI.wide = wide; app.classList.toggle("wide", wide); app.classList.toggle("tall", !wide); app.classList.toggle("d3", MV.is3d());
   const mine = S.units.filter((x) => x.team === S.myTeam), foes = S.units.filter((x) => x.team !== S.myTeam && S.myTeam != null);
-  const tline = `<div class="tbar c3"><button data-act="menu">Menu</button><b>BattleROM</b><button class="rec" data-act="rec" title="REC: time travel (not built yet)">&#9679; REC</button></div>`;
+  const tline = `<div class="tbar c3"><button data-act="menu">Menu</button><b>BattleROM</b><button class="rec" data-act="rec" title="Time travel: go back to an earlier question and play it again">&#9679; REC</button></div>`;
   const estrip = `<div class="srow"><button class="arr" data-act="step" data-team="f" data-d="-1" aria-label="Previous enemy">&lsaquo;</button><div class="chips" id="estrip">${foes.map(echip).join("")}</div><button class="arr" data-act="step" data-team="f" data-d="1" aria-label="Next enemy">&rsaquo;</button></div>`;
   const lastL = `<div class="line last"><span class="k">Last</span><span class="t">${lastText()}</span><button data-act="inspect" ${UI.last ? "" : "disabled"}>Inspect</button></div>`;
   const actL = `<div class="line act"><span class="k">Active</span><span class="t">${u ? `<b>${esc(u.name)}</b> ${esc(u.mech || "")}${u.prone ? " &middot; prone" : ""}` : '<span class="msg">waiting</span>'}</span><button data-act="report" id="rep-btn">Report</button></div>`;
@@ -427,6 +491,7 @@ function chrome() {
   $("phase").innerHTML = turnText();
   drawWings(); drawInsp(); drawMenu();
   layoutPanels(); placeOverlay();
+  if (typeof TT !== "undefined") TT.sync();   // REC layer: its strip, the report's tabs, the Report / Inspect buttons kept on top of their panels
 }
 // the clear area: what the panels leave of the map (the camera frames it; the weapons stay inside it)
 function layoutPanels() {
@@ -538,7 +603,7 @@ function drawMenu() {
   m.innerHTML = `<div class="f">Weapons in the fire phase</div>${it("Around the target", "wl", 'data-v="ring"', UI.wl === "ring")}${it("List", "wl", 'data-v="list"', UI.wl === "list")}
     <div class="f">Look</div>${Object.entries(LOOKS).map(([k, n]) => it(n, "look", `data-v="${k}"`, O.look === k)).join("")}
     <div class="f">View</div>${it("Tabletop view (3D)", "view3d", "", MV.mode === "3d")}${it("Colour-blind mode", "cvd", "", O.cvd)}${it("Range bands for the weapon", "rings", "", O.rings)}${it("Hex numbers", "labels", "", O.labels)}${it("Attack lines (the latest turn)", "atk", "", O.atk)}
-    <div class="f">Game</div>${it("Report", "report")}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
+    <div class="f">Game</div>${it("Report", "report")}${it("Save game to a file", "save-file")}${SAVE.parent ? it("Back to the earlier timeline", "back-parent") : ""}${SAVE.child ? it("On to the later timeline", "fwd-child") : ""}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
 }
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), msg.length > 60 ? 4200 : 2600); }
 
@@ -715,9 +780,13 @@ function physCommit() {
 // ---------------------------------------------------------------- drawing for the question
 function redraw() {
   if (!gDyn) return;
-  syncTabletop();
-  drawMap();
-  chrome();
+  // REC layer: at a past step the board is drawn from the replay's state for this one draw (tt_layer.js); with REC closed this does nothing
+  const back = typeof TT !== "undefined" ? TT.enter() : null;
+  try {
+    syncTabletop();
+    drawMap();
+    chrome();
+  } finally { if (back) back(); }
 }
 // 3D only. Hex numbers: small on the tile, only where the hex is big enough to read and on the screen (a 4x4 splice has over a thousand).
 function drawHexNumbers(layer) {
@@ -768,6 +837,7 @@ function drawMap() {
   if (r && r.kind === "physical") drawPhysTargets(gDyn);
   if (r && r.kind === "declaration") { drawAim(gDyn); drawShotLine(gTop, r.unit, r.target, r.distance); }
   if (r && r.kind === "target" && S.fire && S.fire.tcur != null) { drawAim(gDyn); drawShotLine(gTop, r.unit, S.fire.tcur, (r.enemies.find((e) => e.id === S.fire.tcur) || {}).distance); }
+  if (typeof TT !== "undefined") TT.draw(gDyn, gTop);   // REC layer: the mover's path and the attack arrows of the step being looked at
   if (r && r.kind === "physical" && physTarget() != null) { const t = unit(physTarget()), me = unit(r.unit); if (t && me && t.hex && me.hex) drawShotLine(gTop, r.unit, t.id, dist(me.hex, t.hex)); }
 }
 function setPhase(t) { S.phaseText = t; $("phase").innerHTML = esc(t); }
@@ -790,10 +860,12 @@ function turnStatus() {
 function ask(html) { $("ask").innerHTML = html; }
 const sheet = ask;
 async function send(answer) {
+  if (SAVE.candidate && typeof TT !== "undefined") TT.commitCandidate();   // holding Meddle: the new timeline is written now
   const seq = S.seq; if (S.req && S.req.unit != null && phaseKey() !== "move") UI.done.add(S.req.unit);
   S.req = null; S.decl = null; S.pv = null; S.fire = null; S.phys = null; ask(""); redraw();
+  if (SAVE.setup) SAVE.events.push({ answer });
   const r = await api("play_answer", { seq, answer });
-  if (r.error) toast(r.error);
+  if (r.error) { toast(r.error); if (SAVE.setup) SAVE.events.pop(); } else saveSoon();
   loop();
 }
 async function loop() {
@@ -809,6 +881,14 @@ async function loop() {
 }
 const HANDLERS = {};
 function take(r) {
+  if (typeof TT !== "undefined") TT.refreshIfStale();
+  if (SAVE.setup) {
+    // a MARK for time travel: this question's place in the list, and where the game was (turn, phase, unit)
+    const tn = (S.log.map((l) => /=== TURN (\d+)/.exec(l)).filter(Boolean).pop() || [])[1];
+    const ph = { move: "Move", fire: "Fire", phys: "Physical", end: "Heat" }[phaseKey_(r.kind)];
+    SAVE.marks.push({ at: SAVE.events.length, turn: tn ? +tn : 0, label: `${tn ? "Turn " + tn + " \u00b7 " : ""}${ph} \u00b7 ${r.name || (r.kind === "move_order" ? "who moves next" : r.kind)}${r.name ? " (" + r.kind + ")" : ""}` });
+    SAVE.events.push({ post: { kind: r.kind, unit: r.unit === undefined ? null : r.unit } }); saveSoon();
+  }
   S.req = r; S.units = r.units;
   if (r.kind !== "target" && r.kind !== "declaration") S.script = null;   // a plan never reaches past its own unit's fire questions
   for (const u of S.units) { // first sight of a unit: its full armour, structure and slot names (for the bars and the criticals tab)
@@ -820,7 +900,7 @@ function take(r) {
   if (r.log && r.log.length) feedLog(r.log);
   releaseLog(r.kind);
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
-  if (mine && !S.myTeam && r.kind !== "spot") S.myTeam = mine.team;
+  if (mine && r.kind !== "spot" && (!S.myTeam || (typeof TT !== "undefined" && TT.followTeam()))) S.myTeam = mine.team;   // after a meddle or a change of control the question may be another team's
   if (r.unit != null) S.sel = r.unit;
   S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; S.drop = false;
   S.standOn = false; S.aim = null; S.phys = null; UI.aimOpen = false; UI.cyc = null; UI.pickHex = null; UI.aord = []; UI.atkSel = null; ask("");
@@ -832,6 +912,7 @@ function take(r) {
   setPhase(r.kind === "deploy" ? "Deployment" : `Turn ${turn || "?"} · ${PH[r.kind] || r.kind}${turnStatus()}`);
   HANDLERS[r.kind](r);
   redraw();
+  if (typeof TT !== "undefined") TT.afterTake();
   if (S.needFocus && r.kind !== "deploy") { S.needFocus = false; const mine = S.units.filter((u) => u.team === S.myTeam && u.hex).map((u) => u.hex); if (mine.length) look(mine, 3); }
 }
 const errLine = (r) => (r.error ? `<div class="err">${esc(r.error)}</div>` : "");
@@ -1442,10 +1523,14 @@ function act(t, kind, info = {}) {
   switch (a) {
     // ---- the title line and the panels
     case "menu": if (kind === "long") openInsp("Options", null, null, "a long press on Menu"); else { UI.menu = !UI.menu; drawMenu(); layoutPanels(); } return;
-    case "rec": toast("REC: time travel is not built yet. It will record the battle so you can step back to an earlier phase and branch from it."); return;
+    case "rec": TT.toggle(); return;   // the REC layer (tt_layer.js); the old card list (timeTravelCard) is kept for the branch test until meddling replaces it
+    case "branch": $("card").style.display = "none"; branchFrom(+d.at); return;
+    case "fwd-child": UI.menu = false; drawMenu(); forwardToChild(); return;
+    case "back-parent": UI.menu = false; drawMenu(); backToParent(); return;
     case "step": stepStrip(d.team, +d.d); break;
     case "chip": { const id = +d.u, u = unit(id); if (!u) return; if (kind === "long") { openInsp("Unit", u.hex, id, `${u.name} in the strip`); return; } chipTap(id); return; }
-    case "inspect": if (UI.last) { const L = UI.last; openInsp(L.kind === "unit" ? "Unit" : "Hex", L.kind === "unit" ? (unit(L.id) || {}).hex : L.l, L.kind === "unit" ? L.id : null, "the Last line"); } return;
+    case "inspect": if (UI.insp && UI.insp.open) { UI.insp.open = 0; chrome(); return; }   // a second press closes it (prompt 2.2)
+      if (UI.last) { const L = UI.last; openInsp(L.kind === "unit" ? "Unit" : "Hex", L.kind === "unit" ? (unit(L.id) || {}).hex : L.l, L.kind === "unit" ? L.id : null, "the Last line"); } return;
     case "report": UI.menu = false; toggleReport(); return;
     case "report-close": closeReport(); return;
     case "card-close": $("card").style.display = "none"; return;
@@ -1518,7 +1603,9 @@ function act(t, kind, info = {}) {
     case "view3d": { UI.menu = false; const want = MV.mode === "3d" ? "top" : "3d";
       MV.setMode(want, t3get()).then((got) => { setPref("view", got); if (want === "3d" && got !== "3d") showCard("<b>The tabletop view needs WebGL</b><div class=\"msg\">This browser or device could not start it, so the flat map stays.</div>"); redraw(); refocus(); }); return; }
     case "lab": location.href = "index.html"; return;
+    case "save-file": UI.menu = false; drawMenu(); saveToFile(); return;
     case "get-results": getResults(); return;
+    case "watch-replay": watchReplay(); return;
     default: return;
   }
   redraw();
@@ -1626,9 +1713,20 @@ function finish(end) {
   releaseLog("over");
   setPhase("Battle over");
   // GET RESULTS (bug B21): opens the Lab's Results tab with this battle's statistics
-  S.end = end;
+  S.end = end; dropSave();
   redraw();
-  ask(`<h3>Battle over</h3><div class="msg">${end.winner === "Draw" ? "A draw" : esc(end.winner) + " wins"} after ${end.turns} turns. ${end.decisions} decisions recorded.</div><div class="row"><button class="go" data-act="get-results">Get Results</button><button data-act="report">Show the report</button><button data-act="lab">Back to the Lab</button></div>`);
+  if (typeof TT !== "undefined") setTimeout(() => TT.candidateOver(), 0);
+  ask(`<h3>Battle over</h3><div class="msg">${end.winner === "Draw" ? "A draw" : esc(end.winner) + " wins"} after ${end.turns} turns. ${end.decisions} decisions recorded.</div><div class="row"><button class="go" data-act="get-results">Get Results</button>${end.replay_html ? '<button class="go" data-act="watch-replay">Watch replay</button>' : ""}<button data-act="rec">Go back in time</button><button data-act="report">Show the report</button><button data-act="lab">Back to the Lab</button></div>`);
+}
+// WATCH REPLAY (Daniel, 2026-11-27, P15 step 1): the game just played, in the Lab's replay viewer. The engine recorded it as it was
+// played (play_session.rs, "replay_html"), YOUR moves included; the viewer page is shown over the game in a frame, with a way back.
+function watchReplay() {
+  const end = S.end; if (!end || !end.replay) return;
+  // the Lab's Replay tab shows it (play.html?replay=1 inside it): the record of THIS game, your moves included, with the setup and the order list so
+  // that "Play from here" can start a game from any action
+  try { localStorage.setItem("bm_replay", JSON.stringify({ record: end.replay, setup: S.setup || null, orders: end.orders || null, seed: end.seed })); }
+  catch (e) { showCard('<b>Watch replay</b><div class="msg">This browser will not hand the replay over (storage is full or off).</div>'); return; }
+  location.href = "index.html?replay=1";
 }
 // the finished game as a one-battle run file for the Lab (lab.js openPlayedGame); the setup is the one the Lab handed over
 function getResults() {
@@ -1638,8 +1736,9 @@ function getResults() {
   // a run's setup names bots only: the person's team is filed under the default bot (the statistics come from the battle line; a replay
   // opened from the Results tab would be the bots' battle, not this game: recording the person's game is the saved-game work, P2 / P11)
   const teams = (setup.teams || []).map((t) => (t.bot === "human" ? { ...t, bot: "gladiator" } : t));
-  const file = { combatlab_run: 1, played: true, setup: { ...setup, teams, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
-  try { localStorage.setItem("bm_play_result", JSON.stringify(file)); } catch (e) { showCard('<b>Get Results</b><div class="msg">This browser will not let the page hand the results over (storage is off).</div>'); return; }
+  const file = { replay: end.replay, played_orders: end.orders, played_setup: setup, combatlab_run: 1, played: true, setup: { ...setup, teams, battles: 1, seed: +end.seed || setup.seed || 1 }, lines: [end.line], crashed: [], seconds: 0, unit_files: {} };
+  // the replay record rides along so the Replay tab can show YOUR moves; a very long game may not fit in the browser's storage: then the results go without it
+  try { localStorage.setItem("bm_play_result", JSON.stringify(file)); } catch (e0) { try { localStorage.setItem("bm_play_result", JSON.stringify({ ...file, replay: null, played_orders: null, played_setup: null })); } catch (e) { showCard('<b>Get Results</b><div class="msg">This browser will not let the page hand the results over (storage is off).</div>'); return; } }
   location.href = "index.html";
 }
 // ---------------------------------------------------------------- the report (Daniel, 2026-11-22)
@@ -1770,8 +1869,9 @@ function renderReport() {
 function openReport(fire) {
   const r = $("report"); r.dataset.mode = fire ? "fire" : "all"; renderReport(); r.style.display = "block";
   if (fire) S.fresh = [];
+  if (typeof TT !== "undefined") TT.sync();
 }
-function closeReport() { $("report").style.display = "none"; }
+function closeReport() { $("report").style.display = "none"; if (typeof TT !== "undefined") TT.sync(); }
 function toggleReport() { const r = $("report"); if (r.style.display === "block") closeReport(); else openReport(false); }
 function applyLook() { document.documentElement.setAttribute("data-theme", O.look); document.body.setAttribute("data-theme", O.look); }
 window.addEventListener("resize", () => { if (S.board) { chrome(); refocus(); } else chrome(); });
@@ -1783,15 +1883,34 @@ $("ztilt").onclick = () => MV.cycleTilt();
 // The browser build has no server to start the game: the Lab page left the setup for this page (localStorage), which
 // starts the battle in its own worker. The desktop Lab starts it itself and passes ?game=N.
 async function boot() {
-  if (!GAME && window.LAB_WASM) {
-    let setup = null;
-    try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); localStorage.removeItem("bm_play_setup"); } catch (e) { /* storage off */ }
+  // REPLAY MODE (play.html?replay=1: the Lab's Replay tab): no game is started; tt_layer.js shows the record left in localStorage "bm_replay"
+  if (new URLSearchParams(location.search).get("replay")) { addEventListener("load", () => TT.replayBoot()); return; }
+  let resume = new URLSearchParams(location.search).get("resume");
+  // COMING BACK (a phone that was switched off, a tab the browser dropped): this page is opened again with nothing to start. If a game was
+  // left unfinished it is resumed here, straight to the question, not through the Lab's front page.
+  if (!GAME && !resume && window.LAB_WASM) { try { if (!localStorage.getItem("bm_play_setup") && localStorage.getItem(SAVE_KEY)) resume = "1"; } catch (e) { /* storage off */ } }
+  if (!GAME && (window.LAB_WASM || resume)) {
+    let setup = null, seed, orders = null, savedFile = null, sim = 1;
+    if (resume) {
+      // RESUME BATTLE: the saved game (this browser's, or a file the Lab opened), played back to where it stopped
+      let f = null; try { f = JSON.parse(localStorage.getItem(resume === "try" ? "bm_try" : SAVE_KEY) || "null"); } catch (e) { f = null; }
+      if (!f || !f.combatlab_game || !f.orders) { setPhase("no saved game"); ask('<h3>No saved game</h3><div class="msg">This browser holds no game to resume.</div><div class="row"><button data-act="lab">Back to the Lab</button></div>'); return; }
+      setup = f.setup; seed = f.seed; orders = f.orders; S.setup = setup; savedFile = f; sim = f.sim || 1;   // the seed stays text: a battle's seed passes JavaScript's exact-integer limit
+      setPhase("Resuming the battle...");
+    } else {
+      try { setup = JSON.parse(localStorage.getItem("bm_play_setup") || "null"); localStorage.removeItem("bm_play_setup"); } catch (e) { /* storage off */ }
+      if (setup) { S.setup = setup; setPhase("Starting the battle..."); }   // kept for Get Results (the stored copy is used up here so a reload does not start a second battle)
+    }
     if (setup) {
-      S.setup = setup;   // kept for Get Results (the stored copy is used up here so a reload does not start a second battle)
-      setPhase("Starting the battle...");
-      const r = await api("play_start", { setup });
+      const r = await api("play_start", { setup, seed, resume: orders, sim });
       if (r.error) { setPhase("could not start"); ask(`<div class="err">${esc(r.error)}</div>`); return; }
       GAME = r.game; COLOURS = r.colours || {};
+      // from here the page writes the save: a resumed game carries on the list it was resumed from
+      SAVE.setup = setup; SAVE.seed = seed != null ? seed : r.seed; SAVE.human = (setup.teams || []).filter((t) => t.bot === "human").map((t) => t.name);
+      SAVE.events = orders ? orders.events.slice() : [];
+      if (resume === "try") SAVE.candidate = true;   // a new timeline on trial: nothing is written to the save until the first answer is held (tt_layer.js)
+      if (orders) { SAVE.marks = (savedFile.marks || []).slice(); SAVE.parent = savedFile.parent || null; SAVE.child = savedFile.child || null; }
+      if (orders) { while (SAVE.events.length && SAVE.events[SAVE.events.length - 1].query) SAVE.events.pop(); if (SAVE.events.length && SAVE.events[SAVE.events.length - 1].post) SAVE.events.pop(); SAVE.marks = SAVE.marks.filter((m) => m.at < SAVE.events.length); }   // as the engine does: the waiting question comes again
     }
   }
   if (!GAME) { setPhase("No game"); ask('<h3>No game</h3><div class="msg">Start one from the Lab (set a team to Human, then Play).</div><div class="row"><button data-act="lab">Back to the Lab</button></div>'); } else { loop(); }

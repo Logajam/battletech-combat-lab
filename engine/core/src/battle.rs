@@ -128,6 +128,9 @@ pub struct Battle {
     /// equipment.json: a read-only table, parsed once for the whole process and shared by every battle
     pub db: &'static EquipmentDb,
     pub log: Log,
+    /// What the next replay step is about ({"k": "fire", "unit", "target"}): set just before a mark, taken by `history::History::mark` (REC layer: every
+    /// unit's action is its own step). Recording only: nothing reads it back.
+    pub step_info: Option<serde_json::Value>,
     pub dice: std::cell::RefCell<Box<dyn Dice>>,
     pub units: Vec<Mech>,
     pub board: Board,
@@ -231,6 +234,7 @@ impl Battle {
             tally: Tally::default(),
             db: EquipmentDb::shared(),
             log: Log::default(),
+            step_info: None,
             dice: std::cell::RefCell::new(dice),
             units,
             board,

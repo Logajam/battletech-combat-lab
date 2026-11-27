@@ -373,6 +373,237 @@ const POLICY = (r) => {
   }
   // a target answer nobody tapped is right only as the plan's "no more targets" straight after its own declaration
   solo.auto = sent.filter((x, i) => x.kind === 'target' && !x.tap && !(i > 0 && sent[i - 1].kind === 'declaration' && sent[i - 1].unit === x.unit)).length;
+  // ---- 6: SAVE AND RESUME (P15). Play a dozen answers, read the save the page keeps in this browser, open play.html?resume=1 in a NEW page: the
+  // battle is played back to where it stopped and the SAME question is asked again, the units where they were; then the game is played to its
+  // end and the save is dropped (a finished game is not resumed).
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.evaluate(() => localStorage.removeItem("bm_save"));
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  const POLICY_SRC = POLICY.toString();
+  const stepOnce = async (pg) => {
+    await pg.waitForFunction(() => window.__bm.req || window.__bm.over, null, { timeout: 120000 });
+    return pg.evaluate((src) => { if (window.__bm.over) return "over"; const P = eval(src); window.send(P(window.__bm.req)); return "sent"; }, POLICY_SRC);
+  };
+  const seqNow = () => page.evaluate(() => window.__bm.seq);
+  for (let i = 0; i < 12; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  const mid = await page.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit, hexes: Object.fromEntries(__bm.units.map((u) => [u.id, u.hex])) }));
+  await page.waitForTimeout(600);   // the save is written a moment after each answer
+  const saved = await page.evaluate(() => { const f = JSON.parse(localStorage.getItem("bm_save") || "null"); return f && { n: f.orders.events.length, fmt: f.orders.order_format, last: f.orders.events[f.orders.events.length - 1] }; });
+  const page2 = await ctx.newPage();
+  page2.on('pageerror', (e) => errors.push(String(e)));
+  await page2.goto(base + "/play.html?resume=1");
+  await page2.waitForFunction(() => window.__bm && window.__bm.req, null, { timeout: 120000 });
+  const back = await page2.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit, hexes: Object.fromEntries(__bm.units.map((u) => [u.id, u.hex])), board: !!(__bm.board && Object.keys(__bm.board.hexes).length) }));
+  // coming back with no address but this page (a dropped tab, a phone switched off): the unfinished game is resumed by itself
+  const page3 = await ctx.newPage();
+  page3.on('pageerror', (e) => errors.push(String(e)));
+  await page3.goto(base + "/play.html");
+  await page3.waitForFunction(() => window.__bm && window.__bm.req, null, { timeout: 120000 }).catch(() => {});
+  const bare = await page3.evaluate(() => ({ kind: __bm.req && __bm.req.kind, unit: __bm.req && __bm.req.unit === undefined ? null : __bm.req && __bm.req.unit }));
+  await page3.close();
+  let endOver = false;
+  for (let i = 0; i < 400 && !endOver; i++) { const before = await page2.evaluate(() => window.__bm.seq); if ((await stepOnce(page2)) === "over") break; await page2.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); endOver = await page2.evaluate(() => !!window.__bm.over); }
+  await page2.waitForTimeout(600);
+  out.resume = { bare, mid, back, saved, over: endOver, dropped: await page2.evaluate(() => localStorage.getItem("bm_save") === null) };
+  // ---- 7: TIME TRAVEL (P4). Play a dozen answers, open the time-travel list, go back to an earlier question: a NEW page resumes with that question
+  // asked again, the list before it unchanged, a reseed where the timeline starts, the old game kept as the parent; Back to the earlier timeline
+  // returns to the question the first game was waiting on.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.evaluate(() => localStorage.removeItem("bm_save"));
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 14; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  const tt = {};
+  tt.waiting = await page.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit }));
+  tt.before = await page.evaluate(() => ({ events: JSON.parse(JSON.stringify(SAVE.events)), marks: SAVE.marks.length }));
+  await page.evaluate(() => timeTravelCard());   // the old card list: kept for this branch test until the REC layer's meddling replaces it
+  tt.card = await page.evaluate(() => document.querySelectorAll('#card [data-act="branch"]').length);
+  tt.pick = await page.evaluate(() => { const bs = [...document.querySelectorAll('#card [data-act="branch"]')]; const b = bs[Math.floor(bs.length / 2)]; const at = +b.dataset.at; const ev = SAVE.events[at]; b.click(); return { at, post: ev.post }; });
+  await page.waitForURL(/resume=1/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.parent, null, { timeout: 120000 }).catch(() => {});
+  tt.asked = await page.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit }));
+  tt.file = await page.evaluate((at) => { const f = JSON.parse(localStorage.getItem("bm_save")); return { hasParent: !!f.parent, reseed: f.reseed || null, at: f.orders.events[at] }; }, tt.pick.at);
+  tt.past = await page.evaluate((a) => { const f = JSON.parse(localStorage.getItem("bm_save")); return { n: f.orders.events.length, at: a }; }, tt.pick.at);
+  // answer something, so the branch has a life of its own, then go back to the parent
+  const bseq = await page.evaluate(() => __bm.seq); await stepOnce(page);
+  await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, bseq, { timeout: 120000 });
+  await page.waitForTimeout(600);
+  await page.evaluate(() => backToParent());
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && !SAVE.parent, null, { timeout: 120000 }).catch(() => {});
+  tt.parentAsked = await page.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit }));
+  await page.evaluate(() => forwardToChild());
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.parent && SAVE.events.some((e) => e.reseed), null, { timeout: 120000 }).catch(() => {});
+  tt.childAsked = await page.evaluate(() => ({ kind: __bm.req.kind, unit: __bm.req.unit === undefined ? null : __bm.req.unit, hasReseed: SAVE.events.some((e) => e.reseed) }));
+  out.tt = tt;
+  // ---- 8: THE REC LAYER, view part (prompt 2.1-2.4). REC opens the strip and the report panel (the bottom half, with its tabs); the sliders and
+  // arrows move the board to the right sub-phase without touching the live game (the live units and question are the same afterwards, nothing is
+  // answered); the Report button, on top of the panel, closes it and a slider reopens it; REC again closes the layer.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.evaluate(() => localStorage.removeItem("bm_save"));
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 40; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+  const rec = {};
+  rec.liveBefore = await page.evaluate(() => JSON.stringify({ u: __bm.units, r: __bm.req && __bm.req.kind, n: SAVE.events.length }));
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 });
+  rec.open = await page.evaluate(() => { const r = document.getElementById('report').getBoundingClientRect(), H = window.innerHeight; return { strip: getComputedStyle(document.getElementById('tt-strip')).display !== 'none', report: document.getElementById('report').style.display, bottomHalf: r.top >= H * 0.45 && r.bottom >= H - 2, tabs: [...document.querySelectorAll('#tt-tabs button')].map((b) => b.textContent), repOnTop: document.getElementById('tt-repcopy').classList.contains('on'), steps: TT._st.steps.length, turns: TT._st.turnList.length }; });
+  // a past movement step: the sliders, the log, the unit's place in the record
+  rec.move = await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit);
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } }
+    const s = st.steps[i]; return { i, unit: s.unit, hex: s.state[s.unit].hex, past: TT.past(), log: document.getElementById('tt-pane').innerText, readout: document.getElementById('tt-read').innerText, orders: s.orders }; });
+  await page.waitForTimeout(500);
+  rec.pastDraw = await page.evaluate(() => ({ path: !!document.querySelector('#map polyline'), ring: !!document.querySelector('#map polygon[stroke="#fff"]') }));
+  // a past fire step: an arrow with its result
+  rec.fire = await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "fire" && s.unit && s.target);
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } }
+    return { i }; });
+  await page.waitForTimeout(500);
+  rec.fireDraw = await page.evaluate(() => ({ arrow: [...document.querySelectorAll('#map text')].some((t) => /^\d+\/\d+/.test(t.textContent)), log: document.getElementById('tt-pane').innerText }));
+  // taps on the map do nothing at a past step; the live game is untouched
+  await page.mouse.click(200, 300); await page.waitForTimeout(300);
+  rec.liveAfter = await page.evaluate(() => JSON.stringify({ u: __bm.units, r: __bm.req && __bm.req.kind, n: SAVE.events.length }));
+  // the Report button (the copy on top of the panel) closes the panel; a slider reopens it
+  await page.evaluate(() => document.getElementById('tt-repcopy').click());
+  rec.closed = await page.evaluate(() => document.getElementById('report').style.display);
+  await page.evaluate(() => { const a = document.getElementById('tt-b'); a.value = Math.max(0, +a.value - 1); a.dispatchEvent(new Event('input', { bubbles: true })); });
+  rec.reopened = await page.evaluate(() => document.getElementById('report').style.display);
+  // the arrows step one action: Live is the end
+  await page.evaluate(() => document.querySelector('#tt-strip [data-tt="live"]').click());
+  rec.live = await page.evaluate(() => ({ past: TT.past(), now: document.querySelector('#tt-strip .tt-live').classList.contains('now') }));
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  rec.shut = await page.evaluate(() => ({ strip: getComputedStyle(document.getElementById('tt-strip')).display, tabs: document.getElementById('tt-tabs').classList.contains('on'), rbody: document.getElementById('rbody').style.display, report: document.getElementById('report').style.display, open: TT.isOpen() }));
+  out.rec = rec;
+  // ---- 9: MEDDLING (prompt Section 3). Take over the Atlas's (the bot's) move at a past step: the page goes into a candidate timeline, the original save is
+  // untouched, the first question is the Atlas's, the commit button reads "Meddle"; Live goes back to the first game exactly where it was; holding the answer
+  // writes the branch (a reseed and a meddle in its list, the old game as its parent). Then a team handed to a bot (Teams tab) plays to the end and can be kept.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.evaluate(() => { localStorage.removeItem("bm_save"); localStorage.removeItem("bm_try"); });
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 24; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+  await page.waitForTimeout(600);
+  const med = {};
+  med.orig = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, unit: (__bm.req || {}).unit === undefined ? null : (__bm.req || {}).unit, n: JSON.parse(localStorage.getItem("bm_save")).orders.events.length }));
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 });
+  med.step = await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit && /Atlas|Blue/.test(s.unit + (S.units.find((u) => u.name === s.unit) || {}).mech));
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } }
+    return { i, unit: st.steps[i].unit, turn: st.steps[i].turn }; });
+  await page.evaluate(() => document.querySelector('#tt-tabs [data-tt-tab="log"]').click());
+  med.button = await page.evaluate(() => !!document.querySelector('#tt-pane [data-tt-do="meddle"]'));
+  await page.evaluate(() => document.querySelector('#tt-pane [data-tt-do="meddle"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 }).catch(() => {});
+  med.cand = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, unit: (__bm.req || {}).unit === undefined ? null : (__bm.req || {}).unit, team: __bm.myTeam, who: (__bm.units.find((u) => u.id === ((__bm.req || {}).unit ?? ((__bm.req || {}).candidates || [])[0])) || {}).team, phase: document.getElementById('phase').innerText, url: location.search, label: (document.querySelector('.commit .lab') || {}).textContent, strip: document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), saveN: JSON.parse(localStorage.getItem("bm_save")).orders.events.length, try: !!localStorage.getItem("bm_try"), tryBranch: JSON.parse(localStorage.getItem("bm_try")).orders.events.filter((e) => e.branch).map((e) => e.branch) }));
+  // Live before holding Meddle: back to the first game, the save untouched
+  await page.evaluate(() => document.querySelector('#tt-strip [data-tt="live"]').click());
+  await page.waitForURL(/resume=1/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && !SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  med.back = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, unit: (__bm.req || {}).unit === undefined ? null : (__bm.req || {}).unit, saveN: JSON.parse(localStorage.getItem("bm_save")).orders.events.length, try: !!localStorage.getItem("bm_try") }));
+  // again, and this time hold the answer
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  await page.waitForFunction(() => document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 });
+  await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit && /Atlas|Blue/.test(s.unit + (S.units.find((u) => u.name === s.unit) || {}).mech));
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } } });
+  await page.evaluate(() => document.querySelector('#tt-tabs [data-tt-tab="log"]').click());
+  await page.evaluate(() => document.querySelector('#tt-pane [data-tt-do="meddle"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  const mseq = await seqNow(); await stepOnce(page);
+  await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, mseq, { timeout: 120000 });
+  await page.waitForTimeout(700);
+  med.kept = await page.evaluate(() => { const f = JSON.parse(localStorage.getItem("bm_save")); return { cand: SAVE.candidate, hasTry: !!localStorage.getItem("bm_try"), parent: !!f.parent, branch: f.orders.events.filter((e) => e.branch).map((e) => e.branch) }; });
+  out.med = med;
+  // ---- 10: THE TEAMS TAB. Hand the human team (Red) to a bot from a past step of its own: the new timeline plays to the end without asking anything, and
+  // "Keep this timeline" writes it (a control entry in its list, the old game as its parent).
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => localStorage.setItem("bm_play_setup", JSON.stringify(s)), SOLO);
+  await page.evaluate(() => { localStorage.removeItem("bm_save"); localStorage.removeItem("bm_try"); });
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 24; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+  await page.waitForTimeout(600);
+  const tm = {};
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 });
+  await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit && (S.units.find((u) => u.name === s.unit) || {}).team === "Red");
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } } });
+  await page.evaluate(() => document.querySelector('#tt-tabs [data-tt-tab="teams"]').click());
+  tm.selects = await page.evaluate(() => [...document.querySelectorAll('#tt-pane select[data-tt-team]')].map((s) => [s.dataset.ttTeam, s.value]));
+  await page.evaluate(() => { const s = document.querySelector('#tt-pane select[data-tt-team="Red"]'); s.value = "gladiator"; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  await page.evaluate(() => document.querySelector('#tt-pane [data-tt-do="apply"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.over && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 180000 }).catch(() => {});
+  tm.over = await page.evaluate(() => ({ over: __bm.over, cand: SAVE.candidate, keep: !!document.querySelector('[data-tt-keep]'), asked: SAVE.events.filter((e) => e.post).length }));
+  await page.evaluate(() => { const k = document.querySelector('[data-tt-keep]'); if (k) k.click(); });
+  await page.waitForTimeout(500);
+  tm.kept = await page.evaluate(() => { const f = JSON.parse(localStorage.getItem("bm_save") || "null"); return f && { parent: !!f.parent, control: f.orders.events.filter((e) => e.branch && e.branch.control).map((e) => e.branch.control), cand: SAVE.candidate }; });
+  out.tm = tm;
+  // ---- 11: THE REPLAY TAB = THE REC LAYER (Phase D). (a) A bot battle's record opens in the view-only replay page; Play from here at a move starts a candidate
+  // game in which the chosen team is the person's. (b) A played human game: Watch replay opens the Lab's Replay tab with the page inside it, showing the human
+  // game's own steps; Play from here there resumes the human's earlier answers and asks the next question.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(base + "/index.html");
+  await page.waitForFunction(() => window.LAB_WASM && window.crossOriginIsolated, null, { timeout: 60000 });
+  const BOTS = JSON.parse(JSON.stringify(SOLO)); BOTS.teams[0].bot = "gladiator"; BOTS.teams[1].bot = "princess"; BOTS.seed = 11;
+  const rp = {};
+  rp.rec = await page.evaluate(async (st) => { const rec = await LAB_WASM.api("history", { setup: st, seed: 11, sim: 1 }); if (rec.error) return { error: rec.error }; localStorage.setItem("bm_replay", JSON.stringify({ record: rec, setup: st, orders: null, seed: rec.seed })); localStorage.removeItem("bm_save"); localStorage.removeItem("bm_try"); return { steps: rec.steps.length }; }, BOTS);
+  await page.goto(base + "/play.html?replay=1");
+  await page.waitForFunction(() => typeof TT !== 'undefined' && TT._st.steps.length > 0 && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 60000 }).catch(() => {});
+  rp.a = await page.evaluate(() => ({ strip: document.getElementById('tt-strip').classList.contains('on'), steps: TT._st.steps.length, replay: TT._st.replay, units: __bm.units.map((u) => u.hex).filter(Boolean).length, rec: getComputedStyle(document.querySelector('.tbar .rec')).display }));
+  await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit);
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } } });
+  rp.btn = await page.evaluate(() => [...document.querySelectorAll('#tt-pane [data-tt-do]')].map((b) => b.textContent));
+  await page.evaluate(() => document.querySelector('#tt-pane [data-tt-do="from"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  rp.cand = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, team: __bm.myTeam, cand: SAVE.candidate, control: JSON.parse(localStorage.getItem("bm_try")).orders.events.filter((e) => e.branch).map((e) => e.branch.control) }));
+  // (b) a played human game
+  await page.evaluate(() => { localStorage.setItem("bm_play_setup", JSON.stringify(window.__solo)); }).catch(() => {});
+  await page.goto(base + "/index.html");
+  await page.evaluate((s) => { localStorage.setItem("bm_play_setup", JSON.stringify(s)); localStorage.removeItem("bm_save"); localStorage.removeItem("bm_try"); localStorage.removeItem("bm_replay"); }, SOLO);
+  await page.goto(base + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 400; i++) { await page.waitForFunction(() => window.__bm.req || window.__bm.over, null, { timeout: 120000 }); if (await page.evaluate(() => window.__bm.over)) break; const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  await page.waitForFunction(() => document.querySelector('[data-act="watch-replay"]'), null, { timeout: 30000 }).catch(() => {});
+  await page.evaluate(() => document.querySelector('[data-act="watch-replay"]').click());
+  await page.waitForURL(/index\.html/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => { const f = document.getElementById('replay-frame'); try { return !!(f && f.contentWindow && f.contentWindow.eval('typeof TT !== "undefined" && TT._st.steps.length')); } catch (e) { return false; } }, null, { timeout: 90000 }).catch(() => {});
+  rp.b = await page.evaluate(() => { const f = document.getElementById('replay-frame'), w = f.contentWindow; return { tab: !document.getElementById('page-replay').hidden, src: f.getAttribute('src'), steps: w.eval('TT._st.steps.length'), hasOrders: !!(JSON.parse(localStorage.getItem("bm_replay")).orders), setup: !!JSON.parse(localStorage.getItem("bm_replay")).setup }; });
+  await page.evaluate(() => { const w = document.getElementById('replay-frame').contentWindow; w.eval(`(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 3 && s.unit);
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } } })()`); });
+  await page.evaluate(() => document.getElementById('replay-frame').contentDocument.querySelector('#tt-pane [data-tt-do="from"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  rp.bc = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, cand: SAVE.candidate, events: JSON.parse(localStorage.getItem("bm_try")).orders.events.length }));
+  out.rp = rp;
   out.solo = solo;
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
@@ -468,6 +699,46 @@ def main():
         report(so.get("getResults") and rs.get("shown") and rs.get("battles"), f"at the end Get Results opens the Lab's Results tab with the played battle (B21; {so.get('getResults')}, {rs})")
         ini = so.get("init") or {}
         report(ini.get("lines", 0) > 0 and ini.get("rolled") == ini.get("lines"), f"every turn's Initiative dice are shown: each report line carries the dice ({ini})")
+        rz = out.get("resume") or {}
+        report(rz.get("saved") and rz["saved"]["n"] > 20 and rz["saved"]["fmt"] == 1 and rz["mid"] == {k: v for k, v in rz["back"].items() if k != "board"} and rz["back"].get("board"), f"a game saved part-way comes back, in a new page, at the same question with the units where they were ({rz})")
+        report((rz.get("bare") or {}).get("kind") == rz["mid"]["kind"] and rz["bare"]["unit"] == rz["mid"]["unit"], f"opening the play page again with nothing to start goes straight back to the unfinished game's question ({rz.get('bare')})")
+        report(rz.get("over") and rz.get("dropped"), "the resumed game plays on to its end, and a finished game leaves no save behind")
+        tt = out.get("tt") or {}
+        report(tt.get("card", 0) >= 8 and tt.get("asked") == tt["pick"]["post"] and tt["file"]["hasParent"] and bool((tt["file"]["at"] or {}).get("reseed")), f"time travel: the list of questions opens, going back asks the picked question again in a new page, the new seed is written where the timeline starts ({tt})")
+        report(tt.get("parentAsked") == tt.get("waiting"), f"Back to the earlier timeline returns to the question the first game was waiting on ({tt.get('parentAsked')} vs {tt.get('waiting')})")
+        report((tt.get("childAsked") or {}).get("hasReseed"), f"On to the later timeline comes back to the branch, its new seed still in its list ({tt.get('childAsked')})")
+        rc = out.get("rec") or {}
+        op = rc.get("open") or {}
+        report(op.get("strip") and op.get("report") == "block" and op.get("bottomHalf") and op.get("tabs") == ["Log", "Report", "Teams", "Timelines"] and op.get("steps", 0) > 20 and op.get("repOnTop"), f"REC opens the strip and the report as the bottom half with its tabs, the Report button on top ({op})")
+        mv = rc.get("move") or {}
+        report(mv.get("past") and any(w in mv.get("log", "") for w in ("ran", "walked", "jumped", "moved", "stood")), f"a slider takes the board to a past movement step and the Log says what it did ({mv.get('readout')!r}: {mv.get('log', '')[:90]!r})")
+        pd = rc.get("pastDraw") or {}
+        report(pd.get("path") and pd.get("ring"), f"the mover's path and ring are drawn at a past movement step ({pd})")
+        fd = rc.get("fireDraw") or {}
+        report(fd.get("arrow") and "fired at" in fd.get("log", ""), f"a past fire step draws the attack arrow with its result and the Log tells it ({fd.get('arrow')}, {fd.get('log', '')[:90]!r})")
+        report(rc.get("liveBefore") == rc.get("liveAfter"), "looking back and tapping the map changes nothing in the live game (units, question, answers)")
+        report(rc.get("closed") == "none" and rc.get("reopened") == "block", f"the Report button closes the panel while REC is open and a slider reopens it ({rc.get('closed')}, {rc.get('reopened')})")
+        lv = rc.get("live") or {}
+        sh = rc.get("shut") or {}
+        report(lv.get("now") and not lv.get("past") and sh.get("strip") == "none" and not sh.get("tabs") and not sh.get("open") and sh.get("report") == "none", f"Live comes back to the present and REC closes the layer ({lv}, {sh})")
+        md = out.get("med") or {}
+        cd2 = md.get("cand") or {}
+        report(md.get("button") and cd2.get("who") and cd2.get("who") == cd2.get("team") and cd2.get("who") != "Red" and cd2.get("label") == "Meddle" and cd2.get("strip") and cd2.get("try") and cd2.get("saveN") == md["orig"]["n"], f"Meddle here at the bot's move opens a candidate timeline: the first question is the bot team's, the commit button reads Meddle, the original save is untouched ({md.get('step')}, {cd2})")
+        bk = md.get("back") or {}
+        report(bk.get("kind") == md["orig"]["kind"] and bk.get("unit") == md["orig"]["unit"] and bk.get("saveN") == md["orig"]["n"] and not bk.get("try"), f"Live before holding Meddle goes back to the first game exactly where it was ({bk} vs {md.get('orig')})")
+        kp = md.get("kept") or {}
+        report(not kp.get("cand") and not kp.get("hasTry") and kp.get("parent") and any(b.get("meddle") and b.get("reseed") for b in kp.get("branch", [])), f"holding the answer keeps the new timeline: a reseed and the meddle in its list, the old game as its parent ({kp})")
+        tmx = out.get("tm") or {}
+        report((tmx.get("over") or {}).get("over") and tmx["over"].get("keep") and (tmx.get("kept") or {}).get("parent") and tmx["kept"].get("control") == [[{"team": "Red", "by": "gladiator"}]] and not tmx["kept"].get("cand"), f"the Teams tab: Red handed to a bot from a past step plays to the end without a question, Keep writes the timeline with its control entry and the old game as parent ({tmx})")
+        rpx = out.get("rp") or {}
+        ra = rpx.get("a") or {}
+        report(ra.get("strip") and ra.get("steps", 0) > 20 and ra.get("replay") and ra.get("units") == 2 and ra.get("rec") == "none" and "Play from here" in rpx.get("btn", []), f"a bot battle's record opens in the view-only replay page with the strip and Play from here ({ra}, {rpx.get('btn')})")
+        rc2 = rpx.get("cand") or {}
+        report(rc2.get("cand") and rc2.get("kind") and rc2.get("control") == [[{"team": "Red", "by": "human"}]], f"Play from here on a bot battle starts a candidate game with the chosen team as the person ({rc2})")
+        rb = rpx.get("b") or {}
+        report(rb.get("tab") and "play.html?replay=1" in (rb.get("src") or "") and rb.get("steps", 0) > 30 and rb.get("hasOrders") and rb.get("setup"), f"Watch replay opens the Lab's Replay tab with the REC page inside it, showing the human game with its orders ({rb})")
+        rbc = rpx.get("bc") or {}
+        report(rbc.get("cand") and rbc.get("kind") and rbc.get("events", 0) > 5, f"Play from here in a human game's replay resumes its earlier answers and asks the next question ({rbc})")
         aw = out["page"].get("aware") or {}
         report(aw.get("title") and aw.get("moved") and aw.get("atk") and aw.get("jump"), f"the turn line counts the units still to move, moved units carry a check, attack lines are drawn and a jumper's MP display offers Jump ({aw})")
         ph = out["page"].get("phys")

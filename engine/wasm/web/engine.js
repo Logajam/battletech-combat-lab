@@ -191,7 +191,7 @@
   const asBots = (setup) => ({ ...setup, teams: (setup.teams || []).map((t) => (t.bot === "human" ? { ...t, bot: "gladiator" } : t)) });
 
   class PlayGame {
-    constructor(id, setup, seed) {
+    constructor(id, setup, seed, resume, sim) {
       this.id = id; this.seq = 0; this.pending = null; this.end = null; this.failed = null; this.waiters = []; this.outbox = []; this.qwait = null;
       this.sab = new SharedArrayBuffer(8 + (1 << 20));
       this.ctl = new Int32Array(this.sab, 0, 2); this.data = new Uint8Array(this.sab, 8);
@@ -204,7 +204,7 @@
         else if (m.ev === "failed") this.failed = m.error;
         const w = this.waiters; this.waiters = []; w.forEach((f) => f());
       };
-      this.worker.postMessage({ cmd: "start", module: S.module, defaults: S.defaults, files: filesFor(setup), setup, seed, sab: this.sab });
+      this.worker.postMessage({ cmd: "start", module: S.module, defaults: S.defaults, files: filesFor(setup), setup, seed, sab: this.sab, resume: resume || null, sim: sim || 1 });
     }
     // a message for the sleeping worker; one at a time: the next goes in once the worker has taken the last
     send(msg) { this.outbox.push(msg); this.pump(); }
@@ -253,8 +253,8 @@
   };
 
   // the setup's mistakes, in words (the same check a batch's run makes), with the Human teams as bots
-  function playCheck(setup) {
-    if (!humanTeams(setup).length) return { error: "No team is set to Human. Set one team's bot to Human, then press Play." };
+  function playCheck(setup, resume) {
+    if (!humanTeams(setup).length && !resume) return { error: "No team is set to Human. Set one team's bot to Human, then press Play." };
     const plain = asBots(setup);
     S.coord.call("files", { files: filesFor(plain) });
     const r = S.coord.call("run", { setup: plain });
@@ -263,15 +263,15 @@
     return { ok: true };
   }
 
-  function playStart(setup, seedAsked) {
+  function playStart(setup, seedAsked, resume, sim) {
     if (!window.crossOriginIsolated || typeof SharedArrayBuffer === "undefined") {
       return { error: "Playing needs a browser that allows this site's service worker (it gives the page the shared memory the battle waits in). Reload the page once; if this stays, try another browser, or use the desktop Lab." };
     }
-    const bad = playCheck(setup);
+    const bad = playCheck(setup, resume);
     if (bad.error) return bad;
     const seed = (seedAsked || setup.seed || 0) || (Math.floor(Math.random() * 0xFFFFFFFF) + 1);
     const id = games.size + 1;
-    games.set(id, new PlayGame(id, setup, seed));
+    games.set(id, new PlayGame(id, setup, seed, resume, sim));
     const colours = {};
     for (const t of setup.teams || []) if (t.name && t.colour) colours[t.name] = t.colour;
     return { game: id, seed, colours };
@@ -314,7 +314,7 @@
       }
       case "history": return historyOf(body);
       case "play_check": return playCheck(body.setup);
-      case "play_start": return playStart(body.setup, body.seed);
+      case "play_start": return playStart(body.setup, body.seed, body.resume, body.sim);
       case "play_poll": case "play_answer": case "play_query": {
         const g = games.get(body.game);
         if (!g) return { error: "no such game (the page was reloaded?)" };

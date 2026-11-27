@@ -40,7 +40,7 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 12] = [
+const PAGES: [(&str, &str, &str); 13] = [
     ("three.min.js", "text/javascript; charset=utf-8", include_str!("../web/three.min.js")),
     ("tabletop.js", "text/javascript; charset=utf-8", include_str!("../web/tabletop.js")),
     ("mechsprites.js", "text/javascript; charset=utf-8", include_str!("../web/mechsprites.js")),
@@ -48,6 +48,7 @@ const PAGES: [(&str, &str, &str); 12] = [
     ("mapview.js", "text/javascript; charset=utf-8", include_str!("../web/mapview.js")),
     ("play.html", "text/html; charset=utf-8", include_str!("../web/play.html")),
     ("play.js", "text/javascript; charset=utf-8", include_str!("../web/play.js")),
+    ("tt_layer.js", "text/javascript; charset=utf-8", include_str!("../web/tt_layer.js")),
     ("index.html", "text/html; charset=utf-8", include_str!("../web/index.html")),
     ("lab.css", "text/css; charset=utf-8", include_str!("../web/lab.css")),
     ("lab.js", "text/javascript; charset=utf-8", include_str!("../web/lab.js")),
@@ -377,18 +378,21 @@ fn play_start(lab: &Lab, req: &Value) -> Result<Value, String> {
             }
         }
     }
-    if human.is_empty() {
+    // a game resumed from a list with a `branch` may start with nobody human (a team is handed to the person at the cut: Play from here on a bot battle)
+    if human.is_empty() && !req.get("resume").is_some_and(|v| v.is_object()) {
         return Err("No team is set to Human. Set one team's bot to Human, then press Play.".into());
     }
-    let seed = req["seed"].as_u64().or_else(|| setup["seed"].as_u64()).filter(|s| *s != 0).unwrap_or_else(|| {
+    // a seed may arrive as text: a battle's seed passes JavaScript's exact-integer limit
+    let asked = req["seed"].as_u64().or_else(|| req["seed"].as_str().and_then(|t| t.parse().ok()));
+    let seed = asked.or_else(|| setup["seed"].as_u64()).filter(|s| *s != 0).unwrap_or_else(|| {
         std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(1, |d| d.as_nanos() as u64 & 0xFFFF_FFFF)
     });
     let plan = runs::scenario_of(&setup, &lab.catalog, &lab.paths)?;
-    let scenario = plan.scenario_for(1, seed).0;
+    let scenario = plan.scenario_for(req["sim"].as_u64().filter(|n| *n >= 1).unwrap_or(1), seed).0;
     let id = {
         let mut games = lab.games.lock().unwrap();
         let id = games.len() as u64 + 1;
-        games.insert(id, btsim_core::play_session::Game::start(scenario, seed, human));
+        games.insert(id, btsim_core::play_session::Game::start(scenario, seed, human, colours(&setup), req.get("resume").filter(|v| v.is_object()).cloned()));
         id
     };
     Ok(json!({"game": id, "seed": seed, "colours": colours(&setup)}))

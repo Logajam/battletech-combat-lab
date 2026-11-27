@@ -84,6 +84,18 @@ def main(argv):
         raise SystemExit("NOT PUBLISHED: a check failed (see above)")
     if push:
         git(["remote", "add", "public", PUBLIC_URL], work)
+        # THE PUBLIC HISTORY IS NEVER REWRITTEN. The rewrite is deterministic only while PRIVATE_PATHS stays the same: when a path leaves
+        # the list (the BTTT hold, lifted 2026-11-25), the rewritten history no longer extends what was published. Then the files of the
+        # rewritten tip go on top of the public main as ONE ordinary commit (a sync), never a forced push.
+        git(["fetch", "-q", "public", "main"], work)
+        public_tip = git(["rev-parse", "FETCH_HEAD"], work).strip()
+        if subprocess.run(["git", "merge-base", "--is-ancestor", public_tip, "main"], cwd=work).returncode != 0:
+            tree, src = git(["rev-parse", "main^{tree}"], work).strip(), git(["rev-parse", "origin/main"], REPO_ROOT).strip()[:10]
+            msg = f"Sync with the private repository (its main at {src}): the files as they are now, on top of the history already published"
+            env = {**os.environ, "GIT_AUTHOR_NAME": "Logajam", "GIT_AUTHOR_EMAIL": "56737113+Logajam@users.noreply.github.com", "GIT_COMMITTER_NAME": "Logajam", "GIT_COMMITTER_EMAIL": "56737113+Logajam@users.noreply.github.com"}
+            sync = subprocess.run(["git", "commit-tree", tree, "-p", public_tip, "-m", msg], cwd=work, capture_output=True, text=True, env=env, check=True).stdout.strip()
+            git(["update-ref", "refs/heads/main", sync], work)
+            print(f"  the rewritten history does not extend the published one: one sync commit {sync[:10]} on top of {public_tip[:10]}")
         out = subprocess.run(["git", "push", "public", "main:main"], cwd=work, capture_output=True, text=True)
         print(out.stdout + out.stderr)
         if out.returncode:

@@ -111,11 +111,13 @@ pub struct PathGate {
     pub hazard: Option<f64>,
 }
 
-struct RangedAdapter<'a> {
+struct RangedAdapter<'a, 'm> {
     bots: &'a mut dyn BotSet,
+    marks: &'a mut (dyn FnMut(&mut Battle, i64, &str) + 'm),
+    turn: i64,
 }
 
-impl RangedBot for RangedAdapter<'_> {
+impl RangedBot for RangedAdapter<'_, '_> {
     fn reset_assigned(&mut self, b: &mut Battle) {
         self.bots.reset_assigned(b);
     }
@@ -137,13 +139,18 @@ impl RangedBot for RangedAdapter<'_> {
     fn next_secondary(&mut self, b: &mut Battle, attacker: UnitId, primary: UnitId, done: &[UnitId]) -> Option<Option<UnitId>> {
         self.bots.next_secondary(b, attacker, primary, done)
     }
+    fn step_done(&mut self, b: &mut Battle, label: &str) {
+        (self.marks)(b, self.turn, label);
+    }
 }
 
-struct PhysAdapter<'a> {
+struct PhysAdapter<'a, 'm> {
     bots: &'a mut dyn BotSet,
+    marks: &'a mut (dyn FnMut(&mut Battle, i64, &str) + 'm),
+    turn: i64,
 }
 
-impl PhysicalBot for PhysAdapter<'_> {
+impl PhysicalBot for PhysAdapter<'_, '_> {
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         // declared = getattr(u, "charging", None) or getattr(u, "dfa", None); the attack the unit declared in Movement
         let declared = b.units[attacker].charging.or(b.units[attacker].dfa);
@@ -151,6 +158,9 @@ impl PhysicalBot for PhysAdapter<'_> {
     }
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
         self.bots.choose_physical(b, attacker, target)
+    }
+    fn step_done(&mut self, b: &mut Battle, label: &str) {
+        (self.marks)(b, self.turn, label);
     }
 }
 
@@ -1404,6 +1414,11 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let alive_teams = forces::team_names(b, &alive);
     let order = forces::initiative_order(b, &alive_teams, None);
     log_initiative(b, &order);
+    // a replay step of its own (REC layer): a cut at the turn's first move must come AFTER the Initiative throw, or a new seed would throw it again
+    if b.log.ev.on {
+        b.step_info = Some(serde_json::json!({"k": "init"}));
+    }
+    marks(b, turn, "Initiative");
     b.event_phase(turn, "movement");
     let in_order: Vec<UnitId> = order.iter().flat_map(|t| alive.iter().copied().filter(|m| b.units[*m].team.as_deref() == Some(t.as_str())).collect::<Vec<_>>()).collect();
 
@@ -1473,6 +1488,9 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
             b.tally.track[mover][1] += 1.0;
         }
         let label = format!("{} moves", name(b, mover));
+        if b.log.ev.on {
+            b.step_info = Some(serde_json::json!({"k": "move", "unit": mover}));
+        }
         marks(b, turn, &label);
     }
 
@@ -1516,7 +1534,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         fighters = forces::fire_order(b, &order, &mut pick);
     }
     let mut reports = {
-        let mut adapter = RangedAdapter { bots };
+        let mut adapter = RangedAdapter { bots, marks: &mut *marks, turn };
         ar::run_ranged_phase(b, &fighters, &mut adapter)
     };
     after_phase(b);
@@ -1533,7 +1551,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     // reports parallel to `scrappers`: the physical phase reads each unit's ranged report (weapons fired, heat)
     let mut phys_reports: Vec<SideReport> = scrappers.iter().map(|u| fighters.iter().position(|f| f == u).map_or_else(SideReport::default, |i| std::mem::take(&mut reports[i]))).collect();
     {
-        let mut adapter = PhysAdapter { bots };
+        let mut adapter = PhysAdapter { bots, marks: &mut *marks, turn };
         crate::physical::run_physical_units(b, &scrappers, &mut phys_reports, &mut adapter);
     }
     after_phase(b);

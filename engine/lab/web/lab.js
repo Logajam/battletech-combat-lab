@@ -1429,6 +1429,22 @@ function randomMap() {
 
 // ---------------------------------------------------------------- RUN and RESULTS
 // BATTLEROM: play a battle. The teams whose bot is Human are played from the play page; the rest by their bots.
+// RESUME BATTLE (P15): the play page keeps the game in this browser (localStorage "bm_save"); this button opens it again, "Open game file" first
+// puts a file's game there. Only a button in the Lab: the play page does the work.
+function refreshResume() { let has = false; try { has = !!localStorage.getItem("bm_save"); } catch (e) { has = false; } $("resume-btn").hidden = !has; }
+function resumeGame() { window.open("play.html?resume=1", "_blank"); }
+function openGameFile(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const f = JSON.parse(rd.result);
+      if (!f.combatlab_game || !f.orders || !f.setup) throw new Error("not a saved game");
+      localStorage.setItem("bm_save", JSON.stringify(f));
+    } catch (e) { $("run-error").textContent = "That file is not a saved game of this Lab (" + (e.message || e) + ")."; return; }
+    refreshResume(); resumeGame();
+  };
+  rd.readAsText(file);
+}
 async function playGame() {
   $("run-error").textContent = "";
   if (!mapCheck().ok) { $("run-error").textContent = "The map is not ready: see the Map page."; return; }
@@ -1745,19 +1761,20 @@ async function openReplay(which) {
     if (rec) rec.colours = Object.fromEntries(lab.teams.map((t) => [t.name, t.colour]));
     frame.srcdoc = rec ? DEMO.viewer.replace("__REPLAY_JSON__", JSON.stringify(rec).replace(/<\//g, "<\\/"))
       : `<p style="font:13px Tahoma,sans-serif;padding:12px">This demo carries the replays of battles ${Object.keys(DEMO.histories).join(", ")} only. In Combat Lab any battle replays.</p>`;
-  } else if (window.LAB_WASM) {
-    const html = await window.LAB_WASM.replayHtml(which.run ? { run: which.run, sim: which.sim } : { setup: setup(), seed: which.seed, sim: Math.max(1, +$("replay-sim").value || 1) });
-    if (html.error) { setStatus(html.error); return; }
-    frame.srcdoc = html;
-  } else if (which.run) {
-    frame.removeAttribute("srcdoc");
-    frame.src = `replay?run=${which.run}&sim=${which.sim}`;
   } else {
-    const sim = Math.max(1, +$("replay-sim").value || 1);
-    const r = await api("history", { setup: setup(), seed: which.seed, sim });   // checks the setup; the page plays it again
-    if (r.error) { setStatus(r.error); return; }
+    // THE REPLAY IS THE PLAY PAGE'S REC LAYER (play.html?replay=1; prompt Phase D): the record of the battle is handed over in localStorage "bm_replay".
+    // A played game replays its own record (your moves); any other battle is played again from its seed.
+    let rec, meta;
+    if (which.run && lab.playedReplay && which.run === lab.run) { rec = lab.playedReplay.record; meta = { record: rec, setup: lab.playedReplay.setup || lab.runSetup, orders: lab.playedReplay.orders, seed: rec.seed }; }
+    else {
+      const sim = which.run ? which.sim : Math.max(1, +$("replay-sim").value || 1);
+      rec = await api("history", which.run ? { run: which.run, sim: which.sim } : { setup: setup(), seed: which.seed, sim });
+      if (rec.error) { setStatus(rec.error); return; }
+      meta = { record: rec, setup: which.run ? lab.runSetup || setup() : setup(), orders: null, seed: rec.seed };
+    }
+    try { localStorage.setItem("bm_replay", JSON.stringify(meta)); } catch (e) { setStatus("This browser will not hand the replay over (storage is full or off)."); return; }
     frame.removeAttribute("srcdoc");
-    frame.src = `replay?seed=${which.seed}&sim=${sim}&t=${Date.now()}`;
+    frame.src = `play.html?replay=1&t=${Date.now()}`;
   }
   frame.onload = () => setStatus("Replay ready");
 }
@@ -2490,6 +2507,10 @@ async function start() {
   $("estimate-btn").addEventListener("click", estimate);
   $("run-btn").addEventListener("click", runBatch);
   $("play-btn").addEventListener("click", playGame);
+  $("resume-btn").addEventListener("click", resumeGame);
+  $("open-game-btn").addEventListener("click", () => $("open-game-file").click());
+  $("open-game-file").addEventListener("change", (e) => { if (e.target.files[0]) openGameFile(e.target.files[0]); e.target.value = ""; });
+  refreshResume(); addEventListener("focus", refreshResume); addEventListener("storage", refreshResume);
   $("opt-search").addEventListener("input", filterOptions);
   document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
   $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });
@@ -2558,6 +2579,7 @@ async function start() {
   window.addEventListener("resize", () => { if (narrow() !== wasNarrow) { wasNarrow = narrow(); location.reload(); } });
   if (DEMO && DEMO.autorun) runBatch();
   openPlayedGame();
+  openStoredReplay();
 }
 
 // GET RESULTS (bug B21, Daniel 2026-11-22: when the battle is over the commit button becomes "Get Results", which switches to the results
@@ -2570,7 +2592,17 @@ async function openPlayedGame() {
   if (r.error) { setStatus("The played game could not be opened: " + r.error); return; }
   lab.run = r.run; lab.runSetup = r.setup; lab.filter = {};
   $("results-empty").hidden = true; $("results").hidden = false;
-  show("results"); drawResults(); setStatus("Your played game: its results (a replay opened from here is played by the bots, not your moves)");
+  lab.playedReplay = file.replay ? { record: file.replay, orders: file.played_orders || null, setup: file.played_setup || null } : null;
+  show("results"); drawResults(); setStatus("Your played game: its results (Replay shows your own moves)");
+}
+// WATCH REPLAY from the play page: the Replay tab, with the record the play page left in localStorage "bm_replay"
+function openStoredReplay() {
+  if (!/[?&]replay=1/.test(location.search)) return;
+  let meta = null; try { meta = JSON.parse(localStorage.getItem("bm_replay") || "null"); } catch (e) { meta = null; }
+  if (!meta || !meta.record) return;
+  show("replay"); $("replay-what").textContent = "Your played game";
+  const frame = $("replay-frame"); frame.removeAttribute("srcdoc"); frame.src = `play.html?replay=1&t=${Date.now()}`;
+  history.replaceState(null, "", location.pathname);
 }
 
 start();

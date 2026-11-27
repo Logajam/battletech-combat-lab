@@ -230,8 +230,9 @@ svg#map{width:100%;height:100%;display:block;background:var(--map);user-select:n
 .wb.foc{outline:2px solid #fff;outline-offset:1px}
 .wb .n2{font-size:8.5px;color:#cfd6de;margin-left:-2px}
 .aimrow{position:absolute;display:flex;flex-wrap:wrap;gap:4px;pointer-events:auto}
-#report{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);display:none;padding:12px}
-#rbox{height:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--bd);box-shadow:0 8px 28px rgba(0,0,0,.6)}
+/* the report is the BOTTOM HALF of the screen (REC layer, prompt 2.1): the map above it stays usable; its Report button is kept on top (tt_layer.js) */
+#report{position:fixed;left:0;right:0;bottom:0;top:50%;z-index:1000;background:transparent;display:none;padding:0;pointer-events:none}
+#rbox{pointer-events:auto;height:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--bd);box-shadow:0 8px 28px rgba(0,0,0,.6)}
 #rhead{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--title);color:var(--titletx)}#rhead button{min-height:34px;min-width:80px}
 #rbody{flex:1;overflow:auto;padding:8px 10px;font-size:13px;line-height:1.45;color:var(--tx)}
 :is(#rbody,.cardrep) .rt{margin:10px 0 4px;padding:3px 6px;background:var(--face);font-weight:700}:is(#rbody,.cardrep) .rh{margin:8px 0 2px;border-top:1px solid var(--bd);padding-top:6px}#rbody small,:is(#rbody,.cardrep) .rd,:is(#rbody,.cardrep) .rm{color:var(--muted)}:is(#rbody,.cardrep) .rm b{color:var(--tx)}:is(#rbody,.cardrep) .rm{margin:2px 0}
@@ -294,5 +295,6 @@ td.w{white-space:normal}
 <script src="boardart.js"></script>
 <script src="mapview.js"></script>
 <script src="play.js"></script>
+<script src="tt_layer.js"></script>
 </body>
 </html>

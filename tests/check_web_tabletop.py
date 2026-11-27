@@ -137,7 +137,7 @@ def main():
     if not os.path.isdir(os.path.join(node_path, "playwright")):
         print("SKIP: Playwright is not installed"); return 77
     stale = os.path.exists(os.path.join(WEB, "combatlab.wasm")) and any(
-        os.path.getmtime(os.path.join(REPO_ROOT, "engine", "lab", "web", n)) > os.path.getmtime(os.path.join(WEB, "combatlab.wasm")) for n in ("tabletop.js", "mapview.js", "play.js", "play.html", "../../../INTEGRATION__replay_viewer.html"))
+        os.path.getmtime(os.path.join(REPO_ROOT, "engine", "lab", "web", n)) > os.path.getmtime(os.path.join(WEB, "combatlab.wasm")) for n in ("tabletop.js", "mapview.js", "play.js", "tt_layer.js", "play.html", "../../../INTEGRATION__replay_viewer.html"))
     if a.rebuild or stale or not os.path.exists(os.path.join(WEB, "combatlab.wasm")):
         r = subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tools", "build_web_lab.py")], capture_output=True, text=True)
         if r.returncode != 0:

@@ -1726,6 +1726,8 @@ pub trait RangedBot {
     fn next_secondary(&mut self, _b: &mut Battle, _attacker: UnitId, _primary: UnitId, _done: &[UnitId]) -> Option<Option<UnitId>> {
         None
     }
+    /// One attacker's attacks have just been resolved (damage landed): a step of the replay record (the REC layer's sub-phases). Default: nothing.
+    fn step_done(&mut self, _b: &mut Battle, _label: &str) {}
 }
 
 /// Step 2 for one attacker. Rolls to-hit for every selected weapon and fills `report`.
@@ -1923,6 +1925,12 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
             Num::I(i) => i as f64,
             Num::F(f) => f,
         };
+        // a replay step per declared attack, in declaration order (REC layer): the state with this attacker's damage landed
+        if b.log.ev.on {
+            b.step_info = Some(serde_json::json!({"k": "fire", "unit": attacker, "target": target}));
+            let label = format!("{} fires at {}", b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
+            bot.step_done(b, &label);
+        }
     }
     for &m in order {
         b.units[m].ams_used = Some(serde_json::Value::Null);

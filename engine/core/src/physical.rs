@@ -575,6 +575,8 @@ pub trait PhysicalBot {
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
     /// bots.choose_physical: (base TN, picked options, arc action) or None.
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, crate::mech_state::ArcAction)>;
+    /// One physical attack has been resolved: a step of the replay record (REC layer). Default: nothing.
+    fn step_done(&mut self, _b: &mut Battle, _label: &str) {}
 }
 
 fn name_of(b: &Battle, u: UnitId) -> String {
@@ -864,6 +866,10 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         }
         b.event_actor(None);
         tally_physical(b, attacker, target, &o.name, hit, Some(before));
+        if b.log.ev.on {
+            b.step_info = Some(serde_json::json!({"k": "phys", "unit": attacker, "target": target}));
+            bot.step_done(b, &format!("{} {} {}", an, o.name, tname));
+        }
     }
     // Core p.76: every physical attack is made before anyone is displaced - all charge and DFA damage lands from where
     // the 'Mechs stood, then the displacements: pushes, charges, DFAs (each skips a 'Mech an earlier one already moved).

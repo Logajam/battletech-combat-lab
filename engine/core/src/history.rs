@@ -33,6 +33,11 @@ pub struct History {
     heat: Vec<Value>,
     /// how many of the battle's log lines are in a step already
     logged: usize,
+    /// how many of the battle's event records are in a step already
+    ev_done: usize,
+    /// REC layer: how many order-list events (play_session `RecordingLink`) had been recorded when the next step is marked; set by the caller
+    /// before each mark (a battle with no person in it leaves it 0). Written into every step as "orders".
+    pub orders: usize,
 }
 
 impl History {
@@ -41,12 +46,18 @@ impl History {
         let mut data = Map::new();
         data.insert("sim".into(), json!(sim));
         data.insert("seed".into(), json!(seed.to_string()));
-        History { data, steps: Vec::new(), heat: Vec::new(), logged: 0 }
+        History { data, steps: Vec::new(), heat: Vec::new(), logged: 0, ev_done: 0, orders: 0 }
     }
 
     /// The `Marks` hook: one step, the units as they are now and the log lines since the last step. The first step
-    /// (Deployment) also writes the header: units, teams and board.
-    pub fn mark(&mut self, b: &Battle, turn: i64, phase: &str) {
+    /// (Deployment) also writes the header: units, teams and board. Takes `b.step_info` (what the step is about: set by the orchestrator
+    /// just before a mark, see `Battle::step_info`).
+    pub fn mark(&mut self, b: &mut Battle, turn: i64, phase: &str) {
+        let info = b.step_info.take();
+        self.push_step(b, turn, phase, info);
+    }
+
+    fn push_step(&mut self, b: &Battle, turn: i64, phase: &str, info: Option<Value>) {
         if !self.data.contains_key("mechs") {
             self.header(b);
         }
@@ -57,14 +68,59 @@ impl History {
         // config.log's lines only: a bare print went to the screen, not to the Python's replay record
         let lines: Vec<&String> = (self.logged..b.log.lines.len()).filter(|i| !b.log.printed.contains(i)).map(|i| &b.log.lines[i]).collect();
         self.logged = b.log.lines.len();
-        self.steps.push(json!({"turn": turn, "phase": phase, "state": state, "log": lines}));
+        let mut step = json!({"turn": turn, "phase": phase, "state": state, "log": lines});
+        // REC layer: what the step is about (k = deploy | move | fire | phys | fire_end | phys_end | heat | over; unit and target as labels), the
+        // order-list position, and the slice of the event records written since the last step ("ev": [from, to) into "events")
+        let (mut k, mut unit, mut target) = (None, None, None);
+        if let Some(i) = &info {
+            k = i["k"].as_str().map(String::from);
+            unit = i["unit"].as_u64().map(|u| label(b, u as usize));
+            target = i["target"].as_u64().map(|u| label(b, u as usize));
+        }
+        let k = k.unwrap_or_else(|| match phase {
+            "Deployment" => "deploy",
+            "Ranged attacks" => "fire_end",
+            "Physical attacks" => "phys_end",
+            "Heat and end phase" => "heat",
+            "Battle over" => "over",
+            _ => "other",
+        }.to_string());
+        step["k"] = json!(k);
+        if let Some(u) = unit {
+            step["unit"] = json!(u);
+        }
+        if let Some(t) = target {
+            step["target"] = json!(t);
+        }
+        step["orders"] = json!(self.orders);
+        if b.log.ev.on {
+            let n = b.log.ev.list.len();
+            step["ev"] = json!([self.ev_done, n]);
+            self.ev_done = n;
+        }
+        self.steps.push(step);
         self.heat.push(heat_now(b));
+    }
+
+    /// The record SO FAR, without ending it (REC layer: a game parked at a question; the replay overlay reads this). Changes nothing.
+    pub fn snapshot(&self, b: &Battle) -> Value {
+        let mut data = self.data.clone();
+        data.insert("steps".into(), Value::Array(self.steps.clone()));
+        if self.heat.iter().any(|h| !h["maps"].as_object().is_none_or(|m| m.is_empty())) {
+            data.insert("heat".into(), Value::Array(self.heat.clone()));
+        }
+        if b.log.ev.on {
+            data.insert("events_version".into(), json!(crate::events::EVENT_VERSION));
+            data.insert("events".into(), crate::events::events_json(b));
+        }
+        data.insert("partial".into(), json!(true));
+        Value::Object(data)
     }
 
     /// The finished record. Log lines written after the last step (the battle's end) make a "Battle over" step.
     pub fn finish(mut self, b: &Battle, result: &BattleResult) -> Value {
         if (self.logged..b.log.lines.len()).any(|i| !b.log.printed.contains(&i)) {
-            self.mark(b, result.turns_taken, "Battle over");
+            self.push_step(b, result.turns_taken, "Battle over", None);
         }
         let causes: Map<String, Value> = result.units.iter().map(|(k, s)| (k.clone(), json!(s.cause_of_death))).collect();
         self.data.insert("steps".into(), Value::Array(self.steps));

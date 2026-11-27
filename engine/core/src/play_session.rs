@@ -68,6 +68,204 @@ pub trait Link {
     fn post(&self, request: &Value);
     fn wait(&self) -> Incoming;
     fn reply(&self, reply: Value);
+    /// Is a person on the other end now? False while a saved game is being played up to where it stopped (`ResumeLink`): the
+    /// requests of that stretch go nowhere, so the log and the board are kept for the first request the person really sees.
+    fn live(&self) -> bool {
+        true
+    }
+    /// A NEW TIMELINE (P4, Daniel 2026-11-19: "A timeline branch activates a new rng seed, which is recorded for that timeline"): the order
+    /// list can hold `{"reseed": n}` just before a question. The battle asks for it first thing in each question; if it is there the dice
+    /// start afresh from seed n. Only a list being played back has one.
+    fn take_reseed(&self) -> Option<u64> {
+        None
+    }
+}
+
+/// THE ORDER RECORD (P15 step 2 / P11 first slice; INTEGRATION__ORDER_FORMAT.md): a `Link` that wraps another and writes down
+/// everything that passes through it, in order: each question posted ("post": kind, unit, seq) and each thing the person sent
+/// ("answer" or "query", verbatim). A battle is (setup, seed, who is human) plus this list: the bots' own choices come out of the
+/// engine again by themselves, so only the person's side is kept. Recording only reads: the battle sees the same answers.
+pub struct RecordingLink {
+    inner: Arc<dyn Link>,
+    events: std::sync::Mutex<Vec<Value>>,
+    /// the order list's declarative events (`branch`, timeline.rs): they stand first in the list this link writes
+    declared: std::sync::Mutex<Vec<Value>>,
+}
+
+impl RecordingLink {
+    pub fn new(inner: Arc<dyn Link>) -> RecordingLink {
+        RecordingLink { inner, events: std::sync::Mutex::new(Vec::new()), declared: std::sync::Mutex::new(Vec::new()) }
+    }
+    /// The record so far, as the order list of a saved game (see `ORDER_FORMAT`).
+    pub fn orders(&self, seed: u64, human_teams: &[String]) -> Value {
+        json!({"order_format": ORDER_FORMAT, "engine": env!("CARGO_PKG_VERSION"), "seed": seed.to_string(), "human": human_teams, "events": self.declared.lock().unwrap().iter().chain(self.events.lock().unwrap().iter()).cloned().collect::<Vec<Value>>()})
+    }
+    /// The branch events of the list this game was resumed from: kept in the list written from now on.
+    pub fn declare(&self, events: Vec<Value>) {
+        *self.declared.lock().unwrap() = events;
+    }
+    /// How many flow events (question, answer, query, reseed) have been recorded: a replay step's "orders".
+    pub fn count(&self) -> usize {
+        self.events.lock().unwrap().len()
+    }
+}
+
+/// The version of the order list's layout. Raise it with every change of the layout, and keep a reader for the old one.
+pub const ORDER_FORMAT: u32 = 1;
+
+impl Link for RecordingLink {
+    fn post(&self, request: &Value) {
+        self.events.lock().unwrap().push(json!({"post": {"kind": request["kind"], "unit": request["unit"]}}));
+        self.inner.post(request);
+    }
+    fn wait(&self) -> Incoming {
+        let got = self.inner.wait();
+        let ev = match &got {
+            Incoming::Answer(a) => json!({"answer": a}),
+            // the page's look at the replay record so far changes nothing and is not part of the game
+            Incoming::Query(q) if q["q"] == "history" => return got,
+            Incoming::Query(q) => json!({"query": q}),
+        };
+        self.events.lock().unwrap().push(ev);
+        got
+    }
+    fn reply(&self, reply: Value) {
+        self.inner.reply(reply);
+    }
+    fn live(&self) -> bool {
+        self.inner.live()
+    }
+    fn take_reseed(&self) -> Option<u64> {
+        let seed = self.inner.take_reseed();
+        if let Some(n) = seed {
+            self.events.lock().unwrap().push(json!({"reseed": n.to_string()}));
+        }
+        seed
+    }
+}
+
+/// A saved game played back: answers the battle's questions from an order list instead of from a person. If the battle asks
+/// something the list did not record at that point (another kind of question or another unit: the engine or the setup is not the
+/// one the game was played on) it stops with a message saying where, so a desynchronised replay is loud, never silently different.
+pub struct ReplayLink {
+    pub(crate) events: Vec<Value>,
+    at: std::sync::Mutex<usize>,
+}
+
+impl ReplayLink {
+    pub fn new(orders: &Value) -> Result<ReplayLink, String> {
+        if orders["order_format"].as_u64() != Some(ORDER_FORMAT as u64) {
+            return Err(format!("order format {} is not one this engine reads (it reads {})", orders["order_format"], ORDER_FORMAT));
+        }
+        // the declarative events (`branch`, timeline.rs) are applied by the battle itself, by step: they are not part of the question flow
+        let events: Vec<Value> = orders["events"].as_array().ok_or("the order list has no events")?.iter().filter(|e| e.get("branch").is_none()).cloned().collect();
+        Ok(ReplayLink { events, at: std::sync::Mutex::new(0) })
+    }
+}
+
+impl Link for ReplayLink {
+    fn post(&self, request: &Value) {
+        let mut at = self.at.lock().unwrap();
+        let want = &self.events.get(*at).map(|e| e["post"].clone()).unwrap_or(Value::Null);
+        if want["kind"] != request["kind"] || want["unit"] != request["unit"] {
+            panic!("the replay is out of step at event {}: the battle asks {} (unit {}), the record has {}", *at, request["kind"], request["unit"], want);
+        }
+        *at += 1;
+    }
+    fn wait(&self) -> Incoming {
+        let mut at = self.at.lock().unwrap();
+        let ev = self.events.get(*at).cloned().unwrap_or(Value::Null);
+        *at += 1;
+        if let Some(a) = ev.get("answer") {
+            Incoming::Answer(a.clone())
+        } else if let Some(q) = ev.get("query") {
+            Incoming::Query(q.clone())
+        } else {
+            panic!("the replay ran out of recorded answers at event {}", *at - 1)
+        }
+    }
+    fn reply(&self, _reply: Value) {}
+    fn take_reseed(&self) -> Option<u64> {
+        take_reseed_at(&self.events, &mut self.at.lock().unwrap())
+    }
+}
+
+/// The reseed event at `at`, if that is what comes next in the list: consumed, and its seed returned (a number or text: seeds pass
+/// JavaScript's exact-integer limit, so the list keeps them as text).
+fn take_reseed_at(events: &[Value], at: &mut usize) -> Option<u64> {
+    let r = events.get(*at)?.get("reseed")?;
+    let seed = r.as_u64().or_else(|| r.as_str().and_then(|t| t.parse().ok()))?;
+    *at += 1;
+    Some(seed)
+}
+
+/// A SAVED GAME CONTINUED (P15: close the page, come back): the order list so far is played back as `ReplayLink` does, and from
+/// where it ends the battle talks to the live link. A list saved while a question waited ends in that question's `post` (and
+/// maybe queries about it): the queries are cut off and the `post` is NOT replayed, so that question is shown live again, with the
+/// log and board the person has not seen. Wrap this in a `RecordingLink` and the new list is the old one carried on.
+pub struct ResumeLink {
+    events: Vec<Value>,
+    at: std::sync::Mutex<usize>,
+    live: Arc<dyn Link>,
+}
+
+impl ResumeLink {
+    pub fn new(orders: &Value, live: Arc<dyn Link>) -> Result<ResumeLink, String> {
+        let mut events = ReplayLink::new(orders)?.events;
+        while events.last().is_some_and(|e| e.get("query").is_some()) {
+            events.pop();
+        }
+        if events.last().is_some_and(|e| e.get("post").is_some()) {
+            events.pop(); // the waiting question: asked live
+        }
+        Ok(ResumeLink { events, at: std::sync::Mutex::new(0), live })
+    }
+    fn replaying(&self) -> bool {
+        *self.at.lock().unwrap() < self.events.len()
+    }
+}
+
+impl Link for ResumeLink {
+    fn post(&self, request: &Value) {
+        if !self.replaying() {
+            return self.live.post(request);
+        }
+        let mut at = self.at.lock().unwrap();
+        let want = &self.events[*at]["post"];
+        if want["kind"] != request["kind"] || want["unit"] != request["unit"] {
+            panic!("the saved game is out of step at event {}: the battle asks {} (unit {}), the save has {}", *at, request["kind"], request["unit"], want);
+        }
+        *at += 1;
+    }
+    fn wait(&self) -> Incoming {
+        if !self.replaying() {
+            return self.live.wait();
+        }
+        let mut at = self.at.lock().unwrap();
+        let ev = self.events[*at].clone();
+        *at += 1;
+        if let Some(a) = ev.get("answer") {
+            Incoming::Answer(a.clone())
+        } else if let Some(q) = ev.get("query") {
+            Incoming::Query(q.clone())
+        } else {
+            panic!("the saved game is out of step at event {}: an answer was expected, the save has {}", *at - 1, ev)
+        }
+    }
+    fn reply(&self, reply: Value) {
+        if !self.replaying() {
+            self.live.reply(reply);
+        }
+    }
+    fn live(&self) -> bool {
+        !self.replaying()
+    }
+    fn take_reseed(&self) -> Option<u64> {
+        if !self.replaying() {
+            return self.live.take_reseed();
+        }
+        take_reseed_at(&self.events, &mut self.at.lock().unwrap())
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -119,7 +317,7 @@ impl Link for Game {
 #[cfg(not(target_arch = "wasm32"))]
 impl Game {
     /// Start a battle on `seed`; the units of `human_teams` are the person's. Returns at once.
-    pub fn start(scenario: Arc<Scenario>, seed: u64, human_teams: Vec<String>) -> Arc<Game> {
+    pub fn start(scenario: Arc<Scenario>, seed: u64, human_teams: Vec<String>, colours: Value, resume: Option<Value>) -> Arc<Game> {
         let game = Arc::new(Game { slot: Mutex::new(Slot::default()), cv: Condvar::new() });
         let g = game.clone();
         std::thread::Builder::new()
@@ -127,7 +325,7 @@ impl Game {
             .stack_size(64 << 20)
             .spawn(move || {
                 let g2 = g.clone();
-                let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || play(&g2, &scenario, seed, &human_teams)));
+                let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || play(&g2, &scenario, seed, &human_teams, &colours, resume.as_ref())));
                 if let Err(e) = r {
                     let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|m| m.to_string())).unwrap_or_else(|| "the engine stopped".into());
                     g.slot.lock().unwrap().failed = Some(msg);
@@ -184,31 +382,86 @@ impl Game {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn play(game: &Arc<Game>, sc: &Scenario, seed: u64, human_teams: &[String]) {
-    let end = play_blocking(game.clone(), sc, seed, human_teams);
+fn play(game: &Arc<Game>, sc: &Scenario, seed: u64, human_teams: &[String], colours: &Value, resume: Option<&Value>) {
+    let end = play_blocking(game.clone(), sc, seed, human_teams, colours, resume);
     game.slot.lock().unwrap().done = Some(end);
     game.cv.notify_all();
 }
 
 /// Play the whole battle on this stack, asking the person through `link`; returns the end (winner, turns, final units,
-/// the log's last lines, how many decisions the person made).
-pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams: &[String]) -> Value {
+/// the log's last lines, how many decisions the person made, and the battle's replay page).
+///
+/// REPLAY OF A HUMAN GAME (Daniel, 2026-11-27, step 1 of P15): the battle is recorded with `history::History` as it is played
+/// (`b.events_on()` and a `mark` at every step, exactly as `Scenario::run_history` does for a bot battle). Recording only reads, so
+/// the dice and every answer are the same with or without it. `colours` ({team: "#rrggbb"}) are the setup's team colours.
+/// The end carries "replay" (the history record) and "replay_html" (the viewer page with it inside).
+pub fn play_blocking(link: Arc<dyn Link>, sc: &Scenario, seed: u64, human_teams: &[String], colours: &Value, resume: Option<&Value>) -> Value {
+    // a saved game (`resume`: its order list) is played back first, then the person takes over
+    let link: Arc<dyn Link> = match resume {
+        Some(orders) => match ResumeLink::new(orders, link) {
+            Ok(r) => Arc::new(r),
+            Err(e) => return json!({"error": e}),
+        },
+        None => link,
+    };
+    // every answer the person gives is written down (`RecordingLink`): the end carries it as "orders"
+    let rec = Arc::new(RecordingLink::new(link));
+    if let Some(orders) = resume {
+        rec.declare(orders["events"].as_array().into_iter().flatten().filter(|e| e.get("branch").is_some()).cloned().collect());
+    }
+    let link: Arc<dyn Link> = rec.clone();
     let mut b = sc.battle(Box::new(PcgDice::new(seed)));
     let human: Vec<UnitId> = (0..b.units.len()).filter(|&u| b.units[u].team.as_deref().is_some_and(|t| human_teams.iter().any(|h| h == t))).collect();
     for &u in &human {
         let n = b.units[u].side_name.clone().unwrap_or_default();
         b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
     }
-    let mut marks = |_: &mut Battle, _: i64, _: &str| {};
-    let screen = Screen { link, sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None, drop: None, eject: None, careful: None };
+    b.events_on();
+    let history = std::rc::Rc::new(std::cell::RefCell::new(crate::history::History::new(1, seed)));
+    // the branches of a resumed list (timeline.rs): who decides from which step, and the new seed; applied by the step counter
+    let control = std::rc::Rc::new(std::cell::RefCell::new(crate::timeline::Control::from_orders(resume)));
+    control.borrow_mut().apply_due(&mut b);
+    let mut marks = {
+        let (history, control, rec) = (history.clone(), control.clone(), rec.clone());
+        move |b: &mut Battle, turn: i64, label: &str| {
+            let info = b.step_info.clone();
+            {
+                let mut h = history.borrow_mut();
+                h.orders = rec.count();
+                h.mark(b, turn, label);
+            }
+            control.borrow_mut().on_mark(b, &info);
+        }
+    };
+    let screen = Screen { link, history: Some(history.clone()), sent_log: 0, first: true, plan: None, stand_plan: None, prone_facing: None, drop: None, eject: None, careful: None };
     let mut bots = HumanBots::new(screen, human);
+    bots.timeline = control.clone();
     // a person's units are placed by the person when the deployment rules place units before turn 1 (walk-on units enter during movement)
     let mut play = start_battle_with(&mut b, sc.max_turns, &mut marks, &mut |b, u, good| bots.deploy(b, u, good));
     play_on(&mut b, &mut bots, &mut play, &mut marks);
     let r = &play.result;
+    b.sweep_destroyed();
+    let sent_log = new_log(&b, &mut bots.ctl.sent_log);
+    let decisions = bots.log.len();
+    drop(bots);
+    drop(marks);
+    let mut record = std::rc::Rc::try_unwrap(history).ok().expect("the replay record has no other owner now").into_inner().finish(&b, r);
+    record["colours"] = colours.clone();
+    let replay_html = crate::history::page(&record);
     // "line": the battle as the Lab's run files keep it, so Get Results can open it in the Results tab (bug B21)
     let line = crate::results::battle_line(1, seed, r, 0.0, &Value::Null, &Value::Null);
-    json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len(), "line": line, "seed": seed.to_string()})
+    json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": sent_log, "decisions": decisions, "line": line, "seed": seed.to_string(), "replay": record, "replay_html": replay_html, "orders": rec.orders(seed, human_teams)})
+}
+
+/// The page's look at the game so far: {"q": "history"} -> {"history": the replay record up to this question, "steps_done": n, "orders": n}. Reads only: the
+/// battle, the dice and the order list are untouched (the link does not record it).
+fn history_tool(h: &Option<std::rc::Rc<std::cell::RefCell<crate::history::History>>>, b: &Battle, q: &Value) -> Option<Value> {
+    if q["q"] != "history" {
+        return None;
+    }
+    let h = h.as_ref()?;
+    let snap = h.borrow().snapshot(b);
+    Some(json!({"history": snap}))
 }
 
 fn name(b: &Battle, u: UnitId) -> String {
@@ -400,6 +653,8 @@ fn common_tools(b: &mut Battle, q: &Value) -> Option<Value> {
 // ---------------------------------------------------------------------------------------------------------------------
 struct Screen {
     link: Arc<dyn Link>,
+    /// the replay record being made, for the page's "history" query while the game waits (REC layer)
+    history: Option<std::rc::Rc<std::cell::RefCell<crate::history::History>>>,
     sent_log: usize,
     first: bool,
     /// a move the person planned while choosing the unit to move (`move_order`'s "plan"): the unit and the movement answer, used
@@ -552,6 +807,10 @@ impl Screen {
     /// `ask` with an answer the person gave ahead of time (a move planned while choosing the unit): used if `check` accepts it,
     /// else the question is asked and says why it was not.
     fn ask_with<T>(&mut self, b: &mut Battle, mut request: Value, preset: Option<Value>, mut tools: impl FnMut(&mut Battle, &Value) -> Option<Value>, mut check: impl FnMut(&mut Battle, &Value) -> Result<T, String>) -> T {
+        // a new timeline starts here: from this question on the dice come from the seed the list names (and the list keeps it, `RecordingLink`)
+        if let Some(seed) = self.link.take_reseed() {
+            *b.dice.borrow_mut() = Box::new(PcgDice::new(seed));
+        }
         if let Some(a) = preset {
             match check(b, &a) {
                 Ok(t) => return t,
@@ -559,10 +818,13 @@ impl Screen {
             }
         }
         request["units"] = units_json(b, self.first);
-        request["log"] = json!(new_log(b, &mut self.sent_log));
-        if self.first {
-            request["board"] = crate::history::board(b);
-            self.first = false;
+        // while a saved game is played up to where it stopped nobody sees the requests: the log and the board wait for the first live one
+        if self.link.live() {
+            request["log"] = json!(new_log(b, &mut self.sent_log));
+            if self.first {
+                request["board"] = crate::history::board(b);
+                self.first = false;
+            }
         }
         loop {
             self.link.post(&request);
@@ -570,7 +832,7 @@ impl Screen {
                 match self.link.wait() {
                     Incoming::Answer(a) => break a,
                     Incoming::Query(q) => {
-                        let reply = tools(b, &q).or_else(|| common_tools(b, &q)).unwrap_or_else(|| json!({"error": "unknown query"}));
+                        let reply = tools(b, &q).or_else(|| common_tools(b, &q)).or_else(|| history_tool(&self.history, b, &q)).unwrap_or_else(|| json!({"error": "unknown query"}));
                         self.link.reply(reply);
                     }
                 }

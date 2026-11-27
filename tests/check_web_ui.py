@@ -239,7 +239,8 @@ const { chromium } = require('playwright');
 
     // a battle's replay
     await p.locator("#battle-tree tbody tr").first().click();
-    await p.waitForFunction(() => { const f = document.getElementById("replay-frame"); return f && (f.srcdoc || "").length > 1000; }, null, { timeout: 120000 });
+    // the Replay tab is the play page's REC layer (play.html?replay=1) since the REC build: its record is read when the page inside has loaded
+    await p.waitForFunction(() => { const f = document.getElementById("replay-frame"); try { return !!(f && /replay=1/.test(f.getAttribute("src") || "") && f.contentWindow.eval('typeof TT !== "undefined" && TT._st.steps.length')); } catch (e) { return false; } }, null, { timeout: 120000 });
     check("a click on a battle opens its replay", await p.isVisible("#page-replay"));
     await ctx.close();
   } catch (e) {

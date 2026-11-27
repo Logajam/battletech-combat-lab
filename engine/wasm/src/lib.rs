@@ -276,14 +276,19 @@ fn dispatch(name: &str, req: &Value) -> Result<Value, String> {
                     t["bot"] = json!("gladiator"); // the engine builds the team with a bot; the person answers in its place
                 }
             }
-            if human.is_empty() {
+            if human.is_empty() && !req.get("resume").is_some_and(|v| v.is_object()) {
                 return Err("No team is set to Human. Set one team's bot to Human, then press Play.".into());
             }
-            let seed = req["seed"].as_u64().filter(|s| *s != 0).unwrap_or(1);
+            // a seed may arrive as text: a battle's seed passes JavaScript's exact-integer limit
+            let seed = req["seed"].as_u64().or_else(|| req["seed"].as_str().and_then(|t| t.parse().ok())).filter(|s| *s != 0).unwrap_or(1);
+            let colours: serde_json::Map<String, Value> = setup["teams"].as_array().into_iter().flatten()
+                .filter_map(|t| Some((t["name"].as_str()?.to_string(), json!(t["colour"].as_str()?))))
+                .collect();
+            let colours = Value::Object(colours);
             let plan = plan_of(&setup)?;
-            let scenario = plan.scenario_for(1, seed).0;
+            let scenario = plan.scenario_for(req["sim"].as_u64().filter(|n| *n >= 1).unwrap_or(1), seed).0;
             // no borrow of STATE is held from here on: the battle may be waiting for hours
-            let end = btsim_core::play_session::play_blocking(Arc::new(PageLink), &scenario, seed, &human);
+            let end = btsim_core::play_session::play_blocking(Arc::new(PageLink), &scenario, seed, &human, &colours, req.get("resume").filter(|v| v.is_object()));
             Ok(json!({"end": end}))
         }
         // the unit editor's calls (the desktop Lab's `unit_eval` and `equipment_list`; unit text comes from the page's data block)
