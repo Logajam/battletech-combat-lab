@@ -309,10 +309,23 @@ body.tt-replay .tbar .rec{display:none}body.tt-replay #tt-tabs [data-tt-tab="tim
     let c = $(id);
     if (!c) { c = document.createElement("button"); c.id = id; c.dataset.act = act; c.textContent = label; $("app").appendChild(c); }
     if (!on || !original) { c.classList.remove("on"); return; }
-    const r = original.getBoundingClientRect(); c.style.left = r.left + "px"; c.style.top = r.top + "px"; c.style.width = r.width + "px"; c.style.height = r.height + "px";
+    const r = original.getBoundingClientRect();
+    // only when something lies over the real button (the report and the inspector now keep clear of the side panels and bands, so usually nothing
+    // does and the real button is all there is: no copy sitting on the text under it, Daniel 2026-11-27)
+    c.classList.remove("on"); const over = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (!over || over === original || original.contains(over)) return; c.style.left = r.left + "px"; c.style.top = r.top + "px"; c.style.width = r.width + "px"; c.style.height = r.height + "px";
     c.classList.add("on");
   }
+  // THE REPORT sits in the bottom half of the clear area between the panels: it no longer covers the side panels (landscape, desktop) or the bottom
+  // band (upright), so the commit button, the heat display and the Report button stay in reach under it; on a short landscape screen it takes more
+  // of the height. (The layout numbers are the page's own, UI.ins.)
+  function fitReport() {
+    const rep = $("report"); if (!rep || rep.style.display !== "block") return;
+    const I = UI.ins || { l: 0, r: 0, t: 0, b: 0 }, short = window.innerHeight < 500;
+    rep.style.left = (I.l || 0) + "px"; rep.style.right = (I.r || 0) + "px"; rep.style.bottom = (I.b || 0) + "px"; rep.style.top = short ? "34%" : "50%";
+  }
   function punch() {
+    fitReport();
     const rep = $("report");
     copyOf("tt-repcopy", !!(rep && rep.style.display === "block"), $("rep-btn"), "report", "Report");
     copyOf("tt-inspcopy", !!(UI.insp && UI.insp.open), document.querySelector('#pnE [data-act="inspect"]'), "inspect", "Inspect");

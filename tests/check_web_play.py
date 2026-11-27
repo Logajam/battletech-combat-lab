@@ -463,7 +463,7 @@ const POLICY = (r) => {
   rec.liveBefore = await page.evaluate(() => JSON.stringify({ u: __bm.units, r: __bm.req && __bm.req.kind, n: SAVE.events.length }));
   await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
   await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 30000 });
-  rec.open = await page.evaluate(() => { const r = document.getElementById('report').getBoundingClientRect(), H = window.innerHeight; return { strip: getComputedStyle(document.getElementById('tt-strip')).display !== 'none', report: document.getElementById('report').style.display, bottomHalf: r.top >= H * 0.45 && r.bottom >= H - 2, tabs: [...document.querySelectorAll('#tt-tabs button')].map((b) => b.textContent), repOnTop: document.getElementById('tt-repcopy').classList.contains('on'), steps: TT._st.steps.length, turns: TT._st.turnList.length }; });
+  rec.open = await page.evaluate(() => { const r = document.getElementById('report').getBoundingClientRect(), H = window.innerHeight; return { strip: getComputedStyle(document.getElementById('tt-strip')).display !== 'none', report: document.getElementById('report').style.display, bottomHalf: r.top >= H * 0.3 && r.bottom > H * 0.6 && r.bottom <= H, tabs: [...document.querySelectorAll('#tt-tabs button')].map((b) => b.textContent), repOnTop: (() => { const b = document.getElementById('rep-btn'); if (!b) return document.getElementById('tt-repcopy').classList.contains('on'); const q = b.getBoundingClientRect(), t = document.elementFromPoint(q.x + q.width / 2, q.y + q.height / 2); return t === b || b.contains(t) || document.getElementById('tt-repcopy').classList.contains('on'); })(), steps: TT._st.steps.length, turns: TT._st.turnList.length }; });
   // a past movement step: the sliders, the log, the unit's place in the record
   rec.move = await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit);
     for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } }
@@ -718,7 +718,7 @@ def main():
         cd = tg.get("card") or {}
         report(cd.get("shown") and cd.get("rows", 0) >= 4 and cd.get("total") and cd.get("onTop") and cd.get("tab") == "To-hit", f"a long press on a number opens the inspector's To-hit page, on top of everything ({cd})")
         pp = out["page"].get("pop") or {}
-        report(pp.get("title") == "Combat report" and pp.get("onTop") and pp.get("heads", 0) >= 1 and pp.get("fmt"), f"a formatted combat report opens by itself after the firing phase, on top of every button ({pp})")
+        report(pp.get("title") == "Combat report" and not pp.get("onTop") and pp.get("heads", 0) >= 1 and pp.get("fmt"), f"a formatted combat report opens by itself after the firing phase, between the panels and above the bottom band: it leaves the commit button uncovered ({pp})")
         pl = tg.get("plan") or {}
         report(pl.get("weapons", 0) >= 1 and pl.get("label") == "Fire!", f"weapons can be assigned to targets, several targets in one plan, Commit says Fire! ({pl})")
         report(bool(out["page"].get("tapIgnored")), "a plain tap on Commit does not commit; holding it does")
@@ -743,7 +743,7 @@ def main():
         report((tt.get("childAsked") or {}).get("hasReseed"), f"On to the later timeline comes back to the branch, its new seed still in its list ({tt.get('childAsked')})")
         rc = out.get("rec") or {}
         op = rc.get("open") or {}
-        report(op.get("strip") and op.get("report") == "block" and op.get("bottomHalf") and op.get("tabs") == ["Log", "Report", "Teams", "Timelines"] and op.get("steps", 0) > 20 and op.get("repOnTop"), f"REC opens the strip and the report as the bottom half with its tabs, the Report button on top ({op})")
+        report(op.get("strip") and op.get("report") == "block" and op.get("bottomHalf") and op.get("tabs") == ["Log", "Report", "Teams", "Timelines"] and op.get("steps", 0) > 20 and op.get("repOnTop"), f"REC opens the strip and the report as the bottom half (above the bottom band) with its tabs, the Report button reachable ({op})")
         mv = rc.get("move") or {}
         report(mv.get("past") and any(w in mv.get("log", "") for w in ("ran", "walked", "jumped", "moved", "stood")), f"a slider takes the board to a past movement step and the Log says what it did ({mv.get('readout')!r}: {mv.get('log', '')[:90]!r})")
         pd = rc.get("pastDraw") or {}

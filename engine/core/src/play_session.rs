@@ -897,7 +897,20 @@ fn decl_req_json(b: &Battle, ctx: &DeclCtx, rows: Vec<Value>, attacker: UnitId, 
     let breakdown = json!({"gunnery": u.gunnery, "attacker_movement": ctx.amm, "attacker_mode": u.move_mode, "target_movement": ctx.tmm, "line_of_sight": ctx.los_modifier, "cover": ctx.cover,
                            "heat": ctx.heat_mod, "target_prone": ctx.prone_mod, "stealth": ctx.stealth_mod, "other": ctx.sel_pre_tn - listed, "base": ctx.sel_pre_tn,
                            "secondary": ctx.secondary, "indirect": ctx.indirect, "note": ctx.cond_note});
-    json!({"kind": "declaration", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
+    // the torso twists (and arm flips) the unit may declare, with the weapons each would leave unable to fire: the page's twist arrows (Daniel,
+    // 2026-11-27: "manual torso twist arrows on the active unit's hex"). The first is the unit as it stands.
+    let twists: Vec<Value> = ctx
+        .arc_choices
+        .iter()
+        .map(|(key, act)| {
+            let mut un = ctx.unavailable.clone();
+            un.extend(arc_unavailable(&b.units[attacker], key));
+            let mut out: Vec<usize> = un.into_iter().collect();
+            out.sort_unstable();
+            json!({"twist": act.twist, "flip": act.flip, "out": out})
+        })
+        .collect();
+    json!({"kind": "declaration", "twists": twists, "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
            "base_tn": ctx.sel_pre_tn, "breakdown": breakdown, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat,
            "dissipation": ctx.dissipation, "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary,
            "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len(),
@@ -1451,7 +1464,7 @@ impl Controller for Screen {
     fn declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, _inner: &mut GladiatorBots) -> DeclChoice {
         let (rows, ..) = weapon_rows(b, ctx, planner, attacker);
         let req = decl_req_json(b, ctx, rows, attacker, target);
-        let result: (Vec<usize>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) = {
+        let result: (Vec<usize>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>, Option<usize>) = {
             let planner_cell = std::cell::RefCell::new(planner);
             self.ask(
                 b,
@@ -1475,11 +1488,16 @@ impl Controller for Screen {
                             return Err(format!("weapon {} cannot fire at this target", id));
                         }
                     }
-                    Ok((ids, cands, per_action))
+                    // a torso twist the person chose by hand (the answer's `twist`: hexsides to the right, negative to the left)
+                    let forced = match a["twist"].as_i64() {
+                        Some(t) => Some(ctx.arc_choices.iter().position(|(_, act)| act.twist == t && !act.flip).ok_or_else(|| "it cannot twist that way".to_string())?),
+                        None => None,
+                    };
+                    Ok((ids, cands, per_action, forced))
                 },
             )
         };
-        let (ids, cands, per_action) = result;
+        let (ids, cands, per_action, forced) = result;
         // the twist / flip happens by itself (Daniel): the first arc action that lets every chosen weapon fire; if none does,
         // the one that lets most fire, and the rest are dropped
         let mut best = (0usize, usize::MAX);
@@ -1488,6 +1506,9 @@ impl Controller for Screen {
             if lost < best.1 {
                 best = (i, lost);
             }
+        }
+        if let Some(i) = forced {
+            best = (i, 0);
         }
         let (key, action) = ctx.arc_choices[best.0].clone();
         let fired: Vec<usize> = ids.into_iter().filter(|w| !per_action[best.0].contains(w)).collect();

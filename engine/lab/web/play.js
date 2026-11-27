@@ -142,7 +142,7 @@ const HOLD_SLOP = 10, LONG_MS = 500;
 let MAPBUSY = () => false, resetControls = () => {};   // set by the map's gesture code below
 function cancelPress() { if (press) { clearTimeout(press.timer); press = null; } }
 (() => {
-  const ptrs = new Map(); let moved = false, timer = null, start = null, lastTap = null, quiet = 0;
+  const ptrs = new Map(); let moved = false, timer = null, start = null, quiet = 0, twoAt = 0;
   const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
   // a camera gesture is under way (a finger on the map, or one only just lifted): the weapon buttons and the rest of the press system ignore touches
   MAPBUSY = () => ptrs.size > 0 || performance.now() < quiet;
@@ -152,11 +152,8 @@ function cancelPress() { if (press) { clearTimeout(press.timer); press = null; }
     // was interrupted...), or one finger would count as two and pan like a pinch
     if (e.isPrimary) { ptrs.clear(); MV.pinchEnd(); }
     cancelPress();   // a finger on a weapon button is let go of the moment a finger starts on the map
-    // a quick double tap on bare map (nothing to select there) resets the controls: the way out of a stuck gesture
-    const now = performance.now(), bare = !e.target.closest("[data-unit],[data-hex],[data-reach],[data-atk],[data-mine],[data-arrow],[data-deploy],[data-stop],[data-aimhex]") && !(MV.mode === "3d" && MV.hexAt(e.clientX, e.clientY));
-    if (bare && lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) { lastTap = null; resetControls(); return; }
-    lastTap = bare ? { t: now, x: e.clientX, y: e.clientY } : null;
     ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; cancel(); start = [e.clientX, e.clientY];
+    if (ptrs.size === 2) twoAt = performance.now();   // a quick tap with two fingers resets the controls (the way out of a stuck gesture; also Menu > Reset controls)
     if (ptrs.size === 1) {
       const al = e.target.closest("[data-atk],[data-mine]");
       if (al) { timer = setTimeout(() => { timer = null; moved = true; UI.atkSel = al.dataset.atk != null ? { kind: "past", i: +al.dataset.atk } : { kind: "mine", i: +al.dataset.mine }; openInsp("Attack", null, null, "an attack line"); }, LONG_MS); return; }
@@ -182,7 +179,7 @@ function cancelPress() { if (press) { clearTimeout(press.timer); press = null; }
       MV.pinch({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }); moved = true;
     }
   });
-  const up = (e) => { if (ptrs.delete(e.pointerId) && moved) quiet = performance.now() + 250; MV.pinchEnd(); cancel(); };
+  const up = (e) => { const had = ptrs.delete(e.pointerId); if (had && moved) quiet = performance.now() + 250; if (had && twoAt && ptrs.size === 1 && !moved && performance.now() - twoAt < 350) { twoAt = 0; resetControls(); return; } MV.pinchEnd(); cancel(); };
   // listen on the window too: a finger lifted over another element, or over one that was redrawn, never reaches the map's own listener
   for (const t of [svg, window]) { t.addEventListener("pointerup", up); t.addEventListener("pointercancel", up); }
   const reset = () => { ptrs.clear(); MV.pinchEnd(); cancel(); };
@@ -215,7 +212,7 @@ function hexTap(l) {
   if (S.fire) {
     const foes = S.units.filter((u) => u.hex === l && !u.destroyed && S.req.enemies.some((e) => e.id === u.id)).map((u) => u.id), again = UI.cyc && UI.cyc.l === l;
     if (!foes.length) {
-      if (again && UI.pickHex === l) { UI.cyc = null; UI.pickHex = null; toast("Attacking a hex or a building is not in the engine yet: only units can be targeted."); }
+      if (again && UI.pickHex === l) { UI.cyc = null; UI.pickHex = null; toast("Shooting at the ground is not built in the engine yet (only artillery can aim at a hex): pick a unit."); }
       else { UI.cyc = { l, i: -1 }; UI.pickHex = l; UI.last = { kind: "hex", l }; toast("Tap again to target the ground"); }
       redraw(); return;
     }
@@ -343,6 +340,7 @@ function drawUnits(layer) {
     const cardH = small ? 17 * k : H;
     el("rect", { x: px, y: py, width: W, height: cardH, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, gp);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, gp); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
+    if (S.fire && S.req && S.req.kind === "target" && S.req.enemies.some((e) => e.id === u.id)) drawTnPill(layer, u, px + W + 3 * k, py, k);
     // LEFT / RIGHT BARS (Section 24 item 24; the mockup's lrBar): armour and structure split at the centre, the unit's left side on the left
     // half and its right on the right, each wearing in from its outer edge, so the damaged side shows; heat stays one bar
     const sa = { l: sideFrac(u, "a", "Left"), r: sideFrac(u, "a", "Right") }, ss = { l: sideFrac(u, "s", "Left"), r: sideFrac(u, "s", "Right") };
@@ -390,7 +388,7 @@ const movedMark = (u) => inMovement() && !!u.moved && !u.destroyed;
 const TABS = ["Hex", "Unit", "Target", "Move", "Weapons", "To-hit", "Attack", "Heat", "Options"];
 const UI = { wing: { L: 0, R: 0 }, wtab: { move: { L: "Move", R: "Unit" }, fire: { L: "Target", R: "Weapons" }, phys: { L: "Target", R: "Attack" }, end: { L: "Heat", R: "Unit" } },
   insp: { open: 0, tab: "Hex", hex: null, uid: null, why: "" }, menu: false, last: null, wl: pref("wl", "ring"), ins: { l: 0, r: 0, t: 0, b: 0 }, wide: false,
-  cyc: null, pickHex: null, atkSel: null, lim: {}, aimOpen: false, focusW: null, done: new Set(), aord: [], mine: [] };
+  cyc: null, twist: null, pickHex: null, atkSel: null, lim: {}, aimOpen: false, focusW: null, done: new Set(), aord: [], mine: [] };
 // which phase the question belongs to: "move" (deployment and movement), "fire" (spotting, TAG, weapons), "phys" (physical attacks), "end"
 const phaseKey = () => { const k = S.req && S.req.kind; return ["target", "declaration", "spot", "tag"].includes(k) ? "fire" : k === "physical" ? "phys" : k === "end_phase" ? "end" : "move"; };
 const PHASE_LABEL = { move: "Movement", fire: "Weapon Attack", phys: "Physical Attack", end: "End Phase" };
@@ -448,7 +446,10 @@ function mpwHtml() {
   const canJump = v.jump > 0 && !standing() && !(u.prone && !S.standOn);
   return `<button class="mpw" data-act="mpw"><span class="big">MP ${Math.max(0, max - used)}<small>/${max}</small></span><span class="ht${h.end > heatLimit(u) ? " over" : ""}">Heat<br>${heatLine(h.cur, h.diss, h.end)}</span><span class="sm">TMM +${S.attackSel ? S.attackSel.tmm ?? 0 : o ? o.tmm : 0}</span><span class="hint">${canJump ? (j ? "tap: back to ground" : "tap: Jump") : "hold: more moves"}</span></button>`;
 }
+const STRIKE_LABEL = ["Strike", "Alpha Strike!", "ALPHA STRIKE!"];
 function moreHtml() {
+  // the Strike / Alpha Strike button beside the heat display in the fire phase (Daniel, 2026-11-27: "use the secondary context button near the heat widget")
+  if (phaseKey() === "fire" && S.decl && S.req && S.req.kind !== "spot" && S.req.kind !== "tag") return `<button class="more ctx" data-act="strike" title="the weapons worth their heat, then everything in range, then everything with the best twist">${STRIKE_LABEL[S.decl.strike % 3]}</button>`;
   if (S.req && S.req.kind === "stand_up") return `<button class="more ctx${S.standOn ? " on" : ""}" data-act="standup">Stand up</button>`;
   return `<button class="more" data-act="more" aria-label="More actions" title="More actions (the inspector)">&#8943;</button>`;
 }
@@ -538,7 +539,7 @@ function placeOverlay() {
   const ring = $("ring"), W = ring.clientWidth, H = ring.clientHeight, I = UI.ins, cx = I.l + (W - I.l - I.r) / 2, cy = I.t + (H - I.t - I.b) / 2;
   const clampX = (x, w) => Math.max(I.l + 4, Math.min(W - I.r - w - 4, x)), clampY = (y, hh) => Math.max(I.t + 40, Math.min(H - I.b - hh - 4, y));
   // the weapon boxes grow with the screen (a phone is 1, a desktop window up to 1.7): size, spacing and text together
-  const sc = Math.max(1, Math.min(1.7, Math.min(W, H) / 430)); ring.style.setProperty("--ws", sc.toFixed(2));
+  const sc = wsScale(); ring.style.setProperty("--ws", sc.toFixed(2));
   const boxes = [...ring.querySelectorAll(".wb")], CW = Math.min(78 * sc, (W - I.l - I.r) / 5.4), RH = 30 * sc;
   const groups = {}; boxes.forEach((b) => { (groups[b.dataset.loc] = groups[b.dataset.loc] || []).push(b); });
   const count = (l) => (groups[l] || []).length;
@@ -576,6 +577,14 @@ const LOC2 = { "Head": "HD", "Center Torso": "CT", "Left Torso": "LT", "Right To
 const locOf = (w) => LOC2[[].concat(w.loc || [])[0]] || "CT";
 // a weapon's short name, five characters at most (Daniel, 2026-11-26: "a 5 letter cap works for now"): known names, else the initials and the number
 const SHORT = { "machine gun": "MG", "flamer": "Flmr", "gauss rifle": "Gauss", "ppc": "PPC", "er ppc": "ERPPC", "tag": "TAG", "narc": "Narc", "anti-missile system": "AMS", "plasma rifle": "Plsma", "arrow iv": "ArwIV" };
+// how much bigger than a phone the weapon boxes are drawn (1 to 1.7, by the clear area's short side); a bigger box has room for a longer name
+const wsScale = () => { const r = $("ring"); return Math.max(1, Math.min(1.7, Math.min(r.clientWidth, r.clientHeight) / 430)); };
+const LONGER = { medium: "Med", small: "Sm", large: "Lg", pulse: "Pls", heavy: "Hvy", light: "Lt", machine: "M.", "anti-missile": "AMS", system: "Sys" };
+function weaponLabel(n) {   // the box's text: the short form on a phone, the fuller name when the box has grown
+  const ws = wsScale(); if (ws < 1.25) return shortName(n);
+  const full = String(n || "").replace(/\s*\((?:R|Rear|OS|I-OS)\)\s*/gi, "").replace(/^(IS|CL|Clan|Inner Sphere)\s+/i, "").replace(/\b[A-Za-z-]+\b/g, (w) => LONGER[w.toLowerCase()] || w).trim();
+  return full.slice(0, Math.round(7 + 9 * (ws - 1.25) / 0.45));
+}
 function shortName(n) {
   const s = String(n || "").replace(/\s*\((?:R|Rear|OS|I-OS)\)\s*/gi, "").replace(/^(IS|CL|Clan|Inner Sphere)\s+/i, "").trim(), k = s.toLowerCase();
   if (SHORT[k]) return SHORT[k];
@@ -590,6 +599,7 @@ function weaponState(w) {
   if (t != null && t !== cur) return "else";
   if (t === cur && t != null) return "on";
   if (!w.in_range || w.jammed || w.tn == null) return "out";
+  if (UI.twist != null && D && D.req.twists) { const tw = D.req.twists.find((x) => x.twist === UI.twist && !x.flip); if (tw && tw.out.includes(w.id)) return "out"; }   // it cannot bear with the torso twisted that way
   return "rdy";
 }
 function attackBoxes() {
@@ -597,7 +607,7 @@ function attackBoxes() {
   if (k === "fire" && S.decl && !(S.fire && S.fire.tcur == null)) return S.decl.rows.map((w) => {
     const st = weaponState(w), band = String(w.range || "").toLowerCase(), tint = st === "rdy" || st === "on" ? (band.startsWith("med") ? " med" : band.startsWith("lon") ? " lng" : "") : "";
     const to = st === "else" ? unit(S.fire.assign.get(w.id)) : null;
-    return `<div class="wb ${st}${tint}${S.decl.focus === w.id ? " foc" : ""}" data-act="wb" data-w="${w.id}" data-loc="${locOf(w)}" title="${esc(w.name)}${w.rear ? " (rear)" : ""} &middot; ${esc(w.range || "out of range")}">${esc(shortName(w.name))}${w.rear ? '<span class="n2">r</span>' : ""}${to ? `<span class="to">&rarr; ${esc(short(to))}</span>` : ""}<span class="tn" data-act="tn" data-w="${w.id}">${tnText(w.tn)}</span></div>`;
+    return `<div class="wb ${st}${tint}${S.decl.focus === w.id ? " foc" : ""}" data-act="wb" data-w="${w.id}" data-loc="${locOf(w)}" title="${esc(w.name)}${w.rear ? " (rear)" : ""} &middot; ${esc(w.range || "out of range")}">${esc(weaponLabel(w.name))}${w.rear ? '<span class="n2">r</span>' : ""}${to ? `<span class="to">&rarr; ${esc(short(to))}</span>` : ""}<span class="tn" data-act="tn" data-w="${w.id}">${tnText(w.tn)}</span></div>`;
   });
   if (k === "phys") return physBoxesFor().map((b) => physBox(b.o, b.loc));
   return [];
@@ -626,7 +636,7 @@ function drawMenu() {
   m.innerHTML = `<div class="f">Weapons in the fire phase</div>${it("Around the target", "wl", 'data-v="ring"', UI.wl === "ring")}${it("List", "wl", 'data-v="list"', UI.wl === "list")}
     <div class="f">Look</div>${Object.entries(LOOKS).map(([k, n]) => it(n, "look", `data-v="${k}"`, O.look === k)).join("")}
     <div class="f">View</div>${it("Tabletop view (3D)", "view3d", "", MV.mode === "3d")}${it("Colour-blind mode", "cvd", "", O.cvd)}${it("Range bands for the weapon", "rings", "", O.rings)}${it("Hex numbers", "labels", "", O.labels)}${it("Attack lines (the latest turn)", "atk", "", O.atk)}
-    <div class="f">Game</div>${it("Report", "report")}${it("Reset controls (also: double tap the map)", "reset-controls")}${it("Save game to a file", "save-file")}${SAVE.parent ? it("Back to the earlier timeline", "back-parent") : ""}${SAVE.child ? it("On to the later timeline", "fwd-child") : ""}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
+    <div class="f">Game</div>${it("Report", "report")}${it("Reset controls (also: tap with two fingers)", "reset-controls")}${it("Save game to a file", "save-file")}${SAVE.parent ? it("Back to the earlier timeline", "back-parent") : ""}${SAVE.child ? it("On to the later timeline", "fwd-child") : ""}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
 }
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), msg.length > 60 ? 4200 : 2600); }
 
@@ -727,7 +737,7 @@ function weaponModesHtml() {
     <td>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-w="${w.id}">${esc(w.mode || "mode")}</button>` : esc(w.mode || "—")}${(w.rates || []).length > 1 ? ` <button class="sm" data-act="rate-w" data-w="${w.id}">x${w.shots}</button>` : ""}${w.chargeable ? ` <button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-w="${w.id}">&#9889; charge</button>` : ""}</td>
     <td>${(w.bins || []).length ? w.bins.map((b) => `<button class="sm ${b.selected ? "on" : ""}" data-act="bin-pick" data-w="${w.id}" data-b="${b.id}">${esc(LOCAB[b.loc] || b.loc || "?")} ${esc(b.name)} ${b.shots ?? "?"}${b.selected ? " &middot; feeds first" : ""}</button>`).join(" ") + ` <button class="sm" data-act="bin-pick" data-w="${w.id}" data-b="">Automatic</button>` : "—"}</td></tr>`).join("")}</table>
     ${aimW ? `<p class="note warnt">${esc(aimW.name)} is a distant shot: it lands next turn. Aim: <b>${D.aim[aimW.id] || D.req.target_hex}</b> <button class="sm ${D.aimFor ? "on" : ""}" data-act="aim-w" data-id="${aimW.id}">${D.aimFor ? "tap a hex on the map" : "Change the aim hex"}</button></p>` : ""}
-    <div class="acts"><button data-act="strike">${["Strike (the weapons worth their heat)", "Alpha strike (everything in range)"][D.strike % 2]}</button></div>`;
+    <div class="acts"><button data-act="strike">${STRIKE_LABEL[D.strike % 3]}</button></div>`;
 }
 // the number to hit, line by line (long press a to-hit number: Section 14, I4): the engine's own list
 function tnTableHtml(req, w) {
@@ -847,13 +857,14 @@ function drawMap() {
   gDyn.innerHTML = ""; gTop.innerHTML = "";
   const r = S.req;
   if (MV.is3d()) { drawHexNumbers(gDyn); drawDropLines(gDyn); }
-  if (r && (r.kind === "declaration" || r.kind === "target")) drawRings(gDyn);
+  if (r && (r.kind === "declaration" || r.kind === "target")) { drawRings(gDyn); drawArcLines(gDyn); }
   if (moving()) drawReach(gDyn);
   if (r && r.kind === "deploy") drawDeploy(gDyn);
   if (r && r.kind === "target") drawTargets(gDyn);
   if (r && (r.kind === "spot" || r.kind === "tag")) drawPickTargets(gDyn);
   drawAttackLines(gDyn);
   drawUnits(gDyn);
+  if (r && (r.kind === "declaration" || r.kind === "target")) drawTwistArrows(gTop);
   if (moving()) { drawDestHex(gDyn); drawPath(gDyn); drawWayMarks(gDyn); drawAttackStops(gDyn); if (!standing() || S.standOn) drawTurnArrows(gTop); }
   if (r && r.kind === "deploy") { drawDeployMarker(gDyn, false); drawDeployMarker(gTop, true); }
   if (r && r.kind === "stand_up" && S.prone && !S.standOn) drawProneArrows(gTop);
@@ -927,7 +938,7 @@ function take(r) {
   if (mine && r.kind !== "spot" && (!S.myTeam || (typeof TT !== "undefined" && TT.followTeam()))) S.myTeam = mine.team;   // after a meddle or a change of control the question may be another team's
   if (r.unit != null) S.sel = r.unit;
   S.dest = null; S.facing = null; S.facingHand = false; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.prone = null; S.drop = false;
-  S.standOn = false; S.aim = null; S.phys = null; UI.aimOpen = false; UI.cyc = null; UI.pickHex = null; UI.aord = []; UI.atkSel = null; ask("");
+  S.standOn = false; S.aim = null; S.phys = null; UI.aimOpen = false; UI.cyc = null; UI.pickHex = null; UI.aord = []; UI.twist = null; UI.atkSel = null; ask("");
   // a new phase: its done marks and its committed attacks start again
   const pk = phaseKey(); if (pk !== UI.phase) { UI.phase = pk; UI.done.clear(); UI.mine = []; UI.wing = { L: 0, R: 0 }; }
   if (r.error) toast(r.error);
@@ -1328,7 +1339,7 @@ function cycleTcur(dir) { const o = nearestFirst(); if (!o.length) return; const
 function fireGo() {
   const F = S.fire, D = S.decl; if (!F || !F.assign.size) return;
   const p = primaryOf(), order = [p, ...F.order.filter((t) => t !== p)];
-  const entries = order.map((t) => ({ t, ids: [...F.assign].filter(([, x]) => x === t).map(([w]) => w), charge: D ? [...D.charge] : [], aim: D ? { ...D.aim } : {}, aimed: S.aim && t === F.tcur ? S.aim.loc : null }));
+  const entries = order.map((t, i) => ({ twist: i === 0 ? UI.twist : null, t, ids: [...F.assign].filter(([, x]) => x === t).map(([w]) => w), charge: D ? [...D.charge] : [], aim: D ? { ...D.aim } : {}, aimed: S.aim && t === F.tcur ? S.aim.loc : null }));
   // the committed attacks stay on the field (Section 14, K2): one per target (I8)
   const me = unit(F.unit); for (const e of entries) { const req = (F.pvt.get(e.t) || {}).req || { weapons: [] }; UI.mine.push({ a: me ? me.name : "", aid: F.unit, t: (unit(e.t) || {}).name || "", tid: e.t, w: e.ids.map((id) => { const w = req.weapons.find((x) => x.id === id) || {}; return { n: w.name || id, tn: w.tn }; }) }); }
   S.script = { unit: F.unit, entries, i: 0, at: S.seq };
@@ -1348,7 +1359,58 @@ function scriptDecl(r) {
   const sc = S.script; if (!sc || !scriptLive(r)) return false;
   const e = sc.entries[sc.i];
   if (!e || e.t !== r.target) { S.script = null; return false; }
-  sc.i++; sc.at = S.seq; send({ weapons: e.ids, charge: e.charge, aim: e.aim, ...(e.aimed ? { aimed: e.aimed } : {}) }); return true;
+  sc.i++; sc.at = S.seq; send({ weapons: e.ids, charge: e.charge, aim: e.aim, ...(e.aimed ? { aimed: e.aimed } : {}), ...(e.twist != null ? { twist: e.twist } : {}) }); return true;
+}
+// THE FIRING ARCS (Daniel, 2026-11-27: "the active unit's firing arc dividing lines should be clearly marked on the map"): four lines from the
+// active unit's hex along the grid rays at 60 and 120 degrees either side of where its torso faces (Core p.102: front 120 degrees, each side 60,
+// rear 120), solid white between front and sides, amber between sides and rear; with a torso twist picked, the lines turn with it
+const COMPASS = ["N", "NE", "SE", "S", "SW", "NW"], NB_OF = { N: 4, NE: 5, SE: 0, S: 1, SW: 2, NW: 3 };   // neighbours(l)[NB_OF[facing]] is the hex that way
+function torsoIdx(u) { return (COMPASS.indexOf(u.facing) + (UI.twist != null ? UI.twist : u.twist || 0) + 12) % 6; }
+function drawArcLines(layer) {
+  const u = activeUnit(); if (!u || !u.hex || !S.board) return;
+  const f = torsoIdx(u), uh = MV.unitHeight(), [x0, y0] = at(u.hex, uh);
+  for (const [off, col] of [[1, "#fff"], [-1, "#fff"], [2, "#ffb000"], [-2, "#ffb000"]]) {
+    const dir = NB_OF[COMPASS[(f + off + 12) % 6]], poly = [[x0, y0]]; let cur = u.hex;
+    for (let n = 0; n < 40; n++) { const nx = neighbours(cur)[dir]; if (!S.board.hexes[nx]) break; poly.push(at(nx, uh)); cur = nx; }
+    if (poly.length < 2) continue;
+    const sw = sc(u.hex);
+    el("polyline", { points: poly.map((q) => q.join(",")).join(" "), fill: "none", stroke: "#000", "stroke-opacity": ".5", "stroke-width": 5 * sw, "pointer-events": "none" }, layer);
+    el("polyline", { points: poly.map((q) => q.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 2.4 * sw, "stroke-dasharray": `${7 * sw} ${5 * sw}`, "stroke-opacity": ".9", "pointer-events": "none" }, layer);
+  }
+}
+// THE MANUAL TORSO TWIST (Daniel, 2026-11-27): an amber arrow on the active unit's hex for each hexside it may twist to; tap one to twist that way
+// for this turn's fire (the answer carries `twist`), tap it again for the automatic choice. The weapons that could not fire then are greyed.
+function drawTwistArrows(layer) {
+  const u = activeUnit(), D = S.decl; if (!u || !u.hex || !D || !D.req.twists) return;
+  const f0 = COMPASS.indexOf(u.facing), uh = MV.unitHeight(), s = sc(u.hex), seen = new Set();
+  for (const tw of D.req.twists) {
+    if (tw.flip || tw.twist === 0 || seen.has(tw.twist)) continue; seen.add(tw.twist);
+    const dd = DIR[COMPASS[(f0 + tw.twist + 12) % 6]], on = UI.twist === tw.twist;
+    const q = (a, b) => P(u.hex, dd[0] * a + dd[1] * b / R * -1, dd[1] * a + dd[0] * b / R, uh).join(",");
+    const g = el("g", { style: "cursor:pointer", "data-twist": tw.twist }, layer);
+    el("polygon", { points: `${q(1.12, 0)} ${q(0.84, -9)} ${q(0.84, 9)}`, fill: on ? "#ffb000" : "rgba(255,176,0,.35)", stroke: "#000", "stroke-width": 1.4 * s }, g);
+    el("polygon", { points: `${q(1.3, 0)} ${q(0.7, -16)} ${q(0.7, 16)}`, fill: "transparent" }, g);   // a generous tap area
+    const t = el("title", {}, g); t.textContent = `twist the torso ${tw.twist > 0 ? "right" : "left"}`;
+    g.addEventListener("click", (ev) => { ev.stopPropagation(); UI.twist = on ? null : tw.twist; toast(UI.twist == null ? "Torso: automatic" : `Torso twisted ${UI.twist > 0 ? "right" : "left"}${(tw.out || []).length ? ` (${tw.out.length} weapon${tw.out.length > 1 ? "s" : ""} cannot bear)` : ""}`); redraw(); });
+  }
+}
+// THE TO-HIT BOX AND THE RANGE BOX (Daniel, 2026-11-27): the white to-hit number of an enemy sits on the RIGHT side of its placard, with the
+// current range from the active unit in a box beside it. The to-hit box goes dim and dashed when the weapon in focus (or, with none in focus, every
+// weapon) cannot reach that enemy, so a long shot no longer looks like a live one. Tap it for the line items, as before.
+function drawTnPill(layer, u, x, y, k) {
+  const F = S.fire, D = S.decl, w = D && D.rows.find((q) => q.id === D.focus), e = F.pvt.get(u.id), req = e && e.req, cur = u.id === F.tcur, me = activeUnit();
+  let tn = null, live = false;
+  if (req) { const wr = w ? req.weapons.find((q) => q.id === w.id) : null; tn = wr ? wr.tn : req.base_tn; live = wr ? !!(wr.in_range && wr.tn != null) : req.weapons.some((q) => q.in_range && q.tn != null); }
+  const g = el("g", { style: "cursor:pointer", "data-tn-pill": u.id, opacity: live ? "1" : ".5" }, layer), bw = 28 * k, bh = 15 * k;
+  el("rect", { x, y, width: bw, height: bh, rx: 3 * k, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2 * k, "stroke-dasharray": live ? "" : `${3 * k} ${2 * k}` }, g);
+  const tx = el("text", { x: x + bw / 2, y: y + 11 * k, "text-anchor": "middle", "font-size": 10 * k, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, g); tx.textContent = tn == null ? "-" : tn + "+";
+  g.addEventListener("click", (ev) => { ev.stopPropagation(); if (u.id !== F.tcur) setTcur(u.id); else openInsp("To-hit", null, null, "a to-hit number"); });
+  if (me && me.hex && u.hex) {
+    const d = dist(me.hex, u.hex), rx = x + bw + 3 * k, rb = el("g", { opacity: live ? "1" : ".5", "pointer-events": "none" }, layer);
+    el("rect", { x: rx, y, width: 24 * k, height: bh, rx: 3 * k, fill: "#26303a", stroke: "#8795a5", "stroke-width": 1 * k }, rb);
+    const rt = el("text", { x: rx + 12 * k, y: y + 11 * k, "text-anchor": "middle", "font-size": 9.5 * k, "font-weight": 700, fill: "#dfe6ee" }, rb); rt.textContent = d + "h";
+    const tt = el("title", {}, rb); tt.textContent = `${d} hex${d === 1 ? "" : "es"} from ${me.name}`;
+  }
 }
 function drawTargets(layer) {
   const F = S.fire, D = S.decl, w = D && D.rows.find((x) => x.id === D.focus), T = fireTotals();
@@ -1358,11 +1420,7 @@ function drawTargets(layer) {
     el("polygon", { points: HP(u.hex, 0.95), fill: "#e07468", "fill-opacity": cur ? ".35" : ".18", stroke: "#e07468", "stroke-width": (cur ? 3.5 : 2) * s, "pointer-events": "none" }, layer);
     const e = F && F.pvt.get(t.id), req = e && e.req; let tn = null;
     if (req) tn = w ? (req.weapons.find((q) => q.id === w.id) || {}).tn : req.base_tn;
-    if (F) { // the to-hit pill on the enemy's hex: the focused weapon's number against it; tap it for the line items
-      const txt = tn == null ? "-" : tn + "+", g = el("g", { style: "cursor:pointer", "data-tn-pill": t.id }, layer), [px, py] = P(u.hex, 0.3, -0.95, MV.unitHeight());
-      el("rect", { x: px, y: py, width: 28 * s, height: 15 * s, rx: 3 * s, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2 * s }, g);
-      const tx = el("text", { x: px + 14 * s, y: py + 11 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, g); tx.textContent = txt;
-      g.addEventListener("click", (ev) => { ev.stopPropagation(); if (t.id !== F.tcur) setTcur(t.id); else openInsp("To-hit", null, null, "a to-hit number"); });
+    if (F) { // the to-hit pill and the range box now sit on the enemy's placard (drawTnPill, called from drawUnits)
       const n = T.per.get(t.id);
       if (n) { const [cx, cy] = P(u.hex, -0.55, -0.8, MV.unitHeight()); el("circle", { cx, cy, r: 8 * s, fill: "#e07468", stroke: "#000", "stroke-width": 1 * s, "pointer-events": "none" }, layer); const nt = el("text", { x: cx, y: cy + 3.5 * s, "text-anchor": "middle", "font-size": 10 * s, "font-weight": 700, fill: "#000", "pointer-events": "none" }, layer); nt.textContent = n.n; }
     }
@@ -1432,6 +1490,14 @@ const wDamage = (w) => (w.damage || (w.ev != null && oddsOf(w.tn) ? w.ev / oddsO
 function heatIfFired() { const D = S.decl, r = D.req, h = S.fire ? fireTotals().heat : [...D.sel].reduce((a, id) => a + ((D.rows.find((w) => w.id === id) || {}).heat || 0), 0); return Math.max(0, r.heat + r.move_heat + h - r.dissipation); }
 function declSheet() { if (S.fire) syncAssign(); redraw(); }
 // the Strike button: the weapons worth their heat first (best damage per heat, up to a comfortable end-of-turn heat); pressed again, everything in range
+// ALPHA STRIKE! (the third press): everything in range, and the torso twist that leaves the fewest weapons unable to bear
+function alphaTwist() {
+  const D = S.decl; if (!D || !D.req.twists) return;
+  const usable = D.rows.filter((w) => w.in_range && !w.jammed), lost = (tw) => usable.filter((w) => tw.out.includes(w.id)).length;
+  const best = D.req.twists.filter((t) => !t.flip).reduce((a, t) => (a == null || lost(t) < lost(a) ? t : a), null);
+  UI.twist = best && best.twist !== 0 ? best.twist : null;
+  D.sel.clear(); for (const w of usable) if (!(best && best.out.includes(w.id)) && !assignedElsewhere(w)) D.sel.add(w.id);
+}
 function strikePick(level) {
   const D = S.decl, r = D.req, usable = D.rows.filter((w) => w.in_range && !w.jammed && !D.charge.has(w.name) && !assignedElsewhere(w));
   D.sel.clear();
@@ -1629,7 +1695,7 @@ function act(t, kind, info = {}) {
     case "charge-w": { const w = D.rows.find((x) => x.id === +d.w); D.charge.has(w.name) ? D.charge.delete(w.name) : (D.charge.add(w.name), D.rows.filter((x) => x.name === w.name).forEach((x) => unassign(x))); setWeapons({}); return; }
     case "bin-pick": setWeapons({ bins: { [+d.w]: d.b === "" ? null : +d.b } }); return;
     case "aim-w": D.aimFor = D.aimFor ? null : +d.id; redraw(); return;
-    case "strike": strikePick(D.strike % 2); D.strike++; afterAssign(); return;
+    case "strike": { const lv = D.strike % 3; strikePick(lv === 2 ? 1 : lv); if (lv === 2) alphaTwist(); D.strike++; afterAssign(); return; }
     // the equipment switches
     case "sw-cool": setSwitch({ coolant: d.v }, d.u != null ? +d.u : undefined); return;
     case "sw-rad": setSwitch({ radical: d.v === "1" }, d.u != null ? +d.u : undefined); return;
@@ -1714,7 +1780,7 @@ function optAct(d) {
   if (k === "eject") { showCard(`<b>Eject?</b><div class="msg">The MechWarrior ejects instead of moving and lands behind the 'Mech (a piloting roll; a hard landing costs hits). The 'Mech is abandoned and out of the battle. This cannot be undone.</div><div class="row"><button class="go" data-act="eject-go">Eject</button><button data-act="card-close">Stay in the cockpit</button></div>`); return; }
   if (k === "lim") { const u = activeUnit(); UI.lim[u.id] = Math.max(0, heatLimit(u) + +d.d); return; }
   if (k === "tgtunit") { UI.insp.open = 0; chipTap(+d.u); return; }
-  if (k === "tgthex") { UI.insp.open = 0; toast("Attacking a hex or a building is not in the engine yet: only units can be targeted."); return; }
+  if (k === "tgthex") { UI.insp.open = 0; toast("Shooting at the ground is not built in the engine yet (only artillery can aim at a hex): pick a unit."); return; }
   if (k === "moveto") { UI.insp.open = 0; pickDest(d.l); return; }
 }
 function warnText() { const k = phaseKey(); if (k === "fire") return `the plan ends the turn at heat ${fireHeatParts().end}, above the limit ${heatLimit(activeUnit())}`; if (S.attackSel) return "a charge or death from above cannot be taken back"; const o = S.dest ? optNow() : null; return [standing() && S.standOn ? `standing needs ${S.req.tn}+` : "", ...(o ? hazardList(o) : [])].filter(Boolean).join("; "); }
@@ -1722,7 +1788,7 @@ function commitNow() {
   const r = S.req; if (!r) return; const k = phaseKey();
   if (r.kind === "deploy") { if (S.dp && S.dp.hex) send({ hex: S.dp.hex, facing: S.dp.facing }); return; }
   if (k === "end") { send({}); return; }
-  if (k === "fire") { if (S.fire) { if (S.fire.assign.size) fireGo(); else send({ target: null }); return; } if (S.decl) { if (S.decl.sel.size) send({ weapons: [...S.decl.sel], charge: [...S.decl.charge], aim: { ...S.decl.aim } }); else send({ weapons: [] }); } return; }
+  if (k === "fire") { if (S.fire) { if (S.fire.assign.size) fireGo(); else send({ target: null }); return; } if (S.decl) { if (S.decl.sel.size) send({ weapons: [...S.decl.sel], charge: [...S.decl.charge], aim: { ...S.decl.aim }, ...(UI.twist != null ? { twist: UI.twist } : {}) }); else send({ weapons: [] }); } return; }
   if (k === "phys") { UI.done.add(r.unit); physCommit(); return; }
   if (r.kind === "move_order" && (!S.mv || (S.pstand && !S.dest && !S.attackSel))) { send({ unit: S.sel }); return; }   // nothing planned (a prone unit with no plan): choose it, and its own questions follow
   if (!moving() && !standing()) return;
@@ -1760,7 +1826,7 @@ function toggleWeapon(w) {
   const D = S.decl, F = S.fire; D.focus = w.id;
   const st = weaponState(w);
   if (st === "on") { unassign(w); afterAssign(); return; }
-  if (!w.in_range || w.tn == null || w.jammed) { toast(`${shortName(w.name)}: ${w.jammed ? "jammed" : "cannot fire at " + D.req.target_name + (w.range ? "" : " (out of range or arc)")}`); redraw(); return; }
+  if (!w.in_range || w.tn == null || w.jammed || weaponState(w) === "out") { toast(`${shortName(w.name)}: ${w.jammed ? "jammed" : "cannot fire at " + D.req.target_name + (w.range ? "" : " (out of range or arc)")}`); redraw(); return; }
   if (D.charge.has(w.name)) { toast(`${shortName(w.name)} is charging its capacitor this turn`); return; }
   D.sel.add(w.id); if (F) F.assign.set(w.id, F.tcur);
   UI.aord = UI.aord.filter((x) => x !== w.id); UI.aord.push(w.id);
