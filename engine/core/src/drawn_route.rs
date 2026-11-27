@@ -59,7 +59,13 @@ impl UnitWalk {
     }
 
     fn table(&self, b: &Battle, x: i64, y: i64, facing: i64, budget: i64) -> Option<MovementTable> {
-        build_movement_table(x, y, facing, budget, Some(&b.board), None, self.level_limit, true, &self.blocked).ok()
+        self.table_back(b, x, y, facing, budget, 0)
+    }
+
+    /// The table for a leg that may back up (Core p.51: backward steps use walking points only, so the leg's backward steps stop at the
+    /// walk points still unspent, `walk_left`; 0 = no backing up, the way every leg was drawn before the Back up button).
+    fn table_back(&self, b: &Battle, x: i64, y: i64, facing: i64, budget: i64, walk_left: i64) -> Option<MovementTable> {
+        build_movement_table(x, y, facing, budget, Some(&b.board), if walk_left > 0 { Some(walk_left) } else { None }, self.level_limit, true, &self.blocked).ok()
     }
 }
 
@@ -108,14 +114,21 @@ pub fn chain(b: &Battle, uw: &UnitWalk, waypoints: &[(i64, i64)]) -> Result<Chai
     if waypoints.is_empty() {
         return Err("which waypoints?".to_string());
     }
+    chain_back(b, uw, waypoints, &[])
+}
+
+/// `chain`, where leg i (the way to waypoint i) may back up if `backs[i]` (the Back up button was on when it was drawn). No waypoints is
+/// allowed: the chain is then the unit's own start (the page asks for the places it can back up to from where it stands).
+pub fn chain_back(b: &Battle, uw: &UnitWalk, waypoints: &[(i64, i64)], backs: &[bool]) -> Result<Chain, String> {
     // where we stand at each stage: facing -> (MP spent, the route so far)
     let mut at = (uw.start.0, uw.start.1);
     let mut cur: BTreeMap<i64, (i64, Path)> = BTreeMap::new();
     cur.insert(uw.start.2, (0, vec![]));
-    for &(wx, wy) in waypoints {
+    for (i, &(wx, wy)) in waypoints.iter().enumerate() {
+        let back = backs.get(i).copied().unwrap_or(false);
         let mut next: BTreeMap<i64, (i64, Path)> = BTreeMap::new();
         for (f, (spent, route)) in &cur {
-            let Some(t) = uw.table(b, at.0, at.1, *f, uw.run - spent) else { continue };
+            let Some(t) = uw.table_back(b, at.0, at.1, *f, uw.run - spent, if back { uw.walk - spent } else { 0 }) else { continue };
             for f2 in 0..6 {
                 let state = (wx, wy, f2);
                 let Some(col) = t.entries.get(&state) else { continue };
@@ -154,7 +167,12 @@ pub struct End {
 /// Every (hex, facing, mode) the move can end in from the end of the chain with the points left, the cheapest of each, with the whole
 /// route (the chain, then the way on) and its numbers read off a replay.
 pub fn reach(b: &Battle, uw: &UnitWalk, chain: &Chain) -> Vec<End> {
-    let Some(t) = uw.table(b, chain.at.0, chain.at.1, chain.facing, uw.run - chain.spent) else { return vec![] };
+    reach_back(b, uw, chain, false)
+}
+
+/// `reach`, with the way on from the chain's end allowed to back up (`back`).
+pub fn reach_back(b: &Battle, uw: &UnitWalk, chain: &Chain, back: bool) -> Vec<End> {
+    let Some(t) = uw.table_back(b, chain.at.0, chain.at.1, chain.facing, uw.run - chain.spent, if back { uw.walk - chain.spent } else { 0 }) else { return vec![] };
     let mut best: BTreeMap<(i64, i64, i64, &'static str), (i64, State, i64)> = BTreeMap::new();
     for (&(x, y, f2), col) in &t.entries {
         for &mp in col.keys() {
@@ -187,9 +205,15 @@ pub struct Drawn {
 /// The route through `waypoints` finished facing `facing` (0-5) in `mode` ("Walk" or "Run"), as the pick the unit will walk. Err: in words
 /// for the page.
 pub fn finish(b: &Battle, mover: UnitId, waypoints: &[(i64, i64)], facing: i64, mode: &str) -> Result<Drawn, String> {
+    finish_back(b, mover, waypoints, &[], false, facing, mode)
+}
+
+/// `finish` for a route drawn with the Back up button: `backs` per leg, `back_reach` for the way on from the last waypoint. No waypoints is
+/// allowed when `back_reach` is on (a move that only backs up from where the unit stands).
+pub fn finish_back(b: &Battle, mover: UnitId, waypoints: &[(i64, i64)], backs: &[bool], back_reach: bool, facing: i64, mode: &str) -> Result<Drawn, String> {
     let uw = UnitWalk::of(b, mover).ok_or("the unit is not on the map")?;
-    let ch = chain(b, &uw, waypoints)?;
-    let t = uw.table(b, ch.at.0, ch.at.1, ch.facing, uw.run - ch.spent).ok_or("no way on from the last waypoint")?;
+    let ch = chain_back(b, &uw, waypoints, backs)?;
+    let t = uw.table_back(b, ch.at.0, ch.at.1, ch.facing, uw.run - ch.spent, if back_reach { uw.walk - ch.spent } else { 0 }).ok_or("no way on from the last waypoint")?;
     let state = (ch.at.0, ch.at.1, facing);
     // the cheapest way to end here facing that way whose total puts the move in the mode asked for (a longer one spins on the spot)
     let mp = t

@@ -116,7 +116,11 @@ body.tt-replay .tbar .rec{display:none}body.tt-replay #tt-tabs [data-tt-tab="tim
   function enter() {
     const i = pastIndex(); if (i == null) return null;
     const stp = st.steps[i], saved = { units: S.units, log: S.log, req: S.req };
-    S.units = S.units.map((u) => { const p = stp.state && stp.state[u.name]; return p ? { ...u, ...p, moved: false } : u; });
+    S.units = S.units.map((u) => { const p = stp.state && stp.state[u.name]; if (!p) return u;
+      // what the wings and the inspector read must be the unit as it was at this step, not as it is now: the slots destroyed then, the sinks working then
+      const q = { ...u, ...p, moved: false, move_heat: 0 };
+      if (p.crit_dead && u.crit_alive) { q.crit_alive = {}; for (const loc of Object.keys(u.crit_alive)) q.crit_alive[loc] = u.crit_alive[loc].map((_, i) => !(p.crit_dead[loc] || []).includes(i)); }
+      return q; });
     S.log = st.logs[i] || [];
     S.req = null;                                        // the live question's controls are not shown over a past board
     return () => { S.units = saved.units; S.log = saved.log; S.req = saved.req; };

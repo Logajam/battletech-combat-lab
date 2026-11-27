@@ -219,9 +219,21 @@ pub fn unit_state(b: &Battle, u: usize) -> Value {
         .iter()
         .map(|(loc, l)| (loc.clone(), json!([l.armor.to_json(), l.rear_armor.map_or(json!(0), |r| r.to_json()), l.structure.to_json(), l.destroyed])))
         .collect();
+    // the critical slots destroyed so far, by index (only where there are any: the record stays small); the play page's wings and inspector
+    // show them for a past step (REC layer)
+    let crit_dead: Map<String, Value> = m
+        .crits
+        .iter()
+        .filter_map(|(loc, slots)| {
+            let dead: Vec<usize> = slots.iter().enumerate().filter(|(_, sl)| sl.is_name("DESTROYED")).map(|(i, _)| i).collect();
+            if dead.is_empty() { None } else { Some((loc.clone(), json!(dead))) }
+        })
+        .collect();
     json!({
         "hex": m.hex,
         "facing": m.facing,
+        "crit_dead": crit_dead,
+        "sinks": crate::mech_state::active_heat_sinks(m),
         "twist": crate::arcs::current_action(m).twist,
         "prone": m.prone,
         "shutdown": m.shutdown,

@@ -121,6 +121,14 @@ impl Control {
         self.apply_due(b);
     }
 
+    /// The unit a meddle in `phase` ("fire" / "phys") names: its declaration is made FIRST of the phase, so the person meets it at once
+    /// instead of after their own units (Daniel, 2026-11-27: "the next state I saw was my own unit's turn to fire"). None: no such meddle.
+    pub fn meddle_first(&self, b: &Battle, phase: &str) -> Option<usize> {
+        let (_, p, only) = self.meddle.as_ref()?;
+        let label = only.as_deref().filter(|_| p == phase)?;
+        (0..b.units.len()).find(|&u| b.units[u].side_name.as_deref() == Some(label))
+    }
+
     /// Does the person decide for unit `u` in `phase` ("move", "fire", "phys")? `base` is the answer without any branch (the person's units).
     pub fn is_human(&self, b: &Battle, u: usize, phase: &str, base: bool) -> bool {
         let Some(team) = b.units[u].team.as_deref() else { return base };

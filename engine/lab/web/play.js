@@ -25,7 +25,7 @@ const modeCol = (m) => (O.cvd ? { Walk: "#56B4E9", Run: "#F0E442", Jump: "#CC79A
 const modeDash = (m, s = 1) => (O.cvd ? { Walk: "", Run: `${7 * s} ${4 * s}`, Jump: `${2 * s} ${4 * s}` }[m] || "" : "");
 const BAND = () => (O.cvd ? { short: "#56B4E9", medium: "#F0E442", long: "#CC79A7" } : { short: "#6fbf86", medium: "#dba94a", long: "#e07468" });
 
-const S = { way: [], wrIdx: null, wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
+const S = { way: [], backOn: false, backs: [], wrIdx: null, wlist: {}, seq: 0, req: null, board: null, units: [], max: {}, maxLoc: {}, critNames: {}, sel: null, dest: null, facing: null, mode: null, view: null, log: [], over: false,
   decl: null, path: null, attackSel: null, pending: false, myTeam: null, standOn: false, aim: null, phys: null, lastFocus: null };
 const svg = $("map");
 const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
@@ -139,10 +139,23 @@ function look(labels, m) { S.lastFocus = [labels, m]; focusOn(labels, m); }
 // or a hex opens the inspector on that hex; on an attack line's label, on that attack. A hold must stay within HOLD_SLOP px of where it began
 // (bug B13: a fingertip always moves a little).
 const HOLD_SLOP = 10, LONG_MS = 500;
+let MAPBUSY = () => false, resetControls = () => {};   // set by the map's gesture code below
+function cancelPress() { if (press) { clearTimeout(press.timer); press = null; } }
 (() => {
-  const ptrs = new Map(); let moved = false, timer = null, start = null;
+  const ptrs = new Map(); let moved = false, timer = null, start = null, lastTap = null, quiet = 0;
   const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  // a camera gesture is under way (a finger on the map, or one only just lifted): the weapon buttons and the rest of the press system ignore touches
+  MAPBUSY = () => ptrs.size > 0 || performance.now() < quiet;
+  resetControls = () => { ptrs.clear(); MV.pinchEnd(); cancel(); cancelPress(); quiet = 0; moved = false; toast("Controls reset"); };
   svg.addEventListener("pointerdown", (e) => {
+    // the first finger down (isPrimary) means no other can be down: forget any pointer whose "up" was lost (its element was redrawn, the page
+    // was interrupted...), or one finger would count as two and pan like a pinch
+    if (e.isPrimary) { ptrs.clear(); MV.pinchEnd(); }
+    cancelPress();   // a finger on a weapon button is let go of the moment a finger starts on the map
+    // a quick double tap on bare map (nothing to select there) resets the controls: the way out of a stuck gesture
+    const now = performance.now(), bare = !e.target.closest("[data-unit],[data-hex],[data-reach],[data-atk],[data-mine],[data-arrow],[data-deploy],[data-stop],[data-aimhex]") && !(MV.mode === "3d" && MV.hexAt(e.clientX, e.clientY));
+    if (bare && lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) { lastTap = null; resetControls(); return; }
+    lastTap = bare ? { t: now, x: e.clientX, y: e.clientY } : null;
     ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; cancel(); start = [e.clientX, e.clientY];
     if (ptrs.size === 1) {
       const al = e.target.closest("[data-atk],[data-mine]");
@@ -169,8 +182,11 @@ const HOLD_SLOP = 10, LONG_MS = 500;
       MV.pinch({ x: a[0], y: a[1] }, { x: b[0], y: b[1] }); moved = true;
     }
   });
-  const up = (e) => { ptrs.delete(e.pointerId); MV.pinchEnd(); cancel(); };
-  svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
+  const up = (e) => { if (ptrs.delete(e.pointerId) && moved) quiet = performance.now() + 250; MV.pinchEnd(); cancel(); };
+  // listen on the window too: a finger lifted over another element, or over one that was redrawn, never reaches the map's own listener
+  for (const t of [svg, window]) { t.addEventListener("pointerup", up); t.addEventListener("pointercancel", up); }
+  const reset = () => { ptrs.clear(); MV.pinchEnd(); cancel(); };
+  window.addEventListener("blur", reset); document.addEventListener("visibilitychange", () => { if (document.hidden) reset(); });
   svg.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
   svg.addEventListener("contextmenu", (e) => { if (MV.mode === "3d") e.preventDefault(); });   // right-drag orbits the 3D view: no browser menu there
   svg.addEventListener("wheel", (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15, e.clientX, e.clientY); }, { passive: false });
@@ -247,11 +263,14 @@ function attacksOfLatestTurn() {
     let m;
     if ((m = /\[Ranged\] (.+?) -> (.+?): range/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: "weapons", lines: [l], shots: 0, hits: 0 }; all.push(cur); continue; }
     if ((m = /\[Physical\] (.+?) -> (.+?): (.+?) needs \d+ .* -> (HIT|miss)/.exec(l))) { cur = { turn, a: m[1], t: m[2], kind: m[3], lines: [l], shots: 1, hits: m[4] === "HIT" ? 1 : 0 }; all.push(cur); continue; }
-    if (cur && /^\s{2}\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|-- end of turn/.test(l) && !/\[Resolve\]/.test(l)) { cur = null; continue; }
+    if (cur && /^\s{2}\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|-- end of turn/.test(l) && !/\[Resolve\]| fires in order| twists its torso/.test(l)) { cur = null; continue; }   // "fires in order" belongs to the attacker above it: its shot lines follow
     if (cur) { cur.lines.push(l); if (cur.kind === "weapons" && /^\s{4}.+?: needs \d+/.test(l)) { cur.shots++; if (/-> HIT/.test(l)) cur.hits++; } }
   }
+  // the lines belong to the turn that made them (Daniel, 2026-11-27: "should disappear at the end of the turn"). A human never gets a question
+  // between the fire's result and the next turn, so they stay on the map through the NEXT turn's Movement Phase (what shot at you, while you
+  // decide where to go) and go when that turn's fire phase begins
   const last = Math.max(0, ...all.map((x) => x.turn));
-  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line
+  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line   // an attacker that fired nothing draws no line
 }
 function drawAttackLines(layer) {
   if (!O.atk) return;
@@ -408,16 +427,18 @@ function moveHeatParts() {
   return { cur, diss, mh, end: Math.max(0, cur + mh - diss) };
 }
 function fireHeatParts() {
-  const D = S.decl; if (!D) { const u = activeUnit() || {}; return { cur: u.heat || 0, diss: u.sinks ?? 0, end: Math.max(0, (u.heat || 0) - (u.sinks ?? 0)), gen: 0 }; }
+  // the count the unit stands at NOW in the fire phase: what it carried in, plus what its movement made, plus each weapon that is picked to fire
+  // (Daniel, 2026-11-27: running 10 double sinks' worth of nothing shows 2; four ER medium lasers then show 7, 12, 17, 22)
+  const D = S.decl; if (!D) { const u = activeUnit() || {}, c = (u.heat || 0) + (u.move_heat || 0); return { cur: c, diss: u.sinks ?? 0, end: Math.max(0, c - (u.sinks ?? 0)), gen: u.move_heat || 0 }; }
   const r = D.req, w = S.fire ? fireTotals().heat : [...D.sel].reduce((a, id) => a + ((D.rows.find((x) => x.id === id) || {}).heat || 0), 0);
-  return { cur: r.heat, diss: r.dissipation, gen: r.move_heat + w, end: heatIfFired() };
+  return { cur: r.heat + r.move_heat + w, diss: r.dissipation, gen: r.move_heat + w, end: heatIfFired() };
 }
 const heatLimit = (u) => (u && UI.lim[u.id] != null ? UI.lim[u.id] : 4);   // Fire! shows a warning above this end-of-turn heat (the Heat tab sets it; 5 is the scale's first step, Core p.103)
 function mpwHtml() {
   const u = activeUnit(), k = phaseKey();
   if (!u || !S.req) return `<button class="mpw" data-act="mpw" disabled><span class="big">${u ? "Heat " + (u.heat || 0) : "&nbsp;"}</span></button>`;
   if (k === "fire" || k === "phys" || k === "end") {
-    const h = k === "fire" ? fireHeatParts() : { cur: u.heat || 0, diss: u.sinks ?? 0, end: k === "end" ? S.req.heat.projected : Math.max(0, (u.heat || 0) - (u.sinks ?? 0)), gen: 0 };
+    const h = k === "fire" ? fireHeatParts() : { cur: (u.heat || 0) + (u.move_heat || 0), diss: u.sinks ?? 0, end: k === "end" ? S.req.heat.projected : Math.max(0, (u.heat || 0) + (u.move_heat || 0) - (u.sinks ?? 0)), gen: 0 };
     const hot = k === "fire" && h.gen > h.diss, pods = (eq(u).coolant || {}).pods, now = (eq(u).coolant || {}).mode === "now";
     return `<button class="mpw${hot && !now ? " hot" : ""}" data-act="mpw"><span class="big">Heat ${heatLine(h.cur, h.diss, h.end)}</span>${hot && pods ? `<span class="hint on">${now ? "coolant pod: will use" : "tap: use a coolant pod?"}</span>` : ""}</button>`;
   }
@@ -447,7 +468,7 @@ function commitState() {
   // movement
   if (r.kind === "move_order" && !S.mv) { const v = S.views[S.sel]; return v && v.seq === S.seq ? { lab: "Move", sub: (unit(S.sel) || {}).prone ? "stand up next" : "plan next", col: "#00e5ff" } : { lab: "Move", sub: "looking...", col: "#8795a5", dis: true }; }
   if (S.attackSel) return { lab: S.attackSel.kind === "charge" ? "Charge" : "Death from above", sub: `${S.attackSel.mp} MP`, col: S.attackSel.kind === "charge" ? "#ffd400" : "#ff7a3c", warn: true };
-  const o = S.dest ? optNow() : null, stand = standing() && S.standOn;
+  const o = S.dest ? optNow() : null, stand = standing() ? S.standOn : !!(S.pstand && S.order);
   if (standing() && !S.standOn) return { lab: "Stay prone", sub: S.prone && S.prone.facing ? "turn to " + S.prone.facing : "hold to commit", col: "#8795a5" };
   if (!o) return { lab: stand ? "Stand up" : "Stand still", sub: S.drop ? "then drop prone" : "hold to commit", col: stand ? "#00e5ff" : "#8795a5", warn: stand };
   const col = { Walk: "#00e5ff", Run: "#ffd400", Jump: "#ff7a3c" }[o.mode] || "#8795a5";
@@ -516,7 +537,9 @@ const COLX = { LA: -2, LT: -1, HD: 0, CT: 0, RT: 1, RA: 2, LL: -1, RL: 1 };
 function placeOverlay() {
   const ring = $("ring"), W = ring.clientWidth, H = ring.clientHeight, I = UI.ins, cx = I.l + (W - I.l - I.r) / 2, cy = I.t + (H - I.t - I.b) / 2;
   const clampX = (x, w) => Math.max(I.l + 4, Math.min(W - I.r - w - 4, x)), clampY = (y, hh) => Math.max(I.t + 40, Math.min(H - I.b - hh - 4, y));
-  const boxes = [...ring.querySelectorAll(".wb")], CW = Math.min(78, (W - I.l - I.r) / 5.4), RH = 30;
+  // the weapon boxes grow with the screen (a phone is 1, a desktop window up to 1.7): size, spacing and text together
+  const sc = Math.max(1, Math.min(1.7, Math.min(W, H) / 430)); ring.style.setProperty("--ws", sc.toFixed(2));
+  const boxes = [...ring.querySelectorAll(".wb")], CW = Math.min(78 * sc, (W - I.l - I.r) / 5.4), RH = 30 * sc;
   const groups = {}; boxes.forEach((b) => { (groups[b.dataset.loc] = groups[b.dataset.loc] || []).push(b); });
   const count = (l) => (groups[l] || []).length;
   for (const [l, list] of Object.entries(groups)) list.forEach((b, j) => {
@@ -603,7 +626,7 @@ function drawMenu() {
   m.innerHTML = `<div class="f">Weapons in the fire phase</div>${it("Around the target", "wl", 'data-v="ring"', UI.wl === "ring")}${it("List", "wl", 'data-v="list"', UI.wl === "list")}
     <div class="f">Look</div>${Object.entries(LOOKS).map(([k, n]) => it(n, "look", `data-v="${k}"`, O.look === k)).join("")}
     <div class="f">View</div>${it("Tabletop view (3D)", "view3d", "", MV.mode === "3d")}${it("Colour-blind mode", "cvd", "", O.cvd)}${it("Range bands for the weapon", "rings", "", O.rings)}${it("Hex numbers", "labels", "", O.labels)}${it("Attack lines (the latest turn)", "atk", "", O.atk)}
-    <div class="f">Game</div>${it("Report", "report")}${it("Save game to a file", "save-file")}${SAVE.parent ? it("Back to the earlier timeline", "back-parent") : ""}${SAVE.child ? it("On to the later timeline", "fwd-child") : ""}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
+    <div class="f">Game</div>${it("Report", "report")}${it("Reset controls (also: double tap the map)", "reset-controls")}${it("Save game to a file", "save-file")}${SAVE.parent ? it("Back to the earlier timeline", "back-parent") : ""}${SAVE.child ? it("On to the later timeline", "fwd-child") : ""}${it("Game options (also: long press Menu)", "options")}${it("Back to the Lab", "lab")}`;
 }
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), msg.length > 60 ? 4200 : 2600); }
 
@@ -640,6 +663,7 @@ function pageHtml(tab, ctx) {
     const v = S.mv, o = S.dest ? optNow() : null, os = S.dest ? destOpts() : [], modes = [...new Set(os.map((x) => x.mode))], acts = [];
     if (v && v.jump > 0 && !standing()) acts.push(`<button data-act="opt" data-k="jump" class="${jumpOn() ? "on" : ""}">Jump</button>`);
     for (const m of modes) acts.push(`<button data-act="opt" data-k="mode" data-m="${m}" class="${m === S.mode ? "on" : ""}">${m === "Stand Still" ? "Stand still" : m + " " + mvBudget(m)}</button>`);
+    if (S.req.kind === "movement" && v && !v.entry && v.walk > 0 && !standing() && !jumpOn()) acts.push(`<button data-act="opt" data-k="back" class="${S.backOn ? "on" : ""}">Back up</button>`);
     if (dropOk(o)) acts.push(`<button data-act="opt" data-k="drop" class="${S.drop ? "on" : ""}">Go prone at the end (+1 MP)</button>`);
     if (standing()) { acts.push(`<button data-act="standup" class="${S.standOn ? "on" : ""}">Stand up (needs ${S.req.tn}+)</button>`); if (S.req.careful && S.req.careful.available) acts.push(`<button data-act="opt" data-k="careful">Careful stand (needs ${S.req.careful.tn}+, the whole move)</button>`); }
     if (S.req.kind === "movement" && !v.entry) acts.push(`<button data-act="opt" data-k="eject">Eject...</button>`);
@@ -690,7 +714,7 @@ function pageHtml(tab, ctx) {
   }
   return "";
 }
-function reachHas(l) { if (!S.mv) return false; const idx = S.way.length ? S.wrIdx : (S.reachIdx = S.reachIdx || reachIndex(S.mv)); return !!(idx && idx[l]); }
+function reachHas(l) { if (!S.mv) return false; const idx = usesWay() ? S.wrIdx : (S.reachIdx = S.reachIdx || reachIndex(S.mv)); return !!(idx && idx[l]); }
 function critsHtml(u) {
   const names = S.critNames[u.id] || {}, alive = u.crit_alive || {};
   return Object.keys(names).map((loc) => `<div><b>${LOCAB[loc] || loc}</b></div><div class="crit">${names[loc].map((n, i) => `<span class="${alive[loc] && alive[loc][i] === false ? "x" : ""}">${esc(n)}</span>`).join("")}</div>`).join("") || '<p class="msg">Not known.</p>';
@@ -902,7 +926,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && r.kind !== "spot" && (!S.myTeam || (typeof TT !== "undefined" && TT.followTeam()))) S.myTeam = mine.team;   // after a meddle or a change of control the question may be another team's
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.prone = null; S.drop = false;
+  S.dest = null; S.facing = null; S.facingHand = false; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.prone = null; S.drop = false;
   S.standOn = false; S.aim = null; S.phys = null; UI.aimOpen = false; UI.cyc = null; UI.pickHex = null; UI.aord = []; UI.atkSel = null; ask("");
   // a new phase: its done marks and its committed attacks start again
   const pk = phaseKey(); if (pk !== UI.phase) { UI.phase = pk; UI.done.clear(); UI.mine = []; UI.wing = { L: 0, R: 0 }; }
@@ -943,7 +967,7 @@ async function standPlan() {
   const v = await query({ q: "reach", unit: r.unit });
   if (seq !== S.seq || !S.req || S.req.kind !== "stand_up") return;
   if (v.error || !v.view) { toast(v.error || "No move after standing can be shown: Commit stands up or stays prone."); redraw(); return; }
-  S.mv = v.view; S.reachIdx = null; S.way = []; S.wrIdx = null; S.dest = null; S.path = null;
+  S.mv = v.view; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null;
   redraw();
 }
 HANDLERS.boost = (r) => {
@@ -981,7 +1005,7 @@ const moving = () => !!S.mv && !!S.req && (S.req.kind === "movement" || S.req.ki
 const standing = () => !!S.req && S.req.kind === "stand_up";
 function drawReach(layer) {
   S.reachIdx = S.reachIdx || reachIndex(S.mv);
-  const idx = S.way.length ? S.wrIdx : S.reachIdx;
+  const idx = usesWay() ? S.wrIdx : S.reachIdx;
   const sets = { Walk: new Set(), Run: new Set(), Jump: new Set() };
   for (const [h, os] of Object.entries(idx)) for (const o of os) if (sets[o.mode]) sets[o.mode].add(h);
   for (const mode of ["Jump", "Run", "Walk"]) {
@@ -1011,16 +1035,17 @@ HANDLERS.move_order = (r) => {
   selectMover(S.sel);
 };
 async function selectMover(id) {
-  S.sel = id; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.way = []; S.wrIdx = null;
+  S.sel = id; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = [];
   const seq = S.seq;
   let v = S.views[id];
   if (!v || v.seq !== seq) {
     S.mv = null; redraw();
     const r = await query({ q: "reach", unit: id });
     if (seq !== S.seq || !S.req || S.req.kind !== "move_order") return;
-    v = S.views[id] = { seq, error: r.error, view: r.view };
+    v = S.views[id] = { seq, error: r.error, view: r.view, stand: r.stand || null };
   }
   if (S.sel !== id) return;
+  S.pstand = v.stand || null;   // a prone unit: its move is planned as if it stood (the number the stand needs)
   S.mv = v.view || null; S.reachIdx = null; moveIntro(v.error); redraw();
 }
 // the plan starts empty: the lit hexes and the arrows are the choices, the action buttons say what holding Commit does (Section 14, F)
@@ -1031,18 +1056,32 @@ function moveIntro(unavailable) { if (unavailable) toast(unavailable); }
 // of that route, and the answer carries the waypoints so the engine walks the same one (`drawn_route.rs`), rolling each piloting skill
 // roll and taking each hazard where the route puts it. A route round a hazard therefore avoids it.
 const enrich = (o) => { const e = ((S.reachIdx || {})[o.hex] || []).find((x) => x.facing === o.facing && x.mode === o.mode) || ((S.reachIdx || {})[o.hex] || [])[0] || {}; return { tmm: 0, hexes: 0, heat: 0, ...e, ...o }; };
+// BACK UP (Daniel, 2026-11-27: "a Back up movement action is missing in the inspector"): while it is on, the lit hexes are those the unit can back
+// into (backward steps cost walking points only, Core p.51) and each waypoint drawn is a leg that may back up. The route goes by waypoints either way.
+const usesWay = () => S.way.length > 0 || S.backOn;
+async function refreshBack() {
+  if (S.way.length) { await setWay(S.way); return; }
+  S.dest = null; S.path = null;
+  if (S.backOn) {
+    const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: [], backs: [], back_reach: true });
+    if (seq !== S.seq || !S.req) return;
+    if (r.error) { toast(r.error); S.backOn = false; S.wrIdx = null; } else S.wrIdx = reachIndex({ options: r.reach.map(enrich) });
+  } else S.wrIdx = null;
+  redraw();
+}
 async function setWay(way) {
-  const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: way });
+  const backs = way.map((_, i) => (i < S.backs.length ? S.backs[i] : S.backOn));
+  const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: way, backs, back_reach: S.backOn });
   if (seq !== S.seq || !S.req) return false;
   if (r.error) { toast(r.error); return false; }
-  S.way = way; S.wrIdx = reachIndex({ options: r.reach.map(enrich) }); S.attackSel = null;
+  S.way = way; S.backs = backs; S.wrIdx = reachIndex({ options: r.reach.map(enrich) }); S.attackSel = null;
   S.path = r.legs.map((l, i, a) => ({ ...l, k: i && a[i - 1].hex === l.hex ? "turn" : "forward" }));
   S.dest = way[way.length - 1];
   const os = S.wrIdx[S.dest] || [], cheapest = os.reduce((a, b) => (a.mp <= b.mp ? a : b), os[0]);
   if (!cheapest) return false;
   if (!os.some((o) => o.mode === S.mode)) S.mode = cheapest.mode;
   const same = os.filter((o) => o.mode === S.mode), cur = unit(S.mv.unit);
-  if (!same.some((o) => o.facing === S.facing)) S.facing = (same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
+  S.facing = naturalFacing(same, cur);
   redraw();
   return true;
 }
@@ -1050,22 +1089,28 @@ async function pickDest(h) {
   if (!S.mv) return;
   if (standing() && !S.standOn) { S.standOn = true; toast(`Stand up added: a Piloting roll of ${S.req.tn}+ first`); }
   S.reachIdx = S.reachIdx || reachIndex(S.mv);
-  const idx = S.way.length ? S.wrIdx : S.reachIdx, os = idx[h]; if (!os) return;
+  const idx = usesWay() ? S.wrIdx : S.reachIdx, os = idx && idx[h]; if (!os) return;
   const canWay = S.mv.standup_mp == null && !S.mv.entry && os.some((o) => o.mode !== "Jump");
-  if (!S.way.length && !canWay) {   // a jump, a stand-up move or an entry: the destination alone
+  if (!usesWay() && !canWay) {   // a jump, a stand-up move or an entry: the destination alone
     const cheapest = os.reduce((a, b) => (a.mp <= b.mp ? a : b));
     S.dest = h; S.mode = cheapest.mode; S.attackSel = null;
     const same = os.filter((o) => o.mode === S.mode), cur = unit(S.mv.unit);
-    S.facing = (same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
+    S.facing = naturalFacing(same, cur);
     redraw(); loadPath(); return;
   }
-  if (S.way.length && S.way[S.way.length - 1] === h) return;
+  if (S.way.length && S.way[S.way.length - 1] === h && !S.backOn) return;
   await setWay([...S.way, h]);
 }
-const destOpts = () => (S.way.length ? (S.wrIdx || {})[S.dest] : (S.reachIdx || {})[S.dest]) || [];
+// the facing a move ends in unless the player turns it: the one the walk itself arrives in (the cheapest, no extra turn), not the facing the
+// unit started with (Daniel, 2026-11-27). A facing the player chose by hand (S.facingHand) is kept while it is still possible there.
+function naturalFacing(same, cur) {
+  if (S.facingHand && same.some((o) => o.facing === S.facing)) return S.facing;
+  return same.reduce((a, o) => (o.mp < a.mp ? o : a), same.find((o) => cur && o.facing === cur.facing) || same[0]).facing;
+}
+const destOpts = () => (usesWay() ? (S.wrIdx || {})[S.dest] : (S.reachIdx || {})[S.dest]) || [];
 const optNow = () => destOpts().find((o) => o.mode === S.mode && o.facing === S.facing);
 async function loadPath() {
-  if (S.way.length && !S.attackSel) return;      // the route through the waypoints is already drawn
+  if (usesWay() && !S.attackSel && S.way.length) return;      // the route through the waypoints is already drawn
   const seq = S.seq; let q;
   if (S.attackSel) q = { q: "path", unit: S.mv.unit, attack: S.attackSel };
   else if (S.dest) q = { q: "path", unit: S.mv.unit, hex: S.dest, facing: S.facing, mode: S.mode };
@@ -1113,7 +1158,7 @@ function drawTurnArrows(layer) {
     arrowRing(layer, u.hex, Object.keys(cheap), u.facing, (f) => modeCol(cheap[f].mode), async (f) => {
       await pickDest(u.hex);
       const os = destOpts(), o = os.find((x) => x.facing === f && x.mode === S.mode) || os.filter((x) => x.facing === f).sort((a, b) => a.mp - b.mp)[0];
-      if (o) { S.facing = f; S.mode = o.mode; redraw(); loadPath(); }
+      if (o) { S.facing = f; S.facingHand = true; S.mode = o.mode; redraw(); loadPath(); }
     });
     return;
   }
@@ -1121,7 +1166,7 @@ function drawTurnArrows(layer) {
   for (const o of os) if (!cheap[o.facing] || o.mp < cheap[o.facing].mp) cheap[o.facing] = o;
   arrowRing(layer, S.dest, Object.keys(cheap), S.facing, (f) => modeCol((os.find((o) => o.facing === f && o.mode === S.mode) || cheap[f]).mode), (f) => {
     const same = os.find((o) => o.facing === f && o.mode === S.mode);
-    S.facing = f; if (!same) S.mode = cheap[f].mode;
+    S.facing = f; S.facingHand = true; if (!same) S.mode = cheap[f].mode;
     redraw(); loadPath();
   });
 }
@@ -1153,7 +1198,7 @@ function undo() {
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); return; }
   if (S.attackSel) { S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.path = null; redraw(); return; }
   if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
-  if (moving() && (S.way.length || S.dest)) { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; redraw(); return; }
+  if (moving() && (S.way.length || S.dest)) { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; redraw(); return; }
   if (S.drop) { S.drop = false; redraw(); return; }
   if (standing() && S.standOn) { S.standOn = false; redraw(); return; }
   if (standing() && S.prone && S.prone.facing) { S.prone.facing = null; redraw(); return; }
@@ -1179,7 +1224,7 @@ function onUnitTap(id) {
 // a charge or a death from above, planned: the path to the stop, Commit says Charge (the stops to choose from are the black hexes)
 async function chooseAttack(a) {
   if (!a) return;
-  S.attackTarget = a.target; S.attackSel = a; S.attackConfirm = true; S.way = []; S.wrIdx = null; S.dest = null;
+  S.attackTarget = a.target; S.attackSel = a; S.attackConfirm = true; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null;
   redraw(); loadPath();
 }
 // ---- deployment: the units that are placed before turn 1 go on free hexes of the player's own deployment area
@@ -1494,6 +1539,7 @@ document.addEventListener("pointerdown", (e) => {
   const t = e.target.closest("[data-act]");
   if (UI.menu && !e.target.closest("#menu") && !(t && t.dataset.act === "menu")) { UI.menu = false; drawMenu(); }
   if (!t || t.closest("svg")) return;
+  if (MAPBUSY()) { press = null; return; }   // the camera is being moved: the weapons wait until it is done
   press = { el: t, x: e.clientX, y: e.clientY, t0: performance.now(), long: false, moved: false, id: e.pointerId };
   if (t.dataset.hold) { if (t.disabled) { press = null; return; } const f = t.querySelector(".fill"), T0 = performance.now();
     const step = () => { if (!press || press.el !== t) { if (f) f.style.width = "0"; return; } const p = Math.min(1, (performance.now() - T0) / HOLD_MS); if (f) f.style.width = p * 100 + "%";
@@ -1522,6 +1568,8 @@ function act(t, kind, info = {}) {
   const d = t.dataset, a = d.act, D = S.decl, k = phaseKey(), side = d.side;
   switch (a) {
     // ---- the title line and the panels
+    case "cfm": { const a = S.cfm; S.cfm = null; ask(""); if (d.v === "1" && a) { S.cfmGo = true; commitMove(a); S.cfmGo = false; } return; }
+    case "reset-controls": resetControls(); UI.menu = false; drawMenu(); return;
     case "menu": if (kind === "long") openInsp("Options", null, null, "a long press on Menu"); else { UI.menu = !UI.menu; drawMenu(); layoutPanels(); } return;
     case "rec": TT.toggle(); return;   // the REC layer (tt_layer.js); the old card list (timeTravelCard) is kept for the branch test until meddling replaces it
     case "branch": $("card").style.display = "none"; branchFrom(+d.at); return;
@@ -1651,7 +1699,7 @@ function ctxAct(d) {
   if (d.do === "charge" || d.do === "dfa") {
     const id = +d.u, kind = d.do, list = S.mv.attacks.filter((a) => a.target === id && a.kind === kind);
     if (S.attackSel && S.attackSel.kind === kind && S.attackSel.target === id) { S.attackSel = null; S.attackTarget = null; S.path = null; redraw(); return; }
-    S.attackTarget = id; S.way = []; S.wrIdx = null; S.dest = null;
+    S.attackTarget = id; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null;
     const best = list.reduce((x, y) => (y.mp < x.mp ? y : x), list[0]); chooseAttack(best);
     toast(`${kind === "charge" ? "Charge" : "Death from above"} on ${unit(id).name}: to hit ${best.tn}+, ${best.damage} damage, you take ${best.self_damage}. The black hexes are the other places to stop. Hold Commit.`);
   }
@@ -1659,6 +1707,7 @@ function ctxAct(d) {
 function optAct(d) {
   const k = d.k;
   if (k === "jump") { S.jumpPref[S.mv.unit] = !jumpOn(); clearPlan(); moveIntro(); return; }
+  if (k === "back") { S.backOn = !S.backOn; if (S.backOn) { S.facingHand = false; toast("Back up: tap the hex to back into (walking points only)"); } refreshBack(); return; }
   if (k === "mode") { S.mode = d.m; const os = destOpts().filter((x) => x.mode === S.mode); if (!os.some((x) => x.facing === S.facing)) S.facing = os[0].facing; loadPath(); return; }
   if (k === "drop") { S.drop = !S.drop; return; }
   if (k === "careful") { send({ stand: true, careful: true }); return; }
@@ -1675,14 +1724,29 @@ function commitNow() {
   if (k === "end") { send({}); return; }
   if (k === "fire") { if (S.fire) { if (S.fire.assign.size) fireGo(); else send({ target: null }); return; } if (S.decl) { if (S.decl.sel.size) send({ weapons: [...S.decl.sel], charge: [...S.decl.charge], aim: { ...S.decl.aim } }); else send({ weapons: [] }); } return; }
   if (k === "phys") { UI.done.add(r.unit); physCommit(); return; }
-  if (r.kind === "move_order" && !S.mv) { send({ unit: S.sel }); return; }   // a unit with no move to show here (prone): choose it, and its own questions follow
+  if (r.kind === "move_order" && (!S.mv || (S.pstand && !S.dest && !S.attackSel))) { send({ unit: S.sel }); return; }   // nothing planned (a prone unit with no plan): choose it, and its own questions follow
   if (!moving() && !standing()) return;
   if (standing() && !S.standOn) { send(S.prone && S.prone.facing ? { stand: false, facing: S.prone.facing } : { stand: false }); return; }
   if (S.attackSel) { commitMove({ attack: S.attackSel }); return; }
   if (!S.dest) { commitMove({ stay: true }); return; }
-  commitMove({ hex: S.dest, facing: S.facing, mode: S.mode, ...(S.way.length ? { waypoints: S.way.slice() } : {}) });
+  const ans = { hex: S.dest, facing: S.facing, mode: S.mode, ...(S.way.length ? { waypoints: S.way.slice(), backs: S.backs.slice(), back_reach: S.backOn } : {}) };
+  const luck = luckLines();
+  if (luck.length && !S.cfmGo) { confirmMove(ans, luck); return; }
+  S.cfmGo = false; commitMove(ans);
 }
-function clearPlan() { S.way = []; S.wrIdx = null; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; }
+// THE CONFIRMATION before a plan that leans on luck (Daniel, 2026-11-27): the standing roll of a prone 'Mech and every hazard on the route, with the
+// numbers; Go runs the plan, and a failed roll asks again from where the 'Mech ends up (the engine's own re-ask), Back keeps planning
+function luckLines() {
+  const out = [], o = S.dest ? optNow() : null, standTn = standing() ? (S.standOn ? S.req.tn : null) : S.pstand && S.order ? S.pstand.tn : null;
+  if (standTn != null) out.push(`Standing up first: a Piloting roll of <b>${standTn}+</b> (2D6). If it fails the 'Mech falls and you plan again from there.`);
+  if (o) for (const h of hazardList(o)) out.push(esc(h));
+  return out;
+}
+function confirmMove(ans, luck) {
+  S.cfm = ans;
+  ask(`<div class="cfm"><h3>Run this move?</h3><ul>${luck.map((l) => `<li>${l}</li>`).join("")}</ul><div class="row"><button data-act="cfm" data-v="1">Go</button><button data-act="cfm" data-v="0">Back to planning</button></div></div>`);
+}
+function clearPlan() { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; }
 function clearAll() {
   const k = phaseKey();
   if (k === "fire") { if (S.fire) { S.fire.assign.clear(); S.fire.order = []; S.fire.lastPrimary = null; } if (S.decl) S.decl.sel.clear(); UI.aord = []; afterAssign(); return; }

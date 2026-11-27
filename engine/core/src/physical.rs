@@ -575,6 +575,10 @@ pub trait PhysicalBot {
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
     /// bots.choose_physical: (base TN, picked options, arc action) or None.
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, crate::mech_state::ArcAction)>;
+    /// A unit whose attack is declared before the others' (a meddle in the physical phase names one). Default: none.
+    fn declare_first(&self, _b: &Battle) -> Option<UnitId> {
+        None
+    }
     /// One physical attack has been resolved: a step of the replay record (REC layer). Default: nothing.
     fn step_done(&mut self, _b: &mut Battle, _label: &str) {}
 }
@@ -713,7 +717,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
     let mut declared: Vec<(UnitId, UnitId, PhysOption, bool, String)> = Vec::new();
     let mut charges: Vec<(UnitId, UnitId)> = Vec::new();
     let mut dfas: Vec<(UnitId, UnitId, bool)> = Vec::new();
-    for &attacker in order {
+    for attacker in crate::attack_resolution::first_of(order, bot.declare_first(b)) {
         let Some(target) = bot.target_of(b, attacker) else { continue };
         if b.units[attacker].charging.is_some() {
             match charge::declare(b, attacker, target) {

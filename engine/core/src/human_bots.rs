@@ -137,6 +137,9 @@ impl<C: Controller> HumanBots<C> {
 }
 
 impl<C: Controller> BotSet for HumanBots<C> {
+    fn declare_first(&self, b: &Battle, phase: &str) -> Option<UnitId> {
+        self.timeline.borrow().meddle_first(b, phase)
+    }
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
         self.inner.choose_foe(b, mover)
     }

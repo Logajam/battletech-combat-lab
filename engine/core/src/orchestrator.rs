@@ -19,6 +19,10 @@ use crate::{arcs, clubs, deployment, fire_modes, hazards, heat, smoke, tag, wate
 
 /// The bots' choices (INTEGRATION__bots), one method per decision kind of the seam.
 pub trait BotSet {
+    /// The unit a meddle names for `phase` ("fire" / "phys"): its declaration comes first (human_bots.rs, timeline.rs). Default: none.
+    fn declare_first(&self, _b: &Battle, _phase: &str) -> Option<UnitId> {
+        None
+    }
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId>;
     /// bots.choose_target: the one enemy a unit fires at in the Ranged phase
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
@@ -121,6 +125,9 @@ impl RangedBot for RangedAdapter<'_, '_> {
     fn reset_assigned(&mut self, b: &mut Battle) {
         self.bots.reset_assigned(b);
     }
+    fn declare_first(&self, b: &Battle) -> Option<UnitId> {
+        self.bots.declare_first(b, "fire")
+    }
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         self.bots.choose_target(b, attacker)
     }
@@ -151,6 +158,9 @@ struct PhysAdapter<'a, 'm> {
 }
 
 impl PhysicalBot for PhysAdapter<'_, '_> {
+    fn declare_first(&self, b: &Battle) -> Option<UnitId> {
+        self.bots.declare_first(b, "phys")
+    }
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         // declared = getattr(u, "charging", None) or getattr(u, "dfa", None); the attack the unit declared in Movement
         let declared = b.units[attacker].charging.or(b.units[attacker].dfa);

@@ -1710,6 +1710,10 @@ pub fn finish_declaration(
 pub trait RangedBot {
     /// Princess's damage map starts the phase empty.
     fn reset_assigned(&mut self, _b: &mut Battle) {}
+    /// A unit whose declaration is made before the others' (a meddle in the fire phase names one: timeline.rs). Default: none.
+    fn declare_first(&self, _b: &Battle) -> Option<UnitId> {
+        None
+    }
     /// The one enemy a unit fires at (None: nothing to shoot), picked as each unit's turn comes.
     fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
     fn choose(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice;
@@ -1747,6 +1751,17 @@ pub fn declare_attacks(b: &mut Battle, attacker: UnitId, target: UnitId, report:
 
 /// Whole phase for any number of units: `order` is the units in declaration / resolution order. Returns the reports,
 /// parallel to `order`.
+/// `order` with `first` (if it is in it) moved to the front: the declaration order of a phase with a meddle (the others keep their places).
+pub fn first_of(order: &[UnitId], first: Option<UnitId>) -> Vec<UnitId> {
+    let mut v = order.to_vec();
+    if let Some(f) = first {
+        if let Some(i) = v.iter().position(|x| *x == f) {
+            let u = v.remove(i);
+            v.insert(0, u);
+        }
+    }
+    v
+}
 pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBot) -> Vec<SideReport> {
     let mut reports: Vec<SideReport> = order.iter().map(|_| SideReport::default()).collect();
     let idx = |u: UnitId| order.iter().position(|x| *x == u).unwrap();
@@ -1769,7 +1784,7 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         }
     }
     let mut pairs: Vec<(UnitId, UnitId)> = Vec::new();
-    for &attacker in order {
+    for attacker in first_of(order, bot.declare_first(b)) {
         let Some(target) = bot.target_of(b, attacker) else { continue };
         pairs.push((attacker, target));
         // statistics only: how far the attacker is from the unit it declared on

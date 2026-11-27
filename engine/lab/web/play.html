@@ -176,6 +176,10 @@ button.sm{min-height:26px;padding:0 7px;font-size:12px}
 /* weapon names smaller; the boxes hold their own over a placard */
 .wb{font-size:10px;gap:4px;padding:2px 3px 2px 6px;background-color:rgba(10,14,18,.7);backdrop-filter:blur(2px);z-index:3}
 .wb .tn{font-size:11px;padding:2px 4px}
+/* scale with the screen: --ws is set on #ring by placeOverlay (1 on a phone, up to 1.7 on a desktop window) */
+#ring .wb{font-size:calc(10px*var(--ws,1));gap:calc(4px*var(--ws,1));padding:calc(2px*var(--ws,1)) calc(3px*var(--ws,1)) calc(2px*var(--ws,1)) calc(6px*var(--ws,1))}
+#ring .wb .tn{font-size:calc(11px*var(--ws,1));padding:calc(2px*var(--ws,1)) calc(4px*var(--ws,1));min-width:calc(22px*var(--ws,1))}
+#ring .wb .to{font-size:calc(9px*var(--ws,1))}#ring .wb .n2,#ring .wb .lc{font-size:calc(8.5px*var(--ws,1))}
 .wb.on{background-color:rgba(120,20,12,.75)}.wb.out{background-color:rgba(10,14,18,.55)}
 /* the wing tabs: the Lab's grip look (parallel lines), on the edges of the map area */
 #app .edge{width:16px;height:88px;margin-top:-44px;background:color-mix(in srgb,var(--face) 94%,transparent);border:1px solid var(--bd);box-shadow:0 2px 6px rgba(0,0,0,.4)}
@@ -223,6 +227,7 @@ svg#map{width:100%;height:100%;display:block;background:var(--map);user-select:n
 .ask{position:absolute;z-index:7;max-width:min(440px,calc(100% - 12px));max-height:46%;overflow:auto;background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--bd);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.45);padding:8px 10px}
 .ask:empty{display:none}.ask h3{margin:0 0 4px;font-size:13px;color:var(--link)}
 .ask .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ask .cfm ul{margin:4px 0 2px 16px;padding:0;font-size:12px}
 #app .ask button{min-height:30px;font-size:12px}
 #card{position:absolute;z-index:16;background:var(--panel);border:1px solid var(--bd);padding:8px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.5);max-width:min(420px,calc(100% - 16px));max-height:70%;overflow:auto;border-radius:6px}
 #card .cardrep{max-height:50vh;overflow:auto;padding:4px 0;font-size:12px}

@@ -518,6 +518,8 @@ fn units_json(b: &Battle, with_names: bool) -> Value {
                 s["max_heat"] = json!(m.max_heat);
                 // the heat it sheds a turn (the overlay UI's heat display: "current (dissipation): end of the turn")
                 s["sinks"] = json!(ms::active_heat_sinks(m));
+                // the heat its movement made this turn (running, jumping): the fire phase starts its heat count from it (Daniel, 2026-11-27)
+                s["move_heat"] = json!(m.movement_heat);
                 s["move_mode"] = json!(m.move_mode);
                 // has it moved this turn (the map's moved mark and the title bar's count of units still to move)
                 s["moved"] = json!(m.moved_this_turn);
@@ -753,12 +755,17 @@ fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
         Some(Some(h)) => h,
         _ => return json!({"error": "which waypoints?"}),
     };
+    // Back up (Daniel, 2026-11-27): which legs may back up, and whether the way on from the last waypoint may
+    let (backs, back_reach) = back_flags(q);
+    if hexes.is_empty() && !back_reach {
+        return json!({"error": "which waypoints?"});
+    }
     let Some(uw) = crate::drawn_route::UnitWalk::of(b, mover) else { return json!({"error": "waypoints need a unit on the map"}) };
-    let chain = match crate::drawn_route::chain(b, &uw, &hexes) {
+    let chain = match crate::drawn_route::chain_back(b, &uw, &hexes, &backs) {
         Ok(c) => c,
         Err(e) => return json!({"error": e}),
     };
-    let reach: Vec<Value> = crate::drawn_route::reach(b, &uw, &chain)
+    let reach: Vec<Value> = crate::drawn_route::reach_back(b, &uw, &chain, back_reach)
         .iter()
         .filter_map(|e| {
             let (x, y, f) = e.state;
@@ -770,6 +777,11 @@ fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
         .collect();
     let legs: Vec<Value> = chain.path.iter().map(|(_, (x, y, _), mp)| json!({"k": "forward", "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "mp": mp})).collect();
     json!({"reach": reach, "legs": legs})
+}
+
+/// The Back up flags of a `way` query or an answer: `backs` (a true for each waypoint whose leg may back up) and `back_reach`.
+fn back_flags(q: &Value) -> (Vec<bool>, bool) {
+    (q["backs"].as_array().map(|a| a.iter().map(|v| v.as_bool().unwrap_or(false)).collect()).unwrap_or_default(), q["back_reach"].as_bool().unwrap_or(false))
 }
 
 fn hex_geometry_parse(label: &str) -> Option<(i64, i64)> {
@@ -954,9 +966,13 @@ fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: U
         };
         let cand = cands.iter().find(|c| c.w == w);
         let bracket = crate::weapon_selection::range_bracket(b, attacker, w, ctx.distance);
+        // the number the shot is rolled against: the target's base number, the range band (Core p.64: short +0, medium +2, long +4, and the
+        // minimum-range penalty) and the weapon's own modifiers. The band was missing here, so the button showed the base number even at long
+        // range (Daniel, 2026-11-27); the resolution (`attack_resolution`, `weapon_range_mod`) always added it.
         let tn = cand.map(|_| {
+            let rm = planner.plan_for(b, w, ctx.distance, ctx.sel_pre_tn).and_then(|(_, _, plan)| crate::fire_modes::range_mod(b, attacker, w, &plan, ctx.distance)).or_else(|| crate::weapon_selection::weapon_range_mod(b, attacker, w, ctx.distance)).unwrap_or(0);
             let adj = crate::fire_modes::TnAdjust::adjust(&ctx.adjust, b, w, bracket, None);
-            (ctx.sel_pre_tn + adj).clamp(crate::weapon_selection::PRE_TN_MIN, crate::weapon_selection::PRE_TN_MAX)
+            (ctx.sel_pre_tn + rm + adj).clamp(crate::weapon_selection::PRE_TN_MIN, crate::weapon_selection::PRE_TN_MAX)
         });
         // modes: the shot options (ammunition kind / guidance) and the rates of fire
         let mut modes: Vec<Value> = Vec::new();
@@ -1092,22 +1108,34 @@ impl Controller for Screen {
                 if !cands.contains(&u) {
                     return Some(json!({"error": "that unit is not waiting to move"}));
                 }
-                if b.units[u].prone {
-                    return Some(json!({"error": "this unit is prone: it stands up first, and then you choose its move"}));
+                // A PRONE unit's move is planned as if it stood at the first try (2 MP spent, Core p.51): the same view the stand-up question
+                // gives, with the number the stand needs, so the person plans the whole move now and confirms it once (Daniel, 2026-11-27: "plan
+                // out their movement as if they succeed on their PSRs"). The plan rides on the answer into the stand-up question (`stand_up`).
+                let prone = b.units[u].prone;
+                let stand_mp = if prone { Some((crate::orchestrator::prone_mp_left(&b.units[u]) - 2).max(0)) } else { None };
+                if prone && kind == "way" {
+                    return Some(json!({"error": "waypoints are not available for this move"}));
                 }
                 if !views.contains_key(&u) {
                     let edge = if b.units[u].hex.is_none() { b.units[u].home_edge.clone() } else { None };
-                    let v = with_move_context(b, u, |b| move_view(b, u, None, edge.as_deref()));
+                    let v = with_move_context(b, u, |b| move_view(b, u, stand_mp, edge.as_deref()));
                     views.insert(u, (v, edge));
                 }
                 let (v, edge) = &views[&u];
                 if kind == "reach" {
+                    if prone {
+                        let tn = b.with_piloting(u, |b| {
+                            let m = &b.units[u];
+                            b.piloting + crate::piloting_rolls::preexisting_modifier(m) + crate::piloting_rolls::special_case_modifier(m) + crate::piloting_rolls::STAND_UP_MODIFIER
+                        });
+                        return Some(json!({"view": v.req, "stand": {"tn": tn}}));
+                    }
                     return Some(json!({"view": v.req}));
                 }
                 if kind == "way" {
                     return Some(if edge.is_some() { json!({"error": "waypoints are not available for this move"}) } else { with_move_context(b, u, |b| way_query(b, u, q)) });
                 }
-                let r = with_move_context(b, u, |b| v.route(b, u, q, None, edge.as_deref()));
+                let r = with_move_context(b, u, |b| v.route(b, u, q, stand_mp, edge.as_deref()));
                 Some(r.unwrap_or_else(|| json!({"error": "no route"})))
             },
             |_, a| {
@@ -1148,9 +1176,19 @@ impl Controller for Screen {
         // the careful stand (TO:AR p.22): one attempt, the whole Movement Phase (counts as walked); -2 with more than 2 Walking MP
         let walk = ms::compute_walk_mp(&b.units[mover]);
         req["careful"] = json!({"available": walk > 0 && !again, "tn": tn + if walk > crate::piloting_rolls::CAREFUL_STAND_FREE_MP { crate::piloting_rolls::CAREFUL_STAND_MODIFIER } else { 0 }, "walk": walk});
-        let (stand, plan, facing, careful) = self.ask(
+        // a move planned while the unit was still being chosen (move_order's answer carries it) answers this question at once: stand and
+        // go. Nothing was rolled before this point. If the stand or the walk fails, the question is asked again from where it stands.
+        let preset = match self.plan.take() {
+            Some((u, p)) if u == mover && !again => Some(json!({"stand": true, "plan": p})),
+            other => {
+                self.plan = other;
+                None
+            }
+        };
+        let (stand, plan, facing, careful) = self.ask_with(
             b,
             req,
+            preset,
             |b, q| match q["q"].as_str() {
                 Some("reach") if q["unit"].as_u64().is_none_or(|u| u as usize == mover) => Some(json!({"view": view.req})),
                 Some("path") => Some(view.route(b, mover, q, Some((run - 2).max(0)), None).unwrap_or_else(|| json!({"error": "no route"}))),
@@ -1276,13 +1314,14 @@ impl Controller for Screen {
                         return Ok(Chosen::Stay);
                     }
                     // a route drawn through waypoints is walked exactly as drawn (drawn_route.rs)
-                    if let Some(ways) = a["waypoints"].as_array().filter(|w| !w.is_empty()) {
+                    if let Some(ways) = a["waypoints"].as_array().filter(|w| !w.is_empty() || a["back_reach"].as_bool() == Some(true)) {
                         if standup_mp.is_some() || entry_edge.is_some() {
                             return Err("waypoints are not available for this move".to_string());
                         }
                         let hexes: Vec<(i64, i64)> = ways.iter().map(|h| h.as_str().and_then(hex_geometry_parse)).collect::<Option<Vec<_>>>().ok_or("which waypoints?")?;
                         let facing = crate::hex_geometry::compass_to_facing(a["facing"].as_str().unwrap_or("")).map_err(|_| "which way does it face?".to_string())?;
-                        let d = crate::drawn_route::finish(b, mover, &hexes, facing, a["mode"].as_str().unwrap_or(""))?;
+                        let (backs, back_reach) = back_flags(a);
+                        let d = crate::drawn_route::finish_back(b, mover, &hexes, &backs, back_reach, facing, a["mode"].as_str().unwrap_or(""))?;
                         if a["hex"].as_str() != Some(d.pick.hex.as_str()) {
                             return Err("the move must end at the last waypoint".to_string());
                         }

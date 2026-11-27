@@ -42,6 +42,17 @@ the BattleTech community. This project would not exist without their work.
   2026-11-25: "licensed as allowed to be used for non commercial purposes, which is us"): non-commercial only, ShareAlike. The file keeps
   that notice in its header. Never relicense them; any download or copy carrying the file carries this credit. Own generic pictures for
   units without one are planned (Daniel, 2026-11-25) and will replace the plain fallback figure.
+- **MegaMek's asset licence, CONFIRMED against its own repository (2026-11-27; this closes the question, do not reopen it).** Read from
+  `github.com/MegaMek/megamek` (`LICENSE`, `LICENSE.assets`, `README.md`): game data, artwork and other non-code assets are
+  non-commercial only. `LICENSE` names CC BY-NC-SA 4.0 for "all game data and assets" and `LICENSE.assets` holds that full licence text; the
+  README and parts of `LICENSE` say CC BY-NC 4.0 (no ShareAlike), an inconsistency inside MegaMek's own files. We follow the stricter one,
+  BY-NC-SA 4.0. Non-commercial use is allowed: this project is free, has no ads, sales or subscriptions, and so qualifies. What we must do: keep
+  the credit and licence notice with every copy (done: `mechsprites.js` header, this file, `licenses/CC-BY-NC-SA-4.0.txt`), say when an image is
+  changed, never relicense the images (they stay BY-NC-SA inside our GPL project), and never sell or monetise the project. MegaMek's own
+  exception for monetised videos and streams of gameplay does not extend to "monetized websites, apps, or services built primarily on
+  MegaMek game data". The licence does not cover trademarks: BattleTech, MechWarrior and BattleMech belong to their owners (see the
+  BattleTech notice above); this project is an unofficial fan work. MegaMek has no per-file exceptions we could find for the unit images.
+  So: every stock unit may use its MegaMek sprite, under these terms.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot and its "caspar" bot a translation of MegaMek's CASPAR bot (Mutual Support movement
   and deployment; `engine/core/src/caspar.rs`), both from MegaMek's source, and both deploy by a translation of MegaMek's bot
