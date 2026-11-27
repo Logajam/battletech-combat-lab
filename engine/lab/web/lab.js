@@ -1460,10 +1460,11 @@ async function playGame() {
     window.open("play.html", "_blank");
     return;
   }
-  const r = await api("play_start", { setup: chosen });
-  if (r.error) { $("run-error").textContent = r.error; return; }
-  try { localStorage.setItem("bm_play_setup", JSON.stringify(chosen)); } catch (e) { /* only Get Results needs it */ }
-  window.open(`play.html?game=${r.game}&colours=${encodeURIComponent(JSON.stringify(r.colours || {}))}`, "_blank");
+  // the desktop Lab: no game is started here; like the browser build, the play page starts it from the setup left in localStorage (REC layer, Phase F)
+  const c = await api("play_check", { setup: chosen });
+  if (c && c.error) { $("run-error").textContent = c.error; return; }
+  try { localStorage.setItem("bm_play_setup", JSON.stringify(chosen)); } catch (e) { $("run-error").textContent = "This browser will not let the page hand the game over (storage is off)."; return; }
+  window.open("play.html", "_blank");
 }
 
 async function runBatch() {

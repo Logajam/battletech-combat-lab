@@ -1888,8 +1888,11 @@ async function boot() {
   let resume = new URLSearchParams(location.search).get("resume");
   // COMING BACK (a phone that was switched off, a tab the browser dropped): this page is opened again with nothing to start. If a game was
   // left unfinished it is resumed here, straight to the question, not through the Lab's front page.
-  if (!GAME && !resume && window.LAB_WASM) { try { if (!localStorage.getItem("bm_play_setup") && localStorage.getItem(SAVE_KEY)) resume = "1"; } catch (e) { /* storage off */ } }
-  if (!GAME && (window.LAB_WASM || resume)) {
+  if (!GAME && !resume) { try { if (!localStorage.getItem("bm_play_setup") && localStorage.getItem(SAVE_KEY)) resume = "1"; } catch (e) { /* storage off */ } }
+  // the desktop Lab starts a game the same way the browser build does (the Lab leaves the setup in localStorage, this page starts the battle): saves,
+  // REC, meddling and resuming are then the same page code in both builds; ?game=N (a game the desktop server started itself) still works
+  let hasSetup = false; try { hasSetup = !!localStorage.getItem("bm_play_setup"); } catch (e) { /* storage off */ }
+  if (!GAME && (window.LAB_WASM || resume || hasSetup)) {
     let setup = null, seed, orders = null, savedFile = null, sim = 1;
     if (resume) {
       // RESUME BATTLE: the saved game (this browser's, or a file the Lab opened), played back to where it stopped

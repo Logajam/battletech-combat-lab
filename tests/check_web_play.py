@@ -120,7 +120,7 @@ def desktop_game(port):
 
 NODE = r"""
 const { chromium } = require('playwright');
-const [,, base, setupFile] = process.argv;
+const [,, base, setupFile, labBase] = process.argv;
 const SETUP = JSON.parse(require('fs').readFileSync(setupFile, 'utf8'));
 const POLICY = (r) => {
   const k = r.kind;
@@ -604,6 +604,38 @@ const POLICY = (r) => {
   await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
   rp.bc = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, cand: SAVE.candidate, events: JSON.parse(localStorage.getItem("bm_try")).orders.events.length }));
   out.rp = rp;
+  // ---- 12: THE DESKTOP LAB (Phase F). The same page code against the desktop server (no wasm): the Lab leaves the setup, the play page starts the game, saves it,
+  // closing and opening the page resumes it, REC reads the record over the server's history query, and Meddle here opens a candidate and holds it.
+  await page.close();
+  page = await ctx.newPage();
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(labBase + "/index.html");
+  await page.evaluate((s) => { localStorage.setItem("bm_play_setup", JSON.stringify(s)); localStorage.removeItem("bm_save"); localStorage.removeItem("bm_try"); }, SOLO);
+  await page.goto(labBase + "/play.html");
+  await page.waitForFunction(() => typeof window.send === 'function' && window.__bm);
+  for (let i = 0; i < 24; i++) { const before = await seqNow(); await stepOnce(page); await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, before, { timeout: 120000 }); }
+  if (await page.evaluate(() => document.getElementById('report').style.display === 'block')) await page.locator('[data-act="report-close"]').first().click();
+  await page.waitForTimeout(700);
+  const dk = {};
+  dk.orig = await page.evaluate(() => ({ kind: __bm.req.kind, n: JSON.parse(localStorage.getItem("bm_save")).orders.events.length }));
+  // closing and opening the page: resumed by itself
+  await page.goto(labBase + "/play.html");
+  await page.waitForFunction(() => window.__bm && window.__bm.req, null, { timeout: 120000 }).catch(() => {});
+  dk.resumed = await page.evaluate(() => ({ kind: (__bm.req || {}).kind, n: JSON.parse(localStorage.getItem("bm_save")).orders.events.length }));
+  await page.evaluate(() => document.querySelector('[data-act="rec"]').click());
+  await page.waitForFunction(() => document.getElementById('tt-strip') && document.getElementById('tt-strip').classList.contains('on'), null, { timeout: 60000 }).catch(() => {});
+  dk.rec = await page.evaluate(() => ({ strip: document.getElementById('tt-strip').classList.contains('on'), steps: TT._st.steps.length }));
+  await page.evaluate(() => { const st = TT._st, i = st.steps.findIndex((s) => s.k === "move" && s.turn >= 2 && s.unit && (S.units.find((u) => u.name === s.unit) || {}).team === "Blue");
+    for (let k = 0; k < st.byTurn.length; k++) { const j = st.byTurn[k].indexOf(i); if (j >= 0) { const a = document.getElementById('tt-a'), b = document.getElementById('tt-b'); a.value = k; a.dispatchEvent(new Event('input', { bubbles: true })); b.value = j; b.dispatchEvent(new Event('input', { bubbles: true })); break; } } });
+  await page.evaluate(() => document.querySelector('#tt-pane [data-tt-do="meddle"]').click());
+  await page.waitForURL(/resume=try/, { timeout: 30000 }).catch(() => {});
+  await page.waitForFunction(() => window.__bm && window.__bm.req && typeof SAVE !== 'undefined' && SAVE.candidate, null, { timeout: 120000 }).catch(() => {});
+  dk.cand = await page.evaluate(() => ({ team: __bm.myTeam, cand: SAVE.candidate, label: (document.querySelector('.commit .lab') || {}).textContent }));
+  const dseq = await seqNow(); await stepOnce(page);
+  await page.waitForFunction((b) => (window.__bm.req && window.__bm.seq !== b) || window.__bm.over, dseq, { timeout: 120000 });
+  await page.waitForTimeout(700);
+  dk.kept = await page.evaluate(() => { const f = JSON.parse(localStorage.getItem("bm_save")); return { cand: SAVE.candidate, parent: !!f.parent, branch: f.orders.events.filter((e) => e.branch).length }; });
+  out.dk = dk;
   out.solo = solo;
   console.log("RESULT " + JSON.stringify(out));
   await b.close();
@@ -637,7 +669,7 @@ def main():
             sf = os.path.join(tmp, "setup.json"); json.dump(SETUP, open(sf, "w"))
             nf = os.path.join(tmp, "probe.js"); open(nf, "w").write(NODE)
             t0 = time.time()
-            p = subprocess.run(["node", nf, f"http://127.0.0.1:{web_port}", sf], capture_output=True, text=True, env={**os.environ, "NODE_PATH": node_path}, timeout=1800)
+            p = subprocess.run(["node", nf, f"http://127.0.0.1:{web_port}", sf, f"http://127.0.0.1:{lab_port}"], capture_output=True, text=True, env={**os.environ, "NODE_PATH": node_path}, timeout=1800)
             took = time.time() - t0
         line = next((l for l in p.stdout.splitlines() if l.startswith("RESULT ")), None)
         if not line:
@@ -739,6 +771,9 @@ def main():
         report(rb.get("tab") and "play.html?replay=1" in (rb.get("src") or "") and rb.get("steps", 0) > 30 and rb.get("hasOrders") and rb.get("setup"), f"Watch replay opens the Lab's Replay tab with the REC page inside it, showing the human game with its orders ({rb})")
         rbc = rpx.get("bc") or {}
         report(rbc.get("cand") and rbc.get("kind") and rbc.get("events", 0) > 5, f"Play from here in a human game's replay resumes its earlier answers and asks the next question ({rbc})")
+        dkx = out.get("dk") or {}
+        report((dkx.get("resumed") or {}).get("kind") == (dkx.get("orig") or {}).get("kind") and dkx["resumed"].get("n") == dkx["orig"].get("n") and (dkx.get("rec") or {}).get("strip") and dkx["rec"].get("steps", 0) > 20, f"the desktop Lab: the play page saves, closing and opening it resumes the game, REC reads the record from the server ({dkx.get('orig')}, {dkx.get('resumed')}, {dkx.get('rec')})")
+        report((dkx.get("cand") or {}).get("cand") and dkx["cand"].get("team") == "Blue" and dkx["cand"].get("label") == "Meddle" and (dkx.get("kept") or {}).get("parent") and dkx["kept"].get("branch") == 1 and not dkx["kept"].get("cand"), f"the desktop Lab: Meddle here opens a candidate (the bot team's question, Meddle label) and holding the answer keeps it ({dkx.get('cand')}, {dkx.get('kept')})")
         aw = out["page"].get("aware") or {}
         report(aw.get("title") and aw.get("moved") and aw.get("atk") and aw.get("jump"), f"the turn line counts the units still to move, moved units carry a check, attack lines are drawn and a jumper's MP display offers Jump ({aw})")
         ph = out["page"].get("phys")

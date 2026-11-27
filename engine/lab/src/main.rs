@@ -270,6 +270,24 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize, req["setup"]["full_power"].as_bool().unwrap_or(false)))
         }
         "play_start" => play_start(lab, req),
+        // the Lab's Play button asks whether the setup can be played before it opens the play page (which starts the game itself, as in the browser build)
+        "play_check" => {
+            let mut setup = req["setup"].clone();
+            let mut humans = 0;
+            if let Some(teams) = setup["teams"].as_array_mut() {
+                for t in teams {
+                    if t["bot"].as_str() == Some("human") {
+                        humans += 1;
+                        t["bot"] = json!("gladiator");
+                    }
+                }
+            }
+            if humans == 0 {
+                return Err("No team is set to Human. Set one team's bot to Human, then press Play.".into());
+            }
+            runs::scenario_of(&setup, &lab.catalog, &lab.paths)?;
+            Ok(json!({"ok": true}))
+        }
         "play_poll" => {
             let g = game_of(lab, req)?;
             Ok(g.poll(std::time::Duration::from_millis(req["wait_ms"].as_u64().unwrap_or(25000).min(60000))))
