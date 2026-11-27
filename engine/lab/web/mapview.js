@@ -155,7 +155,7 @@
       if (mode === mv.mode) return mv.mode;
       if (mode === "3d") {
         try {
-          if (!loading) loading = (async () => { if (!window.THREE) await loadScript("three.min.js"); if (!window.Tabletop) await loadScript("tabletop.js"); if (!window.MECH_SPRITES) await loadScript("mechsprites.js").catch(() => {}); })();
+          if (!loading) loading = (async () => { if (!window.THREE) await loadScript("three.min.js"); if (!window.Tabletop) await loadScript("tabletop.js"); if (!window.MECH_SPRITES) await loadScript("mechsprites.js").catch(() => {}); if (!window.MECH_SPRITE_MAP) await loadScript("spritemap.js").catch(() => {}); })();
           await loading;
           const host = document.createElement("div"); host.id = "tabletop"; host.style.cssText = "position:absolute;inset:0;overflow:hidden";
           svg.parentElement.insertBefore(host, svg); tt = window.Tabletop.create(host, { settings }); tt.setInsets(mv.ins);

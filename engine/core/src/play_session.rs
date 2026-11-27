@@ -520,6 +520,8 @@ fn units_json(b: &Battle, with_names: bool) -> Value {
                 s["sinks"] = json!(ms::active_heat_sinks(m));
                 // the heat its movement made this turn (running, jumping): the fire phase starts its heat count from it (Daniel, 2026-11-27)
                 s["move_heat"] = json!(m.movement_heat);
+                // its target movement modifier as it stands now (the placard shows it for a unit that has moved, Movement Phase only)
+                s["tmm"] = json!(crate::attack_resolution::target_tmm(m));
                 s["move_mode"] = json!(m.move_mode);
                 // has it moved this turn (the map's moved mark and the title bar's count of units still to move)
                 s["moved"] = json!(m.moved_this_turn);

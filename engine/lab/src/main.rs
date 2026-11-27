@@ -40,10 +40,11 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 13] = [
+const PAGES: [(&str, &str, &str); 14] = [
     ("three.min.js", "text/javascript; charset=utf-8", include_str!("../web/three.min.js")),
     ("tabletop.js", "text/javascript; charset=utf-8", include_str!("../web/tabletop.js")),
     ("mechsprites.js", "text/javascript; charset=utf-8", include_str!("../web/mechsprites.js")),
+    ("spritemap.js", "text/javascript; charset=utf-8", include_str!("../web/spritemap.js")),
     ("boardart.js", "text/javascript; charset=utf-8", include_str!("../web/boardart.js")),
     ("mapview.js", "text/javascript; charset=utf-8", include_str!("../web/mapview.js")),
     ("play.html", "text/html; charset=utf-8", include_str!("../web/play.html")),
@@ -206,8 +207,40 @@ fn serve(stream: TcpStream, lab: &Lab) -> std::io::Result<()> {
     out.flush()
 }
 
+/// A URL path piece with its %XX escapes undone (the page asks for `sprites/` + encodeURIComponent(name)).
+fn pct_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out: Vec<u8> = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() + 0 && i + 2 <= b.len() - 1 {
+            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
 fn page(lab: &Lab, name: &str) -> Option<(&'static str, Vec<u8>)> {
     let name = if name.is_empty() { "index.html" } else { name };
+    // MegaMek's unit pictures (tools/make_mechsprites_all.py): too many to build in, read from the folder they live in (CREDITS.txt goes with them)
+    if let Some(file) = name.strip_prefix("sprites/") {
+        let file = pct_decode(file);
+        if file.contains("..") || file.contains('/') || file.contains('\\') {
+            return None;
+        }
+        let dir = match &lab.web {
+            Some(d) => d.join("sprites"),
+            None => lab.paths.root.join("engine").join("lab").join("web").join("sprites"),
+        };
+        let kind = if file.ends_with(".png") { "image/png" } else { "text/plain; charset=utf-8" };
+        return std::fs::read(dir.join(&file)).ok().map(|b| (kind, b));
+    }
     let (_, kind, built_in) = PAGES.iter().find(|(n, _, _)| *n == name)?;
     match &lab.web {
         Some(dir) => std::fs::read(dir.join(name)).ok().map(|b| (*kind, b)),

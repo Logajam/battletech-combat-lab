@@ -334,13 +334,17 @@ function drawUnits(layer) {
     const far = Math.abs(spot[0]) > 0.5 || Math.abs(spot[1]) > 0.8;
     // PLACARDS STEP BACK when they are not the centre of attention (Daniel, 2026-11-26; Section 14, L1): the active unit, the target and the last
     // clicked at full strength, the rest at half; all faint while the weapons (or physical attacks) are up
-    const foc = placardFocus(), boxesUp = attackBoxes().length > 0 && UI.wl === "ring", pop = boxesUp ? (foc.has(u.id) ? 0.5 : 0.2) : foc.has(u.id) ? 1 : 0.5;
+    const foc = placardFocus(), boxesUp = attackBoxes().length > 0 && UI.wl === "ring", pop = boxesUp ? (foc.has(u.id) ? 0.5 : 0.2) : inMovement() ? (u.moved && !u.destroyed ? 0.4 : 1) : foc.has(u.id) ? 1 : 0.5;   // Movement: who has still to move stands out (solid), who has moved steps back (Daniel, 2026-11-27)
     const gp = el("g", { opacity: pop }, g);
     if (far) el("line", { x1: x, y1: y, x2: px + W / 2, y2: py + (spot[1] < 0 ? H : 0), stroke: col, "stroke-width": 1.4 * k, "pointer-events": "none" }, gp);
     const cardH = small ? 17 * k : H;
     el("rect", { x: px, y: py, width: W, height: cardH, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, gp);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, gp); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
     if (S.fire && S.req && S.req.kind === "target" && S.req.enemies.some((e) => e.id === u.id)) drawTnPill(layer, u, px + W + 3 * k, py, k);
+    // a unit that has moved shows its TMM where an enemy's to-hit number goes, until the fire phase begins (Daniel, 2026-11-27)
+    if (movedMark(u) && u.tmm != null) { const bw = 36 * k, bh = 15 * k, tg = el("g", { "pointer-events": "none" }, layer);
+      el("rect", { x: px + W + 3 * k, y: py, width: bw, height: bh, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: "#8fb2d4", "stroke-width": 1.2 * k }, tg);
+      const tx = el("text", { x: px + W + 3 * k + bw / 2, y: py + 11 * k, "text-anchor": "middle", "font-size": 9.5 * k, "font-weight": 700, fill: "#cfe3f6" }, tg); tx.textContent = "TMM " + (u.tmm > 0 ? "+" : "") + u.tmm; }
     // LEFT / RIGHT BARS (Section 24 item 24; the mockup's lrBar): armour and structure split at the centre, the unit's left side on the left
     // half and its right on the right, each wearing in from its outer edge, so the damaged side shows; heat stays one bar
     const sa = { l: sideFrac(u, "a", "Left"), r: sideFrac(u, "a", "Right") }, ss = { l: sideFrac(u, "s", "Left"), r: sideFrac(u, "s", "Right") };
@@ -412,11 +416,11 @@ function lastText() {
 function terrainText(h) { const f = h.f || {}; return Object.entries(f).filter(([k]) => !/^bldg_|^road_|elev/.test(k)).map(([k, v]) => `${k.replace(/_/g, " ")}${v && v !== true && v !== 0 ? " " + v : ""}`).join(", ") + (h.b ? (Object.keys(f).length ? ", " : "") + "building" : "") || "clear"; }
 function echip(u) {
   const sel = UI.last && UI.last.kind === "unit" && UI.last.id === u.id, tg = (S.fire && S.fire.tcur === u.id) || (S.req && S.req.kind === "physical" && physTarget() === u.id);
-  return `<div class="echip${sel ? " sel" : ""}${tg ? " tgt" : ""}${u.destroyed ? " dead" : ""}" data-act="chip" data-u="${u.id}" title="${esc(u.name + " " + (u.mech || ""))}">${esc(short(u))}${u.shutdown ? " &#9211;" : ""}<b>${Math.round(fracOf(u) * 100)}%</b></div>`;
+  return `<div class="echip${sel ? " sel" : ""}${tg ? " tgt" : ""}${u.destroyed ? " dead" : ""}" data-act="chip" data-u="${u.id}" title="${esc(u.name + " " + (u.mech || ""))}" style="color:${teamColour(u)}">${esc(short(u))}${u.shutdown ? " &#9211;" : ""}<b>${Math.round(fracOf(u) * 100)}%</b></div>`;
 }
 const doneNow = (u) => (phaseKey() === "move" ? movedMark(u) : UI.done.has(u.id));
 function fchip(u) {
-  return `<div class="fchip${u.id === (activeUnit() || {}).id ? " sel" : ""}${doneNow(u) ? " done" : ""}${u.destroyed ? " dead" : ""}" data-act="chip" data-u="${u.id}"><b>${doneNow(u) ? "&#10003; " : ""}${esc(u.name)}</b><span class="msg">${esc(short(u))}${u.prone ? " &middot; prone" : ""}${u.shutdown ? " &middot; off" : ""}</span><span class="bar"><i style="width:${Math.round(fracOf(u) * 100)}%"></i></span></div>`;
+  return `<div class="fchip${u.id === (activeUnit() || {}).id ? " sel" : ""}${doneNow(u) ? " done" : ""}${u.destroyed ? " dead" : ""}" data-act="chip" data-u="${u.id}"><b style="color:${teamColour(u)}">${doneNow(u) ? "&#10003; " : ""}${esc(u.mech || u.name)}</b><span class="msg">${esc(u.name)}${u.prone ? " &middot; prone" : ""}${u.shutdown ? " &middot; off" : ""}</span><span class="bar"><i style="width:${Math.round(fracOf(u) * 100)}%"></i></span></div>`;
 }
 // heat (Daniel, 2026-11-26): "current heat count (total heat dissipation): end of heat phase total"
 const heatLine = (cur, diss, end) => `${cur} (${diss}): ${end}`;
@@ -1932,7 +1936,25 @@ function fmtLine(l) {
 // without the pool or the slot lists (B19); each phase gets a heading and the report opens at the start of the latest one (B20).
 const PHASE_NAME = { move: "Movement", tag: "TAG", ranged: "Weapon attacks", phys: "Physical attacks", heat: "Heat and End Phase" };
 const RESOLVE_END = /^\s*\[(Ranged|Heat|Physical|Movement|End|TAG|Spot|Resolve)\]|^\s*-- end of turn|=== TURN|^PSR trigger|^Attack Phase PSR|^\s*Initiative/;
-function reportHtml(lines) {
+// UNITS BY THEIR NAMES, IN THEIR TEAM'S COLOUR (Daniel, 2026-11-27: "Logs should refer to units by their name, not Red 1. Names should be colour coded by
+// the colours picked during game set up, including on the force list bars"). The engine's log says "Red 1"; the page shows the 'Mech's name, in the
+// colour chosen for its team. Two units of the same name keep a tell-apart in brackets.
+let NAMES = null, NAMES_KEY = "";
+function nameTable() {
+  const key = S.units.map((u) => u.name + "|" + u.mech + "|" + u.team).join(";") + JSON.stringify(COLOURS) + O.cvd;
+  if (NAMES && key === NAMES_KEY) return NAMES;
+  const count = {}; for (const u of S.units) count[u.mech || u.name] = (count[u.mech || u.name] || 0) + 1;
+  const map = new Map(); for (const u of S.units) { if (!u.name) continue; const m = u.mech || u.name; map.set(u.name, { text: count[m] > 1 ? `${m} (${u.name})` : m, col: teamColour(u) }); }
+  const names = [...map.keys()].sort((a, b) => b.length - a.length).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  NAMES_KEY = key; return (NAMES = { map, re: names.length ? new RegExp("\\b(" + names.join("|") + ")\\b", "g") : null });
+}
+// html in, html out: only the text between tags is touched
+function nameHtml(html) {
+  const T = nameTable(); if (!T.re) return html;
+  return String(html).replace(/(<[^>]*>)|([^<]+)/g, (m, tag, text) => (tag ? tag : text.replace(T.re, (n) => { const e = T.map.get(n); return e ? `<span class="un" style="color:${e.col}">${esc(e.text)}</span>` : n; })));
+}
+function reportHtml(lines) { return nameHtml(reportHtmlRaw(lines)); }
+function reportHtmlRaw(lines) {
   // 1. take each resolution block out, queued by (attacker, target, weapon)
   const blocks = new Map(), keep = [];
   for (let i = 0; i < lines.length; i++) {

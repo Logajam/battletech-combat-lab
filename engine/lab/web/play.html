@@ -52,7 +52,7 @@ button.sm{min-height:26px;padding:0 7px;font-size:12px}
 .echip{flex:none;min-width:58px;text-align:center;border:1px solid var(--bd);border-top:4px solid var(--err);background:var(--field);cursor:pointer;padding:2px 6px;font-size:12px;line-height:1.2}
 .echip b{display:block;font-size:13px}.echip.sel{outline:2px solid var(--link)}.echip.tgt{outline:2px solid #ff5a4a}
 .fchip{flex:none;display:flex;flex-direction:column;justify-content:center;padding:2px 7px;border:1px solid var(--bd);border-top:4px solid var(--link);background:var(--field);font-size:12px;line-height:1.2;cursor:pointer;min-width:64px}
-.fchip b{font-size:12px}.fchip .bar{width:44px;height:4px;background:var(--sh);margin-top:2px}.fchip .bar i{display:block;height:100%;background:var(--ok)}
+.un{font-weight:700}.fchip b{font-size:12px}.fchip .bar{width:44px;height:4px;background:var(--sh);margin-top:2px}.fchip .bar i{display:block;height:100%;background:var(--ok)}
 .fchip.sel{outline:2px solid var(--link)}.fchip.done{opacity:.62}
 /* 4 and 9.5. the two lines: last clicked (with Inspect) and the active unit (with Report) */
 .line{display:flex;align-items:center;gap:6px;padding:4px 6px;font-size:12px;min-height:36px;flex:none;border-top:1px solid var(--sh);border-bottom:1px solid var(--sh);background:color-mix(in srgb,var(--face) 70%,transparent)}
@@ -210,8 +210,9 @@ button.sm{min-height:26px;padding:0 7px;font-size:12px}
 .wing.L .grip button{border-radius:6px 0 0 6px}.wing.R .grip button{border-radius:0 6px 6px 0}
 #app .wing .grip button::before,.wing.L .grip .cl::before,.wing.R .grip .mo::before,.wing.L .grip .mo::before,.wing.R .grip .cl::before{clip-path:none;left:4px;right:4px;top:18px;bottom:8px;background:repeating-linear-gradient(90deg,var(--tx) 0 1px,transparent 1px 3px);opacity:.7}
 #app .wing .grip button::after{content:"";position:absolute;left:50%;top:5px;width:0;height:0;border:5px solid transparent}
-.wing.L .grip .cl::after,.wing.R .grip .mo::after{border-right-color:var(--tx);transform:translateX(-75%)}
-.wing.L .grip .mo::after,.wing.R .grip .cl::after{border-left-color:var(--tx);transform:translateX(-25%)}
+/* the arrows inside the wing's slide buttons: `#app` too, or the transparent border of the rule above wins and no arrow shows (Daniel, 2026-11-27) */
+#app .wing.L .grip .cl::after,#app .wing.R .grip .mo::after{border-right-color:var(--tx);transform:translateX(-75%)}
+#app .wing.L .grip .mo::after,#app .wing.R .grip .cl::after{border-left-color:var(--tx);transform:translateX(-25%)}
 .tbar.c3 > button{white-space:nowrap}#app.wide .tbar.c3 > b{font-size:12px}
 @media (prefers-reduced-motion: reduce){.wing,.insp{transition:none}}
 

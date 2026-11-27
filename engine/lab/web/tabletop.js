@@ -230,14 +230,17 @@
     return ghost; };
 
     // ---- units: bases and pictures (they change often, so they are a group of their own, apart from the board)
-    const spriteFor = (mech) => { const S = window.MECH_SPRITES || {}, m = String(mech || "").toLowerCase().replace(/[^a-z0-9 ]/g, ""), norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-      let best = null; for (const k of Object.keys(S)) { const n = norm(k); if (n && norm(m).startsWith(n) && (!best || n.length > norm(best).length)) best = k; } return best; };
+    // a unit's picture: the exact model in MegaMek's list (sprites/, spritemap.js), else its chassis, else one of the packed few, else none
+    const spriteFor = (mech) => { const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""), n = norm(mech), M = window.MECH_SPRITE_MAP;
+      if (M) { if (M.exact[n]) return "f:" + M.exact[n]; let best = null; for (const k of Object.keys(M.chassis)) if (n.startsWith(k) && (!best || k.length > best.length)) best = k; if (best) return "f:" + M.chassis[best]; }
+      const S = window.MECH_SPRITES || {}; let best = null; for (const k of Object.keys(S)) { const q = norm(k); if (q && n.startsWith(q) && (!best || q.length > norm(best).length)) best = k; } return best; };
     const texOf = (key) => { if (spriteTex[key]) return spriteTex[key]; const img = new Image(), tx = new THREE.Texture(img); tx.anisotropy = 4; img.onload = () => { tx.needsUpdate = true; V.request(); };
-      img.src = key === "_generic" ? genericSprite() : window.MECH_SPRITES[key]; spriteTex[key] = tx; return tx; };
+      img.src = key === "_generic" ? genericSprite() : key.startsWith("f:") ? "sprites/" + encodeURIComponent(key.slice(2)) : window.MECH_SPRITES[key]; spriteTex[key] = tx; return tx; };
     // a plain top-down 'Mech for a unit with no picture: head, torso, arms and legs
     const genericSprite = () => { const c = document.createElement("canvas"); c.width = 84; c.height = 72; const x = c.getContext("2d"); x.fillStyle = "#e8ebef"; x.strokeStyle = "#0c0f13"; x.lineWidth = 2;
       for (const r of [[34, 8, 16, 10], [26, 26, 8, 26], [50, 26, 8, 26], [34, 24, 16, 30], [34, 54, 6, 14], [44, 54, 6, 14]]) { x.fillRect(...r); x.strokeRect(...r); } return c.toDataURL(); };
     V.buildUnits = () => {
+      V.baseH = 2 * R * 0.17 * ST.relief / 100;   // a 'Mech stands two levels tall (Daniel, 2026-11-27: "Mech bases ... need to be 2 levels tall"): the base is as tall as two levels of terrain
       if (V.units) { V.scene.remove(V.units); V.disposeGroup(V.units); V.units = null; }
       if (!V.M || !V.unitList || !V.unitList.length) return;
       const g = (V.units = new THREE.Group()); V.scene.add(g);
@@ -253,11 +256,16 @@
     // chevron on the side the unit faces, and a white notch on the top edge pointing out
     let frontTex = null;
     const frontFace = (group, h, u, r, bh) => {
-      if (!frontTex) { const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d"); x.fillStyle = "#f4f6f8"; x.fillRect(0, 0, 64, 32);
+      if (!frontTex) { const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d"); x.fillStyle = "#f4f6f8"; x.fillRect(0, 0, 64, 32); x.fillStyle = "#ffb000"; for (let i = -32; i < 80; i += 16) { x.beginPath(); x.moveTo(i, 32); x.lineTo(i + 8, 32); x.lineTo(i + 40, 0); x.lineTo(i + 32, 0); x.closePath(); x.fill(); }   // hazard stripes: the front side of the base
         x.fillStyle = "#0c0f13"; x.beginPath(); x.moveTo(32, 5); x.lineTo(47, 27); x.lineTo(39, 27); x.lineTo(32, 17); x.lineTo(25, 27); x.lineTo(17, 27); x.closePath(); x.fill(); frontTex = new THREE.CanvasTexture(c); spriteTex._front = frontTex; }
       const an = (FACE[u.facing] || 0) * D2R, d = [Math.sin(an), -Math.cos(an)], a = r * Math.cos(Math.PI / 6) + 0.5;
       const pl = new THREE.Mesh(new THREE.PlaneGeometry(r * 0.96, bh * 0.92), new THREE.MeshBasicMaterial({ map: frontTex, side: THREE.DoubleSide }));
       pl.position.set(h.x + d[0] * a, h.top + bh / 2, h.z + d[1] * a); pl.rotation.y = Math.atan2(d[0], d[1]); pl.renderOrder = 4; group.add(pl);
+      // the active unit also gets a flat arrow lying on the tile, sticking out of the base the way it faces (Daniel, 2026-11-27: "a small 'front is this way'
+      // arrow sticking out of their base on the ground when they're active")
+      if (u.sel) { const m = [-d[1], d[0]], yy = h.top + 0.8, p0 = [h.x + d[0] * r * 1.04, h.z + d[1] * r * 1.04], p1 = [h.x + d[0] * r * 1.5, h.z + d[1] * r * 1.5], wd = r * 0.22;
+        const ar = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: 0xffd400, side: THREE.DoubleSide, depthWrite: false }));
+        ar.geometry.setAttribute("position", new THREE.Float32BufferAttribute([p1[0], yy, p1[1], p0[0] + m[0] * wd, yy, p0[1] + m[1] * wd, p0[0] - m[0] * wd, yy, p0[1] - m[1] * wd], 3)); ar.renderOrder = 6; group.add(ar); }
       const n = [-d[1], d[0]], y = h.top + bh + 0.7, tip = [h.x + d[0] * r * 0.98, h.z + d[1] * r * 0.98], b0 = [h.x + d[0] * r * 0.62, h.z + d[1] * r * 0.62], w = r * 0.2;
       const tri = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
       tri.geometry.setAttribute("position", new THREE.Float32BufferAttribute([tip[0], y, tip[1], b0[0] + n[0] * w, y, b0[1] + n[1] * w, b0[0] - n[0] * w, y, b0[1] - n[1] * w], 3)); tri.renderOrder = 6; group.add(tri);
@@ -276,7 +284,7 @@
       // the board: build it and look at all of it
       setBoard(board) { V.M = normalise(board); V.size(); V.buildStatic(); V.buildUnits(); tt.fit(); },
       // set a setting (relief, glass, bevel, trees, skin, props, fx, cut) and rebuild what depends on it
-      set(patch) { Object.assign(ST, patch); if (V.M) { V.size(); V.buildStatic(); V.request(); } },
+      set(patch) { Object.assign(ST, patch); V.baseH = 2 * R * 0.17 * ST.relief / 100; if (V.M) { V.size(); V.buildStatic(); V.request(); } },
       // hexes (labels) with a unit on them: a woods hex then gets a ring of small trees round the base (step 3 fills this)
       setOccupied(labels) { V.occupied = new Set(labels); if (V.M) { V.buildStatic(); V.request(); } },
       // points the cut-away keeps visible: tiles in front of them fade to glass (step 3 fills this)

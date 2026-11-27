@@ -33,7 +33,7 @@ def main(argv):
     if not os.path.exists(os.path.join(WEB, "combatlab.wasm")):
         raise SystemExit("no build: run tools/build_web_lab.py")
     # the checks: text files carry no email address; nothing but the expected files
-    expected = {"index.html", "play.html", "play.js", "tt_layer.js", "boardart.js", "mapview.js", "tabletop.js", "mechsprites.js", "three.min.js", "playworker.js", "coi.js", "coi-sw.js", "lab.css", "lab.js", "engine.js", "wasmio.js", "worker.js", "combatlab.wasm", "catalog.json", "data.pack.gz",
+    expected = {"index.html", "play.html", "play.js", "tt_layer.js", "boardart.js", "mapview.js", "tabletop.js", "mechsprites.js", "spritemap.js", "sprites", "three.min.js", "playworker.js", "coi.js", "coi-sw.js", "lab.css", "lab.js", "engine.js", "wasmio.js", "worker.js", "combatlab.wasm", "catalog.json", "data.pack.gz",
                 "data.pack.b64.txt", "defaults.json", "options.json", "availability.json"}
     names = set(os.listdir(WEB))
     if names - expected:
@@ -54,7 +54,7 @@ def main(argv):
     run(["git", "add", "-A"], work)
     stamp = run(["git", "rev-parse", "--short", "HEAD"], REPO_ROOT).stdout.strip()
     run(["git"] + AUTHOR + ["commit", "-q", "-m", f"Combat Lab web build (alpha), from main {stamp}"], work)
-    size = sum(os.path.getsize(os.path.join(work, n)) for n in os.listdir(work)) / 1e6
+    size = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(work) if ".git" not in dp for f in fs) / 1e6
     print(f"site ready in {work}: {len(os.listdir(work))} files, {size:.1f} MB")
     if "--push" in argv:
         run(["git", "remote", "add", "public", PUBLIC_URL], work)

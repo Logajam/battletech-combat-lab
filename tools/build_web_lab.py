@@ -155,8 +155,10 @@ def main():
                "info": {"bots": info["bots"], "default_board": info["default_board"], "skill_table": info["skill_table"]}}
     json.dump(catalog, open(os.path.join(out, "catalog.json"), "w"), separators=(",", ":"))
     shutil.copy(os.path.join(engine, "defaults", "config.json"), os.path.join(out, "defaults.json"))
-    for n in ("index.html", "play.html", "play.js", "tt_layer.js", "boardart.js", "mapview.js", "tabletop.js", "mechsprites.js", "three.min.js", "lab.css", "lab.js", "options.json", "availability.json"):
+    for n in ("index.html", "play.html", "play.js", "tt_layer.js", "boardart.js", "mapview.js", "tabletop.js", "mechsprites.js", "spritemap.js", "three.min.js", "lab.css", "lab.js", "options.json", "availability.json"):
         shutil.copy(os.path.join(engine, "lab", "web", n), os.path.join(out, n))
+    # MegaMek's own picture of every stock 'Mech (tools/make_mechsprites_all.py), loaded one at a time by the 3D view; unchanged, with their credit file
+    shutil.rmtree(os.path.join(out, "sprites"), ignore_errors=True); shutil.copytree(os.path.join(engine, "lab", "web", "sprites"), os.path.join(out, "sprites"))
     for n in ("wasmio.js", "engine.js", "worker.js", "playworker.js", "coi.js", "coi-sw.js"):
         shutil.copy(os.path.join(engine, "wasm", "web", n), os.path.join(out, n))
     shutil.copy(wasm, os.path.join(out, "combatlab.wasm"))

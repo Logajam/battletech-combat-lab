@@ -1,0 +1,1085 @@
+MegaMek top-down unit images, unchanged. (C) The MegaMek Team and the unit image artists, licensed under Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0): https://creativecommons.org/licenses/by-nc-sa/4.0/
+Source: https://github.com/MegaMek/mm-data (data/images/units/meks, named by mekset.txt). Non-commercial use only; do not relicense.
+BattleTech, MechWarrior and BattleMech are trademarks of their owners; this is an unofficial fan work.
+
+Artists named in MegaMek's mekset.txt:
+  vestifex
+  grfx_slade
+  RAw
+  Ben Mazur
+  Dima Nemchenko (nemchenk)
+  Exo
+  Cyric27
+  Charlie Brown
+  rakkasan@users.sourceforge.net
+  Sung Mehta
+  Captain Torc
+  Blazindizzy
+  BH-21
+  starcaptaintorc
+  LeTigre
+  brandfuchs
+  ploopy
+  ploppy (is he the same as "ploopy"? :)
+  vertigo
+  majortom88
+  Niels Naumann
+  Jan Rzadkowski
+  Warhammer6R
+  Cyric anvil3a@hotmail.com
+  Carpe Mortis (Alan Bell)
+  victor23
+  hopalong
+  Shatara
+  sulla
+  Megasaurer
+  archonlomendil@hotmail.com
+  Mattiator
+  Deadborder
+  SteveRestless
+  The format goes as follows:
+  {chassis/exact} [model] [image filename]
+  Use exact to specify the unit exactly, for example:
+  exact "Marauder MAD-3R" "marauder.png"
+  exact "Timber Wolf Prime" "timberwolf.png"
+  You may also just specify a graphic for a chassis, for example:
+  chassis "Marauder" "marauder.png"
+  Images should be greyscale, 84x72 pixel GIF files with the chassis centered.
+  The tinting process is subtractive, so make images light.
+  As of v0.29.61, mekset files can include other mekset files.
+  defaults
+  aerospace
+  exact "Samurai SL-25" "fighter/Samurai SL-25.png"
+  Conventional Fighter
+  BattleArmor
+  AiletteRescueBA
+  Asura
+  Black Wolf
+  Buraq
+  Callisto
+  Cavalier
+  Clan Medium Armor
+  Constable
+  Corona
+  Cuchulainn
+  Djinn
+  Dragoon
+  Elemental
+  chassis "Elemental Battle Armor" "battle armor/Elemental_5.png"
+  exact "Elemental Battle Armor [AP Gauss](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [ER Laser](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [Flamer](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [HMG](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [Laser](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [MG](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [MicroPL](Sqd3)" "battle armor/Elemental_3.png"
+  exact "Elemental Battle Armor [AP Gauss](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [ER Laser](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [Flamer](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [HMG](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [Laser](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [MG](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [MicroPL](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor [AP Gauss](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [ER Laser](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [Flamer](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [HMG](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [Laser](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [MG](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor [MicroPL](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor (Fire) [AP Gauss](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor (Fire) [Flamer](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor (Fire) [MicroPL](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental Battle Armor (Fire) [MicroPL](Sqd5)" "battle armor/Elemental_5.png"
+  exact "Elemental Battle Armor (Fire) [Flamer](Sqd5)" "battle armor/Elemental_5.png"
+  exact "Elemental Battle Armor (Fire) [AP Gauss](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor (Fire) [Flamer](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor (Fire) [MicroPL](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental Battle Armor (Headhunter)(Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental Battle Armor (Headhunter)(Sqd5)" "battle armor/Elemental_II_5.png"
+  exact "Elemental Battle Armor (Headhunter)(Sqd6)" "battle armor/Elemental_II_6.png"
+  exact "Elemental Battle Armor (Space) [Flamer](Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental Battle Armor (Space) [MG](Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental Battle Armor (Space) [MicroPL](Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental Battle Armor (Space) [Flamer](Sqd5)" "battle armor/Elemental_II_5.png"
+  exact "Elemental Battle Armor (Space) [MG](Sqd5)" "battle armor/Elemental_II_5.png"
+  exact "Elemental Battle Armor (Space) [MicroPL](Sqd5)" "battle armor/Elemental_II_5.png"
+  exact "Elemental Battle Armor (Space) [Flamer](Sqd6)" "battle armor/Elemental_II_6.png"
+  exact "Elemental Battle Armor (Space) [MG](Sqd6)" "battle armor/Elemental_II_6.png"
+  exact "Elemental Battle Armor (Space) [MicroPL](Sqd6)" "battle armor/Elemental_II_6.png"
+  Elemental II
+  chassis "Elemental II Battle Armor" "battle armor/Elemental_II_5.png"
+  exact "Elemental II Battle Armor (Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental II Battle Armor (Sqd6)" "battle armor/Elemental_II_6.png"
+  exact "Elemental II Battle Armor X(Sqd4)" "battle armor/Elemental_II_4.png"
+  exact "Elemental II Battle Armor X(Sqd6)" "battle armor/Elemental_II_6.png"
+  Elemental III
+  chassis "Elemental III Battle Armor" "battle armor/Elemental_5.png"
+  exact "Elemental III Battle Armor [AP Gauss](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental III Battle Armor [Flamer](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental III Battle Armor [MicroPL](Sqd4)" "battle armor/Elemental_4.png"
+  exact "Elemental III Battle Armor [AP Gauss](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental III Battle Armor [Flamer](Sqd6)" "battle armor/Elemental_6.png"
+  exact "Elemental III Battle Armor [MicroPL](Sqd6)" "battle armor/Elemental_6.png"
+  FA_SHIH
+  Fenrir
+  Gnome
+  Golem
+  Gorilla
+  Gray Death Heavy Suit
+  Gray Death Infiltrator Suit
+  Gray Death Scout Suit
+  Gray Death Standard Suit
+  Gray Death Strike
+  Grenadier
+  Grenadier II
+  Groundhog
+  Hauberk
+  Infiltrator
+  Infiltrator Mk.II
+  IronHold
+  IS Standard
+  Kage
+  Kanazuchi
+  Kobold
+  Kopis
+  Leonidas
+  Longinus
+  Nephilim
+  NighthawkPALawk
+  Oni
+  Phalanx
+  Purifier
+  Quirinus
+  Raiden
+  Ravager
+  Resgate
+  Rottweiler
+  Rogue Bear
+  SalamanderBA
+  Salrilla
+  Sea Fox
+  Se'irim
+  Shedu
+  Shen Long
+  Simian
+  Sloth
+  Smoothdavid Smoothgoliath
+  Spectre
+  Stormbird
+  Sylph
+  Surat
+  Taranis
+  Tengu
+  Thunderbird
+  Tinstar
+  TornadoPAL
+  Tortoise_II
+  Trinity (Asterion,Theseus,Ying Long)
+  Tunnel Rat
+  Undine
+  Void
+  Warg
+  Water Elemental
+  Wraith
+  Xiphos
+  Zou
+  BattleMeks
+  ARCHANGEL
+  ARCHER
+  chassis "Assault" " .png"
+  ATLAS
+  ATLAS II
+  chassis "Aurora" "Atlas III.png"
+  AVALANCHE
+  AVATAR
+  AWESOME
+  AXMAN
+  HOWLER
+  chassis "Bandicoot" " .png"
+  BANSHEE
+  BARGHEST
+  BATTLE_COBRA_CLAN
+  BATTLE_COBRA_COMSTAR
+  BATTLEMASTER
+  BLACK HAWK (NOVA) OMNI
+  BLACK HAWK (NOVA) OMNI
+  chassis "Black Hawk (Nova)" "meks/BlackHawk-CO.png"
+  exact "Black Hawk (Nova) A" "meks/BlackHawk_A-CO.png"
+  exact "Black Hawk (Nova) B" "meks/BlackHawk_B-CO.png"
+  exact "Black Hawk (Nova) C" "meks/BlackHawk_C-CO.png"
+  exact "Black Hawk (Nova) D" "meks/BlackHawk_D-CO.png"
+  exact "Black Hawk (Nova) E" "meks/BlackHawk_E-CO.png"
+  exact "Black Hawk (Nova) F" "meks/BlackHawk_F-CO.png"
+  exact "Black Hawk (Nova) G" "meks/BlackHawk_G-CO.png"
+  exact "Black Hawk (Nova) H" "meks/BlackHawk_H-CO.png"
+  exact "Black Hawk (Nova) I" "meks/BlackHawk_I-CO.png"
+  exact "Black Hawk (Nova) J" "meks/BlackHawk_J-CO.png"
+  exact "Black Hawk (Nova) K" "meks/BlackHawk_K-CO.png"
+  exact "Black Hawk (Nova) L" "meks/BlackHawk_L-CO.png"
+  exact "Black Hawk (Nova) R" "meks/BlackHawk_R-CO.png"
+  exact "Black Hawk (Nova) S" "meks/BlackHawk_S-CO.png"
+  exact "Black Hawk (Nova) U" "meks/BlackHawk_U-CO.png"
+  exact "Black Hawk (Nova) X" "meks/BlackHawk_X-CO.png"
+  STANDARD
+  IS Version
+  BLACK KNIGHT
+  BLACK_LANNER
+  chassis "Black Lanner" "meks/BlackLanner-CO.png"
+  exact "Black Lanner A" "meks/BlackLanner_A-CO.png"
+  exact "Black Lanner B" "meks/BlackLanner_B-CO.png"
+  exact "Black Lanner C" "meks/BlackLanner_C-CO.png"
+  exact "Black Lanner D" "meks/BlackLanner_D-CO.png"
+  exact "Black Lanner E" "meks/BlackLanner_E-CO.png"
+  exact "Black Lanner G" "meks/BlackLanner_G-CO.png"
+  exact "Black Lanner H" "meks/BlackLanner_A-CO.png"
+  exact "Black Lanner I" "meks/BlackLanner_I-CO.png"
+  exact "Black Lanner J" "meks/BlackLanner_J-CO.png"
+  exact "Black Lanner T" "meks/BlackLanner_T-CO.png"
+  exact "Black Lanner X" "meks/BlackLanner_X-CO.png"
+  Blackjack
+  Blackjack Omni
+  STAR ADDER (BLOOD ASP)
+  chassis "Buccaneer" "buccaneer.png"
+  CATAPULT
+  CAULDRON_BORN
+  chassis "Cauldron-Born (Ebon Jaguar)" "meks/CauldronBorn-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) A" "meks/CauldronBorn_A-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) B" "meks/CauldronBorn_B-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) C" "meks/CauldronBorn_C-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) D" "meks/CauldronBorn_D-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) E" "meks/CauldronBorn_E-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) F" "meks/CauldronBorn_F-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) G" "meks/CauldronBorn_G-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) H" "meks/CauldronBorn_H-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) U" "meks/CauldronBorn_U-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) X" "meks/CauldronBorn_X-CO.png"
+  exact "Cauldron-Born (Ebon Jaguar) (Samantha)" "meks/CauldronBorn_Samantha-CO.png"
+  CENTURION
+  Charger
+  CLINT
+  exact "Cobra CBR-0A" "defaults/default_medium.png"
+  exact "Cobra BTM" "defaults/default_light.png"
+  COMMANDO
+  COPPERHEAD
+  COPPER
+  CORSAIR
+  COUGAR
+  chassis "Cougar" "meks/Cougar-CO.png"
+  exact "Cougar A" "meks/Cougar_A-CO.png"
+  exact "Cougar B" "meks/Cougar_B-CO.png"
+  exact "Cougar C" "meks/Cougar_C-CO.png"
+  exact "Cougar D" "meks/Cougar_D-CO.png"
+  exact "Cougar E" "meks/Cougar_E-CO.png"
+  exact "Cougar F" "meks/Cougar_F-CO.png"
+  exact "Cougar G" "meks/Cougar_G-CO.png"
+  exact "Cougar H" "meks/Cougar_H-CO.png"
+  exact "Cougar I" "meks/Cougar_I-CO.png"
+  exact "Cougar T" "meks/Cougar_A-CO.png"
+  exact "Cougar X" "meks/Cougar_X-CO.png"
+  exact "Cougar X 2" "meks/Cougar_X2-CO.png"
+  exact "Cougar X 3" "meks/Cougar_X3-CO.png"
+  exact "Cougar XR" "meks/Cougar_XR-CO.png"
+  Crockett
+  Katana
+  Crossbow Omni
+  chassis "Crossbow" "meks/Crossbow-CO.png"
+  exact "Crossbow A" "meks/Crossbow_A-CO.png"
+  exact "Crossbow B" "meks/Crossbow_B-CO.png"
+  exact "Crossbow C" "meks/Crossbow_C-CO.png"
+  exact "Crossbow D" "meks/Crossbow_D-CO.png"
+  exact "Crossbow E" "meks/Crossbow_E-CO.png"
+  exact "Crossbow F" "meks/Crossbow_A-CO.png"
+  exact "Crossbow H" "meks/Crossbow_H-CO.png"
+  exact "Crossbow J" "meks/Crossbow_J-CO.png"
+  exact "Crossbow T" "meks/Crossbow_T-CO.png"
+  exact "Crossbow U" "meks/Crossbow_A-CO.png"
+  exact "Crossbow W" "meks/Crossbow_W-CO.png"
+  Crossbow IS Model
+  exact "Crossbow CRS-6B" "meks/CrossbowCRS.png"
+  exact "Crossbow CRS-6C" "meks/CrossbowCRS_6C-CO.png"
+  exact "Crossbow CRS-9A" "meks/CrossbowCRS_9A-CO.png"
+  exact "Crossbow CRS-X" "meks/CrossbowCRS_X-CO.png"
+  CROSSCUT
+  CRUSADER
+  CYCLOPS
+  exact "Cygnus (Persuader)" "meks/Cygnus 4.png"
+  Dire Wolf
+  Dire Wolf
+  chassis "Daishi (Dire Wolf)" "meks/Daishi-CO.png"
+  exact "Daishi (Dire Wolf) A" "meks/Daishi_A-CO.png"
+  exact "Daishi (Dire Wolf) B" "meks/Daishi_B-CO.png"
+  exact "Daishi (Dire Wolf) C" "meks/Daishi_C-CO.png"
+  exact "Daishi (Dire Wolf) D" "meks/Daishi_D-CO.png"
+  exact "Daishi (Dire Wolf) E" "meks/Daishi_E-CO.png"
+  exact "Daishi (Dire Wolf) H" "meks/Daishi_H-CO.png"
+  exact "Daishi (Dire Wolf) S" "meks/Daishi_S-CO.png"
+  exact "Daishi (Dire Wolf) T" "meks/Daishi_T-CO.png"
+  exact "Daishi (Dire Wolf) U" "meks/Daishi_U-CO.png"
+  exact "Daishi (Dire Wolf) W" "meks/Daishi_W-CO.png"
+  exact "Daishi (Dire Wolf) X" "meks/Daishi_X-CO.png"
+  exact "Daishi (Dire Wolf) (Hohiro)" "meks/Daishi_Hohiro-CO.png"
+  exact "Daishi (Dire Wolf) 'Prometheus'" "meks/Daishi_Prometheus-CO.png"
+  exact "Daishi (Dire Wolf) 'Widowmaker'" "meks/Daishi_Widowmaker-CO.png"
+  FIRE_MOTH (DASHER)
+  chassis "Dasher (Fire Moth)" "meks/Dasher-CO.png"
+  exact "Dasher (Fire Moth) A" "meks/Dasher_A-CO.png"
+  exact "Dasher (Fire Moth) B" "meks/Dasher_B-CO.png"
+  exact "Dasher (Fire Moth) C" "meks/Dasher_C-CO.png"
+  exact "Dasher (Fire Moth) D" "meks/Dasher_D-CO.png"
+  exact "Dasher (Fire Moth) E" "meks/Dasher_E-CO.png"
+  exact "Dasher (Fire Moth) F" "meks/Dasher_F-CO.png"
+  exact "Dasher (Fire Moth) G" "meks/Dasher_G-CO.png"
+  exact "Dasher (Fire Moth) H" "meks/Dasher_H-CO.png"
+  exact "Dasher (Fire Moth) I" "meks/Dasher_I-CO.png"
+  exact "Dasher (Fire Moth) J" "meks/Dasher_J-CO.png"
+  exact "Dasher (Fire Moth) K" "meks/Dasher_K-CO.png"
+  exact "Dasher (Fire Moth) M" "meks/Dasher_M-CO.png"
+  exact "Dasher (Fire Moth) P" "meks/Dasher_P-CO.png"
+  exact "Dasher (Fire Moth) R" "meks/Dasher_R-CO.png"
+  exact "Dasher (Fire Moth) (Aletha)" "meks/Dasher_Aletha-CO.png"
+  Dervish
+  DEVA
+  DEVASTATOR
+  DOLOIRE
+  DOOM COURSER
+  DRAGON
+  DRAGON FIRE
+  VIPER_OMNI
+  chassis "Dragonfly (Viper)" "meks/Dragonfly-CO.png"
+  exact "Dragonfly (Viper) A" "meks/Dragonfly_A-CO.png"
+  exact "Dragonfly (Viper) B" "meks/Dragonfly_B-CO.png"
+  exact "Dragonfly (Viper) C" "meks/Dragonfly_C-CO.png"
+  exact "Dragonfly (Viper) D" "meks/Dragonfly_D-CO.png"
+  exact "Dragonfly (Viper) E" "meks/Dragonfly_E-CO.png"
+  exact "Dragonfly (Viper) F" "meks/Dragonfly_F-CO.png"
+  exact "Dragonfly (Viper) G" "meks/Dragonfly_G-CO.png"
+  exact "Dragonfly (Viper) H" "meks/Dragonfly_H-CO.png"
+  exact "Dragonfly (Viper) I" "meks/Dragonfly_I-CO.png"
+  exact "Dragonfly (Viper) J" "meks/Dragonfly_J-CO.png"
+  exact "Dragonfly (Viper) K" "meks/Dragonfly_K-CO.png"
+  exact "Dragonfly (Viper) L" "meks/Dragonfly_L-CO.png"
+  exact "Dragonfly (Viper) M" "meks/Dragonfly_M-CO.png"
+  exact "Dragonfly (Viper) R" "meks/Dragonfly_R-CO.png"
+  exact "Dragonfly (Viper) U" "meks/Dragonfly_U-CO.png"
+  exact "Dragonfly (Viper) Z" "meks/Dragonfly_Z-CO.png"
+  chassis "Eagle" "meks/Eagle.png"
+  EMPEROR
+  ENFORCER
+  ENFORCER III
+  EXCALIBUR
+  EXTERMINATOR
+  FAFNIR
+  FALCON
+  ICE_FERRET (FENRIS)
+  chassis "Fenris (Ice Ferret)" "meks/Fenris-CO.png"
+  exact "Fenris (Ice Ferret) A" "meks/Fenris_A-CO.png"
+  exact "Fenris (Ice Ferret) B" "meks/Fenris_B-CO.png"
+  exact "Fenris (Ice Ferret) C" "meks/Fenris_C-CO.png"
+  exact "Fenris (Ice Ferret) D" "meks/Fenris_D-CO.png"
+  exact "Fenris (Ice Ferret) E" "meks/Fenris_E-CO.png"
+  exact "Fenris (Ice Ferret) F" "meks/Fenris_F-CO.png"
+  exact "Fenris (Ice Ferret) G" "meks/Fenris_G-CO.png"
+  exact "Fenris (Ice Ferret) H" "meks/Fenris_H-CO.png"
+  exact "Fenris (Ice Ferret) I" "meks/Fenris_I-CO.png"
+  exact "Fenris (Ice Ferret) J" "meks/Fenris_J-CO.png"
+  exact "Fenris (Ice Ferret) K" "meks/Fenris_K-CO.png"
+  exact "Fenris (Ice Ferret) L" "meks/Fenris_L-CO.png"
+  exact "Fenris (Ice Ferret) U" "meks/Fenris_U-CO.png"
+  FIRE_FALCON
+  chassis "Fire Falcon" "meks/FireFalcon-CO.png"
+  exact "Fire Falcon A" "meks/FireFalcon_A-CO.png"
+  exact "Fire Falcon B" "meks/FireFalcon_B-CO.png"
+  exact "Fire Falcon C" "meks/FireFalcon_C-CO.png"
+  exact "Fire Falcon D" "meks/FireFalcon_D-CO.png"
+  exact "Fire Falcon E" "meks/FireFalcon_E-CO.png"
+  exact "Fire Falcon F" "meks/FireFalcon_F-CO.png"
+  exact "Fire Falcon G" "meks/FireFalcon_G-CO.png"
+  exact "Fire Falcon H" "meks/FireFalcon_H-CO.png"
+  exact "Fire Falcon I" "meks/FireFalcon_I-CO.png"
+  exact "Fire Falcon L" "meks/FireFalcon_L-CO.png"
+  exact "Fire Falcon R" "meks/FireFalcon_R-CO.png"
+  FIREFLY
+  exact "Firefly FFL-3A" "meks/Firefly_4A.png"
+  FIRESTARTER Standard
+  FIRESTARTER Omni
+  GLADIATOR (EXECUTIONER)
+  GLADIATOR (EXECUTIONER)
+  chassis "Gladiator (Executioner)" "meks/Gladiator.png"-CO.png"
+  exact "Gladiator (Executioner) A" "meks/Gladiator.png" A-CO.png"
+  exact "Gladiator (Executioner) B" "meks/Gladiator.png" B-CO.png"
+  exact "Gladiator (Executioner) C" "meks/Gladiator.png" C-CO.png"
+  exact "Gladiator (Executioner) D" "meks/Gladiator.png" D-CO.png"
+  exact "Gladiator (Executioner) E" "meks/Gladiator.png" E-CO.png"
+  exact "Gladiator (Executioner) F" "meks/Gladiator.png" F-CO.png"
+  exact "Gladiator (Executioner) G" "meks/Gladiator.png" G-CO.png"
+  exact "Gladiator (Executioner) H" "meks/Gladiator.png" H-CO.png"
+  exact "Gladiator (Executioner) I" "meks/Gladiator.png" I-CO.png"
+  exact "Gladiator (Executioner) J" "meks/Gladiator.png" J-CO.png"
+  exact "Gladiator (Executioner) K" "meks/Gladiator.png" K-CO.png"
+  exact "Gladiator (Executioner) L" "meks/Gladiator.png" L-CO.png"
+  exact "Gladiator (Executioner) P" "meks/Gladiator.png" P-CO.png"
+  exact "Gladiator (Executioner) TC" "meks/Gladiator.png" TC-CO.png"
+  GOLIATH
+  VAPOR_EAGLE
+  chassis "Goshawk (Vapor Eagle)" "meks/Goshawk-CO.png"
+  exact "Goshawk (Vapor Eagle) 2" "meks/Goshawk_2-CO.png"
+  exact "Goshawk (Vapor Eagle) 3" "meks/Goshawk_3-CO.png"
+  exact "Goshawk (Vapor Eagle) 4" "meks/Goshawk_4-CO.png"
+  exact "Goshawk (Vapor Eagle) 5" "meks/Goshawk_5-CO.png"
+  exact "Goshawk (Vapor Eagle) 6" "meks/Goshawk_6-CO.png"
+  exact "Goshawk (Vapor Eagle) 7" "meks/Goshawk_7-CO.png"
+  GOSHAWK_II
+  chassis "Goshawk II" "meks/GoshawkII-CO.png"
+  exact "Goshawk II 2" "meks/GoshawkII_2-CO.png"
+  exact "Goshawk II 3" "meks/GoshawkII_3-CO.png"
+  exact "Goshawk II 4" "meks/GoshawkII_4-CO.png"
+  exact "Goshawk II RISC" "meks/GoshawkII_4-CO.png"
+  GRAND CRUSADER
+  GRAND DRAGON
+  GRASSHOPPER
+  chassis "Great Bear" " .png"
+  chassis "Great Bird" " .png"
+  GRENDEL
+  chassis "Grendel (Mongrel)" "meks/Grendel-CO.png"
+  exact "Grendel (Mongrel) A" "meks/Grendel_A-CO.png"
+  exact "Grendel (Mongrel) B" "meks/Grendel_B-CO.png"
+  exact "Grendel (Mongrel) C" "meks/Grendel_C-CO.png"
+  exact "Grendel (Mongrel) D" "meks/Grendel_D-CO.png"
+  exact "Grendel (Mongrel) E" "meks/Grendel_E-CO.png"
+  exact "Grendel (Mongrel) F" "meks/Grendel_F-CO.png"
+  exact "Grendel (Mongrel) G" "meks/Grendel_G-CO.png"
+  exact "Grendel (Mongrel) H" "meks/Grendel_H-CO.png"
+  exact "Grendel (Mongrel) I" "meks/Grendel_I-CO.png"
+  exact "Grendel (Mongrel) J" "meks/Grendel_J-CO.png"
+  exact "Grendel (Mongrel) M" "meks/Grendel_M-CO.png"
+  GRIFFIN
+  GRIFFIN IIC
+  GRIGORI
+  GRIM REAPER
+  GUILLOTINE
+  chassis "Halfback" " .png"
+  ARCTIC_CHEETAH
+  chassis "Hankyu (Arctic Cheetah)" "meks/Hankyu-CO.png"
+  exact "Hankyu (Arctic Cheetah) A" "meks/Hankyu_A-CO.png"
+  exact "Hankyu (Arctic Cheetah) B" "meks/Hankyu_B-CO.png"
+  exact "Hankyu (Arctic Cheetah) C" "meks/Hankyu_C-CO.png"
+  exact "Hankyu (Arctic Cheetah) D" "meks/Hankyu_D-CO.png"
+  exact "Hankyu (Arctic Cheetah) E" "meks/Hankyu_E-CO.png"
+  exact "Hankyu (Arctic Cheetah) H" "meks/Hankyu_H-CO.png"
+  exact "Hankyu (Arctic Cheetah) I" "meks/Hankyu_I-CO.png"
+  exact "Hankyu (Arctic Cheetah) J" "meks/Hankyu_J-CO.png"
+  HATAMOTO-
+  Hatchetman
+  Hauptmann
+  chassis "Hector" "meks/Hector.png"
+  HELLHOUND
+  Hellhound II
+  HELLION
+  chassis "Hellion" "meks/Hellion-CO.png"
+  exact "Hellion A" "meks/Hellion_A-CO.png"
+  exact "Hellion B" "meks/Hellion_B-CO.png"
+  exact "Hellion C" "meks/Hellion_C-CO.png"
+  exact "Hellion D" "meks/Hellion_D-CO.png"
+  exact "Hellion E" "meks/Hellion_E-CO.png"
+  exact "Hellion F" "meks/Hellion_F-CO.png"
+  exact "Hellion G" "meks/Hellion_G-CO.png"
+  exact "Hellion P" "meks/Hellion_P-CO.png"
+  Hellspawn
+  Hercules
+  Hermes
+  Hermes II
+  Highlander
+  Hoplite
+  HUNCHBACK-IIC
+  chassis "Hunchback IIC" "meks/HunchbackIIC-CO.png"
+  exact "Hunchback IIC 2" "meks/HunchbackIIC_2-CO.png"
+  exact "Hunchback IIC 3" "meks/HunchbackIIC_3-CO.png"
+  exact "Hunchback IIC 4" "meks/HunchbackIIC_4-CO.png"
+  chassis "JagerMech IIC" "meks/Jagermech_IIC.png"
+  JAVELIN
+  JENNER
+  JENNER IIC
+  JINGGAU
+  KARHU
+  KATANA - SEE CROCKETT
+  KINGFISHER
+  chassis "Kingfisher" "meks/Kingfisher-CO.png"
+  exact "Kingfisher A" "meks/Kingfisher_A-CO.png"
+  exact "Kingfisher B" "meks/Kingfisher_B-CO.png"
+  exact "Kingfisher C" "meks/Kingfisher_C-CO.png"
+  exact "Kingfisher D" "meks/Kingfisher_D-CO.png"
+  exact "Kingfisher E" "meks/Kingfisher_E-CO.png"
+  exact "Kingfisher F" "meks/Kingfisher_F-CO.png"
+  exact "Kingfisher G" "meks/Kingfisher_G-CO.png"
+  exact "Kingfisher H" "meks/Kingfisher_H-CO.png"
+  exact "Kingfisher I" "meks/Kingfisher_I-CO.png"
+  exact "Kingfisher X" "meks/Kingfisher_X-CO.png"
+  KINTARO
+  KODIAK
+  chassis "Kodiak" "meks/Kodiak-CO.png"
+  exact "Kodiak 2" "meks/Kodiak_2-CO.png"
+  exact "Kodiak 3" "meks/Kodiak_3-CO.png"
+  exact "Kodiak 4" "meks/Kodiak_4-CO.png"
+  exact "Kodiak 5" "meks/Kodiak_5-CO.png"
+  exact "Kodiak (Cale)" "meks/Kodiak_Cale-CO.png"
+  exact "Kodiak 1E" "defaults/default_assault.png"
+  exact "Kodiak 2E" "defaults/default_assault.png"
+  KODIAK_II
+  chassis "Kodiak II" "meks/KodiakII-CO.png"
+  exact "Kodiak II 2" "meks/KodiakII_2-CO.png"
+  exact "Kodiak II 3" "meks/KodiakII_3-CO.png"
+  KOSHI (STANDARD)
+  KOSHI (MIST LYNX) (OMNI)
+  KOSHI (OMNI)
+  chassis "Koshi (Mist Lynx)" "meks/Koshi-CO.png"
+  exact "Koshi (Mist Lynx) A" "meks/Koshi_A-CO.png"
+  exact "Koshi (Mist Lynx) B" "meks/Koshi_B-CO.png"
+  exact "Koshi (Mist Lynx) C" "meks/Koshi_C-CO.png"
+  exact "Koshi (Mist Lynx) D" "meks/Koshi_D-CO.png"
+  exact "Koshi (Mist Lynx) E" "meks/Koshi_E-CO.png"
+  exact "Koshi (Mist Lynx) F" "meks/Koshi_F-CO.png"
+  exact "Koshi (Mist Lynx) G" "meks/Koshi_G-CO.png"
+  exact "Koshi (Mist Lynx) H" "meks/Koshi_H-CO.png"
+  exact "Koshi (Mist Lynx) I" "meks/Koshi_I-CO.png"
+  exact "Koshi (Mist Lynx) J" "meks/Koshi_J-CO.png"
+  exact "Koshi (Mist Lynx) K" "meks/Koshi_K-CO.png"
+  exact "Koshi (Mist Lynx) L" "meks/Koshi_L-CO.png"
+  exact "Koshi (Mist Lynx) M" "meks/Koshi_M-CO.png"
+  exact "Koshi (Mist Lynx) N" "meks/Koshi_N-CO.png"
+  exact "Koshi (Mist Lynx) P" "meks/Koshi_P-CO.png"
+  exact "Koshi (Mist Lynx) Z" "meks/Koshi_Z-CO.png"
+  KRAKEN (BANE)
+  LANCELOT
+  LEGIONNAIRE
+  LINEBACKER
+  chassis "Linebacker" "meks/Linebacker-CO.png"
+  exact "Linebacker A" "meks/Linebacker_A-CO.png"
+  exact "Linebacker B" "meks/Linebacker_B-CO.png"
+  exact "Linebacker C" "meks/Linebacker_C-CO.png"
+  exact "Linebacker D" "meks/Linebacker_D-CO.png"
+  exact "Linebacker E" "meks/Linebacker_E-CO.png"
+  exact "Linebacker F" "meks/Linebacker_F-CO.png"
+  exact "Linebacker G" "meks/Linebacker_G-CO.png"
+  exact "Linebacker H" "meks/Linebacker_H-CO.png"
+  exact "Linebacker I" "meks/Linebacker_I-CO.png"
+  LOCUST
+  LOKI (HELLBRINGER)
+  chassis "Loki (Hellbringer)" "meks/Loki-CO.png"
+  exact "Loki (Hellbringer) A" "meks/Loki_A-CO.png"
+  exact "Loki (Hellbringer) B" "meks/Loki_B-CO.png"
+  exact "Loki (Hellbringer) C" "meks/Loki_C-CO.png"
+  exact "Loki (Hellbringer) D" "meks/Loki_D-CO.png"
+  exact "Loki (Hellbringer) E" "meks/Loki_E-CO.png"
+  exact "Loki (Hellbringer) F" "meks/Loki_F-CO.png"
+  exact "Loki (Hellbringer) G" "meks/Loki_G-CO.png"
+  exact "Loki (Hellbringer) H" "meks/Loki_H-CO.png"
+  exact "Loki (Hellbringer) J" "meks/Loki_J-CO.png"
+  exact "Loki (Hellbringer) M" "meks/Loki_M-CO.png"
+  LOKI MK II
+  LONGBOW
+  LONGSHOT
+  MAD CAT (TIMBER WOLF)
+  MAD CAT (TIMBER WOLF)
+  chassis "Mad Cat (Timber Wolf)" "meks/Madcat-CO.png"
+  exact "Mad Cat (Timber Wolf) A" "meks/MadCat_A-CO.png"
+  exact "Mad Cat (Timber Wolf) B" "meks/MadCat_B-CO.png"
+  exact "Mad Cat (Timber Wolf) C" "meks/MadCat_C-CO.png"
+  exact "Mad Cat (Timber Wolf) D" "meks/MadCat_D-CO.png"
+  exact "Mad Cat (Timber Wolf) E" "meks/MadCat_E-CO.png"
+  exact "Mad Cat (Timber Wolf) H" "meks/MadCat_H-CO.png"
+  exact "Mad Cat (Timber Wolf) N" "meks/MadCat_N-CO.png"
+  exact "Mad Cat (Timber Wolf) M" "meks/MadCat_M-CO.png"
+  exact "Mad Cat (Timber Wolf) S" "meks/MadCat_S-CO.png"
+  exact "Mad Cat (Timber Wolf) TC" "meks/MadCat_TC-CO.png"
+  exact "Mad Cat (Timber Wolf) U" "meks/MadCat_U-CO.png"
+  exact "Mad Cat (Timber Wolf) W" "meks/MadCat_W-CO.png"
+  exact "Mad Cat (Timber Wolf) Z" "meks/MadCat_Z-CO.png"
+  exact "Mad Cat (Timber Wolf) BLO" "meks/MadCat_D-CO.png"
+  exact "Mad Cat (Timber Wolf) (Bounty Hunter)" "meks/MadCat_BH-CO.png"
+  exact "Mad Cat (Timber Wolf) (Bounty Hunter 2)" "meks/MadCat_BH2-CO.png"
+  exact "Mad Cat (Timber Wolf) (Pryde)" "meks/MadCat_Pryde-CO.png"
+  MAD CAT MK II
+  MAD CAT MK III
+  MAD CAT MK IV
+  MAN O' WAR (GARGOYLE)
+  chassis "Man O' War (Gargoyle)" "meks/Man_O_War-CO.png"
+  exact "Man O' War (Gargoyle) A" "meks/Man_O_War_A-CO.png"
+  exact "Man O' War (Gargoyle) B" "meks/Man_O_War_B-CO.png"
+  exact "Man O' War (Gargoyle) C" "meks/Man_O_War_C-CO.png"
+  exact "Man O' War (Gargoyle) D" "meks/Man_O_War_D-CO.png"
+  exact "Man O' War (Gargoyle) E" "meks/Man_O_War_E-CO.png"
+  exact "Man O' War (Gargoyle) F" "meks/Man_O_War_F-CO.png"
+  exact "Man O' War (Gargoyle) G" "meks/Man_O_War_G-CO.png"
+  exact "Man O' War (Gargoyle) H" "meks/Man_O_War_H-CO.png"
+  exact "Man O' War (Gargoyle) J" "meks/Man_O_War_J-CO.png"
+  exact "Man O' War (Gargoyle) K" "meks/Man_O_War_K-CO.png"
+  exact "Man O' War (Gargoyle) M" "meks/Man_O_War_M-CO.png"
+  exact "Man O' War (Gargoyle) P" "meks/Man_O_War_P-CO.png"
+  exact "Man O' War (Gargoyle) X" "meks/Man_O_War_X-CO.png"
+  exact "Man O' War (Gargoyle) (Conal)" "meks/Man_O_War_Conal-CO.png"
+  MARAUDER
+  OMNI-MARAUDER
+  Marauder II
+  Marauder IIC
+  chassis "Marauder IIC" "meks/MarauderIIC-CO.png"
+  exact "Marauder IIC 2" "meks/MarauderIIC_2-CO.png"
+  exact "Marauder IIC 3" "meks/MarauderIIC_3-CO.png"
+  exact "Marauder IIC 4" "meks/MarauderIIC_4-CO.png"
+  exact "Marauder IIC 5" "meks/MarauderIIC_5-CO.png"
+  exact "Marauder IIC 6" "meks/MarauderIIC_6-CO.png"
+  exact "Marauder IIC 7" "meks/MarauderIIC_7-CO.png"
+  exact "Marauder IIC 8" "meks/MarauderIIC_8-CO.png"
+  exact "Marauder IIC 9" "meks/MarauderIIC_9-CO.png"
+  MASAKARI (WARHAWK)
+  chassis "Masakari (Warhawk)" "meks/Masakari-CO.png"
+  exact "Masakari (Warhawk) A" "meks/Masakari_A-CO.png"
+  exact "Masakari (Warhawk) B" "meks/Masakari_B-CO.png"
+  exact "Masakari (Warhawk) C" "meks/Masakari_C-CO.png"
+  exact "Masakari (Warhawk) D" "meks/Masakari_D-CO.png"
+  exact "Masakari (Warhawk) E" "meks/Masakari_E-CO.png"
+  exact "Masakari (Warhawk) F" "meks/Masakari_F-CO.png"
+  exact "Masakari (Warhawk) G" "meks/Masakari_G-CO.png"
+  exact "Masakari (Warhawk) H" "meks/Masakari_H-CO.png"
+  exact "Masakari (Warhawk) I" "meks/Masakari_I-CO.png"
+  exact "Masakari (Warhawk) L" "meks/Masakari_L-CO.png"
+  exact "Masakari (Warhawk) T" "meks/Masakari_T-CO.png"
+  MAULER
+  MEN SHEN
+  MERLIN
+  MONGOOSE
+  MORPHEUS
+  MORRIGAN
+  NIGHTGYR
+  chassis "Night Gyr" "meks/NightGyr-CO.png"
+  exact "Night Gyr A" "meks/NightGyr_A-CO.png"
+  exact "Night Gyr B" "meks/NightGyr_B-CO.png"
+  exact "Night Gyr C" "meks/NightGyr_C-CO.png"
+  exact "Night Gyr D" "meks/NightGyr_D-CO.png"
+  exact "Night Gyr E" "meks/NightGyr_E-CO.png"
+  exact "Night Gyr F" "meks/NightGyr_F-CO.png"
+  exact "Night Gyr G" "meks/NightGyr_G-CO.png"
+  exact "Night Gyr H" "meks/NightGyr_H-CO.png"
+  exact "Night Gyr X" "meks/NightGyr_X-CO.png"
+  NOBORI-NIN (HUNTSMAN)
+  chassis "Nobori-nin (Huntsman)" "meks/NoboriNin-CO.png"
+  exact "Nobori-nin (Huntsman) A" "meks/NoboriNin_A-CO.png"
+  exact "Nobori-nin (Huntsman) B" "meks/NoboriNin_B-CO.png"
+  exact "Nobori-nin (Huntsman) C" "meks/NoboriNin_C-CO.png"
+  exact "Nobori-nin (Huntsman) D" "meks/NoboriNin_D-CO.png"
+  exact "Nobori-nin (Huntsman) E" "meks/NoboriNin_E-CO.png"
+  exact "Nobori-nin (Huntsman) F" "meks/NoboriNin_F-CO.png"
+  exact "Nobori-nin (Huntsman) G" "meks/NoboriNin_G-CO.png"
+  exact "Nobori-nin (Huntsman) H" "meks/NoboriNin_H-CO.png"
+  exact "Nobori-nin (Huntsman) I" "meks/NoboriNin_I-CO.png"
+  exact "Nobori-nin (Huntsman) N" "meks/NoboriNin_N-CO.png"
+  exact "Nobori-nin (Huntsman) P" "meks/NoboriNin_P-CO.png"
+  NOVA_CAT_OMNI
+  chassis "Nova Cat" "meks/NovaCat-CO.png"
+  exact "Nova Cat A" "meks/NovaCat_A-CO.png"
+  exact "Nova Cat B" "meks/NovaCat_B-CO.png"
+  exact "Nova Cat C" "meks/NovaCat_C-CO.png"
+  exact "Nova Cat D" "meks/NovaCat_D-CO.png"
+  exact "Nova Cat E" "meks/NovaCat_E-CO.png"
+  exact "Nova Cat F" "meks/NovaCat_F-CO.png"
+  exact "Nova Cat G" "meks/NovaCat_G-CO.png"
+  exact "Nova Cat H" "meks/NovaCat_H-CO.png"
+  exact "Nova Cat I" "meks/NovaCat_I-CO.png"
+  exact "Nova Cat M" "meks/NovaCat_M-CO.png"
+  ORION
+  OSTROC
+  OSTSCOUT
+  OSTSOL
+  OWENS
+  PACK_HUNTER
+  chassis "Pack Hunter" "meks/Packhunter-CO.png"
+  exact "Pack Hunter 2" "meks/Packhunter_2-CO.png"
+  exact "Pack Hunter 3" "meks/Packhunter_2-CO.png"
+  exact "Pack Hunter 4" "meks/Packhunter_4-CO.png"
+  PACK_HUNTER_II
+  chassis "Pack Hunter II" "meks/PackhunterII-CO.png"
+  exact "Pack Hunter II 2" "meks/PackhunterII_2-CO.png"
+  exact "Pack Hunter II 3" "meks/PackhunterII_2-CO.png"
+  exact "Pack Hunter II 4" "meks/PackhunterII_2-CO.png"
+  exact "Pack Hunter II (Isis)" "meks/PackhunterII_Isis-CO.png"
+  PALADIN
+  PANTHER
+  PARIAH (SEPTICEMIA)
+  PATRIOT
+  PATRON
+  PEACEKEEPER
+  PENDRAGON
+  exact "Pendragon PDG-3R" "meks/Pendragon_3R.png"
+  PEREGRINE (HORNED OWL)
+  chassis "Peregrine (Horned Owl)" "meks/Peregrine-CO.png"
+  exact "Peregrine (Horned Owl) 2" "meks/Peregrine_2-CO.png"
+  exact "Peregrine (Horned Owl) 3" "meks/Peregrine_3-CO.png"
+  exact "Peregrine (Horned Owl) 4" "meks/Peregrine_4-CO.png"
+  exact "Peregrine (Horned Owl) 5" "meks/Peregrine_5-CO.png"
+  exact "Peregrine (Horned Owl) 7" "meks/Peregrine_7-CO.png"
+  PERSEUS
+  PHANTOM
+  PHOENIX
+  #PIXIES
+  #Pixies IIC
+  #PIXIE LIGHTS
+  PILLAGER
+  exact "Pioneer PIN-3R" " .png"
+  chassis "Pioneer" " .png"
+  PIRANHA
+  chassis "Piranha" "meks/Piranha-CO.png"
+  exact "Piranha 2" "meks/Piranha_2-CO.png"
+  exact "Piranha 3" "meks/Piranha_3-CO.png"
+  POUNCER
+  POWERMAN
+  PREDATOR
+  PREFECT
+  PRETA
+  PREY SEEKER
+  PUMA (ADDER)
+  PUMA (ADDER)
+  chassis "Puma (Adder)" "meks/Puma-CO.png"
+  exact "Puma (Adder) A" "meks/Puma_A-CO.png"
+  exact "Puma (Adder) B" "meks/Puma_B-CO.png"
+  exact "Puma (Adder) C" "meks/Puma_C-CO.png"
+  exact "Puma (Adder) D" "meks/Puma_D-CO.png"
+  exact "Puma (Adder) E" "meks/Puma_E-CO.png"
+  exact "Puma (Adder) H" "meks/Puma_H-CO.png"
+  exact "Puma (Adder) I" "meks/Puma_I-CO.png"
+  exact "Puma (Adder) J" "meks/Puma_J-CO.png"
+  exact "Puma (Adder) K" "meks/Puma_K-CO.png"
+  exact "Puma (Adder) L" "meks/Puma_L-CO.png"
+  exact "Puma (Adder) S" "meks/Puma_S-CO.png"
+  exact "Puma (Adder) TC" "meks/Puma_TC-CO.png"
+  PWWKA
+  QUICKDRAW
+  RAPID COYOTE
+  chassis "Ragnark" " .png"
+  RAIJIN
+  RAMPAGE
+  chassis "Ranger" " .png"
+  RAPTOR
+  chassis "Rattler" " .png"
+  RAVEN
+  chassis "Razor Jaw" " .png"
+  RAZORBACK
+  chassis "Reaper" " .png"
+  chassis "Red Cap" " .png"
+  REGENT
+  chassis "Renegade" " .png"
+  REVENANT
+  chassis "RifleBear GB" " .png"
+  RIFLEMAN
+  RIFLEMAN II
+  RIFLEMAN IIC
+  RIME OTTER
+  ROUGHNECK
+  RYOKEN (STORMCROW)
+  RYOKEN (STORMCROW)
+  chassis "Ryoken (Stormcrow)" "meks/Ryoken-CO.png"
+  exact "Ryoken (Stormcrow) A" "meks/Ryoken_A-CO.png"
+  exact "Ryoken (Stormcrow) B" "meks/Ryoken_B-CO.png"
+  exact "Ryoken (Stormcrow) C" "meks/Ryoken_C-CO.png"
+  exact "Ryoken (Stormcrow) D" "meks/Ryoken_D-CO.png"
+  exact "Ryoken (Stormcrow) E" "meks/Ryoken_E-CO.png"
+  exact "Ryoken (Stormcrow) F" "meks/Ryoken_F-CO.png"
+  exact "Ryoken (Stormcrow) G" "meks/Ryoken_G-CO.png"
+  exact "Ryoken (Stormcrow) H" "meks/Ryoken_H-CO.png"
+  exact "Ryoken (Stormcrow) I" "meks/Ryoken_I-CO.png"
+  exact "Ryoken (Stormcrow) J" "meks/Ryoken_J-CO.png"
+  exact "Ryoken (Stormcrow) K" "meks/Ryoken_K-CO.png"
+  exact "Ryoken (Stormcrow) P" "meks/Ryoken_P-CO.png"
+  exact "Ryoken (Stormcrow) TC" "meks/Ryoken_TC-CO.png"
+  exact "Ryoken (Stormcrow) Z" "meks/Ryoken_Z-CO.png"
+  exact "Ryoken (Stormcrow) (Attwater)" "meks/Ryoken_Attwater-CO.png"
+  exact "Ryoken (Stormcrow) (Kotare)" "meks/Ryoken_Kotare-CO.png"
+  RYOKEN II
+  RYOKEN III
+  chassis "Sabre Dog" " .png"
+  SAGITTAIRE
+  SALAMANDER
+  chassis "Sandpiper" " .png"
+  SAVAGE COYOTE
+  SCHWERER GUSTAV
+  SCORPION
+  chassis "Scout" " .png"
+  chassis "Screaming Hawk" " .png"
+  SENTINEL
+  SHADOW CAT
+  SHADOW CAT
+  chassis "Shadow Cat" "meks/ShadowCat-CO.png"
+  exact "Shadow Cat A" "meks/ShadowCat_A-CO.png"
+  exact "Shadow Cat B" "meks/ShadowCat_B-CO.png"
+  exact "Shadow Cat C" "meks/ShadowCat_C-CO.png"
+  exact "Shadow Cat D" "meks/ShadowCat_D-CO.png"
+  exact "Shadow Cat E" "meks/ShadowCat_E-CO.png"
+  exact "Shadow Cat F" "meks/ShadowCat_F-CO.png"
+  exact "Shadow Cat H" "meks/ShadowCat_H-CO.png"
+  exact "Shadow Cat I" "meks/ShadowCat_I-CO.png"
+  exact "Shadow Cat J" "meks/ShadowCat_J-CO.png"
+  exact "Shadow Cat M" "meks/ShadowCat_M-CO.png"
+  exact "Shadow Cat TC" "meks/ShadowCat_TC-CO.png"
+  SHADOW CAT II
+  SHADOW CAT III
+  SHADOW HAWKS
+  SHADOW HAWK IIC
+  SHOGUN
+  chassis "Shrew" " .png"
+  chassis "Sky Blazer" " .png"
+  chassis "Sledgehammer" " .png"
+  chassis "Slug" " .png"
+  chassis "Solar Flare" " .png"
+  chassis "Sorcerer SCR-1B" " .png"
+  SPIDER
+  STALKER
+  STALKING SPIDER
+  STARSLAYER
+  STEALTH
+  STINGER
+  STINGER IIC
+  STOOPING HAWK
+  chassis "Storm Front" " .png"
+  STORM RAIDER
+  STORMWOLF
+  STRIDER
+  STRIKER
+  chassis "Striped Bandicott" " .png"
+  SUN SPIDER
+  #SUNDER
+  chassis "Super Hawk" " .png"
+  SUPERNOVA
+  chassis "Supernova" "meks/Supernova-CO.png"
+  exact "Supernova 2" "meks/Supernova_2-CO.png"
+  exact "Supernova 3" "meks/Supernova_3-CO.png"
+  exact "Supernova 4" "meks/Supernova_4-CO.png"
+  chassis "Taskmaster" " .png"
+  TEMPLAR
+  Templar III
+  chassis "Thing" " .png"
+  THOR (SUMMONER)
+  THOR (SUMMONER)
+  chassis "Thor (Summoner)" "meks/Thor-CO.png"
+  exact "Thor (Summoner) A" "meks/Thor_A-CO.png"
+  exact "Thor (Summoner) AA" "meks/Thor_AA-CO.png"
+  exact "Thor (Summoner) B" "meks/Thor_B-CO.png"
+  exact "Thor (Summoner) C" "meks/Thor_C-CO.png"
+  exact "Thor (Summoner) D" "meks/Thor_D-CO.png"
+  exact "Thor (Summoner) E" "meks/Thor_E-CO.png"
+  exact "Thor (Summoner) F" "meks/Thor_F-CO.png"
+  exact "Thor (Summoner) G" "meks/Thor_G-CO.png"
+  exact "Thor (Summoner) H" "meks/Thor_H-CO.png"
+  exact "Thor (Summoner) HH" "meks/Thor_HH-CO.png"
+  exact "Thor (Summoner) J" "meks/Thor_J-CO.png"
+  exact "Thor (Summoner) M" "meks/Thor_M-CO.png"
+  exact "Thor (Summoner) Q" "meks/Thor_Q-CO.png"
+  exact "Thor (Summoner) U" "meks/Thor_U-CO.png"
+  exact "Thor (Summoner) Z" "meks/Thor_Z-CO.png"
+  THOR II (GRAND SUMMONER)
+  chassis "ThrasherT" " .png"
+  THUG
+  chassis "Thunder Griffin" "meks/Griffin_iic.png"
+  chassis "ThunderBird" " .png"
+  Thunderbolt
+  Thunderbolt IIC
+  chassis "Thunderstrike" " .png"
+  Tomahawk
+  Tomahawk II
+  Trebuchet
+  TURKINA
+  chassis "Turkina" "meks/Turkina-CO.png"
+  exact "Turkina A" "meks/Turkina_A-CO.png"
+  exact "Turkina B" "meks/Turkina_B-CO.png"
+  exact "Turkina C" "meks/Turkina_C-CO.png"
+  exact "Turkina D" "meks/Turkina_D-CO.png"
+  exact "Turkina E" "meks/Turkina_E-CO.png"
+  exact "Turkina H" "meks/Turkina_H-CO.png"
+  exact "Turkina M" "meks/Turkina_M-CO.png"
+  exact "Turkina U" "meks/Turkina_U-CO.png"
+  exact "Turkina X" "meks/Turkina_X-CO.png"
+  exact "Turkina Z" "meks/Turkina_Z-CO.png"
+  KIT_FOX
+  chassis "Uller (Kit Fox)" "meks/Uller-CO.png"
+  exact "Uller (Kit Fox) A" "meks/Uller_A-CO.png"
+  exact "Uller (Kit Fox) B" "meks/Uller_B-CO.png"
+  exact "Uller (Kit Fox) C" "meks/Uller_C-CO.png"
+  exact "Uller (Kit Fox) D" "meks/Uller_D-CO.png"
+  exact "Uller (Kit Fox) E" "meks/Uller_E-CO.png"
+  exact "Uller (Kit Fox) F" "meks/Uller_F-CO.png"
+  exact "Uller (Kit Fox) G" "meks/Uller_G-CO.png"
+  exact "Uller (Kit Fox) H" "meks/Uller_A-CO.png"
+  exact "Uller (Kit Fox) I" "meks/Uller_I-CO.png"
+  exact "Uller (Kit Fox) J" "meks/Uller_J-CO.png"
+  exact "Uller (Kit Fox) K" "meks/Uller_K-CO.png"
+  exact "Uller (Kit Fox) R" "meks/Uller_R-CO.png"
+  exact "Uller (Kit Fox) S" "meks/Uller_S-CO.png"
+  exact "Uller (Kit Fox) U" "meks/Uller_U-CO.png"
+  exact "Uller (Kit Fox) V" "meks/Uller_V-CO.png"
+  exact "Uller (Kit Fox) W" "meks/Uller_W-CO.png"
+  exact "Uller (Kit Fox) BLO" "meks/Uller_BLO-CO.png"
+  URBANMECH
+  URBANMECH IIC
+  SUBURBANMECH
+  URSA
+  URSUS
+  UZIEL
+  VALIANT
+  VALKYRIE
+  VANQUISHER
+  VERFOLGER
+  VICTOR
+  VIKING
+  VINDICATOR
+  VIPER
+  VIPER (BLACK PYTHON)
+  VIXEN_OMNI
+  chassis "Vixen (Incubus)" "meks/Vixen-CO.png"
+  exact "Vixen (Incubus) 2" "meks/Vixen_2-CO.png"
+  exact "Vixen (Incubus) 3" "meks/Vixen_3-CO.png"
+  exact "Vixen (Incubus) 4" "meks/Vixen_4-CO.png"
+  exact "Vixen (Incubus) 5" "meks/Vixen_5-CO.png"
+  exact "Vixen (Incubus) 6" "meks/Vixen_6-CO.png"
+  exact "Vixen (Incubus) 7" "meks/Vixen_7-CO.png"
+  exact "Vixen (Incubus) 8" "meks/Vixen_8-CO.png"
+  exact "Vixen (Incubus) 9" "meks/Vixen_9-CO.png"
+  VOLKH
+  VULCAN
+  VULTURE
+  chassis "Vulture (Mad Dog)" "meks/Vulture-CO.png"
+  exact "Vulture (Mad Dog) A" "meks/Vulture_A-CO.png"
+  exact "Vulture (Mad Dog) B" "meks/Vulture_B-CO.png"
+  exact "Vulture (Mad Dog) C" "meks/Vulture_C-CO.png"
+  exact "Vulture (Mad Dog) D" "meks/Vulture_D-CO.png"
+  exact "Vulture (Mad Dog) DD" "meks/Vulture_DD-CO.png"
+  exact "Vulture (Mad Dog) E" "meks/Vulture_E-CO.png"
+  exact "Vulture (Mad Dog) F" "meks/Vulture_F-CO.png"
+  exact "Vulture (Mad Dog) G" "meks/Vulture_G-CO.png"
+  exact "Vulture (Mad Dog) H" "meks/Vulture_H-CO.png"
+  exact "Vulture (Mad Dog) I" "meks/Vulture_I-CO.png"
+  exact "Vulture (Mad Dog) S" "meks/Vulture_S-CO.png"
+  exact "Vulture (Mad Dog) U" "meks/Vulture_U-CO.png"
+  exact "Vulture (Mad Dog) V" "meks/Vulture_V-CO.png"
+  VULTURE MK III
+  VULTURE MK IV
+  WAR CROW
+  WARHAMMER
+  WARHAMMER IIC
+  chassis "Warhammer IIC" "meks/Warhammer_IIC-CO.png"
+  exact "Warhammer IIC 2" "meks/Warhammer_IIC_2-CO.png"
+  exact "Warhammer IIC 3" "meks/Warhammer_IIC_3-CO.png"
+  exact "Warhammer IIC 4" "meks/Warhammer_IIC_4-CO.png"
+  exact "Warhammer IIC 5" "meks/Warhammer_IIC_5-CO.png"
+  exact "Warhammer IIC 6" "meks/Warhammer_IIC_6-CO.png"
+  exact "Warhammer IIC 7" "meks/Warhammer_IIC_7-CO.png"
+  exact "Warhammer IIC 8" "meks/Warhammer_IIC_8-CO.png"
+  exact "Warhammer IIC 9" "meks/Warhammer_IIC_9-CO.png"
+  exact "Warhammer IIC 10" "meks/Warhammer_IIC_10-CO.png"
+  exact "Warhammer IIC 11" "meks/Warhammer_IIC_11-CO.png"
+  exact "Warhammer IIC 12" "meks/Warhammer_IIC_12-CO.png"
+  exact "Warhammer IIC 13" "meks/Warhammer_IIC_13-CO.png"
+  exact "Warhammer IIC Blugedon" "meks/Warhammer_IIC_BL-CO.png"
+  WARWOLF
+  WASP
+  WENDIGO
+  WHITE FLAME
+  WHITWORTH
+  WIGHT
+  WIND COYOTE
+  WOLF TRAP (TORA)
+  WOLFHOUND
+  WOLVERINE
+  WOLVERINE II
+  WOODSMAN
+  WRAITH
+  WULFEN
+  WYVERN
+  XANTHOS
+  YEOMAN
+  YMIR
+  ZEUS
+  ZEUS-X
+  ##LAND AIR MEKS (LAMS)
+  #PIXIE LAMS
+  SCREAMER LAM
+  SHADOWHAWK LAM
+  STINGER LAMS
+  WANETA LAM
+  WASP LAM
+  YUREI LAM
+  ##DROPSHIPS
+  chassis "Intruder" "dropships/Intruder.png"    # Cant get this one to work, see bottom
+  chassis "Intruder" "dropships/Intruder2.png"  # Fudge # Fudge
+  chassis "Mammoth" "dropships/Mammoth.png"  # Cant get this one to work, see bottom
+  chassis "Mammoth" "dropships/Mammoth2.png"  # Fudge
+  chassis "Mule" "dropships/Mule2.png"  # Fudge
+  chassis "Mule C" "dropships/Mule.png"  # Original wont go, see bottom
+  chassis "Mule C (2842)" "dropships/Mule.png"  # Cant get this one to work, see bottom
+  chassis "Vampire II" "dropships/Vampire.png"
+  Dropships_Large
+  Gun Emplacements
+  Infantry Platoons
+  Generic versions of 3085 infantry
+  Beast Infantry
+  Jumpships
+  Manei Domini
+  ProtoMeks
+  Vehicles
+  chassis "Aikuchi" " .png"
+  exact "Air Defence Vehicle (ADV10)" " .png"
+  exact "Air Defence Vehicle (ADV5)" " .png"
+  chassis "Albemarle Hydrofoil" " .png"
+  chassis "Ammo Carrier (SP Sniper)" " .png"
+  chassis "Arashi Heavy Hovertank" " .png"
+  chassis "Assault Hovercraft" " .png"
+  chassis "Battleship Missouri" " .png"
+  chassis "Beatie Hover Tank" " .png"
+  BulldogTank
+  BulldogTruck
+  BulldogII_Tank
+  Carrier chassis
+  #
+  chassis "Caravan Hovertank" " .png"
+  chassis "Dark Angel" " .png"
+  Keeping these together since the Ballista is the trailer.
+  #
+  chassis "Escort" " .png"
+  #
+  #
+  chassis "Gnat" " .png"
+  chassis "Goshawk Gunship" " .png"
+  Heavy APCs
+  chassis "Iroquois Helicopter Transport" " .png"
+  chassis "Kamayari" " .png"
+  chassis "King Tiger Heavy Tank" " .png"
+  exact "Korvin Tank KRV-3" "vehicles/Korvin_3.png"
+  chassis "Martiobarbuli SP" " .png"
+  chassis "Mercy Class Helicopter" " .png"
+  chassis "Missouri VTOL" " .png"
+  chassis "NarcMaster" " .png"
+  Partisan Stuff including Nike
+  chassis "Plainsmaster" " .png"
+  chassis "Punisher Heavy Tank" " .png"
+  chassis "Pyros Hover Tank" " .png"
+  chassis "Ronin" " .png"
+  chassis "Sabre Support Tank" " .png"
+  Scorpion Light Tank
+  chassis "Self Propelled Sniper" " .png"
+  SM2 not part of the above
+  chassis "Sniper Attack umu" " .png"
+  chassis "Spartha Recon Hovercraft" " .png"
+  chassis "Stormhawk" " .png"
+  chassis "Talos Hovercraft" " .png"
+  chassis "Tank Destroyer" " .png"
+  chassis "Tecumseh Monitor" " .png"
+  chassis "Tormentor" " .png"
+  chassis "Tracked Scout" " .png"
+  chassis "Trailblazer Heavy Tank" " .png"
+  chassis "Urban Guerilla" " .png"
+  Small Vehicles
+  sea
+  Small Craft
+  exact "Foxhound Gunboat TIG-40" "dropships/Foxhound.png"
+  Space Station
+  Warships
+  all the new turrets go below here
+  Local Server/Client moved here to support overrides of existing images!

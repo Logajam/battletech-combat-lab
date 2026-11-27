@@ -280,10 +280,10 @@ body.tt-replay .tbar .rec{display:none}body.tt-replay #tt-tabs [data-tt-tab="tim
     const ctx = list.map((j) => `<div class="${j === shown ? "cur" : ""}" data-tt-go="${j}">${esc(st.steps[j].phase)}</div>`).join("");
     const can = i != null && meddleSpec(i);
     const banner = SAVE.candidate ? '<div class="tt-l crit">A NEW TIMELINE, not kept yet. Hold Meddle on your first answer to keep it. Live, or closing REC, goes back to the game you left.</div>' : "";
-    return `${banner}<div class="tt-h">${i == null ? "Live: the latest action was" : esc(KIND[s.k] || "")}</div>${d.html}
+    return nameHtml(`${banner}<div class="tt-h">${i == null ? "Live: the latest action was" : esc(KIND[s.k] || "")}</div>${d.html}
       <div class="tt-do"><button data-tt-do="live" class="${i == null ? "on" : ""}">${st.replay ? "End" : "Live"}</button>${st.replay && i != null ? '<button data-tt-do="from" class="go">Play from here</button>' : ""}${can ? '<button data-tt-do="meddle">Meddle here</button>' : ""}</div>
       ${i != null && !can ? '<div class="tt-l miss">Meddle is for a unit\'s move, shot or physical attack.</div>' : ""}${i == null && !SAVE.candidate ? '<div class="tt-l miss">Move a slider back to an action, then press Meddle here to take it over.</div>' : ""}
-      <div class="tt-ctx"><b>This turn</b>${ctx}</div>${d.raw ? `<div class="tt-raw">${esc(d.raw)}</div>` : ""}`;
+      <div class="tt-ctx"><b>This turn</b>${ctx}</div>${d.raw ? `<div class="tt-raw">${esc(d.raw)}</div>` : ""}`);
   }
   function timelinesHtml() {
     return `<div class="tt-l">Games you can switch between in this browser.</div><div class="tt-do">

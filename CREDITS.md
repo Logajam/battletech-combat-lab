@@ -42,6 +42,7 @@ the BattleTech community. This project would not exist without their work.
   2026-11-25: "licensed as allowed to be used for non commercial purposes, which is us"): non-commercial only, ShareAlike. The file keeps
   that notice in its header. Never relicense them; any download or copy carrying the file carries this credit. Own generic pictures for
   units without one are planned (Daniel, 2026-11-25) and will replace the plain fallback figure.
+- **Every stock 'Mech's own sprite** (2026-11-27): `engine/lab/web/sprites/` holds the 3,448 top-down images MegaMek's `mekset.txt` names (from https://github.com/MegaMek/mm-data, `data/images/units/meks`), unchanged, with `sprites/CREDITS.txt` (the artists named in `mekset.txt`); `spritemap.js` maps a unit's name to its file; `tools/make_mechsprites_all.py` makes both. Same licence and rules as the line below.
 - **MegaMek's asset licence, CONFIRMED against its own repository (2026-11-27; this closes the question, do not reopen it).** Read from
   `github.com/MegaMek/megamek` (`LICENSE`, `LICENSE.assets`, `README.md`): game data, artwork and other non-code assets are
   non-commercial only. `LICENSE` names CC BY-NC-SA 4.0 for "all game data and assets" and `LICENSE.assets` holds that full licence text; the
