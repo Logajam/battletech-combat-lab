@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BattleROM</title>
+<style>
+:root,[data-theme="slhisd"]{--bg:#12161b;--panel:#1a1f26;--face:#252c35;--hi:#39434f;--sh:#0c0f13;--bd:#6d7a88;--tx:#e6ebf0;--title:#3f5f80;--titletx:#dfe8f1;--ok:#6fbf86;--warn:#dba94a;--err:#e07468;--muted:#a3b2c1;--field:#1d242c;--dis:#8795a5;--link:#8fb2d4;--map:#0f1318;--go:#2f6a49;--rad:2px}
+[data-theme="slhis"]{--bg:#e8ebee;--panel:#f3f5f7;--face:#dfe3e8;--hi:#ffffff;--sh:#9aa3ab;--bd:#6b757f;--tx:#1d252d;--title:#516c88;--titletx:#fff;--ok:#2f7d4b;--warn:#8a5a00;--err:#a63b32;--muted:#4a545e;--field:#ffffff;--dis:#6b757f;--link:#2f5a85;--map:#cfd5db;--go:#2f7d4b;--rad:2px}
+[data-theme="w95"]{--bg:#008080;--panel:#c0c0c0;--face:#c0c0c0;--hi:#ffffff;--sh:#404040;--bd:#808080;--tx:#000;--title:#000080;--titletx:#fff;--ok:#006400;--warn:#7a4b00;--err:#a00000;--muted:#303030;--field:#ffffff;--dis:#6a6a6a;--link:#000080;--map:#2b2b2b;--go:#006400;--rad:0}
+[data-theme="modern"]{--bg:#101418;--panel:#1b2128;--face:#2a323b;--hi:#2a323b;--sh:#2a323b;--bd:#46515e;--tx:#eef2f6;--title:#1b2128;--titletx:#eef2f6;--ok:#58c27d;--warn:#e3b341;--err:#f0766b;--muted:#a6b3c0;--field:#141a20;--dis:#8795a5;--link:#7fb7ff;--map:#0d1115;--go:#1f7a4d;--rad:8px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:13px/1.35 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overscroll-behavior:none;overflow:hidden}
+button,select{font:inherit;color:var(--tx);background:var(--face);border:1px solid var(--bd);border-radius:var(--rad);min-height:32px;padding:0 12px;box-shadow:inset 1px 1px 0 var(--hi),inset -1px -1px 0 var(--sh);cursor:pointer}
+button:disabled{color:var(--dis);cursor:default}
+button.go{background:var(--go);border-color:var(--ok);color:#fff;font-weight:600}
+button.warn{background:#6b4f17;border-color:var(--warn);color:#fff}
+button.on{outline:2px solid var(--link)}
+button.sm{min-height:26px;padding:0 7px;font-size:12px}
+/* ===== THE OVERLAY LAYOUT (Daniel, 2026-11-26; INTEGRATION__UI_SYNC.md Sections 12 and 14, built from the frame mockup version 2.5,
+   reference_art/battlerom_ui/battlerom_frame_mockup.html). The map layer fills the screen; the page's parts lie on top of it in two panels:
+   sideways = your enemy's side on the left, yours on the right; upright = bands above and below. The square between them is kept clear
+   unless a wing or the inspector covers it. ===== */
+#app{--pg-bd:transparent;position:fixed;inset:0;height:100dvh}
+#app{position:relative;background:var(--bg);color:var(--tx);font:13px/1.35 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid var(--pg-bd);overflow:hidden;min-width:0;width:100%;height:100%;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#app button.go{background:var(--go);border-color:var(--ok);color:#fff;font-weight:600}
+#app button.on{outline:2px solid var(--link)}
+#app button:disabled{opacity:.45;cursor:default}
+#app .mapwrap{position:absolute;inset:0;overflow:hidden;touch-action:none}
+#app .msg{color:var(--muted);font-size:12px}
+
+/* the two panels */
+.pn{position:absolute;z-index:6;display:flex;flex-direction:column;min-width:0;min-height:0;background:color-mix(in srgb,var(--panel) 86%,transparent)}
+#app.wide .pnE{left:0;top:0;bottom:0;width:var(--side);border-right:1px solid var(--sh)}
+#app.wide .pnF{right:0;top:0;bottom:0;width:var(--side);border-left:1px solid var(--sh)}
+#app.tall .pnE{left:0;right:0;top:0;border-bottom:1px solid var(--sh)}
+#app.tall .pnF{left:0;right:0;bottom:0;border-top:1px solid var(--sh)}
+.pn .grow{flex:1;min-height:0}
+/* 1. title bar: phase, REC, Menu (BattleROM's name is left out first) */
+.tbar{display:flex;align-items:center;gap:5px;padding:3px 6px;background:var(--title);color:var(--titletx);min-height:34px;flex:none}
+.tbar .ph{flex:1;min-width:0;font-size:11.5px;line-height:1.25}
+.tbar .ph b{letter-spacing:.03em}
+#app .tbar button{min-height:28px;padding:0 8px}
+.tbar .rec{color:#ff9d92}
+.tbar .zm{display:flex;gap:3px}
+#app .tbar .zm button,#app .zrow button{width:30px;min-height:28px;padding:0;font-size:15px}
+.zrow{display:flex;gap:4px;justify-content:flex-end;padding:5px 6px;flex:none}
+/* 3 and 10. strips with stepping arrows at both ends */
+.srow{display:flex;align-items:stretch;gap:3px;padding:4px 4px;flex:none}
+#app .srow .arr{min-width:26px;padding:0;font-size:16px;font-weight:700}
+.srow .chips{flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+.echip{flex:none;min-width:58px;text-align:center;border:1px solid var(--bd);border-top:4px solid var(--err);background:var(--field);cursor:pointer;padding:2px 6px;font-size:12px;line-height:1.2}
+.echip b{display:block;font-size:13px}.echip.sel{outline:2px solid var(--link)}.echip.tgt{outline:2px solid #ff5a4a}
+.fchip{flex:none;display:flex;flex-direction:column;justify-content:center;padding:2px 7px;border:1px solid var(--bd);border-top:4px solid var(--link);background:var(--field);font-size:12px;line-height:1.2;cursor:pointer;min-width:64px}
+.un{font-weight:700}.fchip b{font-size:12px}.fchip .bar{width:44px;height:4px;background:var(--sh);margin-top:2px}.fchip .bar i{display:block;height:100%;background:var(--ok)}
+.fchip.sel{outline:2px solid var(--link)}.fchip.done{opacity:.62}
+/* 4 and 9.5. the two lines: last clicked (with Inspect) and the active unit (with Report) */
+.line{display:flex;align-items:center;gap:6px;padding:4px 6px;font-size:12px;min-height:36px;flex:none;border-top:1px solid var(--sh);border-bottom:1px solid var(--sh);background:color-mix(in srgb,var(--face) 70%,transparent)}
+.line .k{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.line .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .line button{min-height:28px;padding:0 9px;font-size:12px}
+.line.act{border-left:4px solid var(--link)} .line.last{border-left:4px solid #ff5a4a}
+/* corners: MP / heat display (bottom left), Commit with Undo / Clear (bottom right sideways, bottom centre upright) */
+.bl{display:flex;gap:5px;padding:6px;align-items:stretch;flex:none}
+.br{display:flex;flex-direction:column;gap:5px;padding:6px;flex:none}
+.br .ud{display:flex;gap:5px}.br .ud button{flex:1}
+.brow{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;padding:6px;align-items:stretch;flex:none}
+.brow .l{display:flex;gap:5px;justify-self:start}.brow .r{display:flex;flex-direction:column;gap:5px;justify-self:start}
+#app .ud button,#app .brow .r button{min-height:36px;font-weight:600}
+#app .mpw{min-width:96px;min-height:56px;padding:3px 8px;display:grid;grid-template-columns:auto auto;column-gap:8px;text-align:left;align-content:center}
+.mpw .big{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}.mpw .big small{font-size:11px;color:var(--muted)}
+.mpw .sm{font-size:11px;font-variant-numeric:tabular-nums}.mpw .ht{grid-column:2;grid-row:1/span 2;font-size:10px;color:var(--muted);text-align:right;align-self:start}
+.mpw .ht.over{color:var(--err);font-weight:700}.mpw .hint{grid-column:1/span 2;font-size:10px;color:var(--link)}
+#app .mpw.hot{border-color:var(--err);background:#4a1f1b;color:#fff}
+#app .more{min-width:44px;min-height:56px;padding:0 8px;font-size:12px}
+#app .more.ctx{background:#6b4f17;border-color:var(--warn);color:#fff;font-weight:600}
+#app .commit{position:relative;overflow:hidden;min-width:118px;min-height:58px;padding:4px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;color:#0c0f13;border:2px solid rgba(0,0,0,.45);box-shadow:none}
+.commit .lab{font-size:17px;position:relative}.commit .sub{font-size:10px;font-weight:600;position:relative;opacity:.85}
+.commit .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.45)}
+.commit .warn{position:absolute;top:2px;right:5px;font-size:13px}
+/* 6. weapons: mostly see-through boxes, colour = firing state, the to-hit number in each box; a tint = the range bracket */
+.ring{position:absolute;inset:0;pointer-events:none}
+.wb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:5px;padding:3px 4px 3px 7px;border-radius:4px;border:1.5px solid #6fbf86;background:rgba(10,14,18,.28);color:#fff;font:600 11px/1.15 Inter,system-ui,sans-serif;text-shadow:0 0 3px #000,0 0 2px #000;cursor:pointer;pointer-events:auto;white-space:nowrap;touch-action:none}
+.wb.rdy{box-shadow:0 0 7px 1px rgba(111,191,134,.85)}
+.wb.on{border-color:#ff5a4a;box-shadow:0 0 9px 2px rgba(255,80,60,.95);background:rgba(120,20,12,.32)}
+.wb.out{border-color:#7a828c;color:#b9c1ca;box-shadow:none;background:rgba(10,14,18,.2)}
+.wb.med{background-image:linear-gradient(rgba(219,169,74,.22),rgba(219,169,74,.22))}.wb.lng{background-image:linear-gradient(rgba(224,116,104,.26),rgba(224,116,104,.26))}
+.wb .tn{font:700 12px/1 ui-monospace,"IBM Plex Mono",monospace;background:rgba(255,255,255,.14);border-radius:3px;padding:3px 4px;min-width:22px;text-align:center}
+.wb .lc{font-size:8px;color:#cfd6de;font-weight:700}
+.wcap{position:absolute;left:0;top:0;font:700 9px/1 Inter,sans-serif;letter-spacing:.06em;color:#cfd6de;text-shadow:0 0 3px #000;pointer-events:none}
+.wlist{display:flex;flex-direction:column;gap:5px;padding:6px;overflow:auto;flex:1;min-height:0}
+.wlist .wb{position:static}
+.ctxbox{position:absolute;left:0;top:0;display:flex;gap:4px;pointer-events:auto}
+#app .ctxbox button{min-height:30px;font-size:12px;padding:0 9px;background:#6b4f17;border-color:#dba94a;color:#fff;font-weight:600}
+.mk.hit{pointer-events:auto;cursor:pointer}
+/* 15. wings */
+.edge{position:absolute;top:50%;width:18px;height:120px;margin-top:-60px;z-index:7;padding:0;border:0;background:transparent;box-shadow:none;cursor:pointer;touch-action:none}
+#app .edge{min-height:0;padding:0;border:0;background:transparent;box-shadow:none}
+.edge::before{content:"";position:absolute;inset:0;background:var(--link);opacity:.88}
+.edge.L{left:0}.edge.L::before{clip-path:polygon(0 0,100% 50%,0 100%)}
+.edge.R{right:0}.edge.R::before{clip-path:polygon(100% 0,0 50%,100% 100%)}
+.wing{position:absolute;top:0;bottom:0;width:50%;z-index:8;background:var(--panel);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--bd),0 0 24px rgba(0,0,0,.5);transition:transform .18s ease-out,width .18s ease-out}
+.wing.L{left:0;transform:translateX(-102%)}.wing.R{right:0;transform:translateX(102%)}
+.wing.L.open,.wing.R.open{transform:none}.wing.full{width:100%}
+.wing .wh{display:flex;gap:4px;padding:6px 26px 6px 6px;overflow-x:auto;flex:none;border-bottom:1px solid var(--sh);touch-action:pan-x}
+.wing.R .wh{padding:6px 6px 6px 26px}
+#app .wing .wh button,#app .insp .it button{min-height:30px;padding:0 8px;font-size:12px;flex:none}
+.wing .wbody{flex:1;min-height:0;overflow:auto;padding:8px 26px 12px 10px;touch-action:pan-y}
+.wing.R .wbody{padding:8px 10px 12px 26px}
+.wing .grip{position:absolute;top:50%;width:22px;height:170px;margin-top:-85px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.wing.L .grip{right:0}.wing.R .grip{left:0}
+#app .wing .grip button{flex:1;min-height:0;padding:0;border:0;box-shadow:none;background:transparent;position:relative}
+.wing .grip button::before{content:"";position:absolute;inset:0;background:var(--link);opacity:.88}
+.wing .grip .mo{flex:.45}
+.wing.L .grip .cl::before,.wing.R .grip .mo::before{clip-path:polygon(100% 0,0 50%,100% 100%)}
+.wing.L .grip .mo::before,.wing.R .grip .cl::before{clip-path:polygon(0 0,100% 50%,0 100%)}
+.wing.full .grip .mo{visibility:hidden}
+/* 16. inspector */
+.insp{position:absolute;left:0;right:0;top:0;height:50%;z-index:10;background:var(--panel);display:flex;flex-direction:column;box-shadow:0 1px 0 var(--bd),0 10px 30px rgba(0,0,0,.55);transform:translateY(-102%);transition:transform .18s ease-out,height .18s ease-out}
+.insp.open{transform:none}.insp.full{height:100%}
+.insp .ih{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--title);color:var(--titletx);touch-action:none;cursor:grab;flex:none}
+.insp .ih .tt{flex:1;min-width:0}.insp .ih .t1{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.insp .ih .t2{font-size:11px;opacity:.85}
+.insp .it{display:flex;gap:4px;padding:6px;overflow-x:auto;flex:none;border-bottom:1px solid var(--sh)}
+.insp .ib{flex:1;min-height:0;overflow:auto;padding:8px 10px 10px;touch-action:pan-y}
+.insp .ig{flex:none;text-align:center;font-size:10px;color:var(--muted);padding:3px 0 4px;border-top:1px solid var(--sh);touch-action:none}
+.icatch{position:absolute;left:0;right:0;bottom:0;height:50%;z-index:9;display:none;touch-action:none}.icatch.on{display:block}
+/* pages (one set of tabs for the wings and the inspector) */
+.pg h4{margin:10px 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--link)}.pg h4:first-child{margin-top:0}
+.pg .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12px}.pg .kv span:nth-child(odd){color:var(--muted)}
+.pg .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.pg .note{font-size:11px;color:var(--muted);margin-top:6px}
+.pg table{border-collapse:collapse;width:100%;font-size:12px}.pg td,.pg th{padding:3px 4px;border-bottom:1px solid var(--face);text-align:left}
+.pg th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.pg td.n{text-align:right;font-variant-numeric:tabular-nums}
+.pg tr.tot td{border-top:2px solid var(--bd);font-weight:700;font-size:14px}
+.pg select{font:inherit;color:var(--tx);background:var(--field);border:1px solid var(--bd);min-height:30px}
+.pg .bars{display:grid;grid-template-columns:auto 1fr 1fr;gap:3px 6px;align-items:center;font-size:11px;max-width:320px}
+.pg .bars i{display:block;height:7px;background:var(--sh)}.pg .bars i b{display:block;height:100%}
+/* menu, toast */
+.menu{position:absolute;z-index:12;width:min(260px,calc(100% - 12px));max-height:calc(100% - 50px);overflow:auto;background:var(--panel);border:1px solid var(--bd);box-shadow:0 8px 24px rgba(0,0,0,.5);padding:4px}
+.menu .f{padding:5px 8px 2px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--link)}
+.menu .item{padding:7px 8px;cursor:pointer;min-height:32px}.menu .item:hover{background:var(--face)}.menu .item.on::before{content:"\2713 ";color:var(--ok)}
+.toast{position:absolute;left:50%;transform:translateX(-50%);z-index:15;background:rgba(10,14,18,.9);color:#fff;border:1px solid var(--bd);border-radius:3px;padding:6px 10px;font-size:12px;pointer-events:none;max-width:70%;text-align:center}
+/* round 2 (Daniel, 2026-11-26): smaller action buttons; upright they float over the map just above the Active line; the map controls
+   float at the top left of the map area */
+#app .commit{min-width:96px;min-height:46px;padding:2px 10px}.commit .lab{font-size:15px}
+#app .mpw{min-width:84px;min-height:46px;padding:2px 7px}.mpw .big{font-size:13px}
+#app .more{min-width:38px;min-height:46px}
+#app .ud button{min-height:32px}
+.afloat{position:absolute;left:6px;right:6px;z-index:6;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:stretch;pointer-events:none}
+.afloat:empty{display:none}.afloat>*{pointer-events:auto}
+.afloat .l{display:flex;gap:5px;justify-self:start}.afloat .r{display:flex;gap:5px;justify-self:end}
+#app .afloat .r button{min-height:46px;min-width:52px;font-weight:600}
+#app.wide .afloat{display:none}
+.afloat .mpw .hint{display:none}#app .afloat .mpw{min-width:104px;max-height:46px}#app .afloat .r button{min-width:48px}
+.zfloat{position:absolute;z-index:6;display:flex;flex-direction:column;gap:4px}
+.zfloat .zm{display:flex;flex-direction:column;gap:4px}
+#app .zfloat button{width:32px;min-height:30px;padding:0;font-size:15px;background:color-mix(in srgb,var(--face) 85%,transparent)}
+/* round 3 (Daniel, 2026-11-26) */
+/* the top line of the map area: camera controls left; turn information, REC and Menu right */
+.zfloat.topline{flex-direction:row;align-items:flex-start;gap:6px;pointer-events:none}.zfloat.topline>*{pointer-events:auto}
+.zfloat.topline .zm{flex-direction:row}.zfloat.topline .sp{flex:1;pointer-events:none}
+.zfloat .turn{flex:0 1 auto;min-width:0;margin-left:auto;background:color-mix(in srgb,var(--panel) 84%,transparent);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:11px;line-height:1.25;color:var(--tx)}
+#app .zfloat > button.ic{min-height:30px;padding:0;flex:none}
+#app .zfloat > button{min-height:30px;padding:0 9px;border-radius:6px;background:color-mix(in srgb,var(--face) 85%,transparent)}
+.zfloat .rec{color:#ff9d92}
+/* Undo and Clear: icons, the size of the camera buttons */
+#app button.ic{width:32px;min-width:32px;min-height:30px;padding:0;font-size:16px;font-weight:700;border-radius:6px}
+.br .ud{justify-content:flex-end}.br .ud button{flex:none}
+#app .afloat .r button.ic{min-width:32px;min-height:30px;align-self:center}
+/* the action buttons look like buttons: rounded, raised, shiny (Commit: the big shiny button) */
+#app .commit,#app .mpw,#app .more{border-radius:14px;border:1px solid rgba(0,0,0,.55);background-image:linear-gradient(to bottom,rgba(255,255,255,.42),rgba(255,255,255,.1) 46%,rgba(0,0,0,0) 54%,rgba(0,0,0,.16));
+  box-shadow:0 3px 0 rgba(0,0,0,.5),0 6px 14px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -5px 9px rgba(0,0,0,.16)}
+#app .mpw,#app .more{background-color:color-mix(in srgb,var(--face) 92%,transparent);background-image:linear-gradient(to bottom,rgba(255,255,255,.16),rgba(255,255,255,.04) 46%,rgba(0,0,0,0) 54%,rgba(0,0,0,.2))}
+#app .commit:active:not(:disabled),#app .mpw:active,#app .more:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5)}
+#app .commit .fill{border-radius:14px}
+.mpw .big{white-space:nowrap}.mpw .hint.on{display:block;color:#ffd0c8;grid-column:1/span 2}
+/* weapon names smaller; the boxes hold their own over a placard */
+.wb{font-size:10px;gap:4px;padding:2px 3px 2px 6px;background-color:rgba(10,14,18,.7);backdrop-filter:blur(2px);z-index:3}
+.wb .tn{font-size:11px;padding:2px 4px}
+/* scale with the screen: --ws is set on #ring by placeOverlay (1 on a phone, up to 1.7 on a desktop window) */
+#ring .wb{font-size:calc(10px*var(--ws,1));gap:calc(4px*var(--ws,1));padding:calc(2px*var(--ws,1)) calc(3px*var(--ws,1)) calc(2px*var(--ws,1)) calc(6px*var(--ws,1))}
+#ring .wb .tn{font-size:calc(11px*var(--ws,1));padding:calc(2px*var(--ws,1)) calc(4px*var(--ws,1));min-width:calc(22px*var(--ws,1))}
+#ring .wb .to{font-size:calc(9px*var(--ws,1))}#ring .wb .n2,#ring .wb .lc{font-size:calc(8.5px*var(--ws,1))}
+.wb.on{background-color:rgba(120,20,12,.75)}.wb.out{background-color:rgba(10,14,18,.55)}
+/* the wing tabs: the Lab's grip look (parallel lines), on the edges of the map area */
+#app .edge{width:16px;height:88px;margin-top:-44px;background:color-mix(in srgb,var(--face) 94%,transparent);border:1px solid var(--bd);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+#app .edge.L{border-radius:0 6px 6px 0}#app .edge.R{border-radius:6px 0 0 6px}
+#app .edge::before,#app .edge.L::before,#app .edge.R::before{clip-path:none;left:4px;right:4px;top:22px;bottom:14px;background:repeating-linear-gradient(90deg,var(--tx) 0 1px,transparent 1px 3px);opacity:.7}
+#app .edge::after{content:"";position:absolute;left:50%;top:6px;width:0;height:0;border:5px solid transparent;transform:translateX(-25%)}
+#app .edge.L::after{border-left-color:var(--tx)}#app .edge.R::after{border-right-color:var(--tx);transform:translateX(-75%)}
+/* round 4 (Daniel, 2026-11-26) */
+#app .tbar .sp{flex:1}
+#app .commit .lab{font-weight:800;letter-spacing:.02em}#app .commit .sub{opacity:1;font-weight:700}
+#app .commit.lt{color:#0c0f13;text-shadow:0 1px 0 rgba(255,255,255,.55)}
+#app .commit.dk{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.9),0 0 1px #000}
+#app .commit{background-image:linear-gradient(to bottom,rgba(255,255,255,.26),rgba(255,255,255,.06) 46%,rgba(0,0,0,0) 54%,rgba(0,0,0,.18))}
+#app .commit:disabled{opacity:.6}
+.wb.gry{border-color:#7a828c;color:#b9c1ca;box-shadow:none;background-color:rgba(60,66,74,.75)}
+.wb.blk{border-color:#000;color:#555c64;box-shadow:none;background-color:rgba(0,0,0,.85);text-decoration:line-through}
+.wb.else{border-style:dashed;border-color:#ffd400;box-shadow:0 0 8px 1px rgba(255,212,0,.65);background-color:rgba(80,62,0,.78)}
+.wb .to{font-size:9px;color:#ffe680}
+.tbar.c3{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.tbar.c3 > button:first-child{justify-self:start}.tbar.c3 > b{justify-self:center}.tbar.c3 > .rec{justify-self:end}
+/* round 6 (Daniel, 2026-11-26) */
+/* Commit's letters get a hard outline so they pop off any colour */
+#app .commit.dk .lab,#app .commit.dk .sub{color:#fff;text-shadow:-1.5px -1.5px 0 #000,1.5px -1.5px 0 #000,-1.5px 1.5px 0 #000,1.5px 1.5px 0 #000,0 -1.5px 0 #000,0 1.5px 0 #000,-1.5px 0 0 #000,1.5px 0 0 #000,0 0 4px #000}
+#app .commit.lt .lab,#app .commit.lt .sub{color:#0c0f13;text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 -1.5px 0 #fff,0 1.5px 0 #fff,-1.5px 0 0 #fff,1.5px 0 0 #fff,0 0 4px rgba(255,255,255,.8)}
+/* the open wing's grip matches the closed tab: the line grip, a small arrow for the way it goes */
+#app .wing .grip{width:18px;height:150px;margin-top:-75px;gap:4px}
+#app .wing .grip button{border:1px solid var(--bd);background:color-mix(in srgb,var(--face) 94%,transparent);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.wing.L .grip button{border-radius:6px 0 0 6px}.wing.R .grip button{border-radius:0 6px 6px 0}
+#app .wing .grip button::before,.wing.L .grip .cl::before,.wing.R .grip .mo::before,.wing.L .grip .mo::before,.wing.R .grip .cl::before{clip-path:none;left:4px;right:4px;top:18px;bottom:8px;background:repeating-linear-gradient(90deg,var(--tx) 0 1px,transparent 1px 3px);opacity:.7}
+#app .wing .grip button::after{content:"";position:absolute;left:50%;top:5px;width:0;height:0;border:5px solid transparent}
+/* the arrows inside the wing's slide buttons: `#app` too, or the transparent border of the rule above wins and no arrow shows (Daniel, 2026-11-27) */
+#app .wing.L .grip .cl::after,#app .wing.R .grip .mo::after{border-right-color:var(--tx);transform:translateX(-75%)}
+#app .wing.L .grip .mo::after,#app .wing.R .grip .cl::after{border-left-color:var(--tx);transform:translateX(-25%)}
+.tbar.c3 > button{white-space:nowrap}#app.wide .tbar.c3 > b{font-size:12px}
+@media (prefers-reduced-motion: reduce){.wing,.insp{transition:none}}
+
+#app [hidden]{display:none!important}
+#mapwrap{position:absolute;inset:0;overflow:hidden;touch-action:none;background:var(--map)}
+svg#map{width:100%;height:100%;display:block;background:var(--map);user-select:none;-webkit-user-select:none}
+#mapwrap.tabletop{background:radial-gradient(ellipse at 50% 62%,#0e2431 0%,#06101a 62%,#03070b 100%)}
+#ztilt{display:none}#app.d3 #ztilt{display:inline-block}
+/* room for the phone's notch, status bar and home bar (A6) */
+#app.tall .pnE{padding-top:env(safe-area-inset-top)}#app.tall .pnF{padding-bottom:env(safe-area-inset-bottom)}
+#app.wide .pnE{padding-left:env(safe-area-inset-left)}#app.wide .pnF{padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+/* the question box: a question that needs words (MASC, spotting, TAG, the End Phase switches) at the top of the clear area */
+.ask{position:absolute;z-index:7;max-width:min(440px,calc(100% - 12px));max-height:46%;overflow:auto;background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--bd);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.45);padding:8px 10px}
+.ask:empty{display:none}.ask h3{margin:0 0 4px;font-size:13px;color:var(--link)}
+.ask .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ask .cfm ul{margin:4px 0 2px 16px;padding:0;font-size:12px}
+#app .ask button{min-height:30px;font-size:12px}
+#card{position:absolute;z-index:16;background:var(--panel);border:1px solid var(--bd);padding:8px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.5);max-width:min(420px,calc(100% - 16px));max-height:70%;overflow:auto;border-radius:6px}
+#card .cardrep{max-height:50vh;overflow:auto;padding:4px 0;font-size:12px}
+#app .pg .acts button,#app .pg .sw button{min-height:30px;font-size:12px}
+.wb.foc{outline:2px solid #fff;outline-offset:1px}
+.wb .n2{font-size:8.5px;color:#cfd6de;margin-left:-2px}
+.aimrow{position:absolute;display:flex;flex-wrap:wrap;gap:4px;pointer-events:auto}
+/* the report is the BOTTOM HALF of the screen (REC layer, prompt 2.1): the map above it stays usable; its Report button is kept on top (tt_layer.js) */
+#report{position:fixed;left:0;right:0;bottom:0;top:50%;z-index:1000;background:transparent;display:none;padding:0;pointer-events:none}
+#rbox{pointer-events:auto;height:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--bd);box-shadow:0 8px 28px rgba(0,0,0,.6)}
+#rhead{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--title);color:var(--titletx)}#rhead button{min-height:34px;min-width:80px}
+#rbody{flex:1;overflow:auto;padding:8px 10px;font-size:13px;line-height:1.45;color:var(--tx)}
+:is(#rbody,.cardrep) .rt{margin:10px 0 4px;padding:3px 6px;background:var(--face);font-weight:700}:is(#rbody,.cardrep) .rh{margin:8px 0 2px;border-top:1px solid var(--bd);padding-top:6px}#rbody small,:is(#rbody,.cardrep) .rd,:is(#rbody,.cardrep) .rm{color:var(--muted)}:is(#rbody,.cardrep) .rm b{color:var(--tx)}:is(#rbody,.cardrep) .rm{margin:2px 0}
+:is(#rbody,.cardrep) .rp{margin:8px 0 2px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu,#9aa6b2)}
+:is(#rbody,.cardrep) .rr{margin:0 0 4px 30px}:is(#rbody,.cardrep) .rl{font-size:12px}:is(#rbody,.cardrep) .rl.dm{color:var(--mu,#9aa6b2)}
+:is(#rbody,.cardrep) .rl.crit{color:#ffd24a;font-weight:700;background:rgba(255,210,74,.12);padding:1px 4px;border-radius:3px;display:inline-block;margin:1px 0}
+:is(#rbody,.cardrep) .rl.big{color:#ff9b8f;font-weight:600}:is(#rbody,.cardrep) .rl.ck{color:#ffd24a}#report.nodice .dice,body.nodice .cardrep .dice{display:none}
+:is(#rbody,.cardrep) .rs{margin:1px 0 1px 12px;padding-left:6px;border-left:3px solid var(--bd)}:is(#rbody,.cardrep) .rs.hit{border-left-color:var(--err);color:var(--tx)}:is(#rbody,.cardrep) .rs.miss{border-left-color:var(--bd);color:var(--muted)}
+.tnt{border-collapse:collapse;margin:6px 0;width:100%}.tnt td{padding:2px 4px;border-bottom:1px solid var(--face)}.tnt td+td{text-align:right;font-weight:700;white-space:nowrap}.tnt tr.tot td{border-top:2px solid var(--bd);font-size:15px}
+.wrow .fc.else{background:#3b3550;border-color:#8a7fc0}
+
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
+.msg{color:var(--muted);font-size:12px;margin:2px 0}
+.err{color:var(--err)} .warnt{color:var(--warn)} .okt{color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:12px}
+td,th{padding:3px 4px;border-bottom:1px solid var(--face);text-align:left;white-space:nowrap}
+th{color:var(--muted);font-weight:500}
+tr.out td{color:var(--dis)}
+tr.pick td{background:rgba(111,191,134,.14)}
+tr.jam td{background:rgba(224,116,104,.15)}
+td.w{white-space:normal}
+.locrow{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:12px}
+.locrow .nm{width:34px;color:var(--muted)} .locrow .bars{flex:1}
+.bar2{height:7px;background:var(--sh);margin:1px 0;position:relative}.bar2 b{display:block;height:100%}
+.crit{display:flex;gap:4px;flex-wrap:wrap;font-size:11px;margin:2px 0 6px}.crit span{border:1px solid var(--bd);padding:1px 5px;background:var(--field)} .crit span.x{text-decoration:line-through;color:var(--err);border-color:var(--err)}
+.sw{display:flex;align-items:center;gap:8px;margin:5px 0;flex-wrap:wrap}
+.sw label{min-width:110px}
+.tnp{font-size:11px;font-weight:700;padding:0 4px;border:1px solid var(--bd);background:var(--face);min-width:26px;text-align:center;white-space:nowrap}
+.tnp.no{color:var(--muted);font-weight:400}
+.sil{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:360px;margin:4px auto}
+.sil .loc{border:1px solid var(--bd);background:var(--field);padding:3px;text-align:center;font-size:10px;color:var(--muted);min-height:44px}
+.sil .loc.dead{opacity:.35}
+.pips{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin:2px 0}
+.pips i{display:block;width:6px;height:6px;background:#f2f4f6;border:1px solid #0c0f13}.pips i.s{background:#8a96a3}.pips i.r{background:var(--err);border-color:#400}
+.wt{width:100%}.wt td,.wt th{white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app" class="tall">
+  <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg><div class="ring" id="ring"></div></div>
+  <div class="pn pnE" id="pnE"></div>
+  <div class="pn pnF" id="pnF"></div>
+  <div class="zfloat topline" id="topline"><span class="zm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zfit" aria-label="Fit the whole map">&#9635;</button><button id="ztilt" aria-label="Tilt the tabletop view">&#9698;</button></span><span class="turn" id="phase">starting...</span></div>
+  <div class="afloat" id="afloat"></div>
+  <div class="ask" id="ask"></div>
+  <button class="edge L" data-act="edge" data-side="L" data-flick="1" aria-label="Open the left wing"></button>
+  <button class="edge R" data-act="edge" data-side="R" data-flick="1" aria-label="Open the right wing"></button>
+  <div class="wing L" id="wingL"><div class="wh" data-act="whead" data-side="L" data-flick="1"></div><div class="wbody pg"></div>
+    <div class="grip"><button class="mo" data-act="wmore" data-side="L" data-flick="1" aria-label="Cover the whole screen"></button><button class="cl" data-act="wclose" data-side="L" data-flick="1" aria-label="Close the wing"></button></div></div>
+  <div class="wing R" id="wingR"><div class="wh" data-act="whead" data-side="R" data-flick="1"></div><div class="wbody pg"></div>
+    <div class="grip"><button class="mo" data-act="wmore" data-side="R" data-flick="1" aria-label="Cover the whole screen"></button><button class="cl" data-act="wclose" data-side="R" data-flick="1" aria-label="Close the wing"></button></div></div>
+  <div class="icatch" id="icatch"></div>
+  <div class="insp" id="insp"><div class="ih" data-act="ihead" data-flick="1"><div class="tt"><div class="t1"></div><div class="t2"></div></div><button data-act="iclose" aria-label="Close the inspector">&times;</button></div>
+    <div class="it"></div><div class="ib pg"></div><div class="ig" data-act="ihead" data-flick="1">flick the header down for full screen &middot; up, or touch the map, to close</div></div>
+  <div class="menu" id="menu" hidden></div>
+  <div id="card"></div>
+  <div id="report"></div>
+  <div class="toast" id="toast" hidden></div>
+</div>
+<script src="boardart.js"></script>
+<script src="mapview.js"></script>
+<script src="coi.js"></script>
+<script src="wasmio.js"></script>
+<script src="engine.js"></script>
+<script src="play.js"></script>
+<script src="tt_layer.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Combat Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="lab.css">
+</head>
+<body>
+<!--LAB-BODY-->
+<div class="window" id="app">
+  <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name">Combat Lab</span><span class="mode" id="mode"></span><button class="btn small" id="reset-layout" title="Put every window back where it started">Reset layout</button></div>
+  <div class="banner" id="banner" hidden></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-units" aria-selected="true" data-page="units">Units</button>
+    <button class="tab" role="tab" id="tab-map" aria-selected="false" data-page="map">Map</button>
+    <button class="tab" role="tab" id="tab-options" aria-selected="false" data-page="options">Options</button>
+    <button class="tab" role="tab" id="tab-results" aria-selected="false" data-page="results">Results</button>
+    <button class="tab" role="tab" id="tab-replay" aria-selected="false" data-page="replay">Replay</button>
+  </div>
+
+  <!-- UNITS (CL11/CL12): a row across the top (Battle, Estimated runtime, Run), then odd teams on the left, the Unit
+       Browser permanently open in the centre, even teams on the right. Every panel can be dragged out by its title bar
+       into a floating window (resize at the corner; double-click the title to put it back). -->
+  <section class="page" id="page-units" role="tabpanel">
+    <div class="units-top">
+      <fieldset>
+        <legend>Battle</legend>
+        <div class="form">
+          <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" value="2"></label>
+          <label class="row" for="battles">Number of simulations <input type="number" id="battles" min="1" max="100000" value="20"></label>
+          <span class="note" id="team-sum"></span>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Estimated runtime</legend>
+        <div class="readout sunken" id="estimate">Press Estimate</div>
+        <div style="margin-top:6px"><button class="btn" id="estimate-btn">Estimate</button></div>
+      </fieldset>
+      <fieldset class="run-box">
+        <legend>Run</legend>
+        <button class="btn big" id="run-btn">Run Simulation</button>
+        <button class="btn big" id="resume-btn" hidden title="Go on with the battle you left (kept in this browser)">Resume battle</button>
+        <button class="btn big" id="open-game-btn" title="Open a saved game file">Open game file</button><input type="file" id="open-game-file" accept=".json,application/json" hidden>
+        <button class="btn big" id="play-btn" title="Play a battle: set one team's bot to Human first">Play</button>
+        <div class="note" id="where"></div>
+        <div class="err" id="run-error" role="alert"></div>
+      </fieldset>
+    </div>
+    <div class="units-desk">
+      <div class="col" id="teams-left"></div>
+      <div class="colgrip" id="grip-left" title="Drag to make the team columns wider or narrower; double-click to reset"></div>
+      <div class="col centre-col" id="browser-slot">
+        <div class="win browser" id="browser" data-wkey="browser">
+          <div class="wtitle" id="ub-title"><span class="name">Unit Browser</span></div>
+          <div class="wbody">
+            <div class="filters">
+              <label for="ub-name">Name <input type="search" id="ub-name" placeholder="e.g. atlas"></label>
+              <label for="ub-class">Weight class <select id="ub-class"><option value="">Any</option><option value="light">Light (20-35 t)</option><option value="medium">Medium (40-55 t)</option><option value="heavy">Heavy (60-75 t)</option><option value="assault">Assault (80-100 t)</option><option value="superheavy">Super-heavy</option></select></label>
+              <button class="btn" id="ub-clear">Clear selection</button>
+            </div>
+            <div class="filters add-to">
+              <label for="ub-addto">Add to <select id="ub-addto"></select></label>
+              <button class="btn" id="ub-add" disabled>Add selected (0)</button>
+              <button class="btn" id="ub-file" title="Add a .mtf unit file from this computer to that team">From file&hellip;</button>
+              <input type="file" id="ub-fileinput" accept=".mtf" multiple hidden>
+              <button class="btn" id="ub-adv-btn">Advanced search&hellip;</button>
+            </div>
+            <div class="list sunken ub-list"><table id="ub-list"><thead></thead><tbody></tbody></table></div>
+            <div class="note" id="ub-picked"></div>
+            <div class="note" id="ub-count"></div>
+          </div>
+        </div>
+      </div>
+      <div class="colgrip" id="grip-right" title="Drag to make the team columns wider or narrower; double-click to reset"></div>
+      <div class="col" id="teams-right"></div>
+    </div>
+    <div class="float-layer" id="units-float"></div>
+  </section>
+
+  <!-- MAP: pick a board (or a random one of those shown) -->
+  <section class="page" id="page-map" role="tabpanel" hidden>
+    <div class="split">
+      <div>
+        <div class="filters">
+          <label class="row" for="map-one"><input type="radio" name="map-mode" id="map-one" checked> One board</label>
+          <label class="row" for="map-stitch"><input type="radio" name="map-mode" id="map-stitch"> Boards stitched together</label>
+          <label class="row" for="map-playlist"><input type="radio" name="map-mode" id="map-playlist"> Map list (battles cycle through it)</label>
+        </div>
+        <fieldset id="playlist-box" hidden>
+          <legend>Map list</legend>
+          <div class="filters">
+            <label for="playlist-order">Order <select id="playlist-order"><option value="sequence">Playlist order</option><option value="shuffle">Shuffle (a fresh order each pass)</option></select></label>
+            <button class="btn small" id="playlist-clear">Clear list</button>
+          </div>
+          <p class="note">Double-click boards in the list below to add them (a single click only previews one); the newest goes on top. Battle 1 uses the first map, battle 2 the next, and so on round again.</p>
+          <div class="playlist sunken"><table class="leaves" id="playlist"><tbody></tbody></table></div>
+        </fieldset>
+        <fieldset id="stitch-box" hidden>
+          <legend>Stitched map</legend>
+          <div class="filters">
+            <label class="row" for="stitch-cols">Across <input type="number" id="stitch-cols" min="1" max="8" value="2"></label>
+            <label class="row" for="stitch-rows">Down <input type="number" id="stitch-rows" min="1" max="8" value="1"></label>
+          </div>
+          <p class="note">Choose a place in the grid, then double-click a board in the list; the next place is chosen for you. Boards in a row must share a height, boards in a column a width. Random map fills every place with boards of one size.</p>
+          <div class="stitch-grid" id="stitch-grid"></div>
+        </fieldset>
+        <div class="filters">
+          <label for="board-search">Search <input type="search" id="board-search" placeholder="Name or map set"></label>
+          <label for="board-size">Size <select id="board-size"><option value="">Any</option></select></label>
+          <button class="btn" id="board-random">Random map</button>
+        </div>
+        <p class="note">Click a board to preview it; double-click to choose it.</p>
+        <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="right-col">
+      <fieldset id="zones-box">
+        <legend>Starting zones</legend>
+        <div class="filters">
+          <label for="zone-mode">Deployment <select id="zone-mode"><option value="rulebook">Core Rulebook (initiative roll, home edge)</option><option value="fixed">Fixed zones</option><option value="rotating">Rotating zones</option><option value="random">Random zone each battle</option></select></label>
+          <label class="row" for="zone-opposite"><input type="checkbox" id="zone-opposite"> Keep teams opposite <span class="tag off" id="zone-opposite-tag" hidden>2 teams only</span></label>
+        </div>
+        <div class="zone-grids" id="zone-grids"></div>
+        <p class="note" id="zone-note"></p>
+      </fieldset>
+      <fieldset class="chosen">
+        <legend>Chosen board</legend>
+        <div id="board-chosen"></div>
+        <canvas id="map-preview" class="sunken" width="10" height="10" aria-label="Preview of the whole map"></canvas>
+        <div class="legend" id="map-legend"></div>
+        <p class="note">Colours show height: each level is a step in the ramp above. Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
+      </fieldset>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPTIONS (CL15): sub-tabs (Game setup, Bot features), folders inside them, a search over all of it. The list of
+       settings is options.json, made from the engine's settings by tools/make_options_registry.py. -->
+  <section class="page" id="page-options" role="tabpanel" hidden>
+    <div class="filters opt-bar">
+      <label for="opt-search">Search options <input type="search" id="opt-search" placeholder="e.g. cluster, bravery, legate" autocomplete="off"></label>
+      <span class="note" id="opt-count"></span>
+      <button class="btn" id="opt-reset-all">Reset all options to defaults</button>
+    </div>
+    <div class="subtabs" role="tablist" id="opt-subtabs">
+      <button class="subtab" role="tab" data-pane="game" aria-selected="true">Game setup</button>
+      <button class="subtab" role="tab" data-pane="bots" aria-selected="false">Bot features</button>
+    </div>
+    <div class="opt-pane" id="opt-pane-game">
+      <details class="folder" open data-folder="Run" id="opt-run">
+        <summary>Run</summary>
+        <div class="opt" data-search="cpu threads cores run full power speed potato">
+          <div class="opt-main"><label for="threads" title="0 = automatic: leaves a quarter of the cores (at least one) free for your other programs">CPU threads (0 = automatic, leaves room for other programs)</label><input type="number" id="threads" min="0" max="256" value="0"></div>
+          <div class="opt-main"><label class="row" for="full-power"><input type="checkbox" id="full-power"> Full power</label><span class="note warn" id="full-power-warn">Every core. The fastest, but it also turns the rest of your computer into a potato until the run is done.</span></div>
+        </div>
+        <div class="opt" data-search="random seed run">
+          <div class="opt-main"><label for="seed">Random seed (empty = a new one each run)</label><input type="number" id="seed" min="0" placeholder="new each run"></div>
+        </div>
+        <div class="opt" data-search="turn cap draw max turns run">
+          <div class="opt-main"><label for="max-turns">Turn cap (a battle that reaches it is a draw)</label><input type="number" id="max-turns" min="1" max="1000" value="100"></div>
+        </div>
+        <p class="note" data-search="battle logs replay seed run">Battle logs: every battle can be played again, log and all, from its seed, so none are stored. Choose one on the Results page to watch it.</p>
+      </details>
+      <div id="opt-folders-game"></div>
+    </div>
+    <div class="opt-pane" id="opt-pane-bots" hidden>
+      <div id="opt-folders-bots"></div>
+    </div>
+    <p class="note" id="opt-none" hidden>No option matches that search.</p>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="page" id="page-results" role="tabpanel" hidden>
+    <div class="filters runfile">
+      <button class="btn" id="save-run" disabled title="Save this run (setup, every battle, seeds and crashes) as one file">Save run to a file&hellip;</button>
+      <button class="btn" id="open-run" title="Open a run file saved earlier, or sent by someone else">Open a run file&hellip;</button>
+      <input type="file" id="open-run-input" accept=".json,.combatlab" hidden>
+    </div>
+    <div id="results-empty" class="note">No results yet. Set up the teams on the Units page and press Run Simulation.</div>
+    <div id="results" hidden>
+      <div class="filters">
+        <div style="flex:1;min-width:200px"><div class="progress sunken"><div id="bar"></div></div></div>
+        <span id="progress-text" class="num"></span>
+        <button class="btn" id="cancel-btn" title="Stop this run now: the battles already finished are kept">Cancel run</button>
+      </div>
+      <fieldset class="finder">
+        <legend>Find battles</legend>
+        <div class="filters">
+          <label for="f-winner">Winner <select id="f-winner"><option value="">Any</option></select></label>
+          <label for="f-capped">Reached the turn cap <select id="f-capped"><option value="">Either</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label for="f-tmin">Turns from <input type="number" id="f-tmin" min="0"></label>
+          <label for="f-tmax">to <input type="number" id="f-tmax" min="0"></label>
+        </div>
+        <div id="f-units"></div>
+        <div class="filters">
+          <button class="btn" id="f-add-unit">Add a unit condition</button>
+          <button class="btn" id="f-apply">Find</button>
+          <button class="btn" id="f-clear">Show all</button>
+        </div>
+      </fieldset>
+      <p class="note" id="filter-note"></p>
+      <div id="crashes" hidden></div>
+      <div class="winbar" id="winbar"></div>
+      <div class="stats" id="stats"></div>
+      <details class="folder" id="unit-stats-box">
+        <summary>Unit statistics <span class="note">(one folder per team and unit: how they died, what was left, kills, each weapon)</span></summary>
+        <div id="unit-stats" class="note">Open to load.</div>
+      </details>
+      <datalist id="cause-list"></datalist>
+      <h2>Battles <span class="note">(choose one to watch it)</span></h2>
+      <div class="list sunken battles" id="battle-tree"></div>
+    </div>
+  </section>
+
+  <!-- REPLAY -->
+  <section class="page" id="page-replay" role="tabpanel" hidden>
+    <div class="replay-bar">
+      <label for="replay-seed">Seed <input type="text" id="replay-seed" inputmode="numeric" placeholder="e.g. 7"></label>
+      <label for="replay-sim">Battle number <input type="text" id="replay-sim" inputmode="numeric" placeholder="1" size="4"></label>
+      <button class="btn" id="replay-seed-btn">Load by seed</button>
+      <span class="note" id="replay-what">Choose a battle on the Results page, or enter a seed: the current setup is played on it.</span>
+    </div>
+    <iframe class="replay-frame sunken" id="replay-frame" title="Battle replay"></iframe>
+  </section>
+
+  <!-- ADVANCED SEARCH: a popup window over the page (moves by its title bar); CL13 grows it to Mekbay's filters -->
+  <div class="dialog adv" id="adv" role="dialog" aria-labelledby="adv-title-text" hidden>
+    <div class="titlebar" id="adv-title"><span class="box" aria-hidden="true"></span><span class="name" id="adv-title-text">Advanced search</span><button class="closebox" id="adv-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body">
+      <div class="filters"><button class="btn small" id="adv-clear">Clear all filters</button>
+        <label class="row" for="adv-preset">Saved <select id="adv-preset"><option value="">(none)</option></select></label>
+        <button class="btn small" id="adv-save">Save as&hellip;</button><button class="btn small" id="adv-del">Delete</button></div>
+      <div class="adv-scroll" id="adv-body"></div>
+      <div class="adv-foot"><button class="btn" id="adv-close2">Close</button></div>
+    </div>
+  </div>
+
+  <!-- CRITICAL SLOT SURVIVAL (Daniel, 2026-11-20): one unit's critical diagram, each slot shaded by how often it was still working at the end -->
+  <div class="dialog critmap" id="critmap" role="dialog" aria-labelledby="critmap-title-text" hidden>
+    <div class="titlebar" id="critmap-title"><span class="box" aria-hidden="true"></span><span class="name" id="critmap-title-text">Critical slots</span><button class="closebox" id="critmap-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body"><div class="adv-scroll" id="critmap-body"></div><div class="adv-foot"><button class="btn" id="critmap-close2">Close</button></div></div>
+  </div>
+
+  <!-- ABOUT: credits and licences (CREDITS.md has them in full) -->
+  <div class="dialog about" id="about" role="dialog" aria-labelledby="about-title-text" hidden>
+    <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name" id="about-title-text">About Combat Lab</span><button class="closebox" id="about-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body about-body">
+      <p><b>Combat Lab</b>, part of the BattleTech Monte Carlo simulator. Copyright &copy; 2026 Daniel (Logajam).<br>
+      By <b>Daniel</b> (design, direction, rules calls) and <b>Claude</b>, an AI model made by Anthropic (implementation).</p>
+      <p><b>Status: alpha.</b> This is an early, unfinished version. Rules are still being checked against the book, some rules and options are not built, and there are bugs. Treat its numbers as work in progress, and please report what you find (Suggestion / bug report, bottom right).</p>
+      <p>Free software under the <b>GNU General Public License v3</b> or later: anyone may use, study, change and share it, and what is shared that is built on it stays under the same licence. No warranty. See <code>LICENSE</code> and <code>CREDITS.md</code> in the Combat Lab folder.</p>
+      <p>With thanks to <b>the MegaMek Team</b> (megamek.org). The units and boards are MegaMek Data, &copy; 2025 The MegaMek Team, under <b>CC BY-NC-SA 4.0</b> (non-commercial). The "princess" bot is a translation of MegaMek's Princess, and the "caspar" bot of its CASPAR (both GPL v3). The "bttt" bot is written from scratch after studying the computer opponent of <b>BTTT: BattleTech TableTop</b> by Raptor007 (Blair Sherman); none of its code or files is used.</p>
+      <p class="note">An unofficial fan project, not affiliated with, endorsed by, or licensed by Microsoft Corporation, The Topps Company, Inc., or Catalyst Game Labs. MechWarrior, BattleMech, 'Mech and AeroTech are registered trademarks of The Topps Company, Inc. Catalyst Game Labs and its logo are trademarks of InMediaRes Productions, LLC. The BattleTech name for electronic games is a trademark of Microsoft Corporation.</p>
+      <p class="note">Built with open-source Rust libraries: their licences are in <code>THIRD_PARTY_LICENSES.txt</code>.</p>
+    </div>
+  </div>
+
+  <!-- SUGGESTION / BUG REPORT: opens a prefilled issue on the project's GitHub page; flashes when a battle crashed -->
+  <div class="dialog about" id="report" role="dialog" aria-labelledby="report-title-text" hidden>
+    <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name" id="report-title-text">Suggestion / bug report</span><button class="closebox" id="report-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body about-body">
+      <p id="report-crash" class="err" hidden></p>
+      <p>Reports and suggestions go to the project's issue page on GitHub (a free GitHub account is needed). The form opens with the batch's setup and seeds already filled in, so the battles can be played again exactly.</p>
+      <ol>
+        <li id="report-step-save">On the <b>Results</b> page press <b>Save run to a file...</b>. The file holds the exact setup, the batch seed and the seed of every battle that crashed.</li>
+        <li>Press the button below. A page opens with the details filled in; add what you saw.</li>
+        <li>Drag the saved file into the box on that page (it is saved as <code>.txt</code>, which GitHub accepts) and press Submit.</li>
+      </ol>
+      <p><a class="btn" id="report-bug" href="#" target="_blank" rel="noopener">Report a bug</a> <a class="btn" id="report-idea" href="#" target="_blank" rel="noopener">Make a suggestion</a></p>
+      <p class="note">Nothing is sent until you press Submit on GitHub, and you can edit everything first.</p>
+    </div>
+  </div>
+
+  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="cancel-btn-2" title="Stop this run now: the battles already finished are kept" hidden>Cancel run</button><button class="btn small" id="report-btn" title="Report a bug or make a suggestion (opens GitHub)">Suggestion / bug report</button> <button class="btn small" id="about-btn">About</button></span></div>
+</div>
+<!--LAB-SCRIPT-->
+<script src="boardart.js"></script>
+<script src="coi.js"></script>
+<script src="wasmio.js"></script>
+<script src="engine.js"></script>
+<script src="lab.js"></script>
+</body>
+</html>
