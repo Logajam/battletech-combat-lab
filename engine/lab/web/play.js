@@ -1413,7 +1413,9 @@ function drawTwistArrows(layer) {
 function drawTnPill(layer, u, x, y, k, cardH) {
   const F = S.fire, D = S.decl, w = D && D.rows.find((q) => q.id === D.focus), e = F.pvt.get(u.id), req = e && e.req, cur = u.id === F.tcur, me = activeUnit();
   let tn = null, live = false;
-  if (req) { const wr = w ? req.weapons.find((q) => q.id === w.id) : null; tn = wr ? wr.tn : req.base_tn; live = wr ? !!(wr.in_range && wr.tn != null) : req.weapons.some((q) => q.in_range && q.tn != null); }
+  // the BASE number, before any weapon's range band or own modifier (Daniel, 2026-11-28: with a short-range weapon in focus the box looked as if
+  // no shot was possible); it dims only when no weapon at all can reach that enemy
+  if (req) { tn = req.base_tn; live = req.weapons.some((q) => q.in_range && q.tn != null); }
   // two light boxes stacked on the placard's right edge, to-hit on top and range below (Daniel, 2026-11-28: "Anchor them to the right side of the
   // placard in a top/bottom configuration. They should be as bright as the units name, or use a light background to make them pop")
   const bw = 30 * k, gap = 2 * k, bh = Math.max(11 * k, (cardH - gap) / 2), dim = live ? "1" : ".6";
