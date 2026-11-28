@@ -107,6 +107,7 @@
     const OFF = -99999, good = (p) => p && p.ok && Math.abs(p.x) < 50000 && Math.abs(p.y) < 50000;
     mv.at = (l, up) => { if (is3d()) { const p = tt.project(l, 0, 0, up || 0); return good(p) ? [p.x, p.y] : [OFF, OFF]; } return mv.centre(l); };
     mv.pt = (l, dx, dy, up) => { if (is3d()) { const p = tt.project(l, dx, dy, up || 0); return good(p) ? [p.x, p.y] : [OFF, OFF]; } const c = mv.centre(l); return [c[0] + R * dx, c[1] + R * dy]; };
+    mv.top = (l) => (is3d() ? tt.top(l) : 0);
     mv.is3d = is3d;
     mv.dropDepth = (l) => (is3d() ? tt.dropDepth(l) : 0); mv.raised = (l) => (is3d() ? tt.raised(l) : false);
     // the units, the hexes they stand on (woods get a ring of trees round the base) and the points the cut-away keeps in view. Kept here so that

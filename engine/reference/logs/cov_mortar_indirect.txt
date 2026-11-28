@@ -1,7 +1,7 @@
 # scenario cov_mortar_indirect
-# seed 1: winner Red, 21 turns
-#   Red: 212.0 of 318.0 armor + structure left, team destroyed False, units 1, 14 hits of 58 attacks, 161.0 damage dealt
-#   Blue: 114.0 of 296.0 armor + structure left, team destroyed True, units 1, 6 hits of 24 attacks, 52.0 damage dealt
+# seed 1: winner Red, 16 turns
+#   Red: 187.0 of 318.0 armor + structure left, team destroyed False, units 1, 11 hits of 50 attacks, 145.0 damage dealt
+#   Blue: 146.0 of 296.0 armor + structure left, team destroyed True, units 1, 4 hits of 19 attacks, 42.0 damage dealt
 # log
 
 === TURN 1 ===
@@ -294,36 +294,24 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
   [Heat] Red: SHUT DOWN (heat 30 (30+: automatic)).
   [Heat] Red: ammo explosion avoid roll at heat 30: needs 8, rolled 6 - Clan Streak SRM 6 Ammo in Right Torso EXPLODES.
     Clan Streak SRM 6 Ammo destroyed at Right Torso - EXPLOSION (180 dmg)! Pilot takes 1 hit (1/6).
-    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
-    15 structure damage taken (0/15 remaining).
-  Right Torso destroyed with no live explosive components - no critical roll.
-    Right Torso DESTROYED! (explosion)
-    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 22).
-    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 20).
-    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 18).
-    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 16).
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
-    5 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - 5 damage to structure.
-    5 structure damage taken (17/22 remaining).
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
+    10 structure damage taken (5/15 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
-    base damage over 20 (p.96): Center Torso loses 9 rear armor (0 left).
+    CASE vents the excess: Right Torso loses 8 rear armor (0 left).
+    CASE contains the explosion. No further transfer.
 Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   Pilot stays conscious.
   [Heat] Red: heat 30 -> next turn -5 Walking MP, +4 to ranged attacks.
   [Heat] Blue: 7 + movement 0 + weapons 20 + engine 0 - sinks 20 -> 7
   [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [End] Red is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 10: Red @ 0411 NW: HP 254, pilot hits 1, engine 0, gyro 0, heat 30 [SHUT DOWN]
+  -- end of turn 10: Red @ 0411 NW: HP 276, pilot hits 1, engine 0, gyro 0, heat 30 [SHUT DOWN]
   -- end of turn 10: Blue @ 1102 SW: HP 239, pilot hits 1, engine 0, gyro 0, heat 7
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first (rolled Red 3, Blue 6).
   [Movement] Red: shut down - skips movement (immobile).
-  [Movement select] Blue: score 984.667 = dealt 16.94 x0.94 + (HP 343.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 4.75 x my future 13.42 [enemy held at 0411; 106 spots with LOS]
+  [Movement select] Blue: score 449.236 = dealt 16.94 x1.00 + (HP 343.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 4.75 x my future 5.99 [enemy held at 0411; 106 spots with LOS]
   [Movement] Blue: 1102 SW -> 1102 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red: shut down - no attacks.
   [Ranged] Blue -> Red: range 13, base TN 0 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (aimed at Center Torso) (weapon heat 20 of budget 43 = max 30 + sink 20 - current 7 - movement 0 - other 0; expected dmg 16.94)
@@ -339,19 +327,15 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
       Group 3/3: Hit location roll 4 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (31 -> 29 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
   [Resolve] Blue -> Red: Clan Mech Mortar-8
     Clan Mech Mortar-8 hit: cluster roll 7 on the 8-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 5 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
       Group 2/5: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (27 -> 25 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (31 -> 29 remaining).
       Group 3/5: Hit location roll 9 (right table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
@@ -360,401 +344,65 @@ Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. 
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (24 -> 22 remaining).
       Group 5/5: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (25 -> 23 remaining).
-  [Heat] Red: 30 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 14
-  [Heat] Red: restart roll at heat 14: needs 4, rolled 10 - RESTARTED.
-  [Heat] Red: heat 14 -> next turn -2 Walking MP, +2 to ranged attacks.
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
+  [Heat] Red: 30 + movement 0 + weapons 0 + engine 0 - sinks 24 -> 6
+  [Heat] Red: heat 6 is below 14 - power plant restarts automatically.
+  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
   [Heat] Blue: 7 + movement 0 + weapons 20 + engine 0 - sinks 20 -> 7
   [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  -- end of turn 11: Red @ 0411 NW: HP 238, pilot hits 1, engine 0, gyro 0, heat 14
+  -- end of turn 11: Red @ 0411 NW: HP 260, pilot hits 1, engine 0, gyro 0, heat 6
   -- end of turn 11: Blue @ 1102 SW: HP 239, pilot hits 1, engine 0, gyro 0, heat 7
 
 === TURN 12 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 5, Blue 5; tie re-rolled Red 11, Blue 4).
-  [Movement select] Blue: score 722.291 = dealt 0.56 x1.00 + (HP 343.0 - received 1.54 x0.97 - PSR 0.00) / enemy future 6.44 x my future 13.61 [two-ply, 53 of 265 spots (grid search) x 12 replies (short list); modeled reply Red -> 0411 NE Stand Still]
-  [Movement] Blue: 1102 SW -> 1401 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 128.059 = dealt 1.54 x0.97 + (HP 268.0 - received 0.56 x0.95 - PSR 0.00) / enemy future 13.61 x my future 6.44 [enemy held at 1401; 11 spots with LOS]
-  [Movement] Red: 0411 NW -> 0411 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  Initiative: Blue lost the roll, moves first (rolled Red 10, Blue 5).
+  [Movement select] Blue: score 215.247 = dealt 3.39 x1.00 + (HP 343.0 - received 15.88 x0.97 - PSR 0.00) / enemy future 10.01 x my future 6.47 [two-ply, 53 of 265 spots (grid search) x 34 replies (short list); modeled reply Red -> 0311 NE Walk]
+  [Movement] Blue: 1102 SW -> 1402 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Red: score 562.093 = dealt 15.88 x0.97 + (HP 357.0 - received 3.39 x1.01 - PSR 0.00) / enemy future 6.47 x my future 10.01 [enemy held at 1402; 25 spots with LOS]
+  [Movement] Red: 0411 NW -> 0410 N, Walk (2 MP, 1 hexes, 1 heat; budget walk 2 / run 3 / jump 0)
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 15, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (weapon heat 20 of budget 42 = max 30 + sink 20 - current 7 - movement 1 - other 0; expected dmg 0.56)
-    Clan Mech Mortar-8: needs 12 (range mod +4, modifiers +3), rolled 8 -> miss [Clan Ammo SC Mortar-8: 2 shots left]
-    Clan Mech Mortar-8: needs 12 (range mod +4, modifiers +3), rolled 9 -> miss [Clan Ammo SC Mortar-8: 1 shots left]
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 15, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 2); firing ['Clan Mech Mortar-4', 'CLERPPC'] (weapon heat 20 of budget 32 = max 30 + sink 16 - current 14 - movement 0 - other 0; expected dmg 1.25)
-  [Ranged] Red fires in order: ['CLERPPC', 'Clan Mech Mortar-4'].
-    CLERPPC: needs 11 (range mod +4), rolled 12 -> HIT
-    Clan Mech Mortar-4: needs 14 (range mod +4, modifiers +3), rolled 5 -> miss [Clan Ammo SC Mortar-4: 4 shots left]
+  [Ranged] Blue -> Red: range 13, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (weapon heat 20 of budget 42 = max 30 + sink 20 - current 7 - movement 1 - other 0; expected dmg 3.39)
+    Clan Mech Mortar-8: needs 10 (range mod +2, modifiers +3), rolled 5 -> miss [Clan Ammo SC Mortar-8: 2 shots left]
+    Clan Mech Mortar-8: needs 10 (range mod +2, modifiers +3), rolled 11 -> HIT [Clan Ammo SC Mortar-8: 1 shots left]
+  [Ranged] Red -> Blue: range 13, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Clan Mech Mortar-4', 'CLERPPC', 'CLERPPC'] (weapon heat 35 of budget 47 = max 30 + sink 24 - current 6 - movement 1 - other 0; expected dmg 12.94)
+  [Ranged] Red fires in order: ['CLERPPC', 'CLERPPC', 'Clan Mech Mortar-4'].
+    CLERPPC: needs 8 (range mod +2), rolled 4 -> miss
+    CLERPPC: needs 8 (range mod +2), rolled 8 -> HIT
+    Clan Mech Mortar-4: needs 11 (range mod +2, modifiers +3), rolled 9 -> miss [Clan Ammo SC Mortar-4: 4 shots left]
+  [Resolve] Blue -> Red: Clan Mech Mortar-8
+    Clan Mech Mortar-8 hit: cluster roll 12 on the 8-column table -> 8 connect (16 dmg).
+      Group 1/8: Hit location roll 5 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+      Group 2/8: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
+      Group 3/8: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
+      Group 4/8: Hit location roll 5 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+      Group 5/8: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
+      Group 6/8: Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (2/6), regardless of armor.
+2 damage (MISSILE) incoming to Head (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
+      Group 7/8: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (27 -> 25 remaining).
+      Group 8/8: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
   [Resolve] Red -> Blue: CLERPPC
     CLERPPC hit for 15:
-      Hit location roll 8 (left table): Center Torso.
-15 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 15 armor pts destroyed at armor (24 -> 9 remaining).
-  [Heat] Red: 14 + movement 0 + weapons 20 + engine 0 - sinks 16 -> 18
-  [Heat] Red: shutdown avoid roll at heat 18: needs 6, rolled 7 - avoided.
-  [Heat] Red: heat 18 -> next turn -3 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 7 + movement 1 + weapons 20 + engine 0 - sinks 20 -> 8
-  [Heat] Blue: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  -- end of turn 12: Red @ 0411 NW: HP 238, pilot hits 1, engine 0, gyro 0, heat 18
-  -- end of turn 12: Blue @ 1401 NW: HP 224, pilot hits 1, engine 0, gyro 0, heat 8
-
-=== TURN 13 ===
-  Initiative: Red lost the roll, moves first (rolled Red 5, Blue 7).
-  [Movement select] Red: no spot deals damage even before the reply (two-ply, 1 spots) - closing fallback
-  [Movement] Red: 0411 NW -> 0411 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
-  [Movement select] Blue: score 626.086 = dealt 0.00 x0.95 + (HP 328.0 - received 0.56 x1.00 - PSR 0.00) / enemy future 6.61 x my future 12.64 [enemy held at 0411; 48 spots with LOS]
-  [Movement] Blue: 1401 NW -> 1304 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 12, base TN 10 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 3); firing ['CLStreakSRM6', 'Clan Mech Mortar-4', 'CLERPPC'] (weapon heat 24 of budget 28 = max 30 + sink 16 - current 18 - movement 0 - other 0; expected dmg 0.42)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLStreakSRM6', 'Clan Mech Mortar-4'].
-    CLERPPC: needs 12 (range mod +2), rolled 12 -> HIT
-    CLStreakSRM6: needs 14 (range mod +4), rolled 8 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    Clan Mech Mortar-4: needs 15 (range mod +2, modifiers +3), rolled 7 -> miss [Clan Ammo SC Mortar-4: 3 shots left]
-  [Ranged] Blue -> Red: range 12, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 1); firing nothing (weapon heat 0 of budget 40 = max 30 + sink 20 - current 8 - movement 2 - other 0; expected dmg 0.00)
-  [Resolve] Red -> Blue: CLERPPC
-    CLERPPC hit for 15:
-      Hit location roll 9 (front table): Left Leg.
-15 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 6 damage applied to structure [STANDARD] (15 -> 9/15 remaining).
+      Hit location roll 9 (left table): Right Torso.
+15 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 13 damage applied to structure [STANDARD] (15 -> 2/15 remaining).
   Check for possible critical. Roll a 10.
     2 critical hit(s).
-  Critical hit pool at Left Leg:
-    1: Hip (slot 1)
-    2: Upper Leg Actuator (slot 2)
-    3: Lower Leg Actuator (slot 3)
-    4: Foot Actuator (slot 4)
-    Slot roll: 1 on 1D4 (one die over the 4 slots that can take the hit; p.94).
-    1/2 Criticals: Hip hit.
-      Current crit slots in Left Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 3.
-      Hip specifically destroyed at Left Leg - running-mode Movement Phase PSR trigger now active.
-  Critical hit pool at Left Leg:
-    1: Upper Leg Actuator (slot 2)
-    2: Lower Leg Actuator (slot 3)
-    3: Foot Actuator (slot 4)
-    Slot roll: 3 on 1D3 (one die over the 3 slots that can take the hit; p.94).
-    2/2 Criticals: Foot Actuator hit.
-      Current crit slots in Left Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (2 destroyed there) - walk MP now 2.
-PSR trigger: 2 leg actuator(s) destroyed at Left Leg this phase -> +2, one roll.
-Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 18 + movement 0 + weapons 20 + engine 0 - sinks 16 -> 22
-  [Heat] Red: SHUT DOWN (heat 22, shutdown avoid roll needs 8, rolled 7).
-  [Heat] Red: ammo explosion avoid roll at heat 22: needs 4, rolled 11 - avoided.
-  [Heat] Red: heat 22 -> next turn -4 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 8 + movement 2 + weapons 0 + engine 0 - sinks 20 -> 0
-  -- end of turn 13: Red @ 0411 NW: HP 238, pilot hits 1, engine 0, gyro 0, heat 22 [SHUT DOWN]
-  -- end of turn 13: Blue @ 1304 SW: HP 209, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 14 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 4).
-  [Movement select] Blue: score 584.189 = dealt 0.00 x1.00 + (HP 307.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.20 x my future 11.80 [two-ply, 89 of 165 spots (grid search) x 1 replies (short list); modeled reply: none with LOS]
-  [Movement] Blue: 1304 SW -> 1305 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement] Red: shut down - skips movement (immobile).
-  [Ranged] Blue: no LOS to Red - only its mortars may fire, indirectly (+3: indirect +1, no spotter +2; target hex terrain only).
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 11, base TN 1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8'] (weapon heat 10 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.34)
-    Clan Mech Mortar-8: needs 6 (range mod +2, modifiers +3), rolled 7 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
-  [Ranged] Red: shut down - no attacks.
-  [Resolve] Blue -> Red: Clan Mech Mortar-8
-    Clan Mech Mortar-8 hit: cluster roll 6 on the 8-column table -> 5 connect (10 dmg).
-      Group 1/5: Hit location roll 8 (right table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
-      Group 2/5: Hit location roll 10 (right table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 3/5: Hit location roll 5 (right table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (21 -> 19 remaining).
-      Group 4/5: Hit location roll 5 (right table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
-      Group 5/5: Hit location roll 10 (right table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (4 -> 2 remaining).
-  [Heat] Red: 22 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 6
-  [Heat] Red: heat 6 is below 14 - power plant restarts automatically.
-  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 0 + movement 1 + weapons 10 + engine 0 - sinks 20 -> 0
-  -- end of turn 14: Red @ 0411 NW: HP 228, pilot hits 1, engine 0, gyro 0, heat 6
-  -- end of turn 14: Blue @ 1305 N: HP 209, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 15 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 5).
-  [Movement select] Blue: score 379.936 = dealt 1.69 x0.93 + (HP 307.0 - received 3.72 x1.08 - PSR 0.00) / enemy future 9.23 x my future 11.52 [two-ply, 75 of 153 spots (grid search) x 34 replies (short list); modeled reply Red -> 0409 N Run]
-  [Movement] Blue: 1305 N -> 1305 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: no spot deals damage - closing fallback
-  [Movement] Red: 0411 NW -> 0409 N, Run (3 MP, 2 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (weapon heat 20 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 1.69)
-    Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 11 -> HIT [Clan Ammo SC Mortar-8: 3 shots left]
-    Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 6 -> miss [Clan Ammo SC Mortar-8: 2 shots left]
-  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['CLStreakSRM6', 'Clan Mech Mortar-4', 'CLERPPC'] (weapon heat 24 of budget 38 = max 30 + sink 16 - current 6 - movement 2 - other 0; expected dmg 2.83)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLStreakSRM6', 'Clan Mech Mortar-4'].
-    CLERPPC: needs 10 (range mod +2), rolled 6 -> miss
-    CLStreakSRM6: needs 12 (range mod +4), rolled 9 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    Clan Mech Mortar-4: needs 13 (range mod +2, modifiers +3), rolled 10 -> miss [Clan Ammo SC Mortar-4: 2 shots left]
-  [Resolve] Blue -> Red: Clan Mech Mortar-8
-    Clan Mech Mortar-8 hit: cluster roll 8 on the 8-column table -> 5 connect (10 dmg).
-      Group 1/5: Hit location roll 11 (right table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
-      Group 2/5: Hit location roll 10 (right table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining).
-      Group 3/5: Hit location roll 7 (right table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
-      Group 4/5: Hit location roll 6 (right table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
-      Group 5/5: Hit location roll 5 (right table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (15 -> 13 remaining).
-  [Heat] Red: 6 + movement 2 + weapons 20 + engine 0 - sinks 16 -> 12
-  [Heat] Red: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 0 + movement 0 + weapons 20 + engine 0 - sinks 20 -> 0
-  -- end of turn 15: Red @ 0409 N: HP 218, pilot hits 1, engine 0, gyro 0, heat 12
-  -- end of turn 15: Blue @ 1305 N: HP 209, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 16 ===
-  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 9).
-  [Movement select] Red: score 178.498 = dealt 6.95 x1.00 + (HP 248.0 - received 1.84 x0.93 - PSR 0.00) / enemy future 11.71 x my future 8.15 [two-ply, 10 spots x 153 replies (short list); modeled reply Blue -> 1305 SW Stand Still]
-  [Movement] Red: 0409 N -> 0409 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
-  [Movement select] Blue: score 431.806 = dealt 1.84 x0.93 + (HP 307.0 - received 6.91 x1.08 - PSR 0.00) / enemy future 8.15 x my future 11.71 [enemy held at 0409; 65 spots with LOS]
-  [Movement] Blue: 1305 N -> 1305 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 9, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 1); firing ['CLStreakSRM6', 'Clan Mech Mortar-4', 'CLERPPC'] (weapon heat 24 of budget 34 = max 30 + sink 16 - current 12 - movement 0 - other 0; expected dmg 5.31)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLStreakSRM6', 'Clan Mech Mortar-4'].
-    CLERPPC: needs 9 (range mod +2), rolled 6 -> miss
-    CLStreakSRM6: needs 11 (range mod +4), rolled 2 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    Clan Mech Mortar-4: needs 12 (range mod +2, modifiers +3), rolled 12 -> HIT [Clan Ammo SC Mortar-4: 1 shots left]
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Clan Mech Mortar-8', 'Clan Mech Mortar-8'] (weapon heat 20 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 1.69)
-    Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 3 -> miss [Clan Ammo SC Mortar-8: 1 shots left]
-    Clan Mech Mortar-8: needs 11 (range mod +2, modifiers +3), rolled 12 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
-  [Resolve] Red -> Blue: Clan Mech Mortar-4
-    Clan Mech Mortar-4 hit: cluster roll 5 on the 4-column table -> 2 connect (4 dmg).
-      Group 1/2: Hit location roll 6 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/15 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Left Leg:
-    1: Upper Leg Actuator (slot 2)
-    2: Lower Leg Actuator (slot 3)
-    Slot roll: 1 on 1D2 (one die over the 2 slots that can take the hit; p.94).
-    1/1 Criticals: Upper Leg Actuator hit.
-      Current crit slots in Left Leg: ['DESTROYED', 'DESTROYED', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (3 destroyed there) - walk MP now 2.
-      Group 2/2: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
-  [Resolve] Blue -> Red: Clan Mech Mortar-8
-    Clan Mech Mortar-8 hit: cluster roll 3 on the 8-column table -> 3 connect (6 dmg).
-      Group 1/3: Hit location roll 9 (right table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
-      Group 2/3: Hit location roll 11 (right table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
-      Group 3/3: Hit location roll 8 (right table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (13 -> 11 remaining).
-PSR trigger: 1 leg actuator(s) destroyed at Left Leg this phase -> +1, one roll.
-Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 12 + movement 0 + weapons 20 + engine 0 - sinks 16 -> 16
-  [Heat] Red: shutdown avoid roll at heat 16: needs 4, rolled 8 - avoided.
-  [Heat] Red: heat 16 -> next turn -3 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 0 + movement 0 + weapons 20 + engine 0 - sinks 20 -> 0
-  -- end of turn 16: Red @ 0409 N: HP 212, pilot hits 1, engine 0, gyro 0, heat 16
-  -- end of turn 16: Blue @ 1305 N: HP 205, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 17 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 9, Blue 7).
-  [Movement select] Blue: no spot deals damage even before the reply (two-ply, 35 spots) - closing fallback found nothing; nearest reachable spot to the enemy
-  [Movement] Blue: 1305 N -> 1205 SW, Run (3 MP, 1 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
-Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 2.
-  Failed - falls.
-FALL (failed Movement Phase PSR (running)): Crossbow D takes 7 falling damage (1D6 2: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 7 -> Center Torso
-5 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (9 -> 4 remaining).
-  Fall cluster (2 dmg): rolled 9 -> Left Leg
-2 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/15 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-  [Movement select] Red: score 208.669 = dealt 2.86 x1.00 + (HP 242.0 - received 0.00 x0.93 - PSR 0.00) / enemy future 10.17 x my future 8.65 [enemy held at 1205; 1 spots with LOS]
-  [Movement] Red: 0409 N -> 0409 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
-  [Ranged] Blue -> Red: range 8, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 2 + prone target 1); firing ['CLStreakSRM6', 'Clan Mech Mortar-4', 'CLERPPC'] (weapon heat 24 of budget 30 = max 30 + sink 16 - current 16 - movement 0 - other 0; expected dmg 2.25)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLStreakSRM6', 'Clan Mech Mortar-4'].
-    CLERPPC: needs 11 (range mod +2), rolled 9 -> miss
-    CLStreakSRM6: needs 11 (range mod +2), rolled 10 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    Clan Mech Mortar-4: needs 14 (range mod +2, modifiers +3), rolled 9 -> miss [Clan Ammo SC Mortar-4: 0 shots left]
-  [Heat] Red: 16 + movement 0 + weapons 20 + engine 0 - sinks 16 -> 20
-  [Heat] Red: SHUT DOWN (heat 20, shutdown avoid roll needs 6, rolled 5).
-  [Heat] Red: ammo explosion avoid roll at heat 20: needs 4, rolled 6 - avoided.
-  [Heat] Red: heat 20 -> next turn -4 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 20 -> 0
-  -- end of turn 17: Red @ 0409 N: HP 212, pilot hits 1, engine 0, gyro 0, heat 20 [SHUT DOWN]
-  -- end of turn 17: Blue @ 1205 SW: HP 198, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
-
-=== TURN 18 ===
-  Initiative: Red lost the roll, moves first (rolled Red 7, Blue 7; tie re-rolled Red 5, Blue 7).
-  [Movement] Red: shut down - skips movement (immobile).
-Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 11.
-  Success - Crossbow D is standing (remaining running MP 1).
-Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 7.
-  Failed - falls.
-FALL (fell again after standing): Crossbow D takes 7 falling damage (1D6 6: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (17 -> 12 remaining).
-  Fall cluster (2 dmg): rolled 9 -> Left Leg
-2 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (5 -> 3/15 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-    1/1 Criticals: Lower Leg Actuator hit.
-      Current crit slots in Left Leg: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (4 destroyed there) - walk MP now 1.
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-  Will not attempt to stand again this round.
-  [Movement] Blue: still prone at 1205.
-  [Ranged] Red: shut down - no attacks.
-  [Ranged] Blue -> Red: range 8, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 2 + heat 0 + prone +2); firing nothing (aimed at Center Torso) (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Heat] Red: 20 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 4
-  [Heat] Red: heat 4 is below 14 - power plant restarts automatically.
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 20 -> 0
-  -- end of turn 18: Red @ 0409 N: HP 212, pilot hits 1, engine 0, gyro 0, heat 4
-  -- end of turn 18: Blue @ 1205 SW: HP 191, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
-
-=== TURN 19 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 7, Blue 5).
-Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 5.
-  Failed to stand.
-FALL (failed to stand): Crossbow D takes 7 falling damage (1D6 2: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 5 -> Right Leg
-5 damage (PHYSICAL) incoming to Right Leg (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (24 -> 19 remaining).
-  Fall cluster (2 dmg): rolled 4 -> Right Arm
-2 damage (PHYSICAL) incoming to Right Arm (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (3 -> 1 remaining).
-  Seatbelt check: needs 5. Rolled 2. FAILED - pilot takes 1 hit (2/6).
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1205.
-Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
-  Pilot knocked unconscious.
-  [Movement select] Red: score 309.275 = dealt 32.34 x1.00 + (HP 242.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.15 x my future 10.47 [enemy held at 1205; 68 spots with LOS]
-  [Movement] Red: 0409 N -> 0608 NE, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 6, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 6, base TN 4 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 2 + heat 0 + prone target 1); firing ['CLStreakSRM6', 'CLSmallPulseLaser', 'CLERPPC'] (aimed at Center Torso) (weapon heat 21 of budget 41 = max 30 + sink 16 - current 4 - movement 1 - other 0; expected dmg 24.58)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLSmallPulseLaser', 'CLStreakSRM6'].
-    CLERPPC: needs 4 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
-    CLSmallPulseLaser: needs 6 (range mod +4, modifiers -2) aimed at Center Torso, rolled 6 -> HIT
-    CLStreakSRM6: needs 6 (range mod +2), rolled 7 -> HIT
-      [Clan Streak SRM 6 Ammo: 13 shots left]
-  [Resolve] Red -> Blue: CLERPPC
-    CLERPPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
-      Hit location roll 10 (front table): Left Arm.
-15 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 15 armor pts destroyed at armor (16 -> 1 remaining).
-  [Resolve] Red -> Blue: CLSmallPulseLaser
-    CLSmallPulseLaser hit for 3: aimed at Center Torso, 1D6 2 - rolls for location.
-      Hit location roll 4 (front table): Right Arm.
-3 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 2 damage applied to structure [STANDARD] (10 -> 8/10 remaining).
-  Check for possible critical. Roll a 3.
-    No critical hit.
-  [Resolve] Red -> Blue: CLStreakSRM6
-    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 11 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (10 -> 9/10 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-      Group 2/6: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining).
-      Group 3/6: Hit location roll 3 (front table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/10 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-      Group 4/6: Hit location roll 2 (front table): Center Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 6 -> Right Torso
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 4.
-    No critical hit.
-      Group 5/6: Hit location roll 4 (front table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (6 -> 4/10 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Right Arm:
-    1: Shoulder (slot 1)
-    2: Upper Arm Actuator (slot 2)
-    3: Lower Arm Actuator (slot 3)
-    4: Clan Mech Mortar-8 (slot 4)
-    5: Clan Mech Mortar-8 (slot 5)
-    6: Clan Mech Mortar-8 (slot 6)
-    7: Clan Ammo SC Mortar-8 (slot 7)
-    8: Clan Ammo SC Mortar-8 (slot 8)
-    9: Clan Ammo SC Mortar-8 (slot 9)
-    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
-    1/1 Criticals: Clan Ammo SC Mortar-8 slot hit.
-      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Clan Mech Mortar-8', 'Clan Mech Mortar-8', 'Clan Mech Mortar-8', 'Clan Ammo SC Mortar-8', 'Clan Ammo SC Mortar-8', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
-      Group 6/6: Hit location roll 10 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/10 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-  [Heat] Red: 4 + movement 1 + weapons 21 + engine 0 - sinks 16 -> 10
-  [Heat] Red: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 20 -> 0
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 19: Red @ 0608 NE: HP 212, pilot hits 1, engine 0, gyro 0, heat 10
-  -- end of turn 19: Blue @ 1205 SW: HP 154, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
-
-=== TURN 20 ===
-  Initiative: Blue lost the roll, moves first (rolled Red 12, Blue 8).
-  [Movement] Blue: all crew unconscious - skips movement (immobile).
-  [Movement select] Red: score 357.724 = dealt 36.08 x1.00 + (HP 242.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.71 x my future 11.58 [enemy held at 1205; 11 spots with LOS]
-  [Movement] Red: 0608 NE -> 0608 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
-  [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 6, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 2 + heat 1 + prone target 1); firing ['CLStreakSRM6', 'CLSmallPulseLaser', 'CLERPPC'] (aimed at Center Torso) (weapon heat 21 of budget 36 = max 30 + sink 16 - current 10 - movement 0 - other 0; expected dmg 24.58)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLSmallPulseLaser', 'CLStreakSRM6'].
-    CLERPPC: needs 4 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
-    CLSmallPulseLaser: needs 6 (range mod +4, modifiers -2) aimed at Center Torso, rolled 6 -> HIT
-    CLStreakSRM6: needs 6 (range mod +2), rolled 8 -> HIT
-      [Clan Streak SRM 6 Ammo: 12 shots left]
-  [Resolve] Red -> Blue: CLERPPC
-    CLERPPC hit for 15: aimed at Center Torso, 1D6 6 - on target.
-15 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 11 damage applied to structure [STANDARD] (21 -> 10/21 remaining).
-  Check for possible critical. Roll a 11.
-    2 critical hit(s).
+    1/2 Criticals: Right Torso was already fully cratered at the start of this round - transfers to Center Torso.
   Critical hit pool at Center Torso:
     1: Engine (slot 1)
     2: Engine (slot 2)
@@ -766,12 +414,13 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     8: Engine (slot 8)
     9: Engine (slot 9)
     10: Engine (slot 10)
-    Slot roll: 2 on 1D10 (one die over the 10 slots that can take the hit; p.94).
+    Slot roll: 1 on 1D10 (one die over the 10 slots that can take the hit; p.94).
     1/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
+      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
       Engine hit (1/3).
+    2/2 Criticals: Right Torso was already fully cratered at the start of this round - transfers to Center Torso.
   Critical hit pool at Center Torso:
-    1: Engine (slot 1)
+    1: Engine (slot 2)
     2: Engine (slot 3)
     3: Gyro (slot 4)
     4: Gyro (slot 5)
@@ -780,97 +429,238 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 4.
     7: Engine (slot 8)
     8: Engine (slot 9)
     9: Engine (slot 10)
-    Slot roll: 1 on 1D9 (one die over the 9 slots that can take the hit; p.94).
+    Slot roll: 9 on 1D9 (one die over the 9 slots that can take the hit; p.94).
     2/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
+      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', '-Empty-', '-Empty-']
       Engine hit (2/3).
+Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
+  Pilot stays conscious.
+  [Heat] Red: 6 + movement 1 + weapons 35 + engine 0 - sinks 24 -> 18
+  [Heat] Red: shutdown avoid roll at heat 18: needs 6, rolled 7 - avoided.
+  [Heat] Red: heat 18 -> next turn -3 Walking MP, +3 to ranged attacks.
+  [Heat] Blue: 7 + movement 1 + weapons 20 + engine 10 - sinks 20 -> 18
+  [Heat] Blue: shutdown avoid roll at heat 18: needs 6, rolled 11 - avoided.
+  [Heat] Blue: heat 18 -> next turn -3 Walking MP, +3 to ranged attacks.
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 12: Red @ 0410 N: HP 244, pilot hits 2, engine 0, gyro 0, heat 18
+  -- end of turn 12: Blue @ 1402 NW: HP 224, pilot hits 1, engine 2, gyro 0, heat 18
+
+=== TURN 13 ===
+  Initiative: Blue lost the roll, moves first (rolled Red 8, Blue 4).
+  [Movement select] Blue: score 276.356 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.52 x my future 7.48 [two-ply, 29 of 36 spots (grid search) x 1 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 1402 NW -> 1603 NW, Walk (2 MP, 2 hexes, 1 heat; budget walk 2 / run 3 / jump 0) - includes a backward move
+  [Movement select] Red: no spot deals damage - closing fallback
+  [Movement] Red: 0410 N -> 0410 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
+  [Ranged] Blue: no LOS to Red - only its mortars may fire, indirectly (+3: indirect +1, no spotter +2; target hex terrain only).
+  [Ranged] Blue -> Red: range 13, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 3); firing nothing (weapon heat 0 of budget 21 = max 30 + sink 20 - current 18 - movement 1 - other 10; expected dmg 0.00)
+  [Ranged] Red: no LOS to Blue - only its mortars may fire, indirectly (+3: indirect +1, no spotter +2; target hex terrain only).
+  [Ranged] Red -> Blue: range 13, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 3); firing ['Clan Mech Mortar-4'] (weapon heat 5 of budget 36 = max 30 + sink 24 - current 18 - movement 0 - other 0; expected dmg 0.15)
+    Clan Mech Mortar-4: needs 12 (range mod +2, modifiers +3), rolled 11 -> miss [Clan Ammo SC Mortar-4: 3 shots left]
+  [Heat] Red: 18 + movement 0 + weapons 5 + engine 0 - sinks 24 -> 0
+  [Heat] Blue: 18 + movement 1 + weapons 0 + engine 10 - sinks 20 -> 9
+  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks.
+  -- end of turn 13: Red @ 0410 N: HP 244, pilot hits 2, engine 0, gyro 0, heat 0
+  -- end of turn 13: Blue @ 1603 NW: HP 224, pilot hits 1, engine 2, gyro 0, heat 9
+
+=== TURN 14 ===
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 6).
+  [Movement select] Red: score 560.606 = dealt 10.36 x1.00 + (HP 341.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.40 x my future 10.32 [two-ply, 66 of 151 spots (grid search) x 212 replies (short list); modeled reply Blue -> 1204 SW Run]
+  [Movement] Red: 0410 N -> 0609 NE, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 191.698 = dealt 0.00 x1.00 + (HP 315.0 - received 6.51 x0.87 - PSR 0.00) / enemy future 10.32 x my future 6.40 [enemy held at 0609; 36 spots with LOS]
+  [Movement] Blue: 1603 NW -> 1304 N, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['CLStreakSRM6', 'Clan Mech Mortar-4', 'CLStreakSRM6', 'CLERPPC', 'CLERPPC'] (weapon heat 43 of budget 53 = max 30 + sink 24 - current 0 - movement 1 - other 0; expected dmg 5.67)
+  [Ranged] Red fires in order: ['CLERPPC', 'CLERPPC', 'CLStreakSRM6', 'CLStreakSRM6', 'Clan Mech Mortar-4'].
+    CLERPPC: needs 10 (range mod +2), rolled 10 -> HIT
+    CLERPPC: needs 10 (range mod +2), rolled 4 -> miss
+    CLStreakSRM6: needs 12 (range mod +4), rolled 8 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+    CLStreakSRM6: needs 12 (range mod +4), rolled 9 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+    Clan Mech Mortar-4: needs 13 (range mod +2, modifiers +3), rolled 4 -> miss [Clan Ammo SC Mortar-4: 2 shots left]
+  [Ranged] Blue -> Red: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 1); firing nothing (weapon heat 0 of budget 29 = max 30 + sink 20 - current 9 - movement 2 - other 10; expected dmg 0.00)
+  [Resolve] Red -> Blue: CLERPPC
+    CLERPPC hit for 15:
+      Hit location roll 9 (left table): Right Torso.
+15 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/15 remaining).
+  Right Torso destroyed with no live explosive components - no critical roll.
+  Right Torso DESTROYED!
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  13 damage remains, transfers to Center Torso.
+  [STANDARD/ENERGY] 13 armor pts destroyed at armor (24 -> 11 remaining).
+PSR trigger: 25 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 35 + engine 0 - sinks 24 -> 12
+  [Heat] Red: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
+  [Heat] Blue: 9 + movement 2 + weapons 0 + engine 10 - sinks 20 -> 1
+  -- end of turn 14: Red @ 0609 NE: HP 244, pilot hits 2, engine 0, gyro 0, heat 12
+  -- end of turn 14: Blue @ 1304 N: HP 199, pilot hits 1, engine 2, gyro 0, heat 1
+
+=== TURN 15 ===
+  Initiative: Red lost the roll, moves first (rolled Red 4, Blue 7).
+  [Movement select] Red: score 658.141 = dealt 38.01 x1.05 + (HP 341.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 5.90 x my future 10.70 [two-ply, 12 of 13 spots (grid search) x 507 replies (short list); modeled reply Blue -> 0707 SW Run]
+  [Movement] Red: 0609 NE -> 0609 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Movement select] Blue: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
+  [Movement] Blue: 1304 N -> 0707 SW, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Ranged] Red -> Blue: range 3, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 1); firing ['CLStreakSRM6', 'CLSmallPulseLaser', 'CLStreakSRM6', 'CLSmallPulseLaser', 'CLERPPC', 'CLERPPC'] (weapon heat 42 of budget 42 = max 30 + sink 24 - current 12 - movement 0 - other 0; expected dmg 35.00)
+  [Ranged] Red fires in order: ['CLERPPC', 'CLERPPC', 'CLSmallPulseLaser', 'CLSmallPulseLaser', 'CLStreakSRM6', 'CLStreakSRM6'].
+    CLERPPC: needs 7 (range mod +0), rolled 11 -> HIT
+    CLERPPC: needs 7 (range mod +0), rolled 11 -> HIT
+    CLSmallPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 7 -> HIT
+    CLSmallPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 11 -> HIT
+    CLStreakSRM6: needs 7 (range mod +0), rolled 11 -> HIT
+      [Clan Streak SRM 6 Ammo: 13 shots left]
+    CLStreakSRM6: needs 7 (range mod +0), rolled 6 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 20 - current 1 - movement 2 - other 10; expected dmg 0.00)
+  [Resolve] Red -> Blue: CLERPPC
+    CLERPPC hit for 15:
+      Hit location roll 4 (left table): Left Arm.
+15 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (16 -> 1 remaining).
+  [Resolve] Red -> Blue: CLERPPC
+    CLERPPC hit for 15:
+      Hit location roll 4 (left table): Left Arm.
+15 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/10 remaining).
+  Left Arm destroyed with no live explosive components - no critical roll.
+  Left Arm DESTROYED!
+  All critical slots in Left Arm marked DESTROYED.
+  4 damage remains, transfers to Left Torso.
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (17 -> 13 remaining).
   [Resolve] Red -> Blue: CLSmallPulseLaser
-    CLSmallPulseLaser hit for 3: aimed at Center Torso, 1D6 2 - rolls for location.
-      Hit location roll 10 (front table): Left Arm.
+    CLSmallPulseLaser hit for 3:
+      Hit location roll 10 (left table): Right Arm.
+3 damage (ENERGY) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (11 -> 8 remaining).
+  [Resolve] Red -> Blue: CLSmallPulseLaser
+    CLSmallPulseLaser hit for 3:
+      Hit location roll 5 (left table): Left Arm.
 3 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (7 -> 4/10 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
+  Left Arm already destroyed - damage transfers to Left Torso.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (13 -> 10 remaining).
   [Resolve] Red -> Blue: CLStreakSRM6
     CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 5 (front table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
-      Group 2/6: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 3/6: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (13 -> 11/15 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-    1/1 Criticals: Right Torso was already fully cratered at the start of this round - transfers to Center Torso.
-  Critical hit pool at Center Torso:
-    1: Engine (slot 3)
-    2: Gyro (slot 4)
-    3: Gyro (slot 5)
-    4: Gyro (slot 6)
-    5: Gyro (slot 7)
-    6: Engine (slot 8)
-    7: Engine (slot 9)
-    8: Engine (slot 10)
-    Slot roll: 5 on 1D8 (one die over the 8 slots that can take the hit; p.94).
-    1/1 Criticals: Gyro hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', '-Empty-', '-Empty-']
-      Gyro hit (1/2).
-      Group 4/6: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/15 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-      Group 5/6: Hit location roll 5 (front table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
-      Group 6/6: Hit location roll 9 (front table): Left Leg.
+      Group 1/6: Hit location roll 6 (left table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (3 -> 1/15 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
+      Group 2/6: Hit location roll 7 (left table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+      Group 3/6: Hit location roll 7 (left table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
+      Group 4/6: Hit location roll 8 (left table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
+      Group 5/6: Hit location roll 8 (left table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
+      Group 6/6: Hit location roll 6 (left table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (7 -> 5 remaining).
+PSR trigger: 48 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 12 + movement 0 + weapons 38 + engine 0 - sinks 24 -> 26
+  [Heat] Red: SHUT DOWN (heat 26, shutdown avoid roll needs 10, rolled 6).
+  [Heat] Red: ammo explosion avoid roll at heat 26: needs 6, rolled 11 - avoided.
+  [Heat] Red: heat 26 -> next turn -5 Walking MP, +4 to ranged attacks.
+  [Heat] Blue: 1 + movement 2 + weapons 0 + engine 10 - sinks 20 -> 0
+  -- end of turn 15: Red @ 0609 NE: HP 244, pilot hits 2, engine 0, gyro 0, heat 26 [SHUT DOWN]
+  -- end of turn 15: Blue @ 0707 SW: HP 151, pilot hits 1, engine 2, gyro 0, heat 0
+
+=== TURN 16 ===
+  Initiative: Red lost the roll, moves first (rolled Red 3, Blue 9).
+  [Movement] Red: shut down - skips movement (immobile).
+  [Movement select] Blue: CHARGE (TN 4, P 0.92, 39 dmg) on Red: score 165.209 = dealt 40.72 x1.63 + (HP 208.0 - received 6.85 x1.00 - PSR 0.00) / enemy future 11.29 x my future 5.55 [incl. self-damage] beats 111.223
+  [Movement] Blue declares a CHARGE against Red (stops adjacent; 5 hexes counting the target's hex).
+  [Movement] Blue: 0707 SW -> 0510 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Ranged] Red: shut down - no attacks.
+  [Ranged] Blue: charging Red - no ranged attacks this turn (pp.78-79).
+  [Physical] Blue -> Red: CHARGE needs 4 (piloting 5 + AMM 2 + TMM -4 + terrain 0 + comparative +1), rolled 10 -> HIT
+    Charge: Red takes 39 (rear), Blue takes 7.
+    Charge: 5 to Red's Left Leg.
+5 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (28 -> 23 remaining).
+    Charge: 5 to Red's Center Torso.
+5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
+    Charge: 5 to Red's Left Torso.
+5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (8 -> 3 remaining).
+    Charge: 5 to Red's Left Arm.
+5 damage (PHYSICAL) incoming to Left Arm (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (6 -> 1 remaining).
+    Charge: 5 to Red's Right Leg.
+5 damage (PHYSICAL) incoming to Right Leg (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (22 -> 17 remaining).
+    Charge: 5 to Red's Center Torso.
+5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (22 -> 21/22 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-  [Heat] Red: 10 + movement 0 + weapons 21 + engine 0 - sinks 16 -> 15
-  [Heat] Red: shutdown avoid roll at heat 15: needs 4, rolled 5 - avoided.
-  [Heat] Red: heat 15 -> next turn -3 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 10 - sinks 20 -> 0
-End Phase wake-up check (pilot, 2 pilot hits): needs 5. Rolled 3.
-  Pilot remains unconscious.
-  -- end of turn 20: Red @ 0608 NE: HP 212, pilot hits 1, engine 0, gyro 0, heat 15
-  -- end of turn 20: Blue @ 1205 SW: HP 124, pilot hits 2, engine 2, gyro 1, heat 0 [PRONE, UNCONSCIOUS]
+    Charge: 5 to Red's Right Torso.
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (5 -> 0/15 remaining).
+  Right Torso destroyed with no live explosive components - no critical roll.
+  Right Torso DESTROYED!
+    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 22).
+    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 20).
+    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 18).
+    Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 16).
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  0 damage remains, transfers to Center Torso.
+    Charge: 4 to Red's Left Torso.
+4 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at rear_armor (3 -> 0 remaining). 1 damage applied to structure [STANDARD] (15 -> 14/15 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    Charge (attacker): 5 to Blue's Center Torso.
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (21 -> 20/21 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 2)
+    2: Engine (slot 3)
+    3: Gyro (slot 4)
+    4: Gyro (slot 5)
+    5: Gyro (slot 6)
+    6: Gyro (slot 7)
+    7: Engine (slot 8)
+    8: Engine (slot 9)
+    Slot roll: 8 on 1D8 (one die over the 8 slots that can take the hit; p.94).
+    1/1 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-']
+      Engine hit (3/3).
+    Red is displaced 0609 -> 0709; Blue advances into 0609.
+PSR trigger: 50 armor+structure lost this phase (>=20) -> +1.
+PSR trigger: charged -> +2.
+Shut down - Attack Phase PSR auto-fails.
+FALL (auto-fail (shut down)): Minsk 2 takes 7 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (armor).
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (25 -> 20 remaining).
+  Fall cluster (2 dmg): rolled 5 -> Right Leg
+2 damage (PHYSICAL) incoming to Right Leg (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (17 -> 15 remaining).
+  Seatbelt check: immobile - pilot takes 1 hit automatically (3/6).
+Physical Attack Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 9.
+  Pilot stays conscious.
+  [Heat] Red: 26 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 10
+  [Heat] Red: heat 10 is below 14 - power plant restarts automatically.
+  [Heat] Red: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks.
+  [End] Red is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 16: Red @ 0709 NE: HP 187, pilot hits 3, engine 0, gyro 0, heat 10 [PRONE]
+  -- end of turn 16: Blue @ 0510 NE: HP 146, pilot hits 1, engine 3, gyro 0, heat 0 [DESTROYED (Engine Destroyed)]
 
-=== TURN 21 ===
-  Initiative: Red lost the roll, moves first (rolled Red 2, Blue 6).
-  [Movement select] Red: score 406.013 = dealt 12.57 x1.00 + (HP 242.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.32 x my future 13.52 [two-ply, 1 spots x 1 replies (short list); modeled reply Blue -> 1205 SW Stand Still]
-  [Movement] Red: 0608 NE -> 0608 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
-  [Movement] Blue: all crew unconscious - skips movement (immobile).
-  [Ranged] Red -> Blue: range 6, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 2 + heat 2 + prone target 1); firing ['CLStreakSRM6', 'CLSmallPulseLaser', 'CLERPPC'] (aimed at Center Torso) (weapon heat 21 of budget 31 = max 30 + sink 16 - current 15 - movement 0 - other 0; expected dmg 21.25)
-  [Ranged] Red fires in order: ['CLERPPC', 'CLSmallPulseLaser', 'CLStreakSRM6'].
-    CLERPPC: needs 5 (range mod +0) aimed at Center Torso, rolled 8 -> HIT
-    CLSmallPulseLaser: needs 7 (range mod +4, modifiers -2) aimed at Center Torso, rolled 5 -> miss
-    CLStreakSRM6: needs 7 (range mod +2), rolled 5 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-  [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 40 = max 30 + sink 20 - current 0 - movement 0 - other 10; expected dmg 0.00)
-  [Resolve] Red -> Blue: CLERPPC
-    CLERPPC hit for 15: aimed at Center Torso, 1D6 4 - on target.
-15 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/21 remaining).
-  Center Torso destroyed with no live explosive components - no critical roll.
-  Center Torso DESTROYED!
-    Engine hit (3/3) from Center Torso destruction.
-    Gyro hit (2/2) from Center Torso destruction.
-    Gyro hit (3/2) from Center Torso destruction.
-    Gyro hit (4/2) from Center Torso destruction.
-    Engine hit (4/3) from Center Torso destruction.
-    Engine hit (5/3) from Center Torso destruction.
-    Engine hit (6/3) from Center Torso destruction.
-  All critical slots in Center Torso marked DESTROYED.
-  5 damage remains, transfers to nowhere (attack finished).
-  [Heat] Red: 15 + movement 0 + weapons 17 + engine 0 - sinks 16 -> 16
-  [Heat] Red: shutdown avoid roll at heat 16: needs 4, rolled 7 - avoided.
-  [Heat] Red: heat 16 -> next turn -3 Walking MP, +2 to ranged attacks.
-  -- end of turn 21: Red @ 0608 NE: HP 212, pilot hits 1, engine 0, gyro 0, heat 16
-  -- end of turn 21: Blue @ 1205 SW: HP 114, pilot hits 2, engine 6, gyro 4, heat 0 [PRONE, UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
-
->>> Battle over on turn 21: Blue destroyed. <<<
+>>> Battle over on turn 16: Blue destroyed. <<<

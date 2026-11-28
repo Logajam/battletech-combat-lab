@@ -696,7 +696,16 @@ pub fn get_case_tier(mech: &Mech, location: &str) -> Option<&'static str> {
             }
         }
     }
-    if found { Some("CASE") } else { None }
+    if found {
+        return Some("CASE");
+    }
+    // A Clan-tech 'Mech has CASE in every location with no slot needed (Daniel, 2026-11-28; MegaMek Mek.addClanCase; the
+    // same rule `battle_value.rs` `location_case` already used). The head and legs are not places an explosion crosses anyway.
+    let tb = mech.tech_base.as_deref().unwrap_or("").to_uppercase();
+    if tb.starts_with("CLAN") || tb.contains("MIXED (CLAN") {
+        return Some("CASE");
+    }
+    None
 }
 
 pub const EXPLOSION_IS_CAP: i64 = 20;

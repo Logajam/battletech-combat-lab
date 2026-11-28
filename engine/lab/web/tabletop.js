@@ -252,20 +252,23 @@
         const pic = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({ map: texOf(key), transparent: true, opacity: u.prone ? 0.55 : 1, depthWrite: false }));
         pic.position.set(h.x, h.top + V.baseH + 0.6, h.z); pic.rotation.y = -(FACE[u.facing] || 0) * D2R; pic.renderOrder = 4; g.add(pic);
         if (u.sel) { const rg = new THREE.Mesh(new THREE.RingGeometry(r * 1.02, r * 1.12, 6), new THREE.MeshBasicMaterial({ color: 0xffffff })); rg.geometry.rotateZ(Math.PI / 6); rg.rotation.x = -Math.PI / 2; rg.position.set(h.x, h.top + V.baseH + 0.4, h.z); g.add(rg); } } };
-    // THE BASE'S FRONT (Daniel, 2026-11-26: "texture the facings of the hex bases to say this side front"; Section 14, L3): a light panel with a
-    // chevron on the side the unit faces, and a white notch on the top edge pointing out
+    // THE BASE'S FRONT (Daniel, 2026-11-26: "texture the facings of the hex bases to say this side front"; 2026-11-28: "'This way front'. Black and
+    // white downward pointing chevron pattern. At the ground the pattern makes a right turn and continues a bit in front of the unit"): a black and
+    // white chevron band down the base's front face; at the foot it folds out flat onto the tile and runs on in front of the unit, the same band,
+    // so the V's point at the ground and then away from the 'Mech. One repeating texture, its coordinate running down the wall and on along the ground.
     let frontTex = null;
     const frontFace = (group, h, u, r, bh) => {
-      if (!frontTex) { const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d"); x.fillStyle = "#f4f6f8"; x.fillRect(0, 0, 64, 32); x.fillStyle = "#ffb000"; for (let i = -32; i < 80; i += 16) { x.beginPath(); x.moveTo(i, 32); x.lineTo(i + 8, 32); x.lineTo(i + 40, 0); x.lineTo(i + 32, 0); x.closePath(); x.fill(); }   // hazard stripes: the front side of the base
-        x.fillStyle = "#0c0f13"; x.beginPath(); x.moveTo(32, 5); x.lineTo(47, 27); x.lineTo(39, 27); x.lineTo(32, 17); x.lineTo(25, 27); x.lineTo(17, 27); x.closePath(); x.fill(); frontTex = new THREE.CanvasTexture(c); spriteTex._front = frontTex; }
-      const an = (FACE[u.facing] || 0) * D2R, d = [Math.sin(an), -Math.cos(an)], a = r * Math.cos(Math.PI / 6) + 0.5;
-      const pl = new THREE.Mesh(new THREE.PlaneGeometry(r * 0.96, bh * 0.92), new THREE.MeshBasicMaterial({ map: frontTex, side: THREE.DoubleSide }));
-      pl.position.set(h.x + d[0] * a, h.top + bh / 2, h.z + d[1] * a); pl.rotation.y = Math.atan2(d[0], d[1]); pl.renderOrder = 4; group.add(pl);
-      // the active unit also gets a flat arrow lying on the tile, sticking out of the base the way it faces (Daniel, 2026-11-27: "a small 'front is this way'
-      // arrow sticking out of their base on the ground when they're active")
-      if (u.sel) { const m = [-d[1], d[0]], yy = h.top + 0.8, p0 = [h.x + d[0] * r * 1.04, h.z + d[1] * r * 1.04], p1 = [h.x + d[0] * r * 1.5, h.z + d[1] * r * 1.5], wd = r * 0.22;
-        const ar = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: 0xffd400, side: THREE.DoubleSide, depthWrite: false }));
-        ar.geometry.setAttribute("position", new THREE.Float32BufferAttribute([p1[0], yy, p1[1], p0[0] + m[0] * wd, yy, p0[1] + m[1] * wd, p0[0] - m[0] * wd, yy, p0[1] - m[1] * wd], 3)); ar.renderOrder = 6; group.add(ar); }
+      if (!frontTex) { const c = document.createElement("canvas"); c.width = 64; c.height = 64; const x = c.getContext("2d"); x.fillStyle = "#f6f8fa"; x.fillRect(0, 0, 64, 64); x.fillStyle = "#0c0f13";
+        for (const y0 of [0, 32]) { x.beginPath(); x.moveTo(0, y0); x.lineTo(32, y0 + 18); x.lineTo(64, y0); x.lineTo(64, y0 + 11); x.lineTo(32, y0 + 29); x.lineTo(0, y0 + 11); x.closePath(); x.fill(); }   // V's pointing down the picture
+        frontTex = new THREE.CanvasTexture(c); frontTex.wrapS = frontTex.wrapT = THREE.RepeatWrapping; if (V.renderer && V.renderer.capabilities) frontTex.anisotropy = Math.min(8, V.renderer.capabilities.getMaxAnisotropy()); spriteTex._front = frontTex; }
+      const an = (FACE[u.facing] || 0) * D2R, d = [Math.sin(an), -Math.cos(an)], m = [-d[1], d[0]], a = r * Math.cos(Math.PI / 6) + 0.5, wd = r * 0.48, per = bh / 2;   // per: the world height of one 64 px picture (two V's)
+      const quad = (pts, uvs, ro) => { const mesh = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: frontTex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+        mesh.geometry.setAttribute("position", new THREE.Float32BufferAttribute(pts.flat(), 3)); mesh.geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs.flat(), 2)); mesh.geometry.setIndex([0, 1, 2, 0, 2, 3]); mesh.renderOrder = ro; group.add(mesh); };
+      const c0 = [h.x + d[0] * a, h.z + d[1] * a], yb = h.top + 0.2, yt = h.top + bh;
+      const L = r * 0.55, c1 = [h.x + d[0] * (a + L), h.z + d[1] * (a + L)], vb = 0, vt = (yt - yb) / per, vg = -L / per;
+      // the wall: bottom to top, v from 0 up; the ground strip: from the foot outward, v from 0 on down, so the band runs on unbroken
+      quad([[c0[0] - m[0] * wd, yb, c0[1] - m[1] * wd], [c0[0] + m[0] * wd, yb, c0[1] + m[1] * wd], [c0[0] + m[0] * wd, yt, c0[1] + m[1] * wd], [c0[0] - m[0] * wd, yt, c0[1] - m[1] * wd]], [[0, vb], [1, vb], [1, vt], [0, vt]], 4);
+      quad([[c0[0] - m[0] * wd, yb + 0.35, c0[1] - m[1] * wd], [c0[0] + m[0] * wd, yb + 0.35, c0[1] + m[1] * wd], [c1[0] + m[0] * wd, yb + 0.35, c1[1] + m[1] * wd], [c1[0] - m[0] * wd, yb + 0.35, c1[1] - m[1] * wd]], [[0, vb], [1, vb], [1, vg], [0, vg]], 5);
       const n = [-d[1], d[0]], y = h.top + bh + 0.7, tip = [h.x + d[0] * r * 0.98, h.z + d[1] * r * 0.98], b0 = [h.x + d[0] * r * 0.62, h.z + d[1] * r * 0.62], w = r * 0.2;
       const tri = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
       tri.geometry.setAttribute("position", new THREE.Float32BufferAttribute([tip[0], y, tip[1], b0[0] + n[0] * w, y, b0[1] + n[1] * w, b0[0] - n[0] * w, y, b0[1] - n[1] * w], 3)); tri.renderOrder = 6; group.add(tri);
@@ -343,6 +346,7 @@
       unitHeight() { return V.baseH; },
       // how far a hex's tile top stands above the table floor (world units): the length of its drop-line
       dropDepth(label) { const h = V.M && V.M.hexes.get(label); return h ? Math.max(0, h.top - V.bot) : 0; },
+      top(label) { const h = V.M && V.M.hexes.get(label); return h ? h.top : 0; },   // the tile top's height (world units): lines meant to run level are drawn at one height, not one per tile
       raised(label) { const h = V.M && V.M.hexes.get(label); return !!h && h.top > R * 0.3; },
       render() { V.render(); }, resize() { V.size(); V.request(); }, info() { return V.lastInfo; },
       camera: V.cam, three: V,

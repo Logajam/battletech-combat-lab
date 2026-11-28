@@ -242,6 +242,13 @@ pub fn finish_back(b: &Battle, mover: UnitId, waypoints: &[(i64, i64)], backs: &
     })
 }
 
+/// The steps of the route a pick carries, as a path (None: it carries none): what the confirmation card works its piloting rolls out from.
+pub fn route_path(b: &Battle, mover: UnitId, pick: &Pick) -> Option<Path> {
+    let steps = pick.route.as_ref()?;
+    let uw = UnitWalk::of(b, mover)?;
+    path_of_steps(b, &uw, steps)
+}
+
 /// The PSRs and hazard of the route a pick carries (None: it carries none), what `orchestrator::walk_path` is to roll: the route's own, not
 /// the search's cheapest to the same end.
 pub fn route_gate(b: &Battle, mover: UnitId, pick: &Pick) -> Option<(i64, f64)> {

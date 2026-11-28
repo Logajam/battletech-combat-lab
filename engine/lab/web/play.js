@@ -263,11 +263,12 @@ function attacksOfLatestTurn() {
     if (cur && /^\s{2}\[(Movement|Ranged|Physical|Heat|TAG|Spot)\]|-- end of turn/.test(l) && !/\[Resolve\]| fires in order| twists its torso/.test(l)) { cur = null; continue; }   // "fires in order" belongs to the attacker above it: its shot lines follow
     if (cur) { cur.lines.push(l); if (cur.kind === "weapons" && /^\s{4}.+?: needs \d+/.test(l)) { cur.shots++; if (/-> HIT/.test(l)) cur.hits++; } }
   }
-  // the lines belong to the turn that made them (Daniel, 2026-11-27: "should disappear at the end of the turn"). A human never gets a question
-  // between the fire's result and the next turn, so they stay on the map through the NEXT turn's Movement Phase (what shot at you, while you
-  // decide where to go) and go when that turn's fire phase begins
+  // the lines belong to the turn that made them and go when the next turn's Movement Phase starts (Daniel, 2026-11-28: "Attack lines disappear
+  // at the start of the next movement phase"; the 11-27 reading, "when its fire phase begins", was wrong). The turn header is the start of
+  // that Movement Phase, so a header newer than the latest attack clears them.
   const last = Math.max(0, ...all.map((x) => x.turn));
-  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line   // an attacker that fired nothing draws no line
+  if (turn > last) return [];
+  return all.filter((x) => x.turn === last && x.shots > 0);   // an attacker that fired nothing draws no line
 }
 function drawAttackLines(layer) {
   if (!O.atk) return;
@@ -275,6 +276,7 @@ function drawAttackLines(layer) {
   const byName = (n) => S.units.find((u) => u.name === n), uh = MV.unitHeight();
   S.atkList.forEach((a, i) => {
     const A = byName(a.a), T = byName(a.t); if (!A || !T || !A.hex || !T.hex) return;
+    if (at(A.hex, uh)[0] < -9000 || at(T.hex, uh)[0] < -9000) return;   // an end behind the camera has no place on the screen
     const s = (sc(A.hex) + sc(T.hex)) / 2, [x1, y1] = at(A.hex, uh), [x2, y2] = at(T.hex, uh), len = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / len * 4 * s, ny = (x2 - x1) / len * 4 * s;
     const sel = new Set([(activeUnit() || {}).id, UI.last && UI.last.kind === "unit" ? UI.last.id : -1]), hi = sel.has(A.id) || sel.has(T.id);
     const col = teamColour(A), g = el("g", { "data-atk": i, style: "cursor:pointer", opacity: hi ? "1" : ".35" }, layer);
@@ -340,7 +342,7 @@ function drawUnits(layer) {
     const cardH = small ? 17 * k : H;
     el("rect", { x: px, y: py, width: W, height: cardH, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: col, "stroke-width": 1.6 * k }, gp);
     const t = el("text", { x: px + 5 * k, y: py + 13 * k, "font-size": 11 * k, "font-weight": 700, fill: "#fff", "pointer-events": "none" }, gp); t.textContent = short(u) + (u.name ? " " + u.name.replace(/^\D*/, "") : "");
-    if (S.fire && S.req && S.req.kind === "target" && S.req.enemies.some((e) => e.id === u.id)) drawTnPill(layer, u, px + W + 3 * k, py, k);
+    if (S.fire && S.req && S.req.kind === "target" && S.req.enemies.some((e) => e.id === u.id)) drawTnPill(layer, u, px + W + 2 * k, py, k, cardH);
     // a unit that has moved shows its TMM where an enemy's to-hit number goes, until the fire phase begins (Daniel, 2026-11-27)
     if (movedMark(u) && u.tmm != null) { const bw = 36 * k, bh = 15 * k, tg = el("g", { "pointer-events": "none" }, layer);
       el("rect", { x: px + W + 3 * k, y: py, width: bw, height: bh, rx: 3 * k, fill: "#0c0f13", "fill-opacity": ".88", stroke: "#8fb2d4", "stroke-width": 1.2 * k }, tg);
@@ -527,7 +529,10 @@ function layoutPanels() {
   const I = UI.ins, cw = W - I.l - I.r;
   const m = $("menu"), mb = document.querySelector('#pnE [data-act="menu"]'); if (m && mb) { const r = mb.getBoundingClientRect(); m.style.left = Math.max(6, r.left) + "px"; m.style.top = (r.bottom + 4) + "px"; }
   const t = $("toast"); t.style.left = (I.l + cw / 2) + "px"; t.style.top = (I.t + 8) + "px";
-  const a = $("ask"); a.style.left = (I.l + 6) + "px"; a.style.top = (I.t + 44) + "px"; a.style.maxWidth = Math.min(440, cw - 12) + "px";
+  const a = $("ask"); a.style.left = (I.l + 6) + "px"; a.style.top = (I.t + 44) + "px"; a.style.bottom = "auto"; a.style.maxWidth = Math.min(440, cw - 12) + "px";
+  // the move confirmation sits just above the Commit button (Daniel, 2026-11-28: "The warning should also be just above the commit button")
+  const cb = a.querySelector(".cfm") && document.querySelector('#app [data-act="commit"]');
+  if (cb) { const ar = app.getBoundingClientRect(), r = cb.getBoundingClientRect(); a.style.top = "auto"; a.style.bottom = Math.max(6, ar.bottom - r.top + 6) + "px"; a.style.left = Math.max(6, Math.min(r.right - ar.left - Math.min(440, cw - 12), I.l + cw - Math.min(440, cw - 12) - 6)) + "px"; }
   const c = $("card"); c.style.left = (I.l + 8) + "px"; c.style.top = (I.t + 44) + "px";
   const z = $("topline"); z.style.left = (I.l + 6) + "px"; z.style.right = (I.r + 6) + "px"; z.style.top = (I.t + 6) + "px";
   document.querySelector(".edge.L").style.left = I.l + "px"; document.querySelector(".edge.R").style.right = I.r + "px";
@@ -941,7 +946,7 @@ function take(r) {
   const mine = unit(r.unit ?? (r.candidates || [])[0]);
   if (mine && r.kind !== "spot" && (!S.myTeam || (typeof TT !== "undefined" && TT.followTeam()))) S.myTeam = mine.team;   // after a meddle or a change of control the question may be another team's
   if (r.unit != null) S.sel = r.unit;
-  S.dest = null; S.facing = null; S.facingHand = false; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.prone = null; S.drop = false;
+  S.dest = null; S.facing = null; S.facingHand = false; S.mode = null; S.decl = null; S.pv = null; S.fire = null; S.path = null; S.rolls = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.mv = null; S.order = false; S.views = {}; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.prone = null; S.drop = false;
   S.standOn = false; S.aim = null; S.phys = null; UI.aimOpen = false; UI.cyc = null; UI.pickHex = null; UI.aord = []; UI.twist = null; UI.atkSel = null; ask("");
   // a new phase: its done marks and its committed attacks start again
   const pk = phaseKey(); if (pk !== UI.phase) { UI.phase = pk; UI.done.clear(); UI.mine = []; UI.wing = { L: 0, R: 0 }; }
@@ -982,7 +987,7 @@ async function standPlan() {
   const v = await query({ q: "reach", unit: r.unit });
   if (seq !== S.seq || !S.req || S.req.kind !== "stand_up") return;
   if (v.error || !v.view) { toast(v.error || "No move after standing can be shown: Commit stands up or stays prone."); redraw(); return; }
-  S.mv = v.view; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null;
+  S.mv = v.view; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; S.rolls = null;
   redraw();
 }
 HANDLERS.boost = (r) => {
@@ -1050,7 +1055,7 @@ HANDLERS.move_order = (r) => {
   selectMover(S.sel);
 };
 async function selectMover(id) {
-  S.sel = id; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = [];
+  S.sel = id; S.dest = null; S.path = null; S.rolls = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = [];
   const seq = S.seq;
   let v = S.views[id];
   if (!v || v.seq !== seq) {
@@ -1076,7 +1081,7 @@ const enrich = (o) => { const e = ((S.reachIdx || {})[o.hex] || []).find((x) => 
 const usesWay = () => S.way.length > 0 || S.backOn;
 async function refreshBack() {
   if (S.way.length) { await setWay(S.way); return; }
-  S.dest = null; S.path = null;
+  S.dest = null; S.path = null; S.rolls = null;
   if (S.backOn) {
     const seq = S.seq, r = await query({ q: "way", unit: S.mv.unit, waypoints: [], backs: [], back_reach: true });
     if (seq !== S.seq || !S.req) return;
@@ -1129,10 +1134,10 @@ async function loadPath() {
   const seq = S.seq; let q;
   if (S.attackSel) q = { q: "path", unit: S.mv.unit, attack: S.attackSel };
   else if (S.dest) q = { q: "path", unit: S.mv.unit, hex: S.dest, facing: S.facing, mode: S.mode };
-  else { S.path = null; return; }
+  else { S.path = null; S.rolls = null; return; }
   const r = await query(q);
   if (seq !== S.seq || !S.req) return;
-  S.path = r.path || null; redraw();
+  S.path = r.path || null; S.rolls = r.rolls || []; redraw();
 }
 function drawPath(layer) {
   if (!S.path || !S.path.length) return;
@@ -1196,9 +1201,9 @@ function drawAttackStops(layer) {
 }
 // Leaving the 'Mech where it stands needs no button of its own: Commit with no destination chosen is the stay (Daniel, 2026-11-22).
 // Hazard confirmation (Daniel, 2026-11-22): a move that calls for piloting rolls or crosses dangerous terrain lists each risk and asks first
-function hazardList(o) {
+function hazardList(o, noPsr) {
   const out = [];
-  if (o.psrs) out.push(`${o.psrs} piloting skill roll${o.psrs > 1 ? "s" : ""} on this path`);
+  if (o.psrs && !noPsr) out.push(`${o.psrs} piloting skill roll${o.psrs > 1 ? "s" : ""} on this path`);
   if (o.hazard) out.push(`about ${(+o.hazard).toFixed(1)} damage from terrain`);
   const seen = new Set();
   for (const p of (S.path || [])) { const h = p.hex; if (!h || seen.has(h)) continue; seen.add(h); const f = ((S.board.hexes[h] || {}).f) || {}; for (const k of Object.keys(f)) if (/lava|rubble|ice|mine|swamp|water|fire|magma|sand/i.test(k)) out.push(`${h}: ${k}${f[k] && f[k] !== true && f[k] !== 0 ? " " + f[k] : ""}`); }
@@ -1211,9 +1216,9 @@ function undo() {
   if (k === "fire") { const id = UI.aord.pop(); const D = S.decl; if (id == null) { clearAll(); return; } if (D) D.sel.delete(id); if (S.fire) S.fire.assign.delete(id); afterAssign(); return; }
   if (k === "phys") { if (S.phys && S.phys.on.size) { const last = [...S.phys.on].pop(); S.phys.on.delete(last); } redraw(); return; }
   if (S.req.kind === "deploy" && S.dp) { S.dp.hex = null; HANDLERS.deploy(S.req); redraw(); return; }
-  if (S.attackSel) { S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.path = null; redraw(); return; }
+  if (S.attackSel) { S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.path = null; S.rolls = null; redraw(); return; }
   if (moving() && S.way.length > 1) { setWay(S.way.slice(0, -1)); return; }
-  if (moving() && (S.way.length || S.dest)) { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; redraw(); return; }
+  if (moving() && (S.way.length || S.dest)) { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; S.rolls = null; redraw(); return; }
   if (S.drop) { S.drop = false; redraw(); return; }
   if (standing() && S.standOn) { S.standOn = false; redraw(); return; }
   if (standing() && S.prone && S.prone.facing) { S.prone.facing = null; redraw(); return; }
@@ -1375,7 +1380,11 @@ function drawArcLines(layer) {
   const f = torsoIdx(u), uh = MV.unitHeight(), [x0, y0] = at(u.hex, uh);
   for (const [off, col] of [[1, "#fff"], [-1, "#fff"], [2, "#ffb000"], [-2, "#ffb000"]]) {
     const dir = NB_OF[COMPASS[(f + off + 12) % 6]], poly = [[x0, y0]]; let cur = u.hex;
-    for (let n = 0; n < 40; n++) { const nx = neighbours(cur)[dir]; if (!S.board.hexes[nx]) break; poly.push(at(nx, uh)); cur = nx; }
+    // ONE height all along the line (Daniel, 2026-11-28: "I just watched a firing arc line bounce off the ground"): each tile's own top made
+    // the line rise and fall with the terrain, and at a low camera it dipped through it. It runs level at the unit's base height, and stops at
+    // the first point the camera cannot place (behind it) instead of swinging across the screen.
+    const lvl = MV.top(u.hex) + uh;
+    for (let n = 0; n < 40; n++) { const nx = neighbours(cur)[dir]; if (!S.board.hexes[nx]) break; const q = at(nx, lvl - MV.top(nx)); if (q[0] < -9000) break; poly.push(q); cur = nx; }
     if (poly.length < 2) continue;
     const sw = sc(u.hex);
     el("polyline", { points: poly.map((q) => q.join(",")).join(" "), fill: "none", stroke: "#000", "stroke-opacity": ".5", "stroke-width": 5 * sw, "pointer-events": "none" }, layer);
@@ -1401,18 +1410,21 @@ function drawTwistArrows(layer) {
 // THE TO-HIT BOX AND THE RANGE BOX (Daniel, 2026-11-27): the white to-hit number of an enemy sits on the RIGHT side of its placard, with the
 // current range from the active unit in a box beside it. The to-hit box goes dim and dashed when the weapon in focus (or, with none in focus, every
 // weapon) cannot reach that enemy, so a long shot no longer looks like a live one. Tap it for the line items, as before.
-function drawTnPill(layer, u, x, y, k) {
+function drawTnPill(layer, u, x, y, k, cardH) {
   const F = S.fire, D = S.decl, w = D && D.rows.find((q) => q.id === D.focus), e = F.pvt.get(u.id), req = e && e.req, cur = u.id === F.tcur, me = activeUnit();
   let tn = null, live = false;
   if (req) { const wr = w ? req.weapons.find((q) => q.id === w.id) : null; tn = wr ? wr.tn : req.base_tn; live = wr ? !!(wr.in_range && wr.tn != null) : req.weapons.some((q) => q.in_range && q.tn != null); }
-  const g = el("g", { style: "cursor:pointer", "data-tn-pill": u.id, opacity: live ? "1" : ".5" }, layer), bw = 28 * k, bh = 15 * k;
-  el("rect", { x, y, width: bw, height: bh, rx: 3 * k, fill: "#000", stroke: cur ? "#fff" : "#e07468", "stroke-width": 1.2 * k, "stroke-dasharray": live ? "" : `${3 * k} ${2 * k}` }, g);
-  const tx = el("text", { x: x + bw / 2, y: y + 11 * k, "text-anchor": "middle", "font-size": 10 * k, "font-weight": 700, fill: tn == null ? "#999" : "#fff", "pointer-events": "none" }, g); tx.textContent = tn == null ? "-" : tn + "+";
+  // two light boxes stacked on the placard's right edge, to-hit on top and range below (Daniel, 2026-11-28: "Anchor them to the right side of the
+  // placard in a top/bottom configuration. They should be as bright as the units name, or use a light background to make them pop")
+  const bw = 30 * k, gap = 2 * k, bh = Math.max(11 * k, (cardH - gap) / 2), dim = live ? "1" : ".6";
+  const g = el("g", { style: "cursor:pointer", "data-tn-pill": u.id, opacity: dim }, layer);
+  el("rect", { x, y, width: bw, height: bh, rx: 3 * k, fill: "#f4f7fa", stroke: cur ? "#ffb000" : "#0c0f13", "stroke-width": (cur ? 2 : 1.2) * k, "stroke-dasharray": live ? "" : `${3 * k} ${2 * k}` }, g);
+  const tx = el("text", { x: x + bw / 2, y: y + bh / 2 + 4 * k, "text-anchor": "middle", "font-size": 12 * k, "font-weight": 800, fill: tn == null ? "#667" : "#0c0f13", "pointer-events": "none" }, g); tx.textContent = tn == null ? "-" : tn + "+";
   g.addEventListener("click", (ev) => { ev.stopPropagation(); if (u.id !== F.tcur) setTcur(u.id); else openInsp("To-hit", null, null, "a to-hit number"); });
   if (me && me.hex && u.hex) {
-    const d = dist(me.hex, u.hex), rx = x + bw + 3 * k, rb = el("g", { opacity: live ? "1" : ".5", "pointer-events": "none" }, layer);
-    el("rect", { x: rx, y, width: 24 * k, height: bh, rx: 3 * k, fill: "#26303a", stroke: "#8795a5", "stroke-width": 1 * k }, rb);
-    const rt = el("text", { x: rx + 12 * k, y: y + 11 * k, "text-anchor": "middle", "font-size": 9.5 * k, "font-weight": 700, fill: "#dfe6ee" }, rb); rt.textContent = d + "h";
+    const d = dist(me.hex, u.hex), ry = y + bh + gap, rb = el("g", { opacity: dim, "pointer-events": "none" }, layer);
+    el("rect", { x, y: ry, width: bw, height: bh, rx: 3 * k, fill: "#cfe4f7", stroke: "#0c0f13", "stroke-width": 1.2 * k }, rb);
+    const rt = el("text", { x: x + bw / 2, y: ry + bh / 2 + 3.6 * k, "text-anchor": "middle", "font-size": 10.5 * k, "font-weight": 800, fill: "#0c0f13" }, rb); rt.textContent = d + "h";
     const tt = el("title", {}, rb); tt.textContent = `${d} hex${d === 1 ? "" : "es"} from ${me.name}`;
   }
 }
@@ -1768,7 +1780,7 @@ function ctxAct(d) {
   if (d.do === "aimloc") { S.aim = S.aim && S.aim.loc === d.loc ? null : { loc: d.loc }; setWeapons({}); return; }
   if (d.do === "charge" || d.do === "dfa") {
     const id = +d.u, kind = d.do, list = S.mv.attacks.filter((a) => a.target === id && a.kind === kind);
-    if (S.attackSel && S.attackSel.kind === kind && S.attackSel.target === id) { S.attackSel = null; S.attackTarget = null; S.path = null; redraw(); return; }
+    if (S.attackSel && S.attackSel.kind === kind && S.attackSel.target === id) { S.attackSel = null; S.attackTarget = null; S.path = null; S.rolls = null; redraw(); return; }
     S.attackTarget = id; S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null;
     const best = list.reduce((x, y) => (y.mp < x.mp ? y : x), list[0]); chooseAttack(best);
     toast(`${kind === "charge" ? "Charge" : "Death from above"} on ${unit(id).name}: to hit ${best.tn}+, ${best.damage} damage, you take ${best.self_damage}. The black hexes are the other places to stop. Hold Commit.`);
@@ -1788,7 +1800,7 @@ function optAct(d) {
   if (k === "moveto") { UI.insp.open = 0; pickDest(d.l); return; }
 }
 function warnText() { const k = phaseKey(); if (k === "fire") return `the plan ends the turn at heat ${fireHeatParts().end}, above the limit ${heatLimit(activeUnit())}`; if (S.attackSel) return "a charge or death from above cannot be taken back"; const o = S.dest ? optNow() : null; return [standing() && S.standOn ? `standing needs ${S.req.tn}+` : "", ...(o ? hazardList(o) : [])].filter(Boolean).join("; "); }
-function commitNow() {
+async function commitNow() {
   const r = S.req; if (!r) return; const k = phaseKey();
   if (r.kind === "deploy") { if (S.dp && S.dp.hex) send({ hex: S.dp.hex, facing: S.dp.facing }); return; }
   if (k === "end") { send({}); return; }
@@ -1800,23 +1812,28 @@ function commitNow() {
   if (S.attackSel) { commitMove({ attack: S.attackSel }); return; }
   if (!S.dest) { commitMove({ stay: true }); return; }
   const ans = { hex: S.dest, facing: S.facing, mode: S.mode, ...(S.way.length ? { waypoints: S.way.slice(), backs: S.backs.slice(), back_reach: S.backOn } : {}) };
-  const luck = luckLines();
+  let rolls = S.rolls || [];
+  if (S.way.length && !S.cfmGo) { const seq = S.seq, w = await query({ q: "way", unit: S.mv.unit, waypoints: S.way, backs: S.backs, back_reach: S.backOn, rolls: true, facing: S.facing, mode: S.mode }); if (seq !== S.seq || !S.req) return; rolls = w.rolls || []; }
+  const luck = luckLines(rolls);
   if (luck.length && !S.cfmGo) { confirmMove(ans, luck); return; }
   S.cfmGo = false; commitMove(ans);
 }
 // THE CONFIRMATION before a plan that leans on luck (Daniel, 2026-11-27): the standing roll of a prone 'Mech and every hazard on the route, with the
 // numbers; Go runs the plan, and a failed roll asks again from where the 'Mech ends up (the engine's own re-ask), Back keeps planning
-function luckLines() {
+function luckLines(rolls) {
   const out = [], o = S.dest ? optNow() : null, standTn = standing() ? (S.standOn ? S.req.tn : null) : S.pstand && S.order ? S.pstand.tn : null;
   if (standTn != null) out.push(`Standing up first: a Piloting roll of <b>${standTn}+</b> (2D6). If it fails the 'Mech falls and you plan again from there.`);
-  if (o) for (const h of hazardList(o)) out.push(esc(h));
+  // every piloting roll on the route with its number (the engine's own: skill, damage, gyro and the terrain's modifier)
+  for (const r of rolls || []) out.push(`Piloting roll <b>${r.tn}+</b> (2D6): ${esc(r.cause)} at ${esc(r.hex)}. A failed roll is a fall.`);
+  if (o) for (const h of hazardList(o, !!(rolls && rolls.length))) out.push(esc(h));
   return out;
 }
 function confirmMove(ans, luck) {
   S.cfm = ans;
   ask(`<div class="cfm"><h3>Run this move?</h3><ul>${luck.map((l) => `<li>${l}</li>`).join("")}</ul><div class="row"><button data-act="cfm" data-v="1">Go</button><button data-act="cfm" data-v="0">Back to planning</button></div></div>`);
+  layoutPanels();
 }
-function clearPlan() { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; }
+function clearPlan() { S.way = []; S.wrIdx = null; S.backOn = false; S.backs = []; S.dest = null; S.path = null; S.rolls = null; S.attackSel = null; S.attackTarget = null; S.attackConfirm = false; S.reachIdx = null; }
 function clearAll() {
   const k = phaseKey();
   if (k === "fire") { if (S.fire) { S.fire.assign.clear(); S.fire.order = []; S.fire.lastPrimary = null; } if (S.decl) S.decl.sel.clear(); UI.aord = []; afterAssign(); return; }

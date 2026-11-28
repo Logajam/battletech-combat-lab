@@ -777,7 +777,7 @@ def main():
         report((dkx.get("resumed") or {}).get("kind") == (dkx.get("orig") or {}).get("kind") and dkx["resumed"].get("n") == dkx["orig"].get("n") and (dkx.get("rec") or {}).get("strip") and dkx["rec"].get("steps", 0) > 20, f"the desktop Lab: the play page saves, closing and opening it resumes the game, REC reads the record from the server ({dkx.get('orig')}, {dkx.get('resumed')}, {dkx.get('rec')})")
         report((dkx.get("cand") or {}).get("cand") and dkx["cand"].get("team") == "Blue" and dkx["cand"].get("label") == "Meddle" and (dkx.get("kept") or {}).get("parent") and dkx["kept"].get("branch") == 1 and not dkx["kept"].get("cand"), f"the desktop Lab: Meddle here opens a candidate (the bot team's question, Meddle label) and holding the answer keeps it ({dkx.get('cand')}, {dkx.get('kept')})")
         aw = out["page"].get("aware") or {}
-        report(aw.get("title") and aw.get("moved") and (aw.get("atk") or not aw.get("fired")) and aw.get("jump"), f"the turn line counts the units still to move, moved units carry a check, attack lines are drawn and a jumper's MP display offers Jump ({aw})")
+        report(aw.get("title") and aw.get("moved") and not aw.get("atk") and aw.get("jump"), f"the turn line counts the units still to move, moved units carry a check, attack lines are gone in the Movement Phase (Daniel, 2026-11-28) and a jumper's MP display offers Jump ({aw})")
         ph = out["page"].get("phys")
         if ph is not None:
             report(ph.get("boxes", 0) > 0, f"the Physical Attack Phase shows its attacks as boxes in the limbs' places ({ph})")

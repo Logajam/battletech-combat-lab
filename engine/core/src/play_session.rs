@@ -752,6 +752,39 @@ fn move_view(b: &mut Battle, mover: UnitId, standup_mp: Option<i64>, entry_edge:
 /// end in from its last hex with the points left, each with the numbers of the route it would walk. Ground moves only. Returns
 /// {"reach": [{hex, facing, mode, mp, hexes, tmm, heat, psrs, hazard}], "legs": [{hex, mp}...]}: the legs are the route drawn, and the
 /// unit walks exactly it (`drawn_route::finish`, `orchestrator::walk_path`).
+/// The piloting rolls a route will ask, each with the number it needs (Daniel, 2026-11-28: the confirmation card "should show the TN's"): what
+/// `orchestrator::walk_path` rolls, worked out without rolling. The unit's own modifiers plus the cause's (mud -1, magma +1 / +4).
+fn route_rolls<S: AsRef<str>>(b: &Battle, mover: UnitId, steps: &[(S, (i64, i64, i64), i64)], running: bool) -> Vec<Value> {
+    let m = &b.units[mover];
+    let base = m.piloting + crate::piloting_rolls::preexisting_modifier(m) + crate::piloting_rolls::special_case_modifier(m);
+    let mut here = m.hex.clone();
+    let mut rolls: Vec<Value> = Vec::new();
+    for (kind, (x, y, _), _) in steps {
+        let kind = kind.as_ref();
+        let label = crate::hex_geometry::hex_label(*x, *y).unwrap_or_default();
+        let (causes, at): (Vec<&'static str>, String) = if kind == "turn" {
+            let h = here.clone().unwrap_or_default();
+            (if running && b.board.hexes.get(&h).map_or(false, |x| x.features.has("mud")) { vec!["mud"] } else { vec![] }, h)
+        } else {
+            let from_info = if kind == "enter" { None } else { here.as_deref().and_then(|h| b.board.hexes.get(h)).cloned() };
+            let back = kind == "backward" || kind.ends_with("_back");
+            let Some(to) = b.board.hexes.get(&label) else { continue };
+            let c = crate::terrain_rules::step_psr_causes(from_info.as_ref(), to, back, running);
+            let fall_at = match (&from_info, back) {
+                (Some(f), true) if f.level < to.level => here.clone().unwrap_or_default(),
+                _ => label.clone(),
+            };
+            here = Some(label.clone());
+            (c, fall_at)
+        };
+        for cause in causes {
+            let tn = base + crate::terrain_rules::psr_modifier(cause) + crate::hazards::psr_modifier(b, Some(&at));
+            rolls.push(json!({"hex": label, "cause": cause, "tn": tn}));
+        }
+    }
+    rolls
+}
+
 fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
     let hexes: Vec<(i64, i64)> = match q["waypoints"].as_array().map(|a| a.iter().map(|h| h.as_str().and_then(hex_geometry_parse)).collect::<Option<Vec<_>>>()) {
         Some(Some(h)) => h,
@@ -763,6 +796,16 @@ fn way_query(b: &Battle, mover: UnitId, q: &Value) -> Value {
         return json!({"error": "which waypoints?"});
     }
     let Some(uw) = crate::drawn_route::UnitWalk::of(b, mover) else { return json!({"error": "waypoints need a unit on the map"}) };
+    // `rolls`: the piloting rolls of the finished route (waypoints ending at the destination, `facing`, `mode`), for the confirmation card
+    if q["rolls"].as_bool() == Some(true) {
+        let Ok(facing) = crate::hex_geometry::compass_to_facing(q["facing"].as_str().unwrap_or("")) else { return json!({"error": "which way does it face?"}) };
+        let d = match crate::drawn_route::finish_back(b, mover, &hexes, &backs, back_reach, facing, q["mode"].as_str().unwrap_or("")) {
+            Ok(d) => d,
+            Err(e) => return json!({"error": e}),
+        };
+        let Some(path) = crate::drawn_route::route_path(b, mover, &d.pick) else { return json!({"error": "no route"}) };
+        return json!({"rolls": route_rolls(b, mover, &path, d.pick.mode == "Run")});
+    }
     let chain = match crate::drawn_route::chain_back(b, &uw, &hexes, &backs) {
         Ok(c) => c,
         Err(e) => return json!({"error": e}),
@@ -807,7 +850,8 @@ impl MoveView {
             .iter()
             .map(|(kind, (x, y, f), mp)| json!({"k": kind, "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "facing": crate::hex_geometry::facing_to_compass(*f).unwrap_or(""), "mp": mp}))
             .collect();
-        Some(json!({"path": list}))
+        let rolls = route_rolls(b, mover, &steps, pick.mode == "Run");
+        Some(json!({"path": list, "rolls": rolls}))
     }
 }
 

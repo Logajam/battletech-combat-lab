@@ -1,6 +1,6 @@
 # scenario cov_inferno_mml_atm
 # seed 1: winner Red, 25 turns
-#   Red: 100.0 of 174.0 armor + structure left, team destroyed False, units 1, 14 hits of 36 attacks, 86.0 damage dealt
+#   Red: 100.0 of 174.0 armor + structure left, team destroyed False, units 1, 14 hits of 36 attacks, 84.0 damage dealt
 #   Blue: 42.0 of 201.0 armor + structure left, team destroyed True, units 1, 9 hits of 49 attacks, 58.0 damage dealt
 # log
 
@@ -883,14 +883,14 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     1/1 Criticals: Clan Ammo ATM-3 HE slot hit.
       Current crit slots in Right Torso: ['Jump Jet', 'Jump Jet', 'Jump Jet', 'CLATM3', 'CLATM3', 'Clan Ammo ATM-3 ER', 'DESTROYED', 'Endo Steel', 'Endo Steel', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-']
     Clan Ammo ATM-3 HE destroyed at Right Torso - EXPLOSION (72 dmg)! Pilot takes 1 hit (4/6).
-    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
     8 structure damage taken (0/10 remaining).
   Check for possible critical. Roll a 8.
     1 critical hit(s).
     1/1 Criticals: Clan Ammo ATM-3 ER slot hit.
       Current crit slots in Right Torso: ['Jump Jet', 'Jump Jet', 'Jump Jet', 'CLATM3', 'CLATM3', 'DESTROYED', 'DESTROYED', 'Endo Steel', 'Endo Steel', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-']
     Clan Ammo ATM-3 ER destroyed at Right Torso - EXPLOSION (30 dmg)! Pilot takes 1 hit (5/6).
-    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
     0 structure damage taken (0/10 remaining).
     Right Torso DESTROYED! (explosion)
     Jump jet destroyed (Jump Jet) from Right Torso destruction - jump MP reduced (now 5).
@@ -899,11 +899,22 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   All critical slots in Right Torso marked DESTROYED.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
-    20 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - 20 damage to structure.
-    2 structure damage taken (0/12 remaining).
+    CASE contains the explosion. No further transfer.
+    Right Torso DESTROYED! (explosion)
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+    CASE contains the explosion. No further transfer.
+Attack Phase consciousness check (pilot, 5 pilot hits): needs 11. Rolled 5.
+  Pilot knocked unconscious.
+  [Physical] Red -> Blue: kick (Left Leg) needs -2 (piloting 5 + base -6 + attack -1), rolled 9 -> HIT (7 dmg, rear side)
+    kick (Left Leg) hits Blue's Right Arm for 7.
+7 damage (PHYSICAL) incoming to Right Arm (rear_armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/12 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
-    Center Torso DESTROYED! (explosion)
+  Center Torso DESTROYED!
     Engine hit (3/3) from Center Torso destruction.
     Engine hit (4/3) from Center Torso destruction.
     Gyro hit (2/2) from Center Torso destruction.
@@ -912,12 +923,9 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     Engine hit (5/3) from Center Torso destruction.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
-    Right Torso DESTROYED! (explosion)
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
+  5 damage remains, transfers to nowhere (attack finished).
   [Heat] Red: 0 + movement 0 + weapons 5 + engine 10 - sinks 20 -> 0
   -- end of turn 25: Red @ 0215 NW: HP 100, pilot hits 0, engine 2, gyro 0, heat 0
-  -- end of turn 25: Blue @ 0214 N: HP 42, pilot hits 5, engine 6, gyro 4, heat 0 [PRONE, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 25: Blue @ 0214 N: HP 42, pilot hits 5, engine 6, gyro 4, heat 0 [PRONE, UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
 
 >>> Battle over on turn 25: Blue destroyed. <<<
